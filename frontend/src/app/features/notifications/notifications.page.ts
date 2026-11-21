@@ -4,31 +4,24 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { EmptyState } from '../../shared/components/ui/empty-state/empty-state';
 import { LoadingState } from '../../shared/components/ui/loading-state/loading-state';
 import {
-  IonBadge,
   IonButton,
   IonCard,
   IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonChip,
   IonContent,
   IonIcon,
   IonItem,
-  IonLabel,
   IonList,
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
 import {
   alertCircleOutline,
-  carOutline,
   chevronBackOutline,
   chevronForwardOutline,
-  closeCircleOutline,
   mailOpenOutline,
   mailUnreadOutline,
   notificationsOutline,
-  personOutline,
 } from 'ionicons/icons';
 import { ApiError, rethrowUnlessApiError } from '../../core/models/api-error.model';
 import { Trip } from '../../core/models/driver.model';
@@ -59,22 +52,6 @@ export interface NotificationItem {
   trip: Trip | null;
 }
 
-export type NotificationFilter = 'all' | 'unread' | 'read' | NotificationCategory;
-
-export interface FilterOption {
-  key: NotificationFilter;
-  icon: string;
-  labelKey: string;
-}
-
-export const NOTIFICATION_FILTERS: readonly FilterOption[] = [
-  { key: 'unread', icon: mailUnreadOutline, labelKey: 'notifications.unread' },
-  { key: 'travel', icon: carOutline, labelKey: 'notifications.categories.travel' },
-  { key: 'account', icon: personOutline, labelKey: 'notifications.categories.account' },
-  { key: 'incident', icon: alertCircleOutline, labelKey: 'notifications.categories.incident' },
-  { key: 'all', icon: mailUnreadOutline, labelKey: 'notifications.all' },
-];
-
 const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
 
 @Component({
@@ -84,22 +61,18 @@ const CATEGORIES: NotificationCategory[] = ['travel', 'account', 'incident'];
     EmptyState,
     LoadingState,
     TranslocoPipe,
-    IonBadge,
     IonButton,
     IonCard,
     IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
     IonChip,
     IonContent,
     IonIcon,
     IonItem,
-    IonLabel,
     IonList,
     IonSpinner,
   ],
   templateUrl: './notifications.page.html',
-  styleUrls: ['./notifications.page.scss'],
+  styleUrls: ['../tabs/tab-page.scss', './notifications.page.scss'],
 })
 export class NotificationsPage implements OnInit {
   private readonly notifications = inject(NotificationsService);
@@ -110,10 +83,7 @@ export class NotificationsPage implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
 
-  readonly filterOptions = NOTIFICATION_FILTERS;
   readonly category = signal<NotificationCategory | null>(null);
-  readonly activeFilter = signal<NotificationFilter>('all');
-  readonly readState = signal<boolean | undefined>(undefined);
   readonly offset = signal(0);
   readonly total = signal(0);
   readonly all = signal<NotificationItem[]>([]);
@@ -122,11 +92,6 @@ export class NotificationsPage implements OnInit {
   readonly unreadCount = this.notifications.unreadCount;
   readonly hasMore = computed(() => this.all().length < this.total());
   readonly categoryOptions = CATEGORIES;
-  readonly categoryIcons: Record<NotificationCategory, string> = {
-    travel: carOutline,
-    account: personOutline,
-    incident: alertCircleOutline,
-  };
   readonly pageNumber = computed(() => Math.floor(this.offset() / NOTIFICATIONS_PAGE_SIZE) + 1);
   readonly pageCount = computed(() =>
     Math.max(1, Math.ceil(this.total() / NOTIFICATIONS_PAGE_SIZE)),
@@ -144,15 +109,12 @@ export class NotificationsPage implements OnInit {
   private hasEntered = false;
 
   protected readonly pageSize = NOTIFICATIONS_PAGE_SIZE;
-  protected readonly allIcon = notificationsOutline;
   protected readonly emptyIcon = notificationsOutline;
   protected readonly errorIcon = alertCircleOutline;
   protected readonly readIcon = mailOpenOutline;
   protected readonly unreadIcon = mailUnreadOutline;
   protected readonly previousIcon = chevronBackOutline;
   protected readonly nextIcon = chevronForwardOutline;
-  protected readonly filterActionIcon = chevronForwardOutline;
-  protected readonly closeIcon = closeCircleOutline;
   protected readonly categoryOf = notificationCategory;
 
   ngOnInit(): void {
@@ -170,43 +132,18 @@ export class NotificationsPage implements OnInit {
     this.hasEntered = true;
   }
 
-  toggleUnreadFilter(): void {
-    if (this.readState() === false) {
-      void this.handleSelectCategory(null);
-    } else {
-      void this.handleFilter('unread');
-    }
-  }
-
-  async handleFilter(filter: NotificationFilter): Promise<void> {
-    this.activeFilter.set(filter);
-    if (CATEGORIES.includes(filter as NotificationCategory)) {
-      this.category.set(filter as NotificationCategory);
-      this.readState.set(undefined);
-    } else if (filter === 'unread') {
-      this.category.set(null);
-      this.readState.set(false);
-    } else if (filter === 'read') {
-      this.category.set(null);
-      this.readState.set(true);
-    } else {
-      this.category.set(null);
-      this.readState.set(undefined);
-    }
-    this.offset.set(0);
-    await this.loadPage(true);
-  }
-
   async handleCategory(value: unknown): Promise<void> {
     const selected =
       typeof value === 'string' && CATEGORIES.includes(value as NotificationCategory)
         ? (value as NotificationCategory)
         : null;
-    await this.handleFilter(selected ?? 'all');
+    this.category.set(selected);
+    this.offset.set(0);
+    await this.loadPage(true);
   }
 
   async handleSelectCategory(category: NotificationCategory | null): Promise<void> {
-    await this.handleFilter(category ?? 'all');
+    await this.handleCategory(category ?? 'all');
   }
 
   async handleOffset(offset: number): Promise<void> {
@@ -234,17 +171,9 @@ export class NotificationsPage implements OnInit {
     void this.loadPage(true);
   }
 
-  protected tripDepartureInfo(trip: Trip): string {
-    const day = formatDateLabel(new Date(trip.departureAt).toLocaleDateString('sv-SE'));
-    return `${day} · ${formatTime(trip.departureAt)}`;
-  }
-
-  protected tripRoute(trip: Trip): string {
-    return `${trip.originName ?? 'Origen'} → ${trip.destinationName ?? 'Destino'}`;
-  }
-
   protected tripLine(trip: Trip): string {
-    return `${this.tripDepartureInfo(trip)} · ${this.tripRoute(trip)}`;
+    const day = formatDateLabel(new Date(trip.departureAt).toLocaleDateString('sv-SE'));
+    return `${day} · ${formatTime(trip.departureAt)} · ${trip.originName ?? 'Origen'} → ${trip.destinationName ?? 'Destino'}`;
   }
 
   protected elapsed(notification: AppNotification): string {
@@ -282,14 +211,10 @@ export class NotificationsPage implements OnInit {
     this.isLoading.set(true);
     this.error.set(false);
     try {
-      const options: { offset: number; category?: NotificationCategory; isRead?: boolean } = {
+      const page = await this.notifications.list({
         offset: this.offset(),
         category: this.category() ?? undefined,
-      };
-      if (this.readState() !== undefined) {
-        options.isRead = this.readState();
-      }
-      const page = await this.notifications.list(options);
+      });
       const tripIds = [...new Set(page.items.flatMap(({ trip }) => (trip ? [trip.id] : [])))];
       const trips = new Map(
         await Promise.all(

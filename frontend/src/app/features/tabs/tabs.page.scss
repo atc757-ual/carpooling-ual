@@ -1,15 +1,20 @@
-// Cabeceras arriba e ion-tabs ocupa el resto
+// La página es una columna: las cabeceras arriba (fijas, no se desplazan) e
+// ion-tabs ocupa el resto. Ionic posiciona ion-tabs sobre toda la página: aquí
+// pasa a ocupar solo el hueco que dejan las cabeceras
 ion-tabs {
   position: relative;
   flex: 1;
   height: auto;
 }
 
-// Cabecera móvil
+// Móvil: cabecera con el logotipo a la izquierda, con el margen de la página
+// (16px), separada del contenido por una línea gris muy clara
 .app-header {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 }
 
+// 56px de alto, como las cabeceras de Android: 4px arriba y abajo del
+// contenido (48px); a los lados, los 16px del margen de la página
 .app-header ion-toolbar {
   --padding-top: var(--space-xs);
   --padding-bottom: var(--space-xs);
@@ -17,50 +22,67 @@ ion-tabs {
   --padding-end: var(--space-base);
 }
 
+// La flecha de volver mide 52px (su área táctil) y el contenido de la barra
+// 48px: sin esto, la cabecera de las pantallas de detalle salía 4px más alta
+// que la de las secciones. Sobresale 2px arriba y abajo sin estirarla
 .app-header ion-toolbar ion-buttons ion-button.back-button.button-has-icon-only.button-clear {
-  margin-block: -0.125rem;
+  margin-block: -0.125rem; // -2px: (48 − 52) / 2
 }
 
-// Barra inferior móvil
+// Móvil: barra de 76px abajo, icono encima del texto. La pestaña activa, en el
+// color de los enlaces, en negrita y sobre una pastilla azul muy clara (no solo
+// por el color)
 .tab-bar {
   --color: var(--color-text-muted);
   --color-selected: var(--color-link);
 
+  // Solo los 76px: Ionic ya le suma el margen seguro de abajo (iPhone) como
+  // relleno (ion-tab-bar es content-box). Sumarlo aquí lo contaba dos veces y
+  // la barra quedaba más alta que el hueco que le dejan las pantallas
   height: var(--tab-bar-height);
   border-top: var(--border-width-s) solid var(--color-border-subtle);
 }
 
 ion-tab-button {
+  // El fondo y la onda los pinta la propia pestaña (abajo): la onda de Ionic es
+  // lo que la oscurecía al pulsar, y con --background se pintaba también por
+  // dentro. El foco del teclado, en el mismo azul que la pastilla
   --background: transparent;
   --background-focused: var(--color-primary-subtle);
   --ripple-color: transparent;
 
   font-size: var(--font-size-caption);
+
+  // La pestaña mide lo que mide su contenido y la barra la centra, así que la
+  // pastilla deja aire arriba y abajo. Con el alto al 100% que pone Ionic, el
+  // fondo llegaba de borde a borde de la barra
   height: auto;
-  margin: var(--space-xs);
+  margin: var(--space-xs); // 4px
   border-radius: var(--radius-s);
 
   ion-icon {
     font-size: var(--tab-icon-size);
   }
 
+  // Al pasar el ratón, la misma pastilla azul muy clara (solo donde hay ratón:
+  // en el móvil el hover se queda pegado al tocar)
   @media (any-hover: hover) {
     &:hover {
       background: var(--color-primary-subtle);
     }
   }
 
+  // La activa: la pastilla, el texto y el icono en el color de los enlaces y en
+  // negrita
   &.tab-selected {
     background: var(--color-primary-subtle);
     font-weight: var(--font-weight-semibold);
   }
 }
 
-// Escritorio: cabecera superior y enlaces centrados
+// Escritorio: dos niveles. Arriba, el logotipo a la izquierda y, a la derecha,
+// el saludo y la campana; debajo, los destinos centrados
 .top-nav {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-dropdown);
   display: grid;
   grid-template-areas:
     'brand actions'
@@ -122,7 +144,9 @@ ion-tab-button {
   gap: var(--space-base);
 }
 
-// Franja con título y subtítulo
+// Escritorio: franja fija y blanca bajo el menú (sin línea entre los dos) con
+// el título y el subtítulo de la pantalla (en los detalles, antes, las migas),
+// alineada con el logotipo y el contenido de las pestañas
 .greeting-bar {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
   background: var(--color-surface);
@@ -132,11 +156,9 @@ ion-tab-button {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  // 16px arriba y abajo; a los lados, el margen de la página (16px en el
+  // móvil, 24px en escritorio)
   padding: var(--space-base) var(--page-gutter);
-
-  @media (min-width: 768px) {
-    padding: 0 var(--space-base) var(--space-base) var(--page-gutter);
-  }
 
   p {
     margin: 0;
@@ -204,6 +226,8 @@ ion-tab-button {
   --ripple-color: transparent;
   --color: var(--color-link);
   --background: transparent;
+  --background-hover: transparent;
+  --background-activated: transparent;
 
   ion-icon {
     width: var(--icon-size-l);
@@ -262,6 +286,12 @@ ion-tab-button {
   --padding-start: var(--space-s);
   --padding-end: var(--space-base);
   --border-radius: var(--radius-full);
+
+  ion-icon {
+    width: var(--icon-size-l);
+    height: var(--icon-size-l);
+    font-size: var(--icon-size-l);
+  }
 
   .header-action__label {
     display: inline;
@@ -341,10 +371,9 @@ ion-tab-button {
   justify-content: center;
   width: var(--control-height-s);
   height: var(--control-height-s);
-  border: var(--border-width-m) solid var(--color-border);
+  border: var(--border-width-m) solid var(--color-border-strong);
   border-radius: 50%;
-  background: var(--color-surface-subtle);
-  color: var(--color-text-muted);
+  background: var(--color-surface);
 
   ion-icon {
     font-size: var(--icon-size-l);
@@ -357,8 +386,6 @@ ion-tab-button {
 
   .live-tab__circle {
     border-color: var(--color-primary);
-    background: var(--color-surface);
-    color: var(--color-link);
     animation: live-tab-pulse 2s ease-out infinite;
   }
 

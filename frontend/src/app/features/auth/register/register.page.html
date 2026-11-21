@@ -89,7 +89,7 @@
           autocomplete="tel-national"
           [attr.aria-label]="'auth.register.phoneLabel' | transloco"
           fill="outline"
-          [placeholder]="phonePlaceholder()"
+          [placeholder]="'auth.register.phonePlaceholder' | transloco"
           [helperText]="'auth.register.phoneHelper' | transloco"
           [errorText]="phoneErrorKey() | transloco"
         >
@@ -129,7 +129,6 @@
           [attr.aria-label]="'auth.register.passwordLabel' | transloco"
           [placeholder]="'auth.register.passwordPlaceholder' | transloco"
           fill="outline"
-          [maxlength]="72"
           [helperText]="'auth.register.passwordHelper' | transloco"
           [errorText]="passwordErrorKey() | transloco"
         >

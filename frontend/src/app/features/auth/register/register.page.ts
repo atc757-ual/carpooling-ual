@@ -47,7 +47,7 @@ import {
   personNameValidator,
   stripNameSymbols,
 } from '../../../shared/utils/person-name.util';
-import { getPhonePlaceholder, SPANISH_PREFIX } from '../../../shared/utils/phone-prefixes';
+import { SPANISH_PREFIX } from '../../../shared/utils/phone-prefixes';
 import {
   buildPhone,
   formatPhoneNumber,
@@ -116,7 +116,6 @@ export class RegisterPage {
   readonly isSubmitting = signal(false);
   private readonly phoneInput = viewChild<IonInput>('phoneInput');
   readonly isPasswordVisible = signal(false);
-  readonly phonePlaceholder = signal(getPhonePlaceholder(SPANISH_PREFIX));
 
   protected readonly backIcon = arrowBackOutline;
   protected readonly personIcon = personOutline;
@@ -139,7 +138,6 @@ export class RegisterPage {
     // Al cambiar de país, el número se muestra y se comprueba con sus reglas
     // (el aviso, al salir del campo)
     phonePrefix.valueChanges.pipe(takeUntilDestroyed()).subscribe((prefix) => {
-      this.phonePlaceholder.set(getPhonePlaceholder(prefix));
       phone.setValue(formatPhoneNumber(prefix, phone.value), { emitEvent: false });
       phone.updateValueAndValidity();
       phone.markAsUntouched();

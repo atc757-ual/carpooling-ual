@@ -14,6 +14,13 @@
           }}</ion-button>
         </form>
       }
+      @case ('suspended') {
+        <div class="notice notice--danger publish__card" role="alert">
+          <p>
+            {{ 'publish.suspended' | transloco: { date: publishingSuspendedUntilLabel() } }}
+          </p>
+        </div>
+      }
       @default {
         <!-- Escritorio: los pasos en la columna de 8 y, en la de 4, «Tu
                las preguntas (pasos 1 y 2) o qué pasa después (3 y 4) -->
@@ -26,14 +33,6 @@
               <!-- El próximo viaje (o el que está en curso), dentro de la tarjeta
                    y encima de los pasos -->
               <div class="publish__next-trip"><app-next-trip-card /></div>
-              @if (publishingSuspendedUntil(); as until) {
-                <div class="notice notice--danger notice--icon publish__suspended-notice" role="alert">
-                  <ion-icon [icon]="icons.suspended" aria-hidden="true" />
-                  <p>
-                    {{ 'publish.suspended' | transloco: { date: publishingSuspendedUntilLabel() } }}
-                  </p>
-                </div>
-              }
               <form
                 class="publish__steps"
                 [formGroup]="tripForm"
@@ -116,7 +115,6 @@
                         class="publish__next"
                         type="submit"
                         [disabled]="
-                          isSuspended() ||
                           !isRouteComplete() ||
                           departureTooSoon() ||
                           isMissingStops() ||
@@ -164,7 +162,7 @@
                             <ion-button
                               class="publish__next"
                               type="submit"
-                              [disabled]="isSuspended() || !selectedVehicle()"
+                              [disabled]="!selectedVehicle()"
                               >{{ 'publish.revisarDetalle' | transloco }}</ion-button
                             >
                           </div>
@@ -218,7 +216,7 @@
                       <ion-button
                         class="publish__next"
                         type="submit"
-                        [disabled]="isSuspended() || isSaving() || needsDeclaration()"
+                        [disabled]="isSaving() || needsDeclaration()"
                       >
                         @if (isSaving()) {
                           <ion-spinner slot="start" name="crescent" aria-hidden="true" />

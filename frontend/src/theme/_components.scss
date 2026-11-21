@@ -145,14 +145,6 @@ ion-button {
   font-weight: var(--font-weight-semibold);
   text-transform: none;
   letter-spacing: var(--letter-spacing-normal);
-
-  &[size='small'],
-  &.button-small {
-    min-height: 2rem;
-    --min-height: 2rem;
-    height: 2rem;
-    font-size: var(--font-size-label);
-  }
 }
 
 // «Datos de ejemplo» (Inicio y Buscar): que no se confunda con datos reales
@@ -1028,7 +1020,7 @@ ion-searchbar.admin-heading__search {
   padding: 0;
   --background: var(--color-surface);
   --color: var(--color-text);
-  --border-radius: var(--radius-s);
+  --border-radius: var(--radius-base);
 
   @media (min-width: 768px) {
     width: calc((100% - var(--space-base)) * 2 / 3);

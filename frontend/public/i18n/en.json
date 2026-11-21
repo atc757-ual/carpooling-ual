@@ -17,8 +17,6 @@
       "trips": "Your trips",
       "messages": "Messages",
       "profile": "My profile",
-      "help": "Help",
-      "helpShort": "Help",
       "admin": "Admin panel",
       "logout": "Log out",
       "logoutShort": "Log out",
@@ -281,9 +279,6 @@
     "listAria": "Notifications list",
     "filterLegend": "Filter by category",
     "all": "All",
-    "filterRead": "Read",
-    "moreFilters": "Other filters +",
-    "lessFilters": "Other filters −",
     "categories": {
       "travel": "Rides",
       "account": "Account",
@@ -418,7 +413,6 @@
     "pushDenied": "You blocked them in the browser: allow them in its site settings.",
     "pushUnsupported": "This browser does not support notifications (on iPhone, add the site to the home screen).",
     "pushOn": "Enabled",
-    "pushOnHint": "Active on this device. Manage notifications in your system settings.",
     "pushEnable": "Enable",
     "pushDisable": "Disable",
     "pushDeniedTag": "Blocked",
@@ -429,7 +423,7 @@
       "hashTitle": "Code confirming your acceptance",
       "hashHidden": "Code confirming your acceptance:",
       "acceptedVersion": "Accepted v{{version}} on {{date}}",
-      "currentMinor": "Current v{{version}} · Review it"
+      "currentMinor": "Current: v{{version}} · updated on {{date}} · See what changed"
     },
     "vehicles": {
       "title": "My vehicles",
@@ -866,7 +860,7 @@
       "subtitle": "Use your institutional email to access your trips.",
       "emailLabel": "Email address",
       "emailPlaceholder": "user@ual.es",
-      "emailHelper": "Use your institutional email (@ual.es or @inlumine.ual.es).",
+      "emailHelper": "Use your @ual.es or @inlumine.ual.es email address.",
       "passwordLabel": "Password",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "Forgot your password?",
@@ -929,7 +923,7 @@
       "subtitle": "Enter your institutional email and we will send you a code to reset your password.",
       "emailLabel": "Email address",
       "emailPlaceholder": "user@ual.es",
-      "emailHelper": "Use your institutional email (@ual.es or @inlumine.ual.es).",
+      "emailHelper": "Use your @ual.es or @inlumine.ual.es email address.",
       "submit": "Send code",
       "submitting": "Sending",
       "backToLogin": "Back to sign in"

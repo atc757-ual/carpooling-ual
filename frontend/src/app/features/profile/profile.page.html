@@ -37,15 +37,15 @@
                 </div>
               </div>
 
-              <!-- Acerca de mí (corto si no hay) -->
+              <!-- Sobre mí (corto si no hay) -->
               <div class="profile__bio-section">
                 @if (user.bio) {
-                  <fieldset class="profile__bio-box">
-                    <legend class="profile__bio-title">{{
+                  <div class="profile__bio-box">
+                    <span class="text-caption text-color-muted profile__bio-title">{{
                       'profile.aboutMe' | transloco
-                    }}</legend>
+                    }}</span>
                     <p class="profile__bio-text">{{ user.bio }}</p>
-                  </fieldset>
+                  </div>
                 } @else {
                   <p class="profile__bio-empty text-body text-color-muted">
                     {{ 'profile.emptyBio' | transloco }}
@@ -112,7 +112,7 @@
             <div class="profile__setting-row">
               <span class="profile__setting-text">
                 <span class="text-body">{{ 'profile.language' | transloco }}</span>
-                <span class="text-body-s text-color-muted">{{
+                <span class="text-caption text-color-muted">{{
                   'profile.languageHint' | transloco
                 }}</span>
               </span>
@@ -123,7 +123,7 @@
             <div class="profile__setting-row">
               <span class="profile__setting-text">
                 <span class="text-body">{{ 'profile.theme' | transloco }}</span>
-                <span class="text-body-s text-color-muted">{{
+                <span class="text-caption text-color-muted">{{
                   'profile.themeHint' | transloco
                 }}</span>
               </span>
@@ -189,7 +189,7 @@
                   <div class="profile__pref-row">
                     <span class="profile__pref-label text-body">
                       <ion-icon [icon]="item.icon" aria-hidden="true" />
-                      {{ item.criterion | transloco }}
+                      {{ item.criterion }}
                     </span>
                     @if (item.value) {
                       <span class="profile__pref-badge">{{ item.value }}</span>
@@ -219,7 +219,7 @@
             <ion-card-content class="profile-card__content">
               @for (row of reviewRows(); track row.role) {
                 <div class="profile__review-row">
-                  <span class="text-body text-body--strong">{{ row.role | transloco }}</span>
+                  <span class="text-body text-body--strong">{{ row.role }}</span>
                   <span class="profile__review-score">
                     <ion-icon
                       class="profile__review-thumb"

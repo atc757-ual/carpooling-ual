@@ -169,22 +169,18 @@ describe('PublishTripPage', () => {
     await harness.fixture.whenStable();
   }
 
-  it(
-    'starts on Trayecto, with «Siguiente» waiting for the address and the parking',
-    async () => {
-      await openPage();
+  it('starts on Trayecto, with «Siguiente» waiting for the address and the parking', async () => {
+    await openPage();
 
-      expect(page.loadState()).toBe('ready');
-      expect(page.step()).toBe(1);
-      expect(page.isRouteComplete()).toBe(false);
-      expect(page.departureTooSoon()).toBe(false);
+    expect(page.loadState()).toBe('ready');
+    expect(page.step()).toBe(1);
+    expect(page.isRouteComplete()).toBe(false);
+    expect(page.departureTooSoon()).toBe(false);
 
-      fillTrip();
+    fillTrip();
 
-      expect(page.isRouteComplete()).toBe(true);
-    },
-    COLD_START_TIMEOUT_MS,
-  );
+    expect(page.isRouteComplete()).toBe(true);
+  });
 
   it(
     'goes back to the first step on reload and never jumps ahead by itself',
@@ -261,16 +257,12 @@ describe('PublishTripPage', () => {
     });
     harness.fixture.detectChanges();
 
-    expect(page.isSuspended()).toBe(true);
+    expect(page.loadState()).toBe('suspended');
     expect(page.publishingSuspendedUntil()).toBe('2099-01-20T10:00:00.000Z');
     expect(harness.fixture.nativeElement.textContent).toContain(
       'No puedes publicar viajes hasta el',
     );
-    expect(harness.fixture.nativeElement.querySelector('app-step-indicator')).not.toBeNull();
-    const nextButton = harness.fixture.nativeElement.querySelector(
-      'ion-button[type="submit"]',
-    ) as HTMLButtonElement | null;
-    expect(nextButton?.disabled || nextButton?.getAttribute('disabled')).toBeTruthy();
+    expect(harness.fixture.nativeElement.querySelector('app-step-indicator')).toBeNull();
   });
 
   // Hacia el campus se elige la llegada; la salida, aproximada, antes

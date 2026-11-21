@@ -288,18 +288,6 @@ describe('NotificationsPage', () => {
     expect(fixture.componentInstance.pageRange()).toEqual({ from: 0, to: 0, total: 0 });
   });
 
-  it('filters by read and unread status', async () => {
-    await render(() => Promise.resolve([]));
-    service['list'].mockClear();
-    service['list'].mockResolvedValue({ items: [], total: 0 });
-
-    await fixture.componentInstance.handleFilter('read');
-    expect(service['list']).toHaveBeenLastCalledWith({ offset: 0, category: undefined, isRead: true });
-
-    await fixture.componentInstance.handleFilter('unread');
-    expect(service['list']).toHaveBeenLastCalledWith({ offset: 0, category: undefined, isRead: false });
-  });
-
   it('offers to retry when they cannot be loaded', async () => {
     const root = await render(() => Promise.reject(new ApiError(NETWORK_ERROR, 0)));
 

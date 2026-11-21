@@ -40,7 +40,6 @@ import { UsersService } from '../../core/services/users/users.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
 import { ThemeService } from '../../core/services/ui/theme.service';
-import { LanguageService } from '../../core/services/ui/language.service';
 import { TRAVEL_PREFERENCE_GROUPS } from '../../core/models/travel-preferences.model';
 import { TravelPreferencesStore } from '../../core/services/catalogs/travel-preferences.store';
 import { UserConsents } from '../../core/models/user-consent.model';
@@ -116,7 +115,6 @@ export class ProfilePage implements OnInit {
   private readonly confirm = inject(ConfirmService);
   private readonly modalController = inject(ModalController);
   private readonly theme = inject(ThemeService);
-  private readonly language = inject(LanguageService);
   private readonly legalDocuments = inject(LegalDocumentsService);
 
   readonly user = this.auth.currentUser;
@@ -138,26 +136,24 @@ export class ProfilePage implements OnInit {
   });
 
   // Las cuatro preferencias siempre, con la elegida o null si aún no eligió
-  readonly preferencesItems = computed<PreferenceRow[]>(() => {
-    this.language.currentLanguage();
-    return TRAVEL_PREFERENCE_GROUPS.map((group) => {
+  readonly preferencesItems = computed<PreferenceRow[]>(() =>
+    TRAVEL_PREFERENCE_GROUPS.map((group) => {
       const value = this.user()?.preferences?.[group.key] ?? null;
       return {
-        criterion: `screens.travelPreferences.${group.key}`,
+        criterion: group.title,
         icon: PREFERENCE_ICONS[group.key],
         value: this.travelPreferences.label(group.key, value),
       };
-    });
-  });
+    }),
+  );
   readonly timeToleranceLabel = computed(() => `± ${this.user()?.timeToleranceMin ?? 15} min`);
 
   // Solo los papeles con reseñas: quien no conduce no ve «Como conductor»
   readonly reviewRows = computed<ReviewRow[]>(() => {
-    this.language.currentLanguage();
     const ratings = this.user()?.ratings;
     return [
-      { role: 'screens.profile.comoConductor', rating: ratings?.driver },
-      { role: 'screens.profile.comoPasajero', rating: ratings?.passenger },
+      { role: translate('screens.profile.comoConductor'), rating: ratings?.driver },
+      { role: translate('screens.profile.comoPasajero'), rating: ratings?.passenger },
     ]
       .filter(({ rating }) => (rating?.ratingCount ?? 0) > 0 && rating?.averageRating != null)
       .map(({ role, rating }) => ({
@@ -181,7 +177,6 @@ export class ProfilePage implements OnInit {
     },
   });
   readonly legalDocs = computed<LegalDocRow[]>(() => {
-    this.language.currentLanguage();
     const current = this.consents()?.current;
     const versions = this.legalVersions.hasValue() ? this.legalVersions.value() : undefined;
     return [

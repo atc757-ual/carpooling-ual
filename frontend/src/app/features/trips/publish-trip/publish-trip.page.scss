@@ -28,22 +28,6 @@
 }
 
 // Dentro de la tarjeta: los pasos y sus campos apilados a 16px
-.publish__suspended-notice {
-  margin-block: var(--space-s) var(--space-base);
-
-  ion-icon {
-    flex: none;
-    font-size: var(--icon-size-base);
-    color: var(--color-danger);
-  }
-
-  p {
-    margin: 0;
-    font-weight: var(--font-weight-medium);
-    color: var(--color-danger-text);
-  }
-}
-
 .publish__steps {
   display: flex;
   flex-direction: column;

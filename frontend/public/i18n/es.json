@@ -17,8 +17,6 @@
       "trips": "Tus viajes",
       "messages": "Mensajes",
       "profile": "Mi perfil",
-      "help": "Ayuda",
-      "helpShort": "Ayuda",
       "admin": "Panel de administración",
       "logout": "Cerrar sesión",
       "logoutShort": "Salir",
@@ -281,9 +279,6 @@
     "listAria": "Lista de notificaciones",
     "filterLegend": "Filtrar por categoría",
     "all": "Todas",
-    "filterRead": "Leídas",
-    "moreFilters": "Otros filtros +",
-    "lessFilters": "Otros filtros −",
     "categories": {
       "travel": "Viajes",
       "account": "Cuenta",
@@ -381,7 +376,7 @@
   "profile": {
     "verifiedEmail": "Correo UAL verificado",
     "editInfo": "Editar mi información",
-    "aboutMe": "Acerca de mí",
+    "aboutMe": "Sobre mí",
     "emptyBio": "Sin presentación aún.",
     "bioPlaceholder": "Cuéntale a la comunidad quién eres, qué estudias o qué te gusta…",
     "firstName": "Nombre",
@@ -418,7 +413,6 @@
     "pushDenied": "Las has bloqueado en el navegador: permítelas en sus ajustes del sitio.",
     "pushUnsupported": "Este navegador no admite notificaciones (en iPhone, añade la web a la pantalla de inicio).",
     "pushOn": "Activadas",
-    "pushOnHint": "Activadas en este dispositivo. Para gestionarlas, usa los ajustes del sistema.",
     "pushEnable": "Activar",
     "pushDisable": "Desactivar",
     "pushDeniedTag": "Bloqueadas",
@@ -429,7 +423,7 @@
       "hashTitle": "Código que acredita tu aceptación",
       "hashHidden": "Código que acredita tu aceptación:",
       "acceptedVersion": "Aceptada la v{{version}} el {{date}}",
-      "currentMinor": "v{{version}} vigente · Revísalo"
+      "currentMinor": "Vigente: v{{version}} · actualizada el {{date}} · Ver novedades"
     },
     "vehicles": {
       "title": "Mis vehículos",
@@ -866,7 +860,7 @@
       "subtitle": "Usa tu correo institucional para acceder a tus viajes.",
       "emailLabel": "Correo electrónico",
       "emailPlaceholder": "tu_usuario@ual.es",
-      "emailHelper": "Usa tu correo institucional (@ual.es o @inlumine.ual.es).",
+      "emailHelper": "Usa tu correo @ual.es o @inlumine.ual.es.",
       "passwordLabel": "Contraseña",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "¿Has olvidado tu contraseña?",
@@ -929,7 +923,7 @@
       "subtitle": "Introduce tu correo institucional y te enviaremos un código para restablecerla.",
       "emailLabel": "Correo electrónico",
       "emailPlaceholder": "usuario@ual.es",
-      "emailHelper": "Usa tu correo institucional (@ual.es o @inlumine.ual.es).",
+      "emailHelper": "Usa tu correo @ual.es o @inlumine.ual.es.",
       "submit": "Enviar código",
       "submitting": "Enviando",
       "backToLogin": "Volver a iniciar sesión"

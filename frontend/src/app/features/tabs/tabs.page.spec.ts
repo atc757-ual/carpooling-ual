@@ -412,7 +412,7 @@ describe('TabsPage', () => {
       ...fixture.nativeElement.querySelectorAll('.top-nav .header-action__label'),
     ].map((label: Element) => label.textContent?.trim());
 
-    expect(labels).toEqual(['Mi perfil', 'Ayuda', 'Notificaciones', 'Salir']);
+    expect(labels).toEqual(['Mi perfil', 'Notificaciones', 'Salir']);
   });
 
   it('logs out only after confirming it', async () => {
