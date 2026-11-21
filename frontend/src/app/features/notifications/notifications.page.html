@@ -6,32 +6,29 @@
       <section class="notifications__main" [attr.aria-label]="'notifications.listAria' | transloco">
         <ion-card class="notifications__panel">
           <ion-card-content class="notifications__panel-content">
-            <div class="notifications__toolbar">
+            <div class="notifications__toolbar notifications__toolbar--mobile">
               <fieldset class="notifications__filters">
                 <legend class="visually-hidden">
                   {{ 'notifications.filterLegend' | transloco }}
                 </legend>
-                <ion-chip
-                  button="true"
-                  [outline]="category() !== null"
-                  [color]="category() === null ? 'primary' : undefined"
-                  [attr.aria-pressed]="category() === null"
-                  (click)="handleSelectCategory(null)"
-                >
-                  {{ 'notifications.all' | transloco }}
-                </ion-chip>
-                @for (option of categoryOptions; track option) {
+                @for (filter of filterOptions; track filter.key) {
                   <ion-chip
                     button="true"
-                    [outline]="category() !== option"
-                    [class.notifications__filter-chip--travel]="option === 'travel'"
-                    [class.notifications__filter-chip--account]="option === 'account'"
-                    [class.notifications__filter-chip--incident]="option === 'incident'"
-                    [class.notifications__filter-chip--selected]="category() === option"
-                    [attr.aria-pressed]="category() === option"
-                    (click)="handleSelectCategory(option)"
+                    class="notifications__filter-chip notifications__filter-chip--{{ filter.key }}"
+                    [class.notifications__filter-chip--selected]="activeFilter() === filter.key"
+                    [attr.aria-pressed]="activeFilter() === filter.key"
+                    [attr.aria-label]="filter.labelKey | transloco"
+                    (click)="handleFilter(filter.key)"
                   >
-                    <span>{{ 'notifications.categories.' + option | transloco }}</span>
+                    <ion-icon [icon]="filter.icon" aria-hidden="true" />
+                    <span class="notifications__chip-content">
+                      <span class="notifications__chip-label">{{
+                        filter.labelKey | transloco
+                      }}</span>
+                      @if (filter.key === 'unread' && unreadCount() > 0) {
+                        <span class="notifications__chip-count">({{ unreadCount() }})</span>
+                      }
+                    </span>
                   </ion-chip>
                 }
               </fieldset>
@@ -115,12 +112,17 @@
                         <span class="notification__message">
                           {{ 'notifications.types.' + item.notification.type | transloco }}
                         </span>
-                        <span class="notification__detail text-caption text-color-muted">
+                        <span class="notification__detail text-body-s text-color-muted">
                           @if (item.trip; as trip) {
-                            <span class="notification__detail-label">{{
-                              'notifications.tripDeparture' | transloco
-                            }}</span>
-                            <span>{{ tripLine(trip) }}</span>
+                            <span class="notification__departure">
+                              <span class="notification__detail-label">{{
+                                'notifications.tripDeparture' | transloco
+                              }}</span>
+                              <span>· {{ tripDepartureInfo(trip) }}</span>
+                            </span>
+                            <span class="notification__route">
+                              {{ tripRoute(trip) }}
+                            </span>
                           } @else if (item.notification.type === 'incident_reported') {
                             <span class="notification__detail-label">{{
                               'notifications.incidentLabel' | transloco
@@ -135,7 +137,7 @@
                         </span>
                       </span>
                       <time
-                        class="notification__time text-caption text-color-muted"
+                        class="notification__time text-body-s text-color-muted"
                         [attr.datetime]="item.notification.createdAt"
                       >
                         {{ elapsed(item.notification) }}
@@ -149,17 +151,6 @@
                   <ion-spinner name="crescent" aria-hidden="true" />
                 </div>
               }
-              @if (hasMore()) {
-                <ion-button
-                  class="notifications__load-more"
-                  type="button"
-                  fill="outline"
-                  [disabled]="isLoading()"
-                  (click)="handleLoadMore()"
-                >
-                  {{ 'notifications.loadMore' | transloco }}
-                </ion-button>
-              }
               @if (total() > 0) {
                 <nav
                   class="notifications__pagination"
@@ -171,6 +162,18 @@
                   >
                     {{ 'notifications.range' | transloco: pageRange() }}
                   </span>
+                  @if (hasMore()) {
+                    <ion-button
+                      class="notifications__load-more"
+                      type="button"
+                      fill="outline"
+                      size="small"
+                      [disabled]="isLoading()"
+                      (click)="handleLoadMore()"
+                    >
+                      {{ 'notifications.loadMore' | transloco }}
+                    </ion-button>
+                  }
                   <span
                     class="notifications__page-range notifications__page-range--mobile"
                     aria-live="polite"
@@ -218,22 +221,38 @@
         </ion-card>
       </section>
 
-      <aside class="notifications__aside">
-        <ion-card>
-          <ion-card-content class="notifications__guide">
-            <div
-              class="notifications__unread-summary"
-              [class.notifications__unread-summary--active]="unreadCount() > 0"
-            >
-              <ion-icon [icon]="unreadCount() > 0 ? unreadIcon : readIcon" aria-hidden="true" />
-              <p>
-                @if (unreadCount() > 0) {
-                  {{ 'notifications.unreadSummary' | transloco: { count: unreadCount() } }}
-                } @else {
-                  {{ 'notifications.allCaughtUp' | transloco }}
-                }
-              </p>
-            </div>
+      <aside
+        class="notifications__aside"
+        [attr.aria-label]="'notifications.filterLegend' | transloco"
+      >
+        <ion-card class="notifications__panel">
+          <ion-card-header>
+            <ion-card-title>
+              {{ 'notifications.filterLegend' | transloco }}
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="notifications__panel-content notifications__sidebar-content">
+            <ion-list class="notifications__sidebar-list" lines="none">
+              @for (filter of filterOptions; track filter.key) {
+                <ion-item
+                  class="notifications__sidebar-item notifications__sidebar-item--{{ filter.key }}"
+                  [class.notifications__sidebar-item--selected]="activeFilter() === filter.key"
+                  [button]="true"
+                  [detail]="false"
+                  (click)="handleFilter(filter.key)"
+                >
+                  <ion-icon slot="start" [icon]="filter.icon" aria-hidden="true" />
+                  <ion-label>
+                    {{ filter.labelKey | transloco }}
+                  </ion-label>
+                  @if (filter.key === 'unread' && unreadCount() > 0) {
+                    <ion-badge slot="end">
+                      {{ unreadCount() }}
+                    </ion-badge>
+                  }
+                </ion-item>
+              }
+            </ion-list>
           </ion-card-content>
         </ion-card>
       </aside>

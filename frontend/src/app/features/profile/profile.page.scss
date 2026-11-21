@@ -32,7 +32,6 @@
 .profile__aside,
 .profile-card__content,
 .profile__center-info,
-.profile__bio-box,
 .profile__pref-list,
 .profile__legal-list {
   display: flex;
@@ -197,22 +196,34 @@ app-profile-device-location {
   color: var(--color-text);
 }
 
+fieldset.profile__bio-box,
 .profile__bio-box {
-  gap: var(--space-xxs);
-  padding: var(--space-s) var(--space-base);
-  background: var(--color-surface-subtle);
-  border-radius: var(--radius-base);
+  display: block;
+  box-sizing: border-box;
+  margin: var(--space-s) 0 0;
+  padding: var(--space-s);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
 
-  span {
-    text-transform: uppercase;
-    font-weight: var(--font-weight-bold);
-    letter-spacing: 0.03em;
+  legend.profile__bio-title,
+  .profile__bio-title {
+    padding: 0 var(--space-xs);
+    margin-inline-start: var(--space-xs);
+    font-size: var(--font-size-body-s);
+    font-weight: var(--font-weight-semibold);
+    text-transform: none;
+    color: var(--color-primary);
+    background: var(--color-surface);
+    border-radius: var(--radius-xs);
   }
 
-  p {
+  p,
+  .profile__bio-text {
     margin: 0;
     white-space: pre-line;
     font-size: var(--font-size-body-s);
+    color: var(--color-text);
   }
 }
 
@@ -240,6 +251,7 @@ app-profile-device-location {
 ion-list.profile__legal-list {
   padding: 0;
   background: transparent;
+  gap: var(--space-s);
 }
 
 // Cada fila (documento legal, contraseña, ayuda, eliminar cuenta), un ion-item
@@ -249,17 +261,18 @@ ion-list.profile__legal-list {
   --background: var(--color-surface);
   --background-hover: var(--color-primary-subtle);
   --background-hover-opacity: 1;
-  --border-radius: var(--radius-base);
-  --padding-start: var(--space-base);
-  --padding-top: var(--space-s);
-  --padding-bottom: var(--space-s);
-  --inner-padding-end: var(--space-base);
+  --border-radius: var(--radius-s);
+  --padding-start: var(--space-s);
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --inner-padding-end: var(--space-s);
+  --min-height: 2.75rem;
   --color: var(--color-text);
   --detail-icon-color: var(--color-text-muted);
   --detail-icon-opacity: 1;
 
   border: var(--border-width-s) solid var(--color-border-subtle);
-  border-radius: var(--radius-base);
+  border-radius: var(--radius-s);
   transition: border-color var(--motion-duration-fast);
 
   &:hover {
@@ -348,6 +361,8 @@ ion-list.profile__legal-list {
   align-items: center;
   gap: var(--space-xs);
   font-family: monospace;
+  font-size: var(--font-size-body-s);
+  line-height: 1.2;
 
   ion-icon {
     flex: none;

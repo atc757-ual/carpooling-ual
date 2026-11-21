@@ -272,6 +272,33 @@ describe('NotificationsPage', () => {
     expect(fixture.componentInstance.all()).toHaveLength(0);
   });
 
+  it('filters unread and read notifications', async () => {
+    await render(() => Promise.resolve([notification('n1', 'request_received')]));
+    service['list'].mockClear();
+
+    await fixture.componentInstance.handleFilter('unread');
+    expect(fixture.componentInstance.readState()).toBe(false);
+    expect(service['list']).toHaveBeenLastCalledWith({
+      offset: 0,
+      category: undefined,
+      isRead: false,
+    });
+
+    service['list'].mockClear();
+    await fixture.componentInstance.handleFilter('read');
+    expect(fixture.componentInstance.readState()).toBe(true);
+    expect(service['list']).toHaveBeenLastCalledWith({
+      offset: 0,
+      category: undefined,
+      isRead: true,
+    });
+
+    service['list'].mockClear();
+    await fixture.componentInstance.handleFilter('all');
+    expect(fixture.componentInstance.readState()).toBeUndefined();
+    expect(service['list']).toHaveBeenLastCalledWith({ offset: 0, category: undefined });
+  });
+
   it('clears an unsupported category and does not load beyond the last page', async () => {
     await render(() => Promise.resolve([]));
     service['list'].mockClear();

@@ -257,12 +257,19 @@ describe('PublishTripPage', () => {
     });
     harness.fixture.detectChanges();
 
-    expect(page.loadState()).toBe('suspended');
+    expect(page.isSuspended()).toBe(true);
     expect(page.publishingSuspendedUntil()).toBe('2099-01-20T10:00:00.000Z');
     expect(harness.fixture.nativeElement.textContent).toContain(
       'No puedes publicar viajes hasta el',
     );
-    expect(harness.fixture.nativeElement.querySelector('app-step-indicator')).toBeNull();
+    expect(harness.fixture.nativeElement.querySelector('app-step-indicator')).not.toBeNull();
+    const nextButton = harness.fixture.nativeElement.querySelector(
+      'ion-button[type="submit"]',
+    ) as HTMLButtonElement | null;
+    expect(nextButton?.disabled || nextButton?.getAttribute('disabled')).toBeTruthy();
+
+    await page.handleSubmit();
+    expect(page.step()).toBe(1);
   });
 
   // Hacia el campus se elige la llegada; la salida, aproximada, antes

@@ -15,7 +15,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
     <div class="profile__setting-row">
       <span class="profile__setting-text">
         <span class="text-body">{{ 'profile.push' | transloco }}</span>
-        <span class="text-caption text-color-muted">{{ hintKey() | transloco }}</span>
+        <span class="text-body-s text-color-muted">{{ hintKey() | transloco }}</span>
       </span>
       @switch (push.status()) {
         @case ('on') {

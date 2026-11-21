@@ -97,7 +97,8 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-notifications .notification--unread', 'Te han pedido plaza').should(
         'be.visible',
       );
-      cy.contains('app-notifications', 'Mañana · 07:40 · Roquetas de Mar → Campus UAL');
+      cy.contains('app-notifications', 'Mañana · 07:40');
+      cy.contains('app-notifications', 'Roquetas de Mar → Campus UAL');
       cy.contains('app-notifications', 'hace 5 min');
 
       cy.contains('app-notifications .notification', 'Te han pedido plaza').click();
@@ -117,7 +118,9 @@ for (const viewport of VIEWPORTS) {
       ).as('travelNotifications');
       cy.get('app-tabs .bell-button').filter(':visible').click();
 
-      cy.contains('app-notifications ion-chip', 'Viajes').click();
+      cy.get('[aria-label="Viajes"], .notifications__sidebar-item--travel')
+        .filter(':visible')
+        .click();
 
       cy.wait('@travelNotifications')
         .its('request.query')
