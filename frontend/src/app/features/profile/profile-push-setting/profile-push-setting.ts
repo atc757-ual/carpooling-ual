@@ -19,17 +19,10 @@ import { ToastService } from '../../../core/services/ui/toast.service';
       </span>
       @switch (push.status()) {
         @case ('on') {
-          <button
-            type="button"
-            class="status status--accepted profile-push__status-btn"
-            (click)="handleDisable()"
-            [attr.aria-label]="'profile.pushDisable' | transloco"
-            [title]="'profile.pushDisable' | transloco"
-            [disabled]="isBusy()"
-          >
+          <span class="status status--accepted">
             <ion-icon [icon]="checkIcon" aria-hidden="true" />
             <span>{{ 'profile.pushOn' | transloco }}</span>
-          </button>
+          </span>
         }
         @case ('off') {
           <form (submit)="$event.preventDefault(); handleEnable()">
@@ -113,6 +106,8 @@ export class ProfilePushSetting {
   });
   readonly hintKey = computed(() => {
     switch (this.push.status()) {
+      case 'on':
+        return 'profile.pushOnHint';
       case 'denied':
         return 'profile.pushDenied';
       case 'unsupported':

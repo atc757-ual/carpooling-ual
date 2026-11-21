@@ -24,6 +24,7 @@ import {
   arrowBackOutline,
   carSportOutline,
   chatbubblesOutline,
+  helpCircleOutline,
   logoGithub,
   logoLinkedin,
   logOutOutline,
@@ -218,6 +219,7 @@ export class TabsPage implements OnInit {
   protected readonly adminIcon = shieldCheckmarkOutline;
   protected readonly logoutIcon = logOutOutline;
   protected readonly profileIcon = personOutline;
+  protected readonly helpIcon = helpCircleOutline;
   protected readonly carIcon = carSportOutline;
 
   // El conductor, a su viaje en curso; el pasajero, a su pantalla En curso

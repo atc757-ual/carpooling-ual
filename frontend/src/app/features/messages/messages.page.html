@@ -12,35 +12,41 @@
       <section class="messages__main" [attr.aria-label]="'messages.listLabel' | transloco">
         <ion-card class="messages__panel">
           <ion-card-content class="messages__panel-content">
-            <fieldset class="messages__filters">
-              <legend class="visually-hidden">{{ 'messages.filterLegend' | transloco }}</legend>
-              <ion-chip
-                button="true"
-                [outline]="onlyUnread()"
-                [color]="!onlyUnread() ? 'primary' : undefined"
-                [attr.aria-pressed]="!onlyUnread()"
-                (click)="handleFilter(false)"
-              >
-                {{ 'messages.filterAll' | transloco }}
-              </ion-chip>
-              <ion-chip
-                button="true"
-                [outline]="!onlyUnread()"
-                [color]="onlyUnread() ? 'primary' : undefined"
-                [attr.aria-pressed]="onlyUnread()"
-                (click)="handleFilter(true)"
-              >
-                {{ 'messages.filterUnread' | transloco }}
-              </ion-chip>
-            </fieldset>
-            @if (unreadCount() > 0) {
-              <p class="messages__unread-summary text-caption text-color-muted">
-                {{
-                  (unreadCount() === 1 ? 'messages.unread.one' : 'messages.unread.other')
-                    | transloco: { count: unreadCount() }
-                }}
-              </p>
-            }
+            <div class="messages__toolbar">
+              @if (unreadCount() > 0) {
+                <p class="messages__unread-summary text-caption text-color-muted">
+                  {{
+                    (unreadCount() === 1 ? 'messages.unread.one' : 'messages.unread.other')
+                      | transloco: { count: unreadCount() }
+                  }}
+                </p>
+              } @else {
+                <span></span>
+              }
+              <fieldset class="messages__filters">
+                <legend class="visually-hidden">{{ 'messages.filterLegend' | transloco }}</legend>
+                <ion-chip
+                  button="true"
+                  [outline]="onlyUnread()"
+                  [color]="!onlyUnread() ? 'primary' : undefined"
+                  [attr.aria-pressed]="!onlyUnread()"
+                  (click)="handleFilter(false)"
+                >
+                  <span>{{ 'messages.filterAll' | transloco }}</span>
+                  <span class="messages__chip-count">({{ total() }})</span>
+                </ion-chip>
+                <ion-chip
+                  button="true"
+                  [outline]="!onlyUnread()"
+                  [color]="onlyUnread() ? 'primary' : undefined"
+                  [attr.aria-pressed]="onlyUnread()"
+                  (click)="handleFilter(true)"
+                >
+                  <span>{{ 'messages.filterUnread' | transloco }}</span>
+                  <span class="messages__chip-count">({{ unreadCount() }})</span>
+                </ion-chip>
+              </fieldset>
+            </div>
 
             @if (isLoading() && all().length === 0) {
               <app-loading-state
