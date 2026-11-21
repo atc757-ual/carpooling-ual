@@ -4,7 +4,9 @@ import {
   EventsService,
   MAX_EVENTS_PER_READ,
 } from '../../../events/events.service';
+import { TripTwinNotFoundError } from '../errors/trip-twin-not-found.error';
 import { SystemTwin } from '../model/system-twin';
+import type { TripTwin } from '../model/trip-twin';
 import { LagStats, LagTracker } from './lag-tracker';
 import { PendingGap, selectReady } from './sequence-gaps';
 
@@ -86,5 +88,14 @@ export class DigitalTwinSyncService {
       syncedAt: this.syncedAt,
       lag: this.lag.stats(),
     };
+  }
+
+  // El gemelo de un viaje, con su ruta (RF-13)
+  getTrip(id: string): TripTwin {
+    const trip = this.twin.trips.get(id);
+    if (!trip) {
+      throw new TripTwinNotFoundError(id);
+    }
+    return trip;
   }
 }

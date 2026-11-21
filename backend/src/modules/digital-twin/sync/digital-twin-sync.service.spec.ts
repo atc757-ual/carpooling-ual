@@ -4,6 +4,7 @@ import {
   EventsService,
   MAX_EVENTS_PER_READ,
 } from '../../../events/events.service';
+import { TripTwinNotFoundError } from '../errors/trip-twin-not-found.error';
 import { DigitalTwinSyncService } from './digital-twin-sync.service';
 import { GAP_WAIT_MS } from './sequence-gaps';
 
@@ -59,6 +60,14 @@ describe('DigitalTwinSyncService', () => {
       syncedAt: new Date(NOW),
       lag: { samples: 0, lastMs: null, p95Ms: null, maxMs: null },
     });
+  });
+
+  it('gives the twin of a known trip and a business error for an unknown one', async () => {
+    store.push(event(1, 60_000));
+    await service.syncOnce(() => NOW);
+
+    expect(service.getTrip('t-1').status).toBe('published');
+    expect(() => service.getTrip('t-9')).toThrow(TripTwinNotFoundError);
   });
 
   it('measures the lag of the events that arrive once live', async () => {

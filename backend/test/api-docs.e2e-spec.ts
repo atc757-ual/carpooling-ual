@@ -68,6 +68,7 @@ describe('API docs (e2e)', () => {
       '/api/admin/catalogs/vehicle-colors/{key}',
       '/api/admin/catalogs/vehicle-colors/{key}/move',
       '/api/admin/digital-twin',
+      '/api/admin/digital-twin/trips/{id}',
       '/api/admin/events',
       '/api/admin/events/{id}',
       '/api/admin/faq-topics',

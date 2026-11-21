@@ -149,6 +149,9 @@ describe('TripTwin', () => {
       seats: 1,
       status: 'pending',
       isBoarded: false,
+      pickupPoint: null,
+      stopId: null,
+      pickupAt: null,
     });
 
     trip.apply(event('request.accepted', request('accepted'), 'r-1'));
@@ -209,5 +212,87 @@ describe('TripTwin', () => {
   it('does not apply events that are not about trips or requests', () => {
     expect(trip.apply(event('user.updated', {}))).toBe(false);
     expect(trip.updatedAt).toBeNull();
+  });
+
+  describe('route (RF-13)', () => {
+    const CAMPUS = { type: 'Point', coordinates: [-2.4048, 36.8295] };
+    const STOP = { type: 'Point', coordinates: [-2.5, 36.8] };
+
+    function pickup(at: string, extra: Record<string, unknown> = {}) {
+      return request('accepted', {
+        pickupAt: at,
+        pickupLocation: STOP,
+        ...extra,
+      });
+    }
+
+    it('keeps the planned route and the pickups of the accepted passengers by time', () => {
+      trip.apply(
+        event(
+          'trip.published',
+          tripState('published', { origin: POINT, destination: CAMPUS }),
+        ),
+      );
+      trip.apply(event('request.created', request('pending'), 'r-0'));
+      trip.apply(
+        event('request.accepted', pickup('2026-11-03T08:40:00Z'), 'r-2'),
+      );
+      trip.apply(
+        event(
+          'request.accepted',
+          pickup('2026-11-03T08:35:00Z', { stopId: 's-1' }),
+          'r-1',
+        ),
+      );
+
+      expect(trip.route.origin).toEqual(POINT);
+      expect(trip.route.destination).toEqual(CAMPUS);
+      expect(trip.pickups.map(({ requestId }) => requestId)).toEqual([
+        'r-1',
+        'r-2',
+      ]);
+      expect(trip.pickups[0]).toEqual({
+        requestId: 'r-1',
+        point: STOP,
+        stopId: 's-1',
+        pickupAt: new Date('2026-11-03T08:35:00Z'),
+        isBoarded: false,
+      });
+
+      // Una plaza cancelada deja de ser una recogida
+      trip.apply(event('request.cancelled', request('cancelled'), 'r-2'));
+      expect(trip.pickups.map(({ requestId }) => requestId)).toEqual(['r-1']);
+    });
+
+    it('records the track while in progress and forgets the personal data when it closes', () => {
+      trip.apply(
+        event('request.accepted', pickup('2026-11-03T08:35:00Z'), 'r-1'),
+      );
+      trip.apply(event('trip.position_updated', { position: POINT }));
+      expect(trip.route.track).toEqual([]);
+
+      trip.apply(
+        event('trip.started', tripState('in_progress', { origin: POINT })),
+      );
+      trip.apply(event('trip.position_updated', { position: POINT }));
+      trip.apply(event('trip.position_updated', { position: CAMPUS }));
+      expect(trip.route.track).toEqual([POINT, CAMPUS]);
+      expect(trip.route.travelledKm).toBeGreaterThan(0);
+
+      trip.apply(
+        event('trip.finished', tripState('finished', { origin: POINT })),
+      );
+      expect(trip.route.origin).toBeNull();
+      expect(trip.route.track).toEqual([]);
+      expect(trip.route.trackPoints).toBe(2);
+      expect(trip.requests.get('r-1')?.pickupPoint).toBeNull();
+
+      // Lo que llegue después del cierre no vuelve a guardar el punto
+      trip.apply(
+        event('request.completed', pickup('2026-11-03T08:35:00Z'), 'r-1'),
+      );
+      expect(trip.requests.get('r-1')?.pickupPoint).toBeNull();
+      expect(trip.pickups).toHaveLength(1);
+    });
   });
 });

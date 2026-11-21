@@ -220,6 +220,12 @@ Si el viaje no existe, `TRIP_NOT_FOUND` (ver _Viajes_).
 | ----------------- | ---- | -------------------------------------------------- |
 | `EVENT_NOT_FOUND` | 404  | El evento (`GET /api/admin/events/{id}`) no existe |
 
+## Gemelo Digital (`digital-twin`)
+
+| `code`                | HTTP | Cuándo                                                                                                  |
+| --------------------- | ---- | ------------------------------------------------------------------------------------------------------- |
+| `TRIP_TWIN_NOT_FOUND` | 404  | El gemelo vivo no conoce ese viaje (`GET /api/admin/digital-twin/trips/{id}`): no existe o aún no le ha llegado su evento |
+
 ## Simulación (`simulations`)
 
 | `code`                          | HTTP | Cuándo                                                                                        |
