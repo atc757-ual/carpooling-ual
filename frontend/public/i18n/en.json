@@ -860,7 +860,7 @@
       "subtitle": "Use your institutional email to access your trips.",
       "emailLabel": "Email address",
       "emailPlaceholder": "user@ual.es",
-      "emailHelper": "Use your @ual.es or @inlumine.ual.es email address.",
+      "emailHelper": "Use your institutional email (@ual.es or @inlumine.ual.es).",
       "passwordLabel": "Password",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "Forgot your password?",
@@ -923,7 +923,7 @@
       "subtitle": "Enter your institutional email and we will send you a code to reset your password.",
       "emailLabel": "Email address",
       "emailPlaceholder": "user@ual.es",
-      "emailHelper": "Use your @ual.es or @inlumine.ual.es email address.",
+      "emailHelper": "Use your institutional email (@ual.es or @inlumine.ual.es).",
       "submit": "Send code",
       "submitting": "Sending",
       "backToLogin": "Back to sign in"

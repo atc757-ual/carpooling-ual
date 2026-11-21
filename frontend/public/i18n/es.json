@@ -860,7 +860,7 @@
       "subtitle": "Usa tu correo institucional para acceder a tus viajes.",
       "emailLabel": "Correo electrónico",
       "emailPlaceholder": "tu_usuario@ual.es",
-      "emailHelper": "Usa tu correo @ual.es o @inlumine.ual.es.",
+      "emailHelper": "Usa tu correo institucional (@ual.es o @inlumine.ual.es).",
       "passwordLabel": "Contraseña",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "¿Has olvidado tu contraseña?",
@@ -923,7 +923,7 @@
       "subtitle": "Introduce tu correo institucional y te enviaremos un código para restablecerla.",
       "emailLabel": "Correo electrónico",
       "emailPlaceholder": "usuario@ual.es",
-      "emailHelper": "Usa tu correo @ual.es o @inlumine.ual.es.",
+      "emailHelper": "Usa tu correo institucional (@ual.es o @inlumine.ual.es).",
       "submit": "Enviar código",
       "submitting": "Enviando",
       "backToLogin": "Volver a iniciar sesión"
