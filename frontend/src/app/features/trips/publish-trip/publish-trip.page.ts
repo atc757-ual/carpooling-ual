@@ -18,7 +18,13 @@ import {
   IonSpinner,
   ModalController,
 } from '@ionic/angular';
-import { carOutline, checkmarkCircle, checkmarkCircleOutline, leafOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  carOutline,
+  checkmarkCircle,
+  checkmarkCircleOutline,
+  leafOutline,
+} from 'ionicons/icons';
 import { map } from 'rxjs';
 import { ApiError, rethrowUnlessApiError } from '../../../core/models/api-error.model';
 import {
@@ -345,6 +351,7 @@ export class PublishTripPage implements OnInit {
     const until = this.publishingSuspendedUntil();
     return until ? new Date(until).toLocaleDateString(appLocale()) : '';
   });
+  readonly isSuspended = computed(() => this.publishingSuspendedUntil() !== null);
 
   // Con la llegada, sobre la salida aproximada (la que calculará el backend),
   // con su fecha: llegar poco después de medianoche es salir el día anterior
@@ -573,6 +580,7 @@ export class PublishTripPage implements OnInit {
     impact: leafOutline,
     published: checkmarkCircleOutline,
     declared: checkmarkCircle,
+    suspended: alertCircleOutline,
   };
 
   // Ionic guarda la pantalla: al volver a la pestaña, el próximo viaje se pide
@@ -618,7 +626,7 @@ export class PublishTripPage implements OnInit {
       }
       this.hasDeclared.set(status.hasLicenseDeclared);
       this.publishingStatus.set(publishingStatus);
-      this.loadState.set(this.publishingSuspendedUntil() ? 'suspended' : 'ready');
+      this.loadState.set('ready');
       if (this.step() === 2) {
         await this.loadVehicles();
       }
@@ -683,6 +691,9 @@ export class PublishTripPage implements OnInit {
   // El botón de cada paso envía el formulario: «Siguiente» (sin trayecto, lo
   // marca en rojo), «Revisar detalle» y, en el último, «Publicar viaje»
   async handleSubmit(): Promise<void> {
+    if (this.isSuspended()) {
+      return;
+    }
     const step = this.step();
     if (step === 3) {
       await this.handlePublish();

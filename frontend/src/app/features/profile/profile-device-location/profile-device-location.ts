@@ -30,7 +30,7 @@ const DEVICE_ERRORS: Readonly<Record<LocationFailure, string>> = lazyLabels({
     <div class="profile__setting-row">
       <span class="profile__setting-text">
         <span class="text-body">{{ 'profile.location.devicePermission' | transloco }}</span>
-        <span class="text-caption text-color-muted">{{ hintKey() | transloco }}</span>
+        <span class="text-body-s text-color-muted">{{ hintKey() | transloco }}</span>
       </span>
       @switch (devicePermission()) {
         @case ('granted') {
