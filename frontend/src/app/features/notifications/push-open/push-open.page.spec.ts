@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ActiveModeService } from '../../../core/services/users/active-mode.service';
 import { PushOpenPage } from './push-open.page';
@@ -12,6 +13,9 @@ describe('PushOpenPage', () => {
     TestBed.configureTestingModule({
       imports: [PushOpenPage],
       providers: [
+        // La página usa translate(): sin Transloco, el test solo pasaba si
+        // otro spec lo había creado antes
+        provideAppTransloco(),
         provideIonicAngular(),
         { provide: Router, useValue: { navigateByUrl } },
         { provide: AuthService, useValue: { hasProfile: () => true } },
