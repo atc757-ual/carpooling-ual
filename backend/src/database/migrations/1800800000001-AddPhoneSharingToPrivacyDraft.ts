@@ -55,25 +55,31 @@ export class AddPhoneSharingToPrivacyDraft1800800000001 implements MigrationInte
     await this.apply(queryRunner, false);
   }
 
-  // Cambia cada texto del borrador hacia delante (up) o hacia atrás (down)
+  // Cambia cada texto del borrador hacia delante (up) o hacia atrás (down),
+  // en una sola consulta: replace no toca un texto que no encuentra (si se
+  // editó desde el panel, se queda como está)
   private async apply(queryRunner: QueryRunner, isUp: boolean): Promise<void> {
-    for (const { column, from, to } of TEXTS) {
-      const [search, replacement] = isUp ? [from, to] : [to, from];
-      await queryRunner.query(
-        `UPDATE legal_documents
-            SET ${column} = replace(${column}, $1, $2)
-          WHERE ${DRAFT} AND position($1 in ${column}) > 0`,
-        [search, replacement],
+    const pairsOf = (column: 'content' | 'content_en'): string[] =>
+      TEXTS.filter((text) => text.column === column).flatMap(({ from, to }) =>
+        isUp ? [from, to] : [to, from],
       );
-    }
     const [esFrom, esTo] = isUp ? SUMMARY_ES : [SUMMARY_ES[1], SUMMARY_ES[0]];
     const [enFrom, enTo] = isUp ? SUMMARY_EN : [SUMMARY_EN[1], SUMMARY_EN[0]];
     await queryRunner.query(
       `UPDATE legal_documents
-          SET summary = replace(summary, $1, $2),
-              summary_en = replace(summary_en, $3, $4)
+          SET content = replace(replace(content, $1, $2), $3, $4),
+              content_en = replace(replace(content_en, $5, $6), $7, $8),
+              summary = replace(summary, $9, $10),
+              summary_en = replace(summary_en, $11, $12)
         WHERE ${DRAFT}`,
-      [esFrom, esTo, enFrom, enTo],
+      [
+        ...pairsOf('content'),
+        ...pairsOf('content_en'),
+        esFrom,
+        esTo,
+        enFrom,
+        enTo,
+      ],
     );
   }
 }

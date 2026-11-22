@@ -172,7 +172,7 @@ function describeLegs(replicas: ReplicaMetrics[]): LegStats | null {
           ),
         },
   );
-  if (legs.length === 0 || legs.some((leg) => leg === null)) {
+  if (legs.length === 0 || legs.includes(null)) {
     return null;
   }
   const known = legs.filter((leg) => leg !== null);
@@ -184,7 +184,7 @@ function describeLegs(replicas: ReplicaMetrics[]): LegStats | null {
 
 function describeTripStates(replicas: ReplicaMetrics[]): TripStateStats | null {
   const states = replicas.map((r) => r.trips);
-  if (states.length === 0 || states.some((trips) => trips === null)) {
+  if (states.length === 0 || states.includes(null)) {
     return null;
   }
   const known = states.filter((trips) => trips !== null);
