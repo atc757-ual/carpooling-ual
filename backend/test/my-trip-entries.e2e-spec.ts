@@ -6,7 +6,7 @@ import { DataSource } from 'typeorm';
 import type { Point } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
-import { savedCo2Kg } from '../src/modules/metrics/saved-co2';
+import { savedCo2Kg, sharedKm } from '../src/modules/metrics/saved-co2';
 import { RequestsService } from '../src/modules/requests/requests.service';
 import { OsrmClient } from '../src/modules/trips/osrm.client';
 import type { RoutePlan } from '../src/modules/trips/route-plan';
@@ -258,11 +258,12 @@ describe('My trip entries (e2e)', () => {
       '@type': 'UserImpact',
       href: '/api/users/me/impact',
       tripsDone: 2,
-      carsAvoided: 3,
       co2Kg: savedCo2Kg([
         { ...leg, carsAvoided: 2 },
         { ...leg, carsAvoided: 1 },
       ]),
+      driverKm: sharedKm([{ ...leg, carsAvoided: 2 }]),
+      passengerKm: sharedKm([{ ...leg, carsAvoided: 1 }]),
     });
   });
 
@@ -276,8 +277,9 @@ describe('My trip entries (e2e)', () => {
 
     expect(response.body).toMatchObject({
       tripsDone: 0,
-      carsAvoided: 0,
       co2Kg: 0,
+      driverKm: 0,
+      passengerKm: 0,
     });
   });
 });

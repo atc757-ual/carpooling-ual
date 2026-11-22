@@ -95,6 +95,7 @@ describe('TabsPage', () => {
             data: { heading: { ...HEADING, scrollsWithContent: true } },
           },
           { path: 'tabs/profile', component: BlankPage },
+          { path: 'tabs/profile/help', component: BlankPage },
         ]),
         {
           provide: AuthService,
@@ -278,6 +279,25 @@ describe('TabsPage', () => {
     expect(page.bellLabel()).toBe('Notificaciones');
     unread.set(12);
     expect(page.bellLabel()).toBe('Notificaciones, 12 sin leer');
+  });
+
+  it('marks Help, not My profile, when Help is open', async () => {
+    const page = render();
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/tabs/profile/help');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(page.isOnHelp()).toBe(true);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.profile-button.header-action--active')).toBeNull();
+    expect(root.querySelector('.help-button.header-action--active')).not.toBeNull();
+
+    await router.navigateByUrl('/tabs/profile');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(page.isOnHelp()).toBe(false);
+    expect(root.querySelector('.profile-button.header-action--active')).not.toBeNull();
   });
 
   it('shows the unread total in a compact badge', async () => {

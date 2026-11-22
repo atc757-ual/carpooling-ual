@@ -23122,23 +23122,29 @@
             "example": 4,
             "description": "Trips done: finished as the driver plus completed seats as a passenger"
           },
-          "carsAvoided": {
-            "type": "number",
-            "example": 5,
-            "description": "Cars that stayed at home: one per passenger carried as the driver and one per trip done as a passenger"
-          },
           "co2Kg": {
             "type": "number",
             "example": 34.2,
             "description": "Estimated CO₂ saved, in kg (straight-line distance by a road factor and an average car)"
+          },
+          "driverKm": {
+            "type": "number",
+            "example": 52.4,
+            "description": "Estimated km shared as the driver: finished trips that carried at least one passenger"
+          },
+          "passengerKm": {
+            "type": "number",
+            "example": 26.2,
+            "description": "Estimated km shared as a passenger: completed seats"
           }
         },
         "required": [
           "@type",
           "href",
           "tripsDone",
-          "carsAvoided",
-          "co2Kg"
+          "co2Kg",
+          "driverKm",
+          "passengerKm"
         ]
       }
     }

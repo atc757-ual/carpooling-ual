@@ -1,5 +1,5 @@
 import type { Point } from 'typeorm';
-import { savedCo2Kg, straightLineKm } from './saved-co2';
+import { savedCo2Kg, sharedKm, straightLineKm } from './saved-co2';
 
 const ROQUETAS: Point = { type: 'Point', coordinates: [-2.6147, 36.7642] };
 const UAL_CAMPUS: Point = { type: 'Point', coordinates: [-2.4048, 36.8295] };
@@ -23,6 +23,21 @@ describe('saved CO₂', () => {
         { origin: UAL_CAMPUS, destination: ROQUETAS, carsAvoided: 1 },
       ]),
     ).toBe(9.3);
+  });
+
+  it('adds up the road km of the legs where the car was shared', () => {
+    const shared = sharedKm([
+      { origin: ROQUETAS, destination: UAL_CAMPUS, carsAvoided: 2 },
+      { origin: UAL_CAMPUS, destination: ROQUETAS, carsAvoided: 0 },
+    ]);
+    // Unos 20 km × 1,3 (carretera); el viaje sin pasajeros no cuenta
+    expect(shared).toBeCloseTo(26, 0);
+    expect(sharedKm([])).toBe(0);
+    expect(
+      sharedKm([
+        { origin: UAL_CAMPUS, destination: UAL_CAMPUS, carsAvoided: 1 },
+      ]),
+    ).toBe(0);
   });
 
   it('saves nothing without trips or when origin and destination match', () => {

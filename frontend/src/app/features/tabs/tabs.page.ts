@@ -84,6 +84,9 @@ const LIVE_TAB_INDEX = 2;
 // Las pantallas En curso (pasajero y conductor): cuelgan de Tus viajes, pero
 // en la navegación se marca el coche, no Tus viajes
 const LIVE_TRIP_URL = /^\/tabs\/trips\/(ride|drive)\//;
+// Ayuda vive bajo Mi perfil, pero en la cabecera es su propio botón: con
+// Ayuda abierta, Mi perfil no se marca
+const HELP_URL = /^\/tabs\/profile\/help(\/|\?|$)/;
 
 // Qué lado guarda cada pestaña al entrar (y por dónde se abre la próxima vez)
 const SIDES: readonly { path: string; mode: TravelMode }[] = [
@@ -170,6 +173,13 @@ export class TabsPage implements OnInit {
       map(() => LIVE_TRIP_URL.test(this.router.url)),
     ),
     { initialValue: LIVE_TRIP_URL.test(this.router.url) },
+  );
+  readonly isOnHelp = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => HELP_URL.test(this.router.url)),
+    ),
+    { initialValue: HELP_URL.test(this.router.url) },
   );
 
   // El viaje en curso: el coche se enciende y lo abre; sin viaje, no hace nada

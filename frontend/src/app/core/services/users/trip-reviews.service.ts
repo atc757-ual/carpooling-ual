@@ -35,6 +35,21 @@ export interface PendingReviewTrip {
   targets: { id: string; name: string; role: ReviewTargetRole }[];
 }
 
+// Una valoración que he recibido (publicada), con quién la escribió y el viaje
+export interface ReceivedReview {
+  id: string;
+  trip: { originName: string | null; destinationName: string | null; departureAt: string };
+  author: { name: string };
+  rating: number;
+  comment: string | null;
+  publishedAt: string | null;
+}
+
+export interface ReceivedReviewPage {
+  items: ReceivedReview[];
+  total: number;
+}
+
 // Hasta cuántos caracteres admite el comentario (MAX_REVIEW_COMMENT_LENGTH)
 export const MAX_REVIEW_COMMENT_LENGTH = 300;
 // Las valoraciones dadas que se miran para encontrar la de un viaje
@@ -65,6 +80,27 @@ export class TripReviewsService {
           params: { direction: 'given', role, limit: GIVEN_REVIEWS_LIMIT },
         }),
       );
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
+  }
+
+  // Una página de las que he recibido con un papel, las más recientes
+  // primero, con el total (X-Total-Count)
+  async listReceived(
+    role: ReviewTargetRole,
+    offset: number,
+    limit: number,
+  ): Promise<ReceivedReviewPage> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ReceivedReview[]>(`${this.url}/users/me/reviews`, {
+          params: { direction: 'received', role, offset, limit },
+          observe: 'response',
+        }),
+      );
+      const items = response.body ?? [];
+      return { items, total: Number(response.headers.get('X-Total-Count') ?? items.length) };
     } catch (error) {
       throw ApiError.fromHttpError(error);
     }

@@ -15,6 +15,7 @@ import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { ThemeService } from '../../core/services/ui/theme.service';
 import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
 import { ProfilePage } from './profile.page';
+import { ProfileReviewsModal } from './profile-reviews-modal/profile-reviews-modal';
 
 describe('ProfilePage', () => {
   const logout = vi.fn().mockResolvedValue(undefined);
@@ -153,6 +154,25 @@ describe('ProfilePage', () => {
 
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({ componentProps: { document: 'privacy' } }),
+    );
+    expect(present).toHaveBeenCalled();
+  });
+
+  it('opens the received reviews in the role of the row', async () => {
+    const { page } = render();
+    const present = vi.fn().mockResolvedValue(undefined);
+    const create = vi
+      .spyOn(TestBed.inject(ModalController), 'create')
+      .mockResolvedValue({ present } as unknown as HTMLIonModalElement);
+
+    await page.handleOpenReviews('passenger');
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        component: ProfileReviewsModal,
+        cssClass: 'info-dialog',
+        componentProps: expect.objectContaining({ initialRole: 'passenger' }),
+      }),
     );
     expect(present).toHaveBeenCalled();
   });

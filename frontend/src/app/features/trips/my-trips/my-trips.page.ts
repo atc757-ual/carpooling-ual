@@ -211,13 +211,13 @@ export class MyTripsPage {
     };
   });
 
-  // La columna de 4: el CO₂ ahorrado con los dos papeles, de la API (la lista
-  // solo tiene una página). Sin él, 0
+  // La columna de 4: el CO₂ ahorrado y los km compartidos con cada papel, de
+  // la API (la lista solo tiene una página). Sin él, null (las cifras a 0)
   private readonly impact = resource({
     params: () => (this.canDrive() || this.canRide() ? true : undefined),
     loader: () => this.users.getImpact(),
   });
-  readonly co2Kg = computed(() => (this.impact.hasValue() ? this.impact.value().co2Kg : 0));
+  readonly userImpact = computed(() => (this.impact.hasValue() ? this.impact.value() : null));
   // La valoración del papel con el que usa la app ahora
   readonly rating = computed(() => {
     const role = this.activeMode.mode() === 'driver' && this.canDrive() ? 'driver' : 'passenger';

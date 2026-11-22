@@ -69,7 +69,9 @@ describe('MyTripsPage', () => {
       return Promise.resolve({ items: all.slice(offset, offset + 10), total: all.length });
     });
     listTripRequests ??= vi.fn().mockResolvedValue([]);
-    getImpact = vi.fn().mockResolvedValue({ tripsDone: 3, carsAvoided: 4, co2Kg: 12.4 });
+    getImpact = vi
+      .fn()
+      .mockResolvedValue({ tripsDone: 3, co2Kg: 12.4, driverKm: 52.4, passengerKm: 26.2 });
     TestBed.configureTestingModule({
       imports: [MyTripsPage],
       providers: [
@@ -219,12 +221,15 @@ describe('MyTripsPage', () => {
     expect(ids()).toEqual([]);
   });
 
-  it('shows the CO₂ saved with both roles from the API', async () => {
+  it('shows the CO₂ saved and the km of each role from the API', async () => {
     const root = await render(['driver', 'passenger']);
 
     expect(getImpact).toHaveBeenCalled();
-    expect(fixture.componentInstance.co2Kg()).toBe(12.4);
-    expect(root.querySelector('app-my-trips-aside')?.textContent).toContain('12,4');
+    expect(fixture.componentInstance.userImpact()?.co2Kg).toBe(12.4);
+    const aside = root.querySelector('app-my-trips-aside')?.textContent;
+    expect(aside).toContain('12,4');
+    expect(aside).toContain('52,4 km');
+    expect(aside).toContain('26,2 km');
   });
 
   it('says what to do when there is nothing upcoming, without repeating the shortcuts', async () => {

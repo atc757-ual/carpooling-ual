@@ -42,6 +42,12 @@
   // blanco, igual en los dos modos
   --color-selected: #{$blue-500};
   --color-on-selected: #{$neutral-0};
+  // El buscador destacado de Ayuda: azul claro con el texto oscuro, igual en
+  // los dos modos (en oscuro, el azul suave del tema quedaba casi negro)
+  --color-search-field: #{$blue-50};
+  --color-on-search-field: #{$neutral-950};
+  --color-search-field-muted: #{$neutral-600};
+  --color-search-field-icon: #{$blue-500};
 
   // Fondo semitransparente detrás de modales y hojas inferiores
   --color-backdrop: #{rgba($indigo-900, 0.7)}; // azul muy oscuro, tirando a morado

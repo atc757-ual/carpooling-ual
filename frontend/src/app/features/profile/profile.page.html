@@ -218,7 +218,12 @@
             </ion-card-header>
             <ion-card-content class="profile-card__content">
               @for (row of reviewRows(); track row.role) {
-                <div class="profile__review-row">
+                <!-- Toda la fila abre la lista de reseñas de ese papel -->
+                <button
+                  type="button"
+                  class="profile__review-row profile__review-button"
+                  (click)="handleOpenReviews(row.key)"
+                >
                   <span class="text-body text-body--strong">{{ row.role }}</span>
                   <span class="profile__review-score">
                     <ion-icon
@@ -230,8 +235,13 @@
                     />
                     <span class="text-body">{{ row.average }}</span>
                     <span class="text-color-muted">{{ row.count }}</span>
+                    <ion-icon
+                      class="profile__review-chevron"
+                      [icon]="chevronIcon"
+                      aria-hidden="true"
+                    />
                   </span>
-                </div>
+                </button>
               } @empty {
                 <p class="text-body text-color-muted">
                   {{ 'profile.emptyReviews' | transloco }}

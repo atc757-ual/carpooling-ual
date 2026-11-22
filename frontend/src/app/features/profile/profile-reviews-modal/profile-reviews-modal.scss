@@ -1,0 +1,94 @@
+// Las pestañas arriba y la lista debajo: avatar, nombre y fecha, la nota,
+// el comentario y el viaje (como las reseñas del conductor en la búsqueda)
+.profile-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.profile-reviews__tabs {
+  display: flex;
+  margin: 0;
+
+  .segmented-tabs__option {
+    flex: 1;
+  }
+}
+
+.profile-reviews__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-reviews__item {
+  display: flex;
+  gap: var(--space-s);
+  padding-block: var(--space-s);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.profile-reviews__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--box-size-l);
+  height: var(--box-size-l);
+  border-radius: 50%;
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
+.profile-reviews__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  min-width: 0;
+}
+
+.profile-reviews__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.profile-reviews__score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.profile-reviews__thumb {
+  font-size: var(--icon-size-s);
+
+  &--up {
+    color: var(--color-success);
+  }
+
+  &--down {
+    color: var(--color-danger);
+  }
+}
+
+.profile-reviews__comment,
+.profile-reviews__empty {
+  margin: 0;
+}
+
+.profile-reviews__loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-base) 0;
+}
