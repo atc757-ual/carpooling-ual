@@ -434,6 +434,7 @@ describe('AuthService', () => {
           email: 'ana@ual.es',
           phoneVerified: false,
           sharePhone: false,
+          language: 'es',
           profiles: ['driver'],
           avatarKey: null,
           bio: null,

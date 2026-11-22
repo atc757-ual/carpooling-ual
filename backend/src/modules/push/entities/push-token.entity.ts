@@ -1,3 +1,5 @@
+import type { AppLanguage } from '../../../shared/i18n/app-language';
+import { DEFAULT_LANGUAGE } from '../../../shared/i18n/app-language';
 import {
   Column,
   CreateDateColumn,
@@ -24,6 +26,10 @@ export class PushToken {
 
   @Column({ type: 'varchar', length: 10 })
   platform: PushPlatform;
+
+  // El idioma de la app en este dispositivo: el de sus push
+  @Column({ type: 'varchar', length: 2, default: DEFAULT_LANGUAGE })
+  language: AppLanguage;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

@@ -7,6 +7,7 @@ import {
 
 const DATA: TripMailData = {
   to: 'mario@ual.es',
+  language: 'es',
   passengerName: 'Mario',
   driverFirstName: 'Lucía',
   // 08:00 en Madrid (UTC+1 en noviembre)
@@ -69,5 +70,22 @@ describe('trip mails', () => {
     expect(mail.text).toContain('Tienes 7 días');
     expect(mail.html).toContain('Valorar a Lucía');
     expect(mail.html).toContain(`href="${DATA.requestUrl}"`);
+  });
+
+  it('writes in English to a passenger who uses the app in English', () => {
+    const english = { ...DATA, language: 'en' as const };
+
+    const confirmed = buildSeatConfirmedMail(english);
+    const finished = buildTripFinishedMail(english);
+
+    expect(confirmed.subject).toBe("You have a seat on Lucía's ride");
+    expect(confirmed.text).toContain('Hi Mario,');
+    expect(confirmed.text).toMatch(/It leaves on Friday 20 November.*08:00/);
+    expect(confirmed.text).toContain(
+      'You are picked up at Av. Carlos III at 08:05.',
+    );
+    expect(confirmed.html).toContain('See your seat');
+    expect(finished.subject).toBe('Your ride with Lucía is over');
+    expect(finished.html).toContain('Rate Lucía');
   });
 });

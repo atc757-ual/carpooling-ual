@@ -27,6 +27,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { SplashScreenPlugin } from './core/plugins/splash-screen-plugin';
 import { AuthService } from './core/services/auth/auth.service';
+import { LanguageSyncService } from './core/services/users/language-sync.service';
 import { preventIosFocusZoom } from './shared/utils/ios-viewport.util';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { TranslatedTitleStrategy } from './core/i18n/translated-title.strategy';
@@ -84,6 +85,11 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(AuthService).restoreSession()),
     // En la app Android, el splash nativo se queda hasta la primera pantalla
     provideAppInitializer(() => inject(SplashScreenPlugin).hideWhenReady()),
+    // Con la sesión abierta, el idioma de la app es el de los correos y las
+    // push: lo manda a la API cuando no coincide (LanguageSyncService)
+    provideAppInitializer(() => {
+      inject(LanguageSyncService);
+    }),
     // En iPhone, sin el zoom automático al enfocar un campo
     provideAppInitializer(() => {
       if (IS_IOS) preventIosFocusZoom(inject(DOCUMENT));

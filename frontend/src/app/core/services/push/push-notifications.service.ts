@@ -7,6 +7,7 @@ import { AuthService } from '../auth/auth.service';
 import { ChatService } from '../chat/chat.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PUSH_CHANNEL, PushPermission, PushTarget } from './push-channel';
+import { appLanguage } from '../../i18n/app-locale';
 
 export type { PushTarget } from './push-channel';
 
@@ -58,6 +59,14 @@ export class PushNotificationsService {
     this.status.set(toStatus(permission));
   }
 
+  // Al cambiar de idioma: si están activadas, vuelve a registrar el token con
+  // el nuevo (las push de este dispositivo llegan en él)
+  async refreshLanguage(): Promise<void> {
+    if (this.status() === 'on') {
+      await this.register();
+    }
+  }
+
   // Pide el permiso y registra el token; false si no se da
   async enable(): Promise<boolean> {
     if (!(await this.isAvailable())) {
@@ -88,7 +97,13 @@ export class PushNotificationsService {
 
   private async register(): Promise<void> {
     const token = await this.channel.getToken();
-    await firstValueFrom(this.http.put<void>(this.url, { token, platform: this.channel.platform }));
+    await firstValueFrom(
+      this.http.put<void>(this.url, {
+        token,
+        platform: this.channel.platform,
+        language: appLanguage(),
+      }),
+    );
     await this.preferences.set(TOKEN_KEY, token);
   }
 

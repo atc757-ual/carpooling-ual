@@ -31,6 +31,7 @@ for (const viewport of VIEWPORTS) {
         email: 'mario.perez@ual.es',
         password: 'secreta123',
         acceptedTerms: true,
+        language: 'es',
       });
       cy.location('pathname').should('eq', '/auth/verify');
       cy.contains('h1', 'Verifica tu correo').should('be.visible');

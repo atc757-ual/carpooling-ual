@@ -7,15 +7,20 @@ import {
   TransactionCommitEvent,
   TransactionRollbackEvent,
 } from 'typeorm';
+import type { AppLanguage } from '../../shared/i18n/app-language';
 import { PushMessage, PushSender } from '../../shared/push/push-sender';
 import { PushTokensService } from './push-tokens.service';
 
 // Clave en los datos del QueryRunner de la transacción
 const PENDING_KEY = 'pendingPushes';
 
+// La misma push en cada idioma de la app: cada dispositivo recibe la del
+// suyo
+export type LocalizedPushMessage = Record<AppLanguage, PushMessage>;
+
 interface PendingPush {
   userIds: readonly string[];
-  message: PushMessage;
+  message: LocalizedPushMessage;
 }
 
 // Notificaciones push de lo importante de un viaje (las elige quien avisa:
@@ -39,7 +44,7 @@ export class PushService implements EntitySubscriberInterface {
   queue(
     manager: EntityManager,
     userIds: readonly string[],
-    message: PushMessage,
+    message: LocalizedPushMessage,
   ): void {
     if (userIds.length === 0) {
       return;
@@ -63,15 +68,16 @@ export class PushService implements EntitySubscriberInterface {
     takePending(queryRunner);
   }
 
-  // Los tokens que ya no valen se borran
+  // A cada dispositivo, en su idioma. Los tokens que ya no valen se borran
   async deliver({ userIds, message }: PendingPush): Promise<void> {
     try {
-      const recipients = await this.tokens.recipientsOf(userIds);
-      if (recipients.tokens.length === 0 && recipients.fids.length === 0) {
-        return;
-      }
-      const invalid = await this.sender.send(recipients, message);
-      await this.tokens.removeInvalid(invalid);
+      const byLanguage = await this.tokens.recipientsByLanguage(userIds);
+      const invalid = await Promise.all(
+        [...byLanguage].map(([language, recipients]) =>
+          this.sender.send(recipients, message[language]),
+        ),
+      );
+      await this.tokens.removeInvalid(invalid.flat());
     } catch (error) {
       this.logger.warn(
         `No se pudo enviar una push: ${(error as Error).message}`,

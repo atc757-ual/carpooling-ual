@@ -73,7 +73,7 @@ export class UpdateTravelPreferencesDto {
 // y de su perfil público. El correo no se cambia (es la identidad verificada
 // de la UAL)
 export class UpdateMeDto extends PartialType(
-  PickType(RegisterDto, ['firstName', 'lastName'] as const),
+  PickType(RegisterDto, ['firstName', 'lastName', 'language'] as const),
 ) {
   // El teléfono es opcional: null (o vacío) lo quita. Cambiarlo o quitarlo
   // pierde la verificación y deja de compartirlo

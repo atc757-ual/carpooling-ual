@@ -128,7 +128,7 @@ describe('AuthService', () => {
     };
     const register = auth.register(request);
     const httpRequest = await expectRequest('/api/auth/register');
-    expect(httpRequest.request.body).toEqual(request);
+    expect(httpRequest.request.body).toEqual({ language: 'es', ...request });
     httpRequest.flush(null, { status: 202, statusText: 'Accepted' });
 
     await expect(register).resolves.toBeUndefined();

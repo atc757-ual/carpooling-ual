@@ -1,3 +1,4 @@
+import type { AppLanguage } from '../services/ui/language.service';
 // Usuario de la plataforma tal como lo devuelve la API (recurso TMF630 User)
 import { TimeToleranceMin, TravelPreferences } from './travel-preferences.model';
 
@@ -25,6 +26,8 @@ export interface User {
   phoneVerified?: boolean;
   // Si deja que quien viaja con él le llame con el viaje en curso
   sharePhone?: boolean;
+  // El de sus correos y sus push: el que eligió en la app
+  language?: AppLanguage;
   profiles: Profile[];
   // Un administrador le ha desactivado todos sus perfiles
   isAccessRevoked?: boolean;
@@ -46,6 +49,8 @@ export interface UpdateMeRequest {
   phone?: string | null;
   // Compartirlo en los viajes (pide el teléfono verificado)
   sharePhone?: boolean;
+  // El de sus correos y sus push (lo manda LanguageSyncService)
+  language?: AppLanguage;
   timeToleranceMin?: TimeToleranceMin;
   avatarKey?: string | null;
   bio?: string | null;

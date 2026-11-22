@@ -1,3 +1,4 @@
+import type { AppLanguage } from '../../shared/i18n/app-language';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
@@ -23,6 +24,7 @@ export interface PendingRegistrationInput {
   firstName: string;
   lastName: string;
   phone: string | null;
+  language: AppLanguage;
   passwordHash: string;
 }
 
@@ -32,6 +34,7 @@ export interface IssuedCode {
   email: string;
   // Nombre de pila, para el saludo
   name: string;
+  language: AppLanguage;
 }
 
 type ConsumeResult<T> =
@@ -67,7 +70,12 @@ export class PendingRegistrationsService {
           ...data,
           ...this.codeFields(input.email, code, now),
         });
-        return { code, email: input.email, name: input.firstName };
+        return {
+          code,
+          email: input.email,
+          name: input.firstName,
+          language: input.language,
+        };
       }
       if (!this.canResend(existing, now)) {
         await manager.update(PendingRegistration, { id: existing.id }, data);
@@ -79,7 +87,12 @@ export class PendingRegistrationsService {
         { id: existing.id },
         { ...data, ...this.codeFields(input.email, code, now) },
       );
-      return { code, email: input.email, name: input.firstName };
+      return {
+        code,
+        email: input.email,
+        name: input.firstName,
+        language: input.language,
+      };
     });
   }
 
@@ -101,7 +114,12 @@ export class PendingRegistrationsService {
         { id: pending.id },
         this.codeFields(pending.email, code, now),
       );
-      return { code, email: pending.email, name: pending.firstName };
+      return {
+        code,
+        email: pending.email,
+        name: pending.firstName,
+        language: pending.language,
+      };
     });
   }
 

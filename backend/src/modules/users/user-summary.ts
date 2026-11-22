@@ -1,3 +1,4 @@
+import type { AppLanguage } from '../../shared/i18n/app-language';
 import { ProfileType, RegistrableProfile } from './profile-type';
 import { TravelPreferences } from './travel-preferences';
 
@@ -80,6 +81,7 @@ export interface UserSummary {
   phoneVerified: boolean;
   // Si deja que la otra persona del viaje le llame (con el viaje en curso)
   sharePhone: boolean;
+  language: AppLanguage;
   profiles: ProfileType[];
   // Tiene perfiles y un administrador los ha desactivado todos
   isAccessRevoked: boolean;
