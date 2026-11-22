@@ -31,7 +31,7 @@ export function translate(
       TRANSLATIONS[language],
     );
   if (typeof text !== 'string') {
-    throw new Error(`Missing translation ${language}:${key}`);
+    throw new TypeError(`Missing translation ${language}:${key}`);
   }
   return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, name: string) =>
     name in values ? String(values[name]) : match,
