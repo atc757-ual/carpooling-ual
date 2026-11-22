@@ -93,8 +93,8 @@
       "callPassenger": "Llamar a un pasajero",
       "unavailable": "Llamar (no disponible)",
       "onlyAllowed": "Solo se puede llamar con el viaje en curso.",
-      "noVerifiedPhone": "Nadie más de este viaje tiene el teléfono verificado.",
-      "whoToCall": "¿A quién llamas?"
+      "whoToCall": "¿A quién llamas?",
+      "noSharedPhone": "No comparte su teléfono. Escríbele por el chat."
     },
     "routeTimeline": {
       "aria": "Trayecto"
@@ -402,7 +402,7 @@
     "seeAllReviews": "Ver todas",
     "contactPhone": "Teléfono de contacto",
     "managePhone": "Gestionar o editar teléfono",
-    "emptyPhone": "Sin teléfono registrado.",
+    "emptyPhone": "No has añadido un teléfono (es opcional).",
     "phoneVerified": "Verificado",
     "verify": "Verificar",
     "phoneNote": "Tu teléfono solo se comparte con el conductor cuando se confirma una reserva.",
@@ -482,7 +482,7 @@
       "verifiedBadge": "Verificado",
       "pendingBadge": "Pendiente de verificación",
       "noPhone": "Aún no has añadido tu teléfono",
-      "note": "Solo se comparte con el conductor cuando se confirma una reserva.",
+      "note": "Es opcional. Solo lo ve quien viaja contigo, con el viaje en curso, si activas «Compartir mi teléfono en los viajes».",
       "phoneLabel": "Número de teléfono",
       "phoneError": "Revisa el número: en España, 9 cifras que empiezan por 6, 7, 8 o 9.",
       "changeWarning": "Si cambias el número, tendrás que verificarlo de nuevo con un código SMS.",
@@ -493,7 +493,11 @@
       "codeLabel": "Código recibido",
       "tooManyAttempts": "Has superado el número de intentos. Solicita un nuevo código para continuar.",
       "confirmCode": "Confirmar código",
-      "backToNumber": "Volver a editar el número"
+      "backToNumber": "Volver a editar el número",
+      "remove": "Quitar el teléfono",
+      "removeTitle": "¿Quitar tu teléfono?",
+      "removeText": "Dejarás de compartirlo y, si lo vuelves a añadir, tendrás que verificarlo otra vez.",
+      "removed": "Teléfono quitado."
     },
     "account": {
       "title": "Cuenta",
@@ -563,7 +567,13 @@
     "pushEnabledToast": "Te avisaremos aunque no tengas Carpooling UAL abierto.",
     "pushEnableError": "No hemos podido activar las notificaciones. Inténtalo de nuevo.",
     "pushDisableError": "No hemos podido desactivar las notificaciones. Inténtalo de nuevo.",
-    "bioHint": "Opcional: mínimo 20 y máximo 200 caracteres."
+    "bioHint": "Opcional: mínimo 20 y máximo 200 caracteres.",
+    "phoneShare": {
+      "title": "Compartir mi teléfono en los viajes",
+      "on": "Quien viaja contigo puede llamarte con el viaje en curso.",
+      "off": "Nadie puede llamarte; quien viaja contigo te escribe por el chat.",
+      "needsVerified": "Verifica tu teléfono para poder compartirlo."
+    }
   },
   "publish": {
     "anadirVehiculo": "Añadir vehículo",
@@ -888,9 +898,9 @@
       "firstNamePlaceholder": "Ana María",
       "lastNameLabel": "Apellidos",
       "lastNamePlaceholder": "Pérez García",
-      "phoneLabel": "Teléfono de contacto",
+      "phoneLabel": "Teléfono de contacto (opcional)",
       "phonePlaceholder": "612 345 678",
-      "phoneHelper": "Incluye tu número de teléfono móvil.",
+      "phoneHelper": "Solo para que quien viaje contigo te llame, si decides compartirlo.",
       "emailLabel": "Correo UAL",
       "emailPlaceholder": "nombre@inlumine.ual.es",
       "emailHelper": "Usa tu correo de la UAL. Lo verificarás después.",
@@ -992,7 +1002,6 @@
       "lastNameRequired": "Escribe tus apellidos.",
       "lastNameLength": "Los apellidos no pueden superar los 100 caracteres.",
       "nameInvalid": "Usa solo letras; entre palabras, un espacio, un guion o un apóstrofo.",
-      "phoneRequired": "Introduce tu teléfono de contacto.",
       "phoneInvalid": "Revisa el número: en España, 9 cifras que empiezan por 6, 7, 8 o 9.",
       "termsRequired": "Tienes que aceptar las condiciones para crear la cuenta.",
       "codeRequired": "Introduce el código de 6 dígitos.",
@@ -1497,7 +1506,7 @@
       "hemosPodidoGuardarHas": "No hemos podido guardar que has quitado el permiso de ubicación. Lo intentaremos de nuevo."
     },
     "tripCall": {
-      "nadieMasEsteViaje": "Nadie más de este viaje tiene el teléfono verificado.",
+      "nadieMasEsteViaje": "No comparte su teléfono. Escríbele por el chat.",
       "soloPuedeLlamarViaje": "Solo se puede llamar con el viaje en curso."
     },
     "locationModal": {

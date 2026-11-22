@@ -21,8 +21,9 @@ export class PendingRegistration {
   @Column({ name: 'last_name', type: 'varchar', length: 100 })
   lastName: string;
 
-  @Column({ type: 'varchar', length: 16 })
-  phone: string;
+  // Opcional (NULL si no lo dio)
+  @Column({ type: 'varchar', length: 16, nullable: true })
+  phone: string | null;
 
   @Column({ name: 'password_hash', type: 'text' })
   passwordHash: string;

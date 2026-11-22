@@ -172,13 +172,14 @@ export class UsersController {
   @ApiOperation({
     summary: 'Change my account details',
     description:
-      'Name, phone, default time margin of my searches, avatar, bio and travel preferences; only the fields sent change. The email cannot be changed.',
+      'Name, phone (optional: null removes it), whether I share it on my trips, default time margin of my searches, avatar, bio and travel preferences; only the fields sent change. The email cannot be changed.',
   })
   @ApiOkResponse({ type: UserResource })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND', 'AVATAR_NOT_FOUND'],
+    [HttpStatus.CONFLICT]: ['PHONE_NOT_VERIFIED'],
   })
   async updateMe(
     @CurrentUser() currentUser: AccessTokenPayload,

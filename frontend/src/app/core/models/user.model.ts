@@ -20,10 +20,11 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  // Formato internacional (+34600123456); null en quien no pasó por el
-  // registro (administrador inicial)
+  // Formato internacional (+34600123456); opcional (null si no lo ha dado)
   phone: string | null;
   phoneVerified?: boolean;
+  // Si deja que quien viaja con él le llame con el viaje en curso
+  sharePhone?: boolean;
   profiles: Profile[];
   // Un administrador le ha desactivado todos sus perfiles
   isAccessRevoked?: boolean;
@@ -41,7 +42,10 @@ export interface User {
 export interface UpdateMeRequest {
   firstName?: string;
   lastName?: string;
-  phone?: string;
+  // null (o vacío) lo quita: el teléfono es opcional
+  phone?: string | null;
+  // Compartirlo en los viajes (pide el teléfono verificado)
+  sharePhone?: boolean;
   timeToleranceMin?: TimeToleranceMin;
   avatarKey?: string | null;
   bio?: string | null;

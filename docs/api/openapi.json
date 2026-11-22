@@ -1331,7 +1331,7 @@
         ]
       },
       "patch": {
-        "description": "Name, phone, default time margin of my searches, avatar, bio and travel preferences; only the fields sent change. The email cannot be changed.",
+        "description": "Name, phone (optional: null removes it), whether I share it on my trips, default time margin of my searches, avatar, bio and travel preferences; only the fields sent change. The email cannot be changed.",
         "operationId": "UsersController_updateMe",
         "parameters": [],
         "requestBody": {
@@ -1377,6 +1377,16 @@
           },
           "404": {
             "description": "TMF630 error: USER_NOT_FOUND, AVATAR_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: PHONE_NOT_VERIFIED",
             "content": {
               "application/json": {
                 "schema": {
@@ -15343,7 +15353,8 @@
           },
           "phone": {
             "type": "string",
-            "description": "International format with country code; spaces, dashes and parentheses are ignored",
+            "nullable": true,
+            "description": "Optional. International format with country code; spaces, dashes and parentheses are ignored",
             "maxLength": 16,
             "example": "+34600123456"
           },
@@ -15361,7 +15372,6 @@
           "lastName",
           "email",
           "password",
-          "phone",
           "acceptedTerms"
         ]
       },
@@ -15505,12 +15515,17 @@
           "phone": {
             "type": "string",
             "nullable": true,
-            "description": "International format (E.164); null if never registered",
+            "description": "International format (E.164); null if the user has not given one (it is optional)",
             "example": "+34600123456"
           },
           "phoneVerified": {
             "type": "boolean",
             "description": "Whether the current phone number has been verified by SMS (false if unverified or if the user has no phone)",
+            "example": false
+          },
+          "sharePhone": {
+            "type": "boolean",
+            "description": "Whether the other person of my trips can call me while the trip is in progress (only with a verified phone; off by default)",
             "example": false
           },
           "profiles": {
@@ -15576,6 +15591,7 @@
           "email",
           "phone",
           "phoneVerified",
+          "sharePhone",
           "profiles",
           "isAccessRevoked",
           "activeMode",
@@ -15948,9 +15964,15 @@
           },
           "phone": {
             "type": "string",
-            "description": "International format with country code; spaces, dashes and parentheses are ignored",
+            "nullable": true,
             "maxLength": 16,
+            "description": "International format with country code (spaces, dashes and parentheses are ignored); null removes it. Changing or removing it drops the verification and stops sharing it",
             "example": "+34600123456"
+          },
+          "sharePhone": {
+            "type": "boolean",
+            "description": "Let the other person of my trips call me while the trip is in progress. Needs a verified phone (409 PHONE_NOT_VERIFIED)",
+            "example": true
           },
           "timeToleranceMin": {
             "type": "number",

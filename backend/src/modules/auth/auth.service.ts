@@ -27,7 +27,7 @@ export interface RegisterInput {
   lastName: string;
   email: string;
   password: string;
-  phone: string;
+  phone?: string | null;
 }
 
 export interface CreateAdminInput {
@@ -109,7 +109,7 @@ export class AuthService {
       firstName: input.firstName,
       lastName: input.lastName,
       email: input.email,
-      phone: input.phone,
+      phone: input.phone ?? null,
       passwordHash: await hash(input.password, BCRYPT_COST),
     });
   }
@@ -247,6 +247,7 @@ export class AuthService {
       email: user.email,
       phone: user.phone,
       phoneVerified: user.phoneVerifiedAt !== null,
+      sharePhone: user.sharePhone,
       profiles: this.usersService.getActiveProfiles(user),
       isAccessRevoked: this.usersService.isAccessRevoked(user),
       activeMode: user.activeMode,

@@ -75,9 +75,11 @@ export interface UserSummary {
   firstName: string;
   lastName: string;
   email: string;
-  // NULL en quien no pasó por el registro público (administrador inicial, seed)
+  // Opcional (NULL si no lo ha dado)
   phone: string | null;
   phoneVerified: boolean;
+  // Si deja que la otra persona del viaje le llame (con el viaje en curso)
+  sharePhone: boolean;
   profiles: ProfileType[];
   // Tiene perfiles y un administrador los ha desactivado todos
   isAccessRevoked: boolean;

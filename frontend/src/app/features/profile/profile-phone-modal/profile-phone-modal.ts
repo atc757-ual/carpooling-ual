@@ -12,7 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonButton, IonIcon, IonInput, IonSpinner, IonText, ModalController } from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
-import { checkmarkCircle, shieldCheckmarkOutline } from 'ionicons/icons';
+import { checkmarkCircle, shieldCheckmarkOutline, trashOutline } from 'ionicons/icons';
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { User } from '../../../core/models/user.model';
@@ -67,7 +67,7 @@ export class ProfilePhoneModal implements OnInit {
   // con el número sin editar; el código solo sale al confirmarlo
   @Input() startVerification = false;
 
-  readonly step = signal<'number' | 'confirm' | 'verify'>('number');
+  readonly step = signal<'number' | 'remove' | 'confirm' | 'verify'>('number');
   // Solo se vuelve a editar el número si se llegó al código desde él (no al
   // abrirla con «Verificar»)
   readonly canGoBackToNumber = signal(false);
@@ -91,6 +91,7 @@ export class ProfilePhoneModal implements OnInit {
 
   protected readonly verifiedIcon = checkmarkCircle;
   protected readonly shieldIcon = shieldCheckmarkOutline;
+  protected readonly removeIcon = trashOutline;
 
   readonly currentUser = computed(() => this.user ?? this.auth.currentUser());
   readonly isVerified = computed(() => Boolean(this.currentUser()?.phoneVerified));
@@ -218,6 +219,27 @@ export class ProfilePhoneModal implements OnInit {
       }
     } finally {
       this.isVerifying.set(false);
+    }
+  }
+
+  // Quita el teléfono (es opcional): la API lo deja sin verificar y deja de
+  // compartirlo
+  async handleRemovePhone(): Promise<void> {
+    if (this.isSaving()) {
+      return;
+    }
+    this.isSaving.set(true);
+    try {
+      const updated = await this.usersService.updateMe({ phone: null });
+      this.auth.updateUser(updated);
+      this.user = updated;
+      void this.toast.showSuccess(translate('profile.phoneModal.removed'));
+      await this.modalController.dismiss(updated, 'saved');
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      this.step.set('number');
+    } finally {
+      this.isSaving.set(false);
     }
   }
 

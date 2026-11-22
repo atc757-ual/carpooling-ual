@@ -93,8 +93,8 @@
       "callPassenger": "Call a passenger",
       "unavailable": "Call (unavailable)",
       "onlyAllowed": "Calls are only available while the trip is in progress.",
-      "noVerifiedPhone": "Nobody else on this trip has a verified phone number.",
-      "whoToCall": "Who are you calling?"
+      "whoToCall": "Who are you calling?",
+      "noSharedPhone": "They don't share their phone. Write to them in the chat."
     },
     "routeTimeline": {
       "aria": "Route"
@@ -402,7 +402,7 @@
     "seeAllReviews": "See all",
     "contactPhone": "Contact phone",
     "managePhone": "Manage or edit phone",
-    "emptyPhone": "No registered phone.",
+    "emptyPhone": "You haven't added a phone (it's optional).",
     "phoneVerified": "Verified",
     "verify": "Verify",
     "phoneNote": "Your phone is only shared with the driver when a booking is confirmed.",
@@ -482,7 +482,7 @@
       "verifiedBadge": "Verified",
       "pendingBadge": "Pending verification",
       "noPhone": "You haven't added your phone yet",
-      "note": "Only shared with the driver when a booking is confirmed.",
+      "note": "It is optional. Only the people you travel with see it, while the trip is in progress, if you turn on \"Share my phone on my trips\".",
       "phoneLabel": "Phone number",
       "phoneError": "Check the number: in Spain, 9 digits starting with 6, 7, 8 or 9.",
       "changeWarning": "If you change the number, you will need to verify it again with an SMS code.",
@@ -493,7 +493,11 @@
       "codeLabel": "Code received",
       "tooManyAttempts": "Too many attempts. Request a new code to continue.",
       "confirmCode": "Confirm code",
-      "backToNumber": "Back to edit phone number"
+      "backToNumber": "Back to edit phone number",
+      "remove": "Remove phone",
+      "removeTitle": "Remove your phone?",
+      "removeText": "You will stop sharing it and, if you add it again, you will have to verify it again.",
+      "removed": "Phone removed."
     },
     "account": {
       "title": "Account",
@@ -563,7 +567,13 @@
     "pushEnabledToast": "We'll notify you even when Carpooling UAL is closed.",
     "pushEnableError": "We couldn't turn on notifications. Please try again.",
     "pushDisableError": "We couldn't turn off notifications. Please try again.",
-    "bioHint": "Optional: 20 to 200 characters."
+    "bioHint": "Optional: 20 to 200 characters.",
+    "phoneShare": {
+      "title": "Share my phone on my trips",
+      "on": "The people you travel with can call you while the trip is in progress.",
+      "off": "Nobody can call you; the people you travel with write to you in the chat.",
+      "needsVerified": "Verify your phone to be able to share it."
+    }
   },
   "publish": {
     "anadirVehiculo": "Add vehicle",
@@ -888,9 +898,9 @@
       "firstNamePlaceholder": "Ana María",
       "lastNameLabel": "Last name",
       "lastNamePlaceholder": "Pérez García",
-      "phoneLabel": "Contact phone",
+      "phoneLabel": "Contact phone (optional)",
       "phonePlaceholder": "612 345 678",
-      "phoneHelper": "Enter your mobile phone number.",
+      "phoneHelper": "Only so the people you travel with can call you, if you choose to share it.",
       "emailLabel": "UAL email",
       "emailPlaceholder": "name@inlumine.ual.es",
       "emailHelper": "Use your UAL email. You will verify it later.",
@@ -992,7 +1002,6 @@
       "lastNameRequired": "Enter your last name.",
       "lastNameLength": "The last name must be 100 characters or fewer.",
       "nameInvalid": "Use letters, spaces, hyphens or apostrophes only.",
-      "phoneRequired": "Enter your contact phone number.",
       "phoneInvalid": "Check the number: in Spain, use 9 digits starting with 6, 7, 8 or 9.",
       "termsRequired": "You must accept the terms to create your account.",
       "codeRequired": "Enter the 6-digit code.",
@@ -1497,7 +1506,7 @@
       "hemosPodidoGuardarHas": "We couldn't save that you removed the location permission. We'll try again."
     },
     "tripCall": {
-      "nadieMasEsteViaje": "Nobody else on this trip has a verified phone.",
+      "nadieMasEsteViaje": "They don't share their phone. Write to them in the chat.",
       "soloPuedeLlamarViaje": "You can only call while the trip is in progress."
     },
     "locationModal": {

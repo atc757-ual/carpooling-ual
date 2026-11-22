@@ -327,7 +327,7 @@ describe('DriverLiveTripPage', () => {
     expect(openPhoneSpy).toHaveBeenCalledWith('+34600333444');
   });
 
-  it('disables the call button when passenger has no verified phone', async () => {
+  it('disables the call button when the passenger does not share their phone', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)], []);
 
     const callBtn = root.querySelector('button.icon-btn');
@@ -336,7 +336,7 @@ describe('DriverLiveTripPage', () => {
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
     expect(showInfoMock).toHaveBeenCalledWith(
-      'Nadie más de este viaje tiene el teléfono verificado.',
+      'No comparte su teléfono. Escríbele por el chat.',
     );
   });
 

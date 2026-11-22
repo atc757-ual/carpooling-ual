@@ -84,6 +84,47 @@
         </div>
       }
     </form>
+
+    <!-- El teléfono es opcional: se puede quitar (con un paso de confirmación
+         en la misma ventana, para que no se vean dos) -->
+    @if (currentUser()?.phone) {
+      <form (submit)="$event.preventDefault(); step.set('remove')">
+        <ion-button
+          class="profile-phone-modal__remove"
+          type="submit"
+          fill="clear"
+          color="danger"
+          expand="block"
+        >
+          <ion-icon slot="start" [icon]="removeIcon" aria-hidden="true" />
+          {{ 'profile.phoneModal.remove' | transloco }}
+        </ion-button>
+      </form>
+    }
+  } @else if (step() === 'remove') {
+    <div class="profile-phone-modal__verify">
+      <div class="profile-phone-modal__verify-header">
+        <h3 class="profile-phone-modal__title">
+          {{ 'profile.phoneModal.removeTitle' | transloco }}
+        </h3>
+        <p class="text-body-s text-color-muted">
+          {{ 'profile.phoneModal.removeText' | transloco }}
+        </p>
+      </div>
+      <form (submit)="$event.preventDefault(); handleRemovePhone()">
+        <ion-button type="submit" color="danger" expand="block" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <ion-spinner name="crescent" slot="start" aria-hidden="true" />
+          }
+          {{ 'profile.phoneModal.remove' | transloco }}
+        </ion-button>
+      </form>
+      <form (submit)="$event.preventDefault(); step.set('number')">
+        <ion-button type="submit" fill="clear" expand="block">
+          {{ 'common.cancel' | transloco }}
+        </ion-button>
+      </form>
+    </div>
   } @else if (step() === 'confirm') {
     <!-- Desde «Verificar»: qué va a pasar y a qué número, sin editarlo; el SMS
          solo se envía al confirmar. Si no es el suyo, el enlace lleva al formulario -->

@@ -433,6 +433,7 @@ describe('AuthService', () => {
           lastName: 'García',
           email: 'ana@ual.es',
           phoneVerified: false,
+          sharePhone: false,
           profiles: ['driver'],
           avatarKey: null,
           bio: null,

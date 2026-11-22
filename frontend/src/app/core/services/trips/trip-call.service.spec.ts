@@ -36,7 +36,7 @@ describe('TripCallService', () => {
                 call: 'Call',
                 callTo: 'Call {{ name }}',
                 onlyAllowed: 'Calls are only available while the trip is in progress.',
-                noVerifiedPhone: 'Nobody else on this trip has a verified phone number.',
+                noSharedPhone: "They don't share their phone. Write to them in the chat.",
               },
             },
           },
@@ -100,7 +100,7 @@ describe('TripCallService', () => {
       'Calls are only available while the trip is in progress.',
     );
     expect(service.getUnavailableReason('in_progress')).toContain(
-      'Nobody else on this trip has a verified phone number.',
+      "They don't share their phone. Write to them in the chat.",
     );
   });
 

@@ -39,7 +39,7 @@ export class TripCallService {
   getUnavailableReason(tripStatus: string | undefined | null): string {
     if (tripStatus && CALLABLE_TRIP_STATUSES.has(tripStatus)) {
       return (
-        this.transloco?.translate('common.tripCall.noVerifiedPhone') ??
+        this.transloco?.translate('common.tripCall.noSharedPhone') ??
         translate('screens.tripCall.nadieMasEsteViaje')
       );
     }
