@@ -145,10 +145,16 @@ export function meetingPointOf(
 ): PlanePoint | null {
   const { origin } = passenger;
   if (offer.leg === 'to-campus' && offer.pickupMode === 'stops') {
-    const nearest = offer.stops.reduce((best, stop) =>
-      distanceKm(stop, origin) < distanceKm(best, origin) ? stop : best,
+    // La más cercana a pie; sin paradas, ninguna
+    const nearest = offer.stops.reduce<PlanePoint | null>(
+      (best, stop) =>
+        best === null || distanceKm(stop, origin) < distanceKm(best, origin)
+          ? stop
+          : best,
+      null,
     );
-    return distanceKm(nearest, origin) * METERS_PER_KM <= WALK_RADIUS_M
+    return nearest !== null &&
+      distanceKm(nearest, origin) * METERS_PER_KM <= WALK_RADIUS_M
       ? nearest
       : null;
   }

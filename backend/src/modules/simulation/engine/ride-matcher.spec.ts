@@ -160,6 +160,8 @@ describe('findRide', () => {
     const near = findRide(at(6.3, 0.6), [withStops]);
     expect(near?.meetingPoint).toEqual({ x: 6, y: 0 });
     expect(findRide(at(5, 0.6), [withStops])).toBeNull();
+    // Sin paradas, nadie encaja
+    expect(findRide(at(6, 0), [{ ...withStops, stops: [] }])).toBeNull();
   });
 
   it('on the way back, leaves from campus at its time and drops off near the route', () => {
