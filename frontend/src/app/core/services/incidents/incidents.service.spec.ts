@@ -46,6 +46,27 @@ describe('IncidentsService', () => {
     expect(res.category).toBe('technical');
   });
 
+  it('lists my incidents five at a time with the total', async () => {
+    const promise = service.listMine(5);
+
+    const req = http.expectOne((request) => request.url === '/api/users/me/incidents');
+    expect(req.request.params.get('offset')).toBe('5');
+    expect(req.request.params.get('limit')).toBe('5');
+    req.flush([{ id: 'inc-6' }], { headers: { 'X-Total-Count': '6' } });
+
+    expect(await promise).toEqual({ items: [{ id: 'inc-6' }], total: 6 });
+  });
+
+  it('translates errors listing my incidents to ApiError', async () => {
+    const promise = service.listMine(0);
+
+    http
+      .expectOne((request) => request.url === '/api/users/me/incidents')
+      .flush({ code: 'INTERNAL_ERROR' }, { status: 500, statusText: 'Server Error' });
+
+    await expect(promise).rejects.toBeInstanceOf(ApiError);
+  });
+
   it('translates http errors to ApiError', async () => {
     const promise = service.reportTripIncident('t1', {
       category: 'technical',

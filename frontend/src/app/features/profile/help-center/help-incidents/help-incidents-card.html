@@ -1,0 +1,64 @@
+<ion-card class="help-incidents">
+  <h2 class="help-incidents__title text-body text-body--strong">
+    {{ 'help.incidents.title' | transloco }}
+  </h2>
+
+  @if (errorMessage(); as message) {
+    <div class="notice notice--danger" role="alert">
+      <span>{{ message }}</span>
+      <ion-button fill="outline" size="small" (click)="handleRetry()">
+        {{ 'help.retry' | transloco }}
+      </ion-button>
+    </div>
+  } @else if (page.hasValue()) {
+    @if (page.value().total === 0) {
+      <p class="text-body-s text-color-muted help-incidents__empty">
+        {{ 'help.incidents.empty' | transloco }}
+      </p>
+    } @else {
+      <!-- Cada una, un ion-item con su flecha que abre el detalle (guía:
+           filas con una sola acción) -->
+      <ion-list class="help-incidents__list" [attr.aria-busy]="page.isLoading()">
+        @for (incident of page.value().items; track incident.id; let last = $last) {
+          <ion-item
+            class="help-incidents__item"
+            [button]="true"
+            [detail]="true"
+            [lines]="last ? 'none' : 'full'"
+            (click)="handleOpen(incident)"
+          >
+            <ion-label class="help-incidents__label">
+              <span class="help-incidents__head">
+                <span class="text-label text-label--strong">
+                  {{ categoryKey(incident.category, true) | transloco }}
+                </span>
+                <span class="status" [class]="statuses[incident.status].cssClass">
+                  {{ statuses[incident.status].labelKey | transloco }}
+                </span>
+              </span>
+              <span class="text-caption text-color-muted">
+                {{ incident.code }} · {{ date(incident.reportedAt) }}
+              </span>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+      @if (page.value().total > pageSize) {
+        <app-pagination
+          [offset]="offset()"
+          [limit]="pageSize"
+          [total]="page.value().total"
+          [isLoading]="page.isLoading()"
+          [ariaLabel]="'help.incidents.paginationAria' | transloco"
+          (offsetChange)="handlePage($event)"
+        />
+      }
+    }
+  } @else {
+    <div aria-busy="true">
+      @for (row of skeletonRows; track row) {
+        <ion-skeleton-text [animated]="true" class="help-incidents__skeleton" />
+      }
+    </div>
+  }
+</ion-card>

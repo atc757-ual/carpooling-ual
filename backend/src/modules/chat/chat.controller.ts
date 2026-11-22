@@ -30,7 +30,7 @@ import {
 } from '../../shared/pagination/paginated';
 import {
   IncidentResource,
-  toIncidentResource,
+  toReporterIncidentResource,
 } from '../incidents/dto/incident.resource';
 import { ChatReportsService } from './chat-reports.service';
 import { type ChatMessageInput, ChatService } from './chat.service';
@@ -222,7 +222,7 @@ export class ChatController {
     @Body() dto: ReportChatDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<IncidentResource> {
-    const incident = toIncidentResource(
+    const incident = toReporterIncidentResource(
       await this.chatReportsService.report(
         user.sub,
         { tripId, passengerId: query.passengerId },

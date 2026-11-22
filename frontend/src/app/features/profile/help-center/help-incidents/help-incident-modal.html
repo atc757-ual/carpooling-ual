@@ -1,0 +1,63 @@
+<app-modal-header
+  [title]="'help.incidents.detailTitle' | transloco: { code: incident.code }"
+  [closeLabel]="'common.close' | transloco"
+  (closed)="close()"
+/>
+
+<div class="modal-body help-incident">
+  <div class="help-incident__head">
+    <span class="text-body text-body--strong">{{ categoryKey | transloco }}</span>
+    <span class="status status--heading" [class]="status.cssClass">
+      {{ status.labelKey | transloco }}
+    </span>
+  </div>
+
+  <!-- El viaje: la ruta y el día; sin los nombres, «Viaje del 18 nov 2026» -->
+  @if (route) {
+    <p class="text-body-s text-color-muted help-incident__trip">
+      {{ route }}
+      @if (departure) {
+        · {{ departure }}
+      }
+    </p>
+  } @else if (departure) {
+    <p class="text-body-s text-color-muted help-incident__trip">
+      {{ 'help.incidents.tripOn' | transloco: { date: departure } }}
+    </p>
+  }
+
+  <section class="help-incident__section">
+    <h3 class="text-label text-label--strong">{{ 'help.incidents.yourReport' | transloco }}</h3>
+    <p class="text-body-s help-incident__text">{{ incident.description }}</p>
+  </section>
+
+  <section class="help-incident__section">
+    <h3 class="text-label text-label--strong">{{ 'help.incidents.progress' | transloco }}</h3>
+    <ion-list class="help-incident__moments" lines="none">
+      @for (moment of moments; track moment.labelKey) {
+        <ion-item class="help-incident__moment" [class.help-incident__moment--pending]="!moment.at">
+          <ion-icon
+            slot="start"
+            [icon]="moment.at ? reachedIcon : pendingIcon"
+            aria-hidden="true"
+          />
+          <ion-label class="text-body-s">{{ moment.labelKey | transloco }}</ion-label>
+          <ion-note slot="end" class="text-caption">
+            {{ moment.at ? dateTime(moment.at) : ('help.incidents.notYet' | transloco) }}
+          </ion-note>
+        </ion-item>
+      }
+    </ion-list>
+  </section>
+
+  @if (incident.review; as review) {
+    <section class="help-incident__section help-incident__answer">
+      <h3 class="text-label text-label--strong">{{ 'help.incidents.answer' | transloco }}</h3>
+      <p class="text-body-s help-incident__text">{{ review.resolution }}</p>
+    </section>
+  } @else {
+    <p class="text-body-s text-color-muted help-incident__pending">
+      {{ 'help.incidents.pendingHint' | transloco }}
+    </p>
+  }
+</div>

@@ -30,6 +30,7 @@ import { groupByTopic, HELP_CENTER_PATH } from './help-center.util';
 import { injectFaqLang, showHeadingWhileVisible } from './help-page.util';
 import { HelpAudiencePicker } from './help-audience-picker/help-audience-picker';
 import { HelpSupportCard } from './help-support-card/help-support-card';
+import { HelpIncidentsCard } from './help-incidents/help-incidents-card';
 
 const SKELETON_ROWS = [1, 2, 3, 4];
 // Las que caben en el desplegable del buscador
@@ -45,6 +46,7 @@ const MAX_SEARCH_ITEMS = 8;
   imports: [
     HelpAudiencePicker,
     HelpSupportCard,
+    HelpIncidentsCard,
     IonBreadcrumb,
     IonBreadcrumbs,
     IonButton,

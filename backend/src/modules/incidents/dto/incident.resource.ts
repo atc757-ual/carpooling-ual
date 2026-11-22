@@ -56,8 +56,12 @@ export class IncidentReporterResource {
 
 // Quién la está revisando y desde cuándo (solo en revisión)
 export class IncidentReviewInProgressResource {
-  @ApiProperty({ type: IncidentDriverResource })
-  by: IncidentDriverResource;
+  @ApiProperty({
+    type: IncidentDriverResource,
+    nullable: true,
+    description: 'The administrator; null for whoever reported it',
+  })
+  by: IncidentDriverResource | null;
 
   @ApiProperty({ format: 'date-time' })
   since: string;
@@ -66,9 +70,11 @@ export class IncidentReviewInProgressResource {
 export class IncidentReviewResource {
   @ApiProperty({
     type: IncidentDriverResource,
-    description: 'The administrator who resolved it',
+    nullable: true,
+    description:
+      'The administrator who resolved it; null for whoever reported it',
   })
-  by: IncidentDriverResource;
+  by: IncidentDriverResource | null;
 
   @ApiProperty({
     format: 'date-time',
@@ -219,5 +225,21 @@ export function toIncidentResource({
             resolution,
           }
         : null,
+  };
+}
+
+// La que ve quien la comunicó: sin el nombre de los administradores, que
+// responden como equipo (minimización)
+export function toReporterIncidentResource(
+  view: IncidentView,
+): IncidentResource {
+  const resource = toIncidentResource(view);
+  return {
+    ...resource,
+    reviewInProgress: resource.reviewInProgress && {
+      ...resource.reviewInProgress,
+      by: null,
+    },
+    review: resource.review && { ...resource.review, by: null },
   };
 }

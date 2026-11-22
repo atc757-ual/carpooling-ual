@@ -20036,7 +20036,14 @@
         "type": "object",
         "properties": {
           "by": {
-            "$ref": "#/components/schemas/IncidentDriverResource"
+            "nullable": true,
+            "description": "The administrator; null for whoever reported it",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IncidentDriverResource"
+              }
+            ]
           },
           "since": {
             "type": "string",
@@ -20052,7 +20059,9 @@
         "type": "object",
         "properties": {
           "by": {
-            "description": "The administrator who resolved it",
+            "nullable": true,
+            "description": "The administrator who resolved it; null for whoever reported it",
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/IncidentDriverResource"

@@ -47,7 +47,8 @@ export function reviewWithResolution(
 ): Promise<boolean> {
   return confirmWithReason(modalController, {
     header: '¿Marcar como atendida?',
-    message: 'Es definitivo: la resolución queda junto al informe original.',
+    message:
+      'Es definitivo: la resolución queda junto al informe original y la verá quien la comunicó, firmada por el equipo.',
     confirmText: 'Marcar atendida',
     fieldLabel: 'Resolución',
     maxLength: RESOLUTION_MAX_LENGTH,

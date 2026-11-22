@@ -872,7 +872,24 @@
     "moreText": "Escríbenos y te responderemos por correo.",
     "contactSupport": "Escribir a soporte",
     "loadError": "No hemos podido cargar las preguntas.",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "incidents": {
+      "title": "Tus incidencias",
+      "empty": "No has comunicado ninguna incidencia.",
+      "paginationAria": "Páginas de tus incidencias",
+      "detailTitle": "Incidencia {{ code }}",
+      "yourReport": "Lo que nos contaste",
+      "progress": "Seguimiento",
+      "notYet": "Pendiente",
+      "answer": "Respuesta del equipo de Carpooling UAL",
+      "pendingHint": "El equipo la revisará. Cuando la atienda, verás aquí su respuesta.",
+      "status": {
+        "open": "Registrada",
+        "inReview": "En revisión",
+        "reviewed": "Atendida"
+      },
+      "tripOn": "Viaje del {{ date }}"
+    }
   },
   "auth": {
     "layout": {
@@ -1866,7 +1883,9 @@
       "safety": "Me he sentido en peligro",
       "safetyShort": "En peligro",
       "other": "Otro motivo",
-      "otherShort": "Otro motivo"
+      "otherShort": "Otro motivo",
+      "chatBehavior": "Comportamiento en el chat",
+      "chatBehaviorShort": "En el chat"
     },
     "travelPreferences": {
       "conversation": "Conversación",
