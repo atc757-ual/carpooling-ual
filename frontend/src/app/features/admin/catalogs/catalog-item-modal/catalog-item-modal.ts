@@ -1,10 +1,11 @@
-import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, Input, OnInit, signal } from '@angular/core';
 import { IonButton, IonIcon, IonInput, IonSpinner, ModalController } from '@ionic/angular';
 import { cloudUploadOutline } from 'ionicons/icons';
 import { AdminCatalogChanges } from '../../../../core/models/admin-catalog.model';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { LocationModal } from '../../../matching/location-modal/location-modal';
+import { presentOverParent } from '../../../../shared/utils/modal-stack.util';
 import { CatalogField, FIELD_LABELS, formatPoint } from '../catalog-config';
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -45,6 +46,7 @@ export interface CatalogItemModalOptions {
 })
 export class CatalogItemModal implements OnInit {
   private readonly modalController = inject(ModalController);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   @Input({ required: true }) header!: string;
   @Input({ required: true }) confirmText!: string;
@@ -161,7 +163,7 @@ export class CatalogItemModal implements OnInit {
       componentProps: { adjustPoint: this.point() ?? CAMPUS_POINT, pickPoint: true },
       cssClass: 'location-dialog',
     });
-    await modal.present();
+    await presentOverParent(modal, this.host.nativeElement);
     const { data, role } = await modal.onDidDismiss<[number, number]>();
     if (role === 'picked' && data) {
       this.point.set(data);

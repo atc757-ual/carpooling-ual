@@ -36,17 +36,19 @@
   }
 }
 
-// El buscador: azul claro, sin sombra ni borde, esquinas de 8px y 44px de
-// alto. En escritorio, del ancho de la columna de 8 y separado de las migas
+// El buscador: azul claro (también en modo oscuro), sin sombra ni borde,
+// esquinas de 8px y 44px de alto. En escritorio, del ancho de la columna de 8
+// y separado de las migas
 .help-heading__search {
-  --background: var(--color-primary-subtle);
+  --background: var(--color-search-field);
   --box-shadow: none;
   --border-radius: var(--radius-s); // 8px, como su desplegable
   border-radius: var(--radius-s);
-  --color: var(--color-text);
-  --placeholder-color: var(--color-text-muted);
+  --color: var(--color-on-search-field);
+  --placeholder-color: var(--color-search-field-muted);
   --placeholder-opacity: 1;
-  --icon-color: var(--color-primary);
+  --icon-color: var(--color-search-field-icon);
+  --clear-button-color: var(--color-search-field-muted);
 
   min-height: var(--control-height-s);
   padding: 0;

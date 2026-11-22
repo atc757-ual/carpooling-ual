@@ -1,5 +1,5 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -11,6 +11,7 @@ import {
   IonSelectOption,
   ModalController,
 } from '@ionic/angular';
+import { presentOverParent } from '../../../shared/utils/modal-stack.util';
 import { closeOutline, locationOutline, mapOutline, navigateOutline } from 'ionicons/icons';
 import { merge } from 'rxjs';
 import { PickupMode } from '../../../core/models/driver.model';
@@ -55,6 +56,7 @@ export interface PickupModeControls {
 })
 export class PickupModeField {
   private readonly modalController = inject(ModalController);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly controls = input.required<PickupModeControls>();
   // Dónde abrir el mapa para elegir una parada (la salida del conductor)
@@ -113,7 +115,7 @@ export class PickupModeField {
       },
       cssClass: 'location-dialog',
     });
-    await modal.present();
+    await presentOverParent(modal, this.host.nativeElement);
     const { data, role } = await modal.onDidDismiss<LocationModalResult>();
     if (role === 'select' && data && !Array.isArray(data) && data.isCovered) {
       this.addStop(toSearchPlace(data));

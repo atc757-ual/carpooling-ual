@@ -35,10 +35,26 @@ export function straightLineKm(from: Point, to: Point): number {
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(a));
 }
 
-// El CO₂ de un coche en ese trayecto, redondeado a 0,1 kg como en la app
-function tripCo2Kg({ origin, destination }: ImpactLeg): number {
+// Los km por carretera de un trayecto (0 si el origen y el destino son el
+// mismo sitio)
+function roadKm({ origin, destination }: ImpactLeg): number {
   const km = straightLineKm(origin, destination) * ROAD_FACTOR;
-  return km < MIN_KM ? 0 : Math.round(km * CO2_KG_PER_KM * 10) / 10;
+  return km < MIN_KM ? 0 : km;
+}
+
+// El CO₂ de un coche en ese trayecto, redondeado a 0,1 kg como en la app
+function tripCo2Kg(leg: ImpactLeg): number {
+  return Math.round(roadKm(leg) * CO2_KG_PER_KM * 10) / 10;
+}
+
+// Los km compartidos: los de los trayectos en que se compartió coche (como
+// conductor, con algún pasajero), redondeados a 0,1 km
+export function sharedKm(legs: readonly ImpactLeg[]): number {
+  const total = legs.reduce(
+    (sum, leg) => sum + (leg.carsAvoided > 0 ? roadKm(leg) : 0),
+    0,
+  );
+  return Math.round(total * 10) / 10;
 }
 
 // Lo ahorrado en todos los trayectos: el de un coche por cada coche evitado

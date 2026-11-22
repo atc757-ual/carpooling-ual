@@ -28,6 +28,7 @@ import {
   sunny,
   thumbsDown,
   thumbsUp,
+  chevronForwardOutline,
   trashOutline,
 } from 'ionicons/icons';
 import { RouterLink } from '@angular/router';
@@ -64,6 +65,8 @@ import { ProfilePreferencesModal } from './profile-preferences-modal/profile-pre
 import { ProfilePhoneModal } from './profile-phone-modal/profile-phone-modal';
 import { ProfilePasswordModal } from './profile-password-modal/profile-password-modal';
 import { ProfileDeleteModal } from './profile-delete-modal/profile-delete-modal';
+import { ProfileReviewsModal } from './profile-reviews-modal/profile-reviews-modal';
+import { ReviewTargetRole } from '../../core/services/users/trip-reviews.service';
 import { rethrowUnlessApiError } from '../../core/models/api-error.model';
 
 interface PreferenceRow {
@@ -73,6 +76,7 @@ interface PreferenceRow {
 }
 
 interface ReviewRow {
+  key: ReviewTargetRole;
   role: string;
   average: string;
   value: number;
@@ -152,11 +156,20 @@ export class ProfilePage implements OnInit {
   readonly reviewRows = computed<ReviewRow[]>(() => {
     const ratings = this.user()?.ratings;
     return [
-      { role: translate('screens.profile.comoConductor'), rating: ratings?.driver },
-      { role: translate('screens.profile.comoPasajero'), rating: ratings?.passenger },
+      {
+        key: 'driver' as const,
+        role: translate('screens.profile.comoConductor'),
+        rating: ratings?.driver,
+      },
+      {
+        key: 'passenger' as const,
+        role: translate('screens.profile.comoPasajero'),
+        rating: ratings?.passenger,
+      },
     ]
       .filter(({ rating }) => (rating?.ratingCount ?? 0) > 0 && rating?.averageRating != null)
-      .map(({ role, rating }) => ({
+      .map(({ key, role, rating }) => ({
+        key,
         role,
         average: (rating?.averageRating ?? 0).toFixed(1).replace('.', ','),
         value: rating?.averageRating ?? 0,
@@ -208,6 +221,7 @@ export class ProfilePage implements OnInit {
   protected readonly sunIcon = sunny;
   protected readonly moonIcon = moon;
   protected readonly thumbsUpIcon = thumbsUp;
+  protected readonly chevronIcon = chevronForwardOutline;
   protected readonly thumbsDownIcon = thumbsDown;
   protected readonly toleranceIcon = TIME_TOLERANCE_ICON;
   protected readonly keyIcon = keyOutline;
@@ -263,6 +277,17 @@ export class ProfilePage implements OnInit {
     if (role === 'saved') {
       void this.refreshData();
     }
+  }
+
+  // Las reseñas recibidas, abiertas en el papel de la fila pulsada (con una
+  // pestaña por cada papel que tiene reseñas)
+  async handleOpenReviews(role: ReviewTargetRole): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ProfileReviewsModal,
+      cssClass: 'info-dialog',
+      componentProps: { roles: this.reviewRows().map((row) => row.key), initialRole: role },
+    });
+    await modal.present();
   }
 
   // startVerification: desde «Verificar», el modal explica el SMS antes de enviarlo

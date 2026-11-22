@@ -41,6 +41,21 @@ describe('TripReviewsService', () => {
     expect(await pending).toEqual([]);
   });
 
+  it('lists a page of the reviews received in a role, with the total', async () => {
+    const received = service.listReceived('passenger', 10, 10);
+    const list = http.expectOne((req) => req.url === '/api/users/me/reviews');
+    expect(list.request.params.get('direction')).toBe('received');
+    expect(list.request.params.get('role')).toBe('passenger');
+    expect(list.request.params.get('offset')).toBe('10');
+    expect(list.request.params.get('limit')).toBe('10');
+    list.flush([{ id: 'v1' }], { headers: { 'X-Total-Count': '11' } });
+    await expect(received).resolves.toEqual({ items: [{ id: 'v1' }], total: 11 });
+
+    const failed = service.listReceived('driver', 0, 10);
+    http.expectOne((req) => req.url === '/api/users/me/reviews').error(new ProgressEvent('x'));
+    await expect(failed).rejects.toBeInstanceOf(ApiError);
+  });
+
   it('turns the API errors into ApiError', async () => {
     const created = service.create('t1', { targetId: 'd1', rating: 1 });
     http.expectOne('/api/trips/t1/reviews').flush(

@@ -125,6 +125,34 @@ app-profile-push-setting {
   }
 }
 
+// La fila de un papel es un botón (abre sus reseñas): sin aspecto de botón,
+// a todo el ancho, con la flecha a la derecha y el azul suave al pasar
+.profile__review-button {
+  width: 100%;
+  padding-top: 0;
+  padding-inline: 0;
+  border-top: 0;
+  border-inline: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover .profile__review-chevron {
+    color: var(--color-link);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+  }
+}
+
+.profile__review-chevron {
+  color: var(--color-text-muted);
+  font-size: var(--icon-size-s);
+}
+
 .profile__review-score {
   display: inline-flex;
   align-items: center;

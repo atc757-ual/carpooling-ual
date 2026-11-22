@@ -1,8 +1,18 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
-import { Component, computed, DestroyRef, forwardRef, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  computed,
+  DestroyRef,
+  forwardRef,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonIcon, IonInput, ModalController } from '@ionic/angular';
+import { presentOverParent } from '../../../shared/utils/modal-stack.util';
 import { locateOutline, navigateCircleOutline } from 'ionicons/icons';
 import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { Place, PlaceSuggestion } from '../../../core/models/place.model';
@@ -57,6 +67,7 @@ export class PlaceField implements ControlValueAccessor {
   private readonly places = inject(PlacesService);
   private readonly location = inject(LocationService);
   private readonly modalController = inject(ModalController);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   // «Origen» o «Destino» (nombre del campo para los lectores de pantalla)
   readonly label = input.required<string>();
@@ -240,7 +251,7 @@ export class PlaceField implements ControlValueAccessor {
       componentProps,
       cssClass: 'location-dialog',
     });
-    await modal.present();
+    await presentOverParent(modal, this.host.nativeElement);
     return modal.onDidDismiss<LocationModalResult>();
   }
 

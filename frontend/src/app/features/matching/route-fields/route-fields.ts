@@ -1,9 +1,10 @@
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { IonIcon, IonSelect, IonSelectOption, ModalController } from '@ionic/angular';
+import { presentOverParent } from '../../../shared/utils/modal-stack.util';
 import { ellipseOutline, locationOutline, swapHorizontal } from 'ionicons/icons';
 import { map, startWith, switchMap } from 'rxjs';
 import { SearchPlace } from '../../../core/models/trip-search.model';
@@ -55,6 +56,7 @@ export class RouteFields implements OnInit {
   private readonly places = inject(PlacesService);
   private readonly location = inject(LocationService);
   private readonly modalController = inject(ModalController);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly placeField = viewChild(PlaceField);
 
   // Los controles del formulario de quien lo usa (form.controls)
@@ -167,6 +169,6 @@ export class RouteFields implements OnInit {
       },
       cssClass: 'location-dialog',
     });
-    await modal.present();
+    await presentOverParent(modal, this.host.nativeElement);
   }
 }

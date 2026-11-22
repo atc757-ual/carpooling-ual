@@ -19,18 +19,24 @@ export class UserImpactResource {
   tripsDone: number;
 
   @ApiProperty({
-    example: 5,
-    description:
-      'Cars that stayed at home: one per passenger carried as the driver and one per trip done as a passenger',
-  })
-  carsAvoided: number;
-
-  @ApiProperty({
     example: 34.2,
     description:
       'Estimated CO₂ saved, in kg (straight-line distance by a road factor and an average car)',
   })
   co2Kg: number;
+
+  @ApiProperty({
+    example: 52.4,
+    description:
+      'Estimated km shared as the driver: finished trips that carried at least one passenger',
+  })
+  driverKm: number;
+
+  @ApiProperty({
+    example: 26.2,
+    description: 'Estimated km shared as a passenger: completed seats',
+  })
+  passengerKm: number;
 }
 
 export function toUserImpactResource(impact: UserImpact): UserImpactResource {

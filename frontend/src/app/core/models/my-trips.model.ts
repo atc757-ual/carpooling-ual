@@ -21,6 +21,7 @@ export const TRIP_ENTRIES_PAGE_SIZE = 10;
 // GET /users/me/impact: lo ahorrado con los dos papeles
 export interface UserImpact {
   tripsDone: number;
-  carsAvoided: number;
+  driverKm: number;
+  passengerKm: number;
   co2Kg: number;
 }

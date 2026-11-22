@@ -97,7 +97,8 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-notifications .notification--unread', 'Te han pedido plaza').should(
         'be.visible',
       );
-      cy.contains('app-notifications', 'Mañana · 07:40');
+      // «Mañana» o, si la prueba cruza la medianoche, «Hoy»
+      cy.contains('app-notifications', /(Mañana|Hoy) · 07:40/);
       cy.contains('app-notifications', 'Roquetas de Mar → Campus UAL');
       cy.contains('app-notifications', 'hace 5 min');
 

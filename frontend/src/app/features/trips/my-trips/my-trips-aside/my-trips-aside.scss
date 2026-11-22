@@ -46,6 +46,14 @@ ion-card.my-trips-aside ion-card-content {
   }
 }
 
+// Los km de cada papel, a la par y con una línea encima que los separa del CO₂
+.my-trips-aside__stats--km {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); // 112px
+  padding-block-start: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
 // El icono va con el valor (en la etiqueta la partía en dos líneas)
 .my-trips-aside__value {
   display: inline-flex;

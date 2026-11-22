@@ -14,7 +14,12 @@ describe('MyTripsAside', () => {
       providers: [provideAppTransloco(), provideIonicAngular(), provideRouter([])],
     });
     fixture = TestBed.createComponent(MyTripsAside);
-    fixture.componentRef.setInput('co2Kg', 25.4);
+    fixture.componentRef.setInput('impact', {
+      tripsDone: 3,
+      co2Kg: 25.4,
+      driverKm: 1234.5,
+      passengerKm: 0,
+    });
     fixture.componentRef.setInput('rating', rating);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
@@ -46,6 +51,27 @@ describe('MyTripsAside', () => {
     fixture.componentRef.setInput('canRide', false);
     fixture.detectChanges();
     expect(root.querySelector('.my-trips-aside__list')).toBeNull();
+  });
+
+  it('splits the shared km by role, only for the roles the user has', () => {
+    const root = render(null);
+    const km = (): string[] =>
+      [...root.querySelectorAll('.my-trips-aside__stats--km div')].map(
+        (stat) => stat.textContent?.replace(/\s+/g, ' ').trim() ?? '',
+      );
+
+    expect(km()).toEqual(['Compartidos como conductor1234,5 km', 'Compartidos como pasajero0 km']);
+    expect(root.textContent).not.toContain('Coches evitados');
+
+    fixture.componentRef.setInput('canDrive', false);
+    fixture.detectChanges();
+    expect(km()).toEqual(['Compartidos como pasajero0 km']);
+
+    fixture.componentRef.setInput('canRide', false);
+    fixture.componentRef.setInput('impact', null);
+    fixture.detectChanges();
+    expect(root.querySelector('.my-trips-aside__stats--km')).toBeNull();
+    expect(fixture.componentInstance.co2Text()).toBe('0 kg');
   });
 
   it('shows a dash when there are no ratings yet', () => {

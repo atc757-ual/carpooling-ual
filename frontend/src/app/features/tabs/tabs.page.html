@@ -21,7 +21,7 @@
     class="header-action profile-button"
     fill="clear"
     routerLink="/tabs/profile"
-    routerLinkActive="header-action--active"
+    [routerLinkActive]="isOnHelp() ? '' : 'header-action--active'"
     [attr.aria-label]="'common.nav.profile' | transloco"
   >
     <span class="header-action__icon">

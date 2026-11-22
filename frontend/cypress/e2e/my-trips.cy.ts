@@ -103,7 +103,8 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('GET', '/api/users/me/impact', {
         '@type': 'UserImpact',
         tripsDone: 2,
-        carsAvoided: 3,
+        driverKm: 26.2,
+        passengerKm: 0,
         co2Kg: 6.2,
       });
       cy.intercept('GET', '/api/trips/t1/requests', [seatRequest('pending')]).as('requests');
@@ -168,7 +169,10 @@ for (const viewport of VIEWPORTS) {
       // No se repite en Próximos
       cy.get('app-driver-trip-summary').should('not.exist');
       // La columna de 4: a la derecha en escritorio y debajo en el móvil
-      cy.get('app-my-trips-aside').should('contain', 'Tu impacto').and('contain', 'Publicar viaje');
+      cy.get('app-my-trips-aside')
+        .should('contain', 'Tu impacto')
+        .and('contain', '26,2 km')
+        .and('contain', 'Publicar viaje');
     });
 
     it('confirms and cancels an upcoming trip', () => {

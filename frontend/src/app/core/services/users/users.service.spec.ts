@@ -47,9 +47,13 @@ describe('UsersService', () => {
 
   it('gets what I saved sharing the car', async () => {
     const impact = users.getImpact();
-    http
-      .expectOne('/api/users/me/impact')
-      .flush({ '@type': 'UserImpact', tripsDone: 3, carsAvoided: 4, co2Kg: 12.4 });
+    http.expectOne('/api/users/me/impact').flush({
+      '@type': 'UserImpact',
+      tripsDone: 3,
+      co2Kg: 12.4,
+      driverKm: 52.4,
+      passengerKm: 26.2,
+    });
 
     await expect(impact).resolves.toMatchObject({ tripsDone: 3, co2Kg: 12.4 });
   });

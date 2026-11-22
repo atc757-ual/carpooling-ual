@@ -1,0 +1,84 @@
+<app-modal-header
+  [title]="'profile.reviewsModal.title' | transloco"
+  [closeLabel]="'common.close' | transloco"
+  (closed)="close()"
+/>
+
+<div class="modal-body profile-reviews">
+  <!-- Un papel por pestaña (pestañas segmentadas del tema) -->
+  @if (tabs().length > 1) {
+    <fieldset class="segmented-tabs profile-reviews__tabs">
+      <legend class="visually-hidden">{{ 'profile.reviewsModal.role' | transloco }}</legend>
+      @for (tab of tabs(); track tab.value) {
+        <button
+          type="button"
+          class="segmented-tabs__option"
+          [class.segmented-tabs__option--selected]="role() === tab.value"
+          [attr.aria-pressed]="role() === tab.value"
+          (click)="handleRole(tab.value)"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </fieldset>
+  }
+
+  @if (errorMessage(); as message) {
+    <div class="notice notice--danger" role="alert">
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  @if (reviews().length > 0) {
+    <ul class="profile-reviews__list">
+      @for (review of reviews(); track review.id) {
+        <li class="profile-reviews__item">
+          <span class="profile-reviews__avatar" aria-hidden="true">{{
+            initials(review.author.name)
+          }}</span>
+          <div class="profile-reviews__body">
+            <div class="profile-reviews__head">
+              <span class="text-label text-label--strong">{{ review.author.name }}</span>
+              <span class="text-caption text-color-muted">{{ date(review.publishedAt) }}</span>
+            </div>
+            <span
+              class="profile-reviews__score"
+              [attr.aria-label]="'driverReviews.ratingAria' | transloco: { rating: review.rating }"
+            >
+              <ion-icon
+                class="profile-reviews__thumb"
+                [class.profile-reviews__thumb--up]="review.rating >= 3"
+                [class.profile-reviews__thumb--down]="review.rating < 3"
+                [icon]="review.rating >= 3 ? upIcon : downIcon"
+                aria-hidden="true"
+              />
+              <span class="text-caption text-body--strong" aria-hidden="true">{{
+                review.rating
+              }}</span>
+            </span>
+            @if (review.comment) {
+              <p class="text-body-s profile-reviews__comment">{{ review.comment }}</p>
+            }
+            @if (route(review); as route) {
+              <span class="text-caption text-color-muted">{{ route }}</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (isLoading()) {
+    <div class="profile-reviews__loading">
+      <ion-spinner name="crescent" [attr.aria-label]="'driverReviews.loading' | transloco" />
+    </div>
+  } @else if (hasMore()) {
+    <ion-button fill="outline" expand="block" (click)="loadMore()">
+      {{ 'driverReviews.more' | transloco }}
+    </ion-button>
+  } @else if (reviews().length === 0 && !errorMessage()) {
+    <p class="text-body text-color-muted profile-reviews__empty">
+      {{ 'profile.reviewsModal.empty' | transloco }}
+    </p>
+  }
+</div>

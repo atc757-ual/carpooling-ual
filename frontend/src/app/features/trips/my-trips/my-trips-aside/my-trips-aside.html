@@ -14,6 +14,17 @@
         </dd>
       </div>
     </dl>
+    <!-- Los km compartidos, separados por papel: uno junto al otro -->
+    @if (kmStats().length > 0) {
+      <dl class="my-trips-aside__stats my-trips-aside__stats--km">
+        @for (stat of kmStats(); track stat.label) {
+          <div>
+            <dt class="text-caption">{{ stat.label }}</dt>
+            <dd class="text-body text-body--strong">{{ stat.value }}</dd>
+          </div>
+        }
+      </dl>
+    }
     <p class="text-caption my-trips-aside__note">
       {{ 'myTrips.estimadoQueHabriaEmitido' | transloco }}
     </p>

@@ -334,6 +334,12 @@ ion-modal.legal-dialog {
   }
 }
 
+// Una ventana con otra abierta encima desde ella (presentOverParent, p. ej.
+// «Usar mi ubicación» en «Editar búsqueda»): oculta, para que se vea una sola
+ion-modal.modal-covered {
+  visibility: hidden;
+}
+
 ion-modal.legal-dialog {
   --max-height: 70%;
 
@@ -428,6 +434,20 @@ ion-modal.legal-dialog {
       background: var(--color-border);
       content: '';
     }
+  }
+
+  // El contenido descuenta también la muesca (4px y su margen de arriba):
+  // sin ella, un texto que llena la hoja perdía su final y el botón de abajo
+  // («Entendido» en los textos legales) quedaba cortado
+  ion-modal.location-dialog,
+  ion-modal.info-dialog {
+    .modal-body {
+      max-height: calc(92vh - 3.5rem - 0.25rem - var(--space-s));
+    }
+  }
+
+  ion-modal.legal-dialog .modal-body {
+    max-height: calc(70vh - 3.5rem - 0.25rem - var(--space-s));
   }
 
   ion-modal.datetime-modal {
