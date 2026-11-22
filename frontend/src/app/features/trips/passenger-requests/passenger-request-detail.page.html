@@ -35,7 +35,7 @@
           <!-- Una sola tarjeta, en este orden: el estado (aviso y progreso con
                la hora de cada paso), el código de recogida, el seguimiento y
                «Tu recorrido» con el mapa. Debajo, «Conductor y coche».
-               Si el conductor canceló, arriba de todo: buscarle otro viaje -->
+               Si el conductor canceló, lo primero: buscarle otro viaje -->
           @if (isRelocatable(request, now())) {
             <app-relocation-card [request]="request" [trip]="trip" [now]="now()" />
           }

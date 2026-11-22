@@ -94,22 +94,22 @@
               <ion-card-content>
                 @switch (relocationOutcome()) {
                   @case ('exact') {
-                    <div class="notice notice--success notice--icon" role="status">
+                    <output class="notice notice--success notice--icon">
                       <ion-icon [icon]="exactIcon" aria-hidden="true" />
                       <span>{{ 'searchResults.relocation.exactTitle' | transloco }}</span>
-                    </div>
+                    </output>
                   }
                   @case ('onTime') {
-                    <div class="notice notice--info notice--icon" role="status">
+                    <output class="notice notice--info notice--icon">
                       <ion-icon [icon]="infoIcon" aria-hidden="true" />
                       <span>{{ 'searchResults.relocation.onTimeTitle' | transloco }}</span>
-                    </div>
+                    </output>
                   }
                   @default {
-                    <div class="notice notice--warning notice--icon" role="status">
+                    <output class="notice notice--warning notice--icon">
                       <ion-icon [icon]="infoIcon" aria-hidden="true" />
                       <span>{{ 'searchResults.relocation.noneTitle' | transloco }}</span>
-                    </div>
+                    </output>
                   }
                 }
                 @if (exactTrip(); as exact) {
