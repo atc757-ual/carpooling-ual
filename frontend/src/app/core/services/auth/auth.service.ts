@@ -11,6 +11,7 @@ import {
 } from '../../models/auth.model';
 import { Profile, User } from '../../models/user.model';
 import { PreferencesPlugin } from '../../plugins/preferences-plugin';
+import { appLanguage } from '../../i18n/app-locale';
 
 const REFRESH_TOKEN_KEY = 'auth.refresh-token';
 const REFRESH_LOCK_NAME = 'carpooling-ual.auth-refresh';
@@ -61,7 +62,9 @@ export class AuthService {
   // Guarda el registro pendiente y envía el código; la cuenta se crea al
   // verificar el correo (verifyEmail), que es cuando se inicia la sesión
   async register(request: RegisterRequest): Promise<void> {
-    await this.send(this.http.post<void>(`${this.authUrl}/register`, request));
+    // Con el idioma de la app: el correo con el código ya llega en él
+    const language = appLanguage();
+    await this.send(this.http.post<void>(`${this.authUrl}/register`, { language, ...request }));
     this.setPendingVerificationEmail(request.email, true);
   }
 
