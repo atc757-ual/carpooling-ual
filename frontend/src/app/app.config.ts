@@ -25,6 +25,7 @@ import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { SplashScreenPlugin } from './core/plugins/splash-screen-plugin';
 import { AuthService } from './core/services/auth/auth.service';
 import { preventIosFocusZoom } from './shared/utils/ios-viewport.util';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
@@ -81,6 +82,8 @@ export const appConfig: ApplicationConfig = {
     // Antes de mostrar la primera pantalla, recupera la sesión guardada (así
     // los guards ya saben si hay usuario)
     provideAppInitializer(() => inject(AuthService).restoreSession()),
+    // En la app Android, el splash nativo se queda hasta la primera pantalla
+    provideAppInitializer(() => inject(SplashScreenPlugin).hideWhenReady()),
     // En iPhone, sin el zoom automático al enfocar un campo
     provideAppInitializer(() => {
       if (IS_IOS) preventIosFocusZoom(inject(DOCUMENT));
