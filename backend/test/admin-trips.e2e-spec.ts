@@ -150,6 +150,14 @@ describe('Admin trips API (e2e)', () => {
       late.tripId,
     ]);
 
+    // El mismo buscador encuentra el viaje por su código
+    const { code } = (byDriver.body as { code: string }[])[0];
+    expect(code).toMatch(/^VJ-\d{4,}$/);
+    const byCode = await api(`?driver=${code.toLowerCase()}`).expect(200);
+    expect((byCode.body as TripRow[]).map(({ id }) => id)).toEqual([
+      late.tripId,
+    ]);
+
     const nobody = await api('?driver=nadie-se-llama-asi-xyz').expect(200);
     expect(nobody.body).toEqual([]);
     expect(nobody.headers['x-total-count']).toBe('0');

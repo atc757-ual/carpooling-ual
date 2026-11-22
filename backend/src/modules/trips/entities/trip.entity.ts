@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -21,6 +22,12 @@ export type TripPickupMode = (typeof TRIP_PICKUP_MODES)[number];
 export class Trip {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  // Número correlativo para citarlo (código VJ-0042 en la API); lo da la base
+  // de datos al insertarlo
+  @Column({ type: 'integer', unique: true })
+  @Generated('increment')
+  number: number;
 
   // Solo los ids, sin relaciones con las entidades de users (fronteras entre
   // módulos); las claves foráneas sí están en la base de datos

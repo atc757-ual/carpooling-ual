@@ -89,6 +89,8 @@ describe('Late cancellations (e2e)', () => {
       vehicleId,
       origin: ALMERIA_CENTRE,
       destination: UAL_CAMPUS,
+      originName: 'Almería',
+      destinationName: 'Campus UAL',
       departureAt: departureAt.toISOString(),
       offeredSeats: 2,
     };

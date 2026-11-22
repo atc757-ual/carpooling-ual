@@ -86,6 +86,8 @@ describe('Incidents API (e2e)', () => {
       .expect(201);
     const trip = await api('post', '/trips', driver)
       .send({
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL',
         vehicleId: (vehicle.body as { id: string }).id,
         origin: ALMERIA_CENTRE,
         destination: UAL_CAMPUS,
@@ -134,8 +136,9 @@ describe('Incidents API (e2e)', () => {
       trip: {
         id: tripId,
         href: `/api/trips/${tripId}`,
-        originName: null,
-        destinationName: null,
+        code: expect.stringMatching(/^VJ-\d{4,}$/) as string,
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL',
         departureAt: expect.any(String) as string,
         driver: { id: incident.reporter.id, name: 'dan Prueba' },
       },

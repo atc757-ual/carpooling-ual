@@ -88,6 +88,8 @@ describe('Matching API (e2e)', () => {
     departureAt = new Date(Date.now() + DAYS_AHEAD * 24 * 60 * MINUTES);
     const trip = await api('post', '/trips', driverToken)
       .send({
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL',
         vehicleId,
         origin: ALMERIA_CENTRE,
         destination: (parking.body as { location: unknown }).location,
@@ -197,6 +199,8 @@ describe('Matching API (e2e)', () => {
     );
     const nextTrip = await api('post', '/trips', driverToken)
       .send({
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL',
         vehicleId,
         origin: ALMERIA_CENTRE,
         destination: campusLocation,

@@ -9,6 +9,7 @@ import {
 } from '../requests/request-stats.service';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripStatsService } from '../trips/trip-stats.service';
+import { parseTripCode } from '../trips/dto/trip.resource';
 import type { TripStatus } from '../trips/trip-status';
 import { UsersService } from '../users/users.service';
 
@@ -49,11 +50,20 @@ export class AdminTripsService {
     query: AdminTripQuery,
     page: PageRequest,
   ): Promise<Page<AdminTripRow>> {
-    const driverIds = query.driver
-      ? await this.users.findIdsBySearch(query.driver)
-      : undefined;
+    // El buscador acepta también el código del viaje (VJ-0042)
+    const number = query.driver ? parseTripCode(query.driver) : null;
+    const driverIds =
+      query.driver && number === null
+        ? await this.users.findIdsBySearch(query.driver)
+        : undefined;
     const trips = await this.tripStats.listForAdmin(
-      { status: query.status, from: query.from, to: query.to, driverIds },
+      {
+        status: query.status,
+        from: query.from,
+        to: query.to,
+        driverIds,
+        ...(number === null ? {} : { number }),
+      },
       page,
     );
     const [names, counts] = await Promise.all([
