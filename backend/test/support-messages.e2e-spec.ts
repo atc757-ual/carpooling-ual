@@ -86,6 +86,25 @@ describe('Support messages API (e2e)', () => {
       );
   });
 
+  it('takes only a trip of the user: another one is not found', async () => {
+    const [someoneElses] = await dataSource.query<{ id: string }[]>(
+      'SELECT id FROM trips LIMIT 1',
+    );
+    const sentBefore = testMailbox(app).sentTo(supportTo).length;
+
+    await send({
+      topic: 'trip',
+      message: MESSAGE,
+      tripId: 'not-a-uuid',
+    }).expect(400);
+    await send({ topic: 'trip', message: MESSAGE, tripId: someoneElses.id })
+      .expect(404)
+      .expect(({ body }) =>
+        expect(body).toMatchObject({ code: 'TRIP_NOT_FOUND' }),
+      );
+    expect(testMailbox(app).sentTo(supportTo)).toHaveLength(sentBefore);
+  });
+
   it('requires a session and sends nothing without it', async () => {
     const sentBefore = testMailbox(app).sentTo(supportTo).length;
 

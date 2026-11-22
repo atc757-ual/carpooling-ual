@@ -22,13 +22,13 @@ export class SupportController {
   @ApiOperation({
     summary: 'Send a message to the support team',
     description:
-      'Emails the message of the authenticated user to the support mailbox (SUPPORT_EMAIL); the team replies to the user email. Nothing is stored.',
+      'Emails the message of the authenticated user to the support mailbox (SUPPORT_EMAIL); the team replies to the user email. With topic trip, it can name one of the trips of the user (code, route and departure go in the email). Nothing is stored.',
   })
   @ApiAcceptedResponse({ description: 'Support message sent' })
   @ApiErrorResponses({
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.UNAUTHORIZED]: ['INVALID_ACCESS_TOKEN', 'ACCESS_TOKEN_EXPIRED'],
-    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND', 'TRIP_NOT_FOUND'],
   })
   async sendMessage(
     @CurrentUser() currentUser: AccessTokenPayload,
