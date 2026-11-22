@@ -693,7 +693,7 @@
     "accionesImpactoDelViaje": "Acciones e impacto del viaje",
     "valoraTusPasajeros": "Valora a tus pasajeros",
     "impactoEsteViaje": "Impacto de este viaje",
-    "estimadoCocheMenosPor": "* Estimado: lo que habría emitido un coche en este trayecto por cada pasajero que llevas.",
+    "estimadoCo2PorPasajero": "* Estimado: lo que habría emitido un coche en este trayecto por cada pasajero que llevas.",
     "esteViajeRealizoAsi": "Este viaje no se realizó, así que no ahorró CO₂.",
     "cargandoViaje": "Cargando el viaje…",
     "hemosPodidoCargarEste": "No hemos podido cargar este viaje",
@@ -1057,12 +1057,12 @@
     "viajeTerminado": "¡Viaje terminado!",
     "viajeTerminado2": "Tu viaje ha terminado",
     "valoraTusPasajeros": "Valora a tus pasajeros",
-    "carsLess": {
-      "one": "{{ count }} coche menos en el campus",
-      "other": "{{ count }} coches menos en el campus"
+    "sharedWith": {
+      "one": "Has compartido el viaje con {{ count }} pasajero",
+      "other": "Has compartido el viaje con {{ count }} pasajeros"
     },
     "stepOf": "{{ number }} de {{ total }}",
-    "hasLlegadoCocheMenos": "Has llegado · un coche menos en el campus",
+    "hasLlegadoGracias": "Has llegado · gracias por compartir coche",
     "yourReviewTo": "Tu valoración a {{ name }}",
     "graciasPorValoracion": "¡Gracias por tu valoración!",
     "verViaje": "Ver tu viaje",

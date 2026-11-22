@@ -55,6 +55,18 @@ describe('CatalogItemModal', () => {
     expect(dismiss).toHaveBeenCalledWith(null, 'confirm');
   });
 
+  it('shows the app header and closes without saving with the ✕', () => {
+    render();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('ion-title')?.textContent).toContain('Añadir color');
+    expect(root.querySelector('form.confirm--form')).not.toBeNull();
+    root.querySelector('app-modal-header form')?.dispatchEvent(new Event('submit'));
+
+    expect(dismiss).toHaveBeenCalledWith(null, 'cancel');
+    expect(action).not.toHaveBeenCalled();
+  });
+
   it('starts from the values of the item when editing', () => {
     const modal = render({
       fields: ['name', 'nameEn'],

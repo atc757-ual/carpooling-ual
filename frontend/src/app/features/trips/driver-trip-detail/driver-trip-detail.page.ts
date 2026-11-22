@@ -130,8 +130,8 @@ export class DriverTripDetailPage {
     return trip ? tripStatusLabel(trip.status) : '';
   });
 
-  // Un coche menos por pasajero; el CO₂, el de un coche en ese trayecto por
-  // cada uno (estimado, como en Tus viajes)
+  // El CO₂ que no se emitió: el de un coche en ese trayecto por
+  // cada pasajero (estimado, como en Tus viajes)
   readonly impact = computed(() => {
     const trip = this.trip();
     if (!trip || trip.status === 'cancelled') {

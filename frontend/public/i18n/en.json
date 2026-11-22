@@ -693,7 +693,7 @@
     "accionesImpactoDelViaje": "Trip actions and impact",
     "valoraTusPasajeros": "Rate your passengers",
     "impactoEsteViaje": "Impact of this trip",
-    "estimadoCocheMenosPor": "* Estimate: what a car would have emitted on this route for each passenger you take.",
+    "estimadoCo2PorPasajero": "* Estimate: what a car would have emitted on this route for each passenger you take.",
     "esteViajeRealizoAsi": "This trip didn't take place, so it saved no CO₂.",
     "cargandoViaje": "Loading the trip…",
     "hemosPodidoCargarEste": "We couldn't load this trip",
@@ -1057,12 +1057,12 @@
     "viajeTerminado": "Trip finished!",
     "viajeTerminado2": "Your trip has finished",
     "valoraTusPasajeros": "Rate your passengers",
-    "carsLess": {
-      "one": "{{ count }} car fewer on campus",
-      "other": "{{ count }} cars fewer on campus"
+    "sharedWith": {
+      "one": "You shared the trip with {{ count }} passenger",
+      "other": "You shared the trip with {{ count }} passengers"
     },
     "stepOf": "{{ number }} of {{ total }}",
-    "hasLlegadoCocheMenos": "You've arrived · one car fewer on campus",
+    "hasLlegadoGracias": "You've arrived · thanks for sharing the ride",
     "yourReviewTo": "Your rating for {{ name }}",
     "graciasPorValoracion": "Thanks for your rating!",
     "verViaje": "See your trip",
