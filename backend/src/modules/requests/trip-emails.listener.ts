@@ -1,4 +1,5 @@
 import type { AppLanguage } from '../../shared/i18n/app-language';
+import { translate } from '../../shared/i18n/translate';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -139,9 +140,9 @@ const KIND_BY_EVENT: Readonly<Partial<Record<string, TripEmailKind>>> = {
   'request.completed': 'trip_finished',
 };
 
-// Sin nombre (cuenta borrada), «tu conductor» o «your driver»
+// Sin nombre (cuenta borrada), «tu conductor» en su idioma
 function firstName(name: string, language: AppLanguage): string {
-  const fallback = language === 'en' ? 'your driver' : 'tu conductor';
+  const fallback = translate(language, 'mail.trip.yourDriver');
   return name.trim().split(/\s+/)[0] || fallback;
 }
 

@@ -1,5 +1,6 @@
 import type { AppLanguage } from '../../../shared/i18n/app-language';
 import { LANGUAGE_LOCALES } from '../../../shared/i18n/app-language';
+import { translate } from '../../../shared/i18n/translate';
 import type { MailMessage } from '../../../shared/mail/mail-sender';
 import { escapeHtml } from '../../../shared/mail/escape-html';
 
@@ -47,62 +48,19 @@ function formatMailTime(date: Date, language: AppLanguage): string {
   }).format(date);
 }
 
-// Los textos de los dos correos, por idioma
-const TEXTS = {
-  es: {
-    greeting: (name: string) => `Hola, ${name}:`,
-    origin: 'Origen',
-    destination: 'Destino',
-    footer: 'Recibes este correo porque viajas con Carpooling UAL.',
-    confirmedSubject: (driver: string) =>
-      `Tienes plaza en el viaje de ${driver}`,
-    confirmed: (driver: string) => `${driver} ha confirmado tu plaza.`,
-    leaves: (when: string) => `Sale el ${when}.`,
-    pickup: (place: string, time: string) =>
-      `Te recoge en ${place} a las ${time}.`,
-    details: (url: string) =>
-      `Mira los detalles y tu código de recogida en la app: ${url}`,
-    boardingCode:
-      'El código de recogida aparece en la app 10 minutos antes de la salida.',
-    seeSeat: 'Ver tu plaza',
-    finishedSubject: (driver: string) => `Tu viaje con ${driver} ha terminado`,
-    finished: (driver: string) => `Tu viaje con ${driver} ha terminado.`,
-    thanks: 'Gracias por compartir coche.',
-    rate: (driver: string) =>
-      `Valora a ${driver}: ayuda a la comunidad. Tienes 7 días.`,
-    rateButton: (driver: string) => `Valorar a ${driver}`,
-  },
-  en: {
-    greeting: (name: string) => `Hi ${name},`,
-    origin: 'Origin',
-    destination: 'Destination',
-    footer: 'You get this email because you ride with Carpooling UAL.',
-    confirmedSubject: (driver: string) => `You have a seat on ${driver}'s ride`,
-    confirmed: (driver: string) => `${driver} has confirmed your seat.`,
-    leaves: (when: string) => `It leaves on ${when}.`,
-    pickup: (place: string, time: string) =>
-      `You are picked up at ${place} at ${time}.`,
-    details: (url: string) =>
-      `See the details and your boarding code in the app: ${url}`,
-    boardingCode:
-      'The boarding code appears in the app 10 minutes before departure.',
-    seeSeat: 'See your seat',
-    finishedSubject: (driver: string) => `Your ride with ${driver} is over`,
-    finished: (driver: string) => `Your ride with ${driver} is over.`,
-    thanks: 'Thanks for sharing a car.',
-    rate: (driver: string) =>
-      `Rate ${driver}: it helps the community. You have 7 days.`,
-    rateButton: (driver: string) => `Rate ${driver}`,
-  },
-} satisfies Record<AppLanguage, unknown>;
+// Los textos de los correos del viaje (mail.trip de src/i18n), en el idioma
+// del pasajero y con el nombre del conductor ya puesto
+function tripTexts(data: TripMailData) {
+  return (key: string, values: Record<string, string> = {}) =>
+    translate(data.language, `mail.trip.${key}`, {
+      driver: data.driverFirstName,
+      ...values,
+    });
+}
 
-function routeOf({
-  originName,
-  destinationName,
-  language,
-}: TripMailData): string {
-  const texts = TEXTS[language];
-  return `${originName ?? texts.origin} → ${destinationName ?? texts.destination}`;
+function routeOf(data: TripMailData): string {
+  const t = tripTexts(data);
+  return `${data.originName ?? t('origin')} → ${data.destinationName ?? t('destination')}`;
 }
 
 // HTML sencillo con estilos en línea y sin imágenes externas, como el resto
@@ -121,69 +79,73 @@ function wrapHtml(
 
 // Al confirmarse la plaza (el conductor la acepta o se acepta sola)
 export function buildSeatConfirmedMail(data: TripMailData): MailMessage {
-  const texts = TEXTS[data.language];
-  const driver = data.driverFirstName;
-  const leaves = texts.leaves(
-    formatMailDateTime(data.departureAt, data.language),
-  );
+  const t = tripTexts(data);
+  const greeting = translate(data.language, 'mail.greeting', {
+    name: data.passengerName,
+  });
+  const leaves = t('confirmed.leaves', {
+    when: formatMailDateTime(data.departureAt, data.language),
+  });
   const pickup =
     data.pickupName && data.pickupAt
-      ? texts.pickup(
-          data.pickupName,
-          formatMailTime(data.pickupAt, data.language),
-        )
+      ? t('confirmed.pickup', {
+          place: data.pickupName,
+          time: formatMailTime(data.pickupAt, data.language),
+        })
       : null;
   const text = [
-    texts.greeting(data.passengerName),
+    greeting,
     '',
-    texts.confirmed(driver),
+    t('confirmed.title'),
     '',
     routeOf(data),
     leaves,
     ...(pickup ? [pickup] : []),
     '',
-    texts.details(data.requestUrl),
+    t('confirmed.details', { url: data.requestUrl }),
     '',
-    texts.footer,
+    t('footer'),
   ].join('\n');
   const html = wrapHtml(
     [
-      escapeHtml(texts.greeting(data.passengerName)),
-      `<b>${escapeHtml(texts.confirmed(driver))}</b>`,
+      escapeHtml(greeting),
+      `<b>${escapeHtml(t('confirmed.title'))}</b>`,
       `${escapeHtml(routeOf(data))}<br>${escapeHtml(leaves)}${
         pickup ? `<br>${escapeHtml(pickup)}` : ''
       }`,
-      texts.boardingCode,
+      t('confirmed.boardingCode'),
     ],
-    { url: data.requestUrl, label: texts.seeSeat },
-    texts.footer,
+    { url: data.requestUrl, label: t('confirmed.button') },
+    t('footer'),
   );
-  return { to: data.to, subject: texts.confirmedSubject(driver), text, html };
+  return { to: data.to, subject: t('confirmed.subject'), text, html };
 }
 
 // Al terminar su viaje (se bajó, terminó el conductor o lo cerró el sistema)
 export function buildTripFinishedMail(data: TripMailData): MailMessage {
-  const texts = TEXTS[data.language];
-  const driver = data.driverFirstName;
+  const t = tripTexts(data);
+  const greeting = translate(data.language, 'mail.greeting', {
+    name: data.passengerName,
+  });
   const text = [
-    texts.greeting(data.passengerName),
+    greeting,
     '',
-    `${texts.finished(driver)} ${texts.thanks}`,
+    `${t('finished.title')} ${t('finished.thanks')}`,
     routeOf(data),
     '',
-    `${texts.rate(driver)} ${data.requestUrl}`,
+    `${t('finished.rate')} ${data.requestUrl}`,
     '',
-    texts.footer,
+    t('footer'),
   ].join('\n');
   const html = wrapHtml(
     [
-      escapeHtml(texts.greeting(data.passengerName)),
-      `<b>${escapeHtml(texts.finished(driver))}</b> ${texts.thanks}`,
+      escapeHtml(greeting),
+      `<b>${escapeHtml(t('finished.title'))}</b> ${t('finished.thanks')}`,
       escapeHtml(routeOf(data)),
-      escapeHtml(texts.rate(driver)),
+      escapeHtml(t('finished.rate')),
     ],
-    { url: data.requestUrl, label: texts.rateButton(driver) },
-    texts.footer,
+    { url: data.requestUrl, label: t('finished.button') },
+    t('footer'),
   );
-  return { to: data.to, subject: texts.finishedSubject(driver), text, html };
+  return { to: data.to, subject: t('finished.subject'), text, html };
 }

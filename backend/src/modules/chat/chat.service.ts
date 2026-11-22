@@ -1,3 +1,4 @@
+import { localizedPush } from '../push/localized-push';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, MoreThan, Repository } from 'typeorm';
@@ -266,18 +267,11 @@ export class ChatService {
     const [view] = await this.toViews(trip, [message]);
     // Ya guardado: a la otra persona, quién ha escrito (no lo que dice)
     const data = { type: 'chat_message', tripId, passengerId };
-    this.push.queue(this.dataSource.manager, [otherUserId], {
-      es: {
-        title: `${view.author.name} te ha escrito`,
-        body: 'Abre el chat del viaje para leerlo.',
-        data,
-      },
-      en: {
-        title: `${view.author.name} wrote to you`,
-        body: 'Open the ride chat to read it.',
-        data,
-      },
-    });
+    this.push.queue(
+      this.dataSource.manager,
+      [otherUserId],
+      localizedPush('chat_message', data, { name: view.author.name }),
+    );
     return view;
   }
 
