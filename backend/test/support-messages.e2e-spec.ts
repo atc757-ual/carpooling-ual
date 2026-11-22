@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
@@ -86,10 +87,10 @@ describe('Support messages API (e2e)', () => {
       );
   });
 
+  // Sin depender de los datos de la base (en el CI está vacía): un viaje que
+  // no existe. El de otro usuario da lo mismo (tests del servicio)
   it('takes only a trip of the user: another one is not found', async () => {
-    const [someoneElses] = await dataSource.query<{ id: string }[]>(
-      'SELECT id FROM trips LIMIT 1',
-    );
+    const unknownTrip = { id: randomUUID() };
     const sentBefore = testMailbox(app).sentTo(supportTo).length;
 
     await send({
@@ -97,7 +98,7 @@ describe('Support messages API (e2e)', () => {
       message: MESSAGE,
       tripId: 'not-a-uuid',
     }).expect(400);
-    await send({ topic: 'trip', message: MESSAGE, tripId: someoneElses.id })
+    await send({ topic: 'trip', message: MESSAGE, tripId: unknownTrip.id })
       .expect(404)
       .expect(({ body }) =>
         expect(body).toMatchObject({ code: 'TRIP_NOT_FOUND' }),
