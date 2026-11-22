@@ -29,7 +29,11 @@ import {
   setPaginationHeaders,
 } from '../../shared/pagination/paginated';
 import { PaginationQueryDto } from '../../shared/pagination/pagination-query.dto';
-import { IncidentResource, toIncidentResource } from './dto/incident.resource';
+import {
+  IncidentResource,
+  toIncidentResource,
+  toReporterIncidentResource,
+} from './dto/incident.resource';
 import { ListIncidentsQueryDto } from './dto/list-incidents-query.dto';
 import { ReportIncidentDto } from './dto/report-incident.dto';
 import { ReviewIncidentDto } from './dto/review-incident.dto';
@@ -121,7 +125,7 @@ export class IncidentsController {
     @Body() dto: ReportIncidentDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<IncidentResource> {
-    const incident = toIncidentResource(
+    const incident = toReporterIncidentResource(
       await this.incidentsService.report(user.sub, tripId, dto),
     );
     response.setHeader('Location', incident.href);
@@ -143,7 +147,7 @@ export class IncidentsController {
     @Body() dto: ReportIncidentDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<IncidentResource> {
-    const incident = toIncidentResource(
+    const incident = toReporterIncidentResource(
       await this.incidentsService.reportAfterTrip(user.sub, tripId, dto),
     );
     response.setHeader('Location', incident.href);
@@ -167,7 +171,7 @@ export class IncidentsController {
       pagination,
     );
     setPaginationHeaders(response, page);
-    return page.items.map(toIncidentResource);
+    return page.items.map(toReporterIncidentResource);
   }
 
   @Get('incidents/:id')
@@ -187,9 +191,10 @@ export class IncidentsController {
     @Param('id', uuidParam('id')) id: string,
   ): Promise<IncidentResource> {
     const isAdmin = user.profiles.includes('admin');
-    return toIncidentResource(
-      await this.incidentsService.get(user.sub, isAdmin, id),
-    );
+    const view = await this.incidentsService.get(user.sub, isAdmin, id);
+    return isAdmin
+      ? toIncidentResource(view)
+      : toReporterIncidentResource(view);
   }
 
   // --- Administrador (CU-12)

@@ -441,10 +441,15 @@ describe('Incidents API (e2e)', () => {
         location.replace('/api', ''),
         driver,
       ).expect(200);
+      // Quien la comunicó ve la respuesta del equipo, sin el administrador
       expect(seenByReporter.body).toMatchObject({
         status: 'reviewed',
-        review: { resolution: RESOLUTION },
+        review: { by: null, resolution: RESOLUTION },
       });
+      const mine = await api('get', '/users/me/incidents', driver).expect(200);
+      expect(mine.body).toMatchObject([
+        { id, review: { by: null, resolution: RESOLUTION } },
+      ]);
 
       const again = await api('post', `/incidents/${id}/review`, admin)
         .send({ resolution: RESOLUTION })
