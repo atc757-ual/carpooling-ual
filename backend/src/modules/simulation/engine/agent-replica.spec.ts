@@ -1,6 +1,7 @@
 import type { SimulationJob } from '../runner/simulation-runner';
 import type { ScenarioConfig } from '../scenario-config';
 import { agentReplica, simulateDay } from './agent-replica';
+import { SLOT_COUNT } from './day-slots';
 import { createRandom } from './population';
 
 const BASELINE: ScenarioConfig = {
@@ -33,13 +34,17 @@ function withoutTiming(
 }
 
 describe('simulateDay', () => {
-  it('without adoption, every car user drives as today', () => {
+  it('without adoption, every car user drives as today, there and back', () => {
     const day = simulateDay(BASELINE, createRandom(1));
 
     expect(day.people).toBe(180);
-    expect(day.vehicles).toBeCloseTo(150);
+    // 150 coches a la ida y 150 a la vuelta
+    expect(day.vehicles).toBeCloseTo(300);
+    expect(day.returnVehicles).toBeCloseTo(150);
     expect(day.passengers).toBe(0);
-    expect(day.vehiclesBySlot.reduce((sum, v) => sum + v, 0)).toBeCloseTo(150);
+    expect(day.vehiclesBySlot).toHaveLength(SLOT_COUNT);
+    expect(day.vehiclesBySlot.reduce((sum, v) => sum + v, 0)).toBeCloseTo(300);
+    expect(day.trips).toEqual({ finished: 0, expired: 0, cancelled: 0 });
   });
 
   it('shares cars and covers part of the passengers', () => {
@@ -50,7 +55,40 @@ describe('simulateDay', () => {
 
     expect(day.coveredPassengers).toBeGreaterThan(0);
     expect(day.coveredPassengers).toBeLessThanOrEqual(day.passengers);
-    expect(day.vehicles).toBeLessThan(150);
+    expect(day.vehicles).toBeLessThan(300);
+  });
+
+  it('ends each driver trip as on the platform: done with passengers or expired', () => {
+    const config = { ...BASELINE, users: 3000, adoptionRate: 0.5 };
+    const day = simulateDay(config, createRandom(2));
+    const drivers = day.trips.finished + day.trips.expired;
+
+    expect(day.trips.finished).toBeGreaterThan(0);
+    expect(day.trips.expired).toBeGreaterThan(0);
+    expect(day.trips.cancelled).toBe(0);
+    // Cada conductor publica un viaje a la ida y otro a la vuelta
+    expect(drivers % 2).toBe(0);
+
+    const s5 = simulateDay(
+      { ...config, parameters: { cancellationRate: 0.5 } },
+      createRandom(2),
+    );
+    expect(s5.trips.cancelled).toBeGreaterThan(0);
+    expect(s5.trips.finished + s5.trips.expired + s5.trips.cancelled).toBe(
+      drivers,
+    );
+  });
+
+  it('takes the pickup mode and how far drivers go out of the way from the scenario', () => {
+    const config = { ...BASELINE, users: 3000, adoptionRate: 0.5 };
+    const covered = (parameters: Record<string, unknown>): number =>
+      simulateDay({ ...config, parameters }, createRandom(3)).coveredPassengers;
+
+    const byDefault = covered({});
+    expect(covered({ maxDetourM: 150 })).toBeLessThan(byDefault);
+    expect(covered({ maxDetourM: 500 })).toBeGreaterThan(byDefault);
+    // Con paradas se camina hasta 800 m: cambia quién encaja a la ida
+    expect(covered({ pickupMode: 'stops' })).not.toBe(byDefault);
   });
 });
 
@@ -65,12 +103,15 @@ describe('agentReplica', () => {
   it('compares with the baseline of the same people', () => {
     const metrics = agentReplica(job(), 0);
 
-    expect(metrics.baselineVehiclesUsed).toBe(150);
+    expect(metrics.baselineVehiclesUsed).toBe(300);
+    expect(metrics.returnBaselineVehiclesUsed).toBe(150);
+    expect(metrics.returnVehiclesUsed).toBeLessThanOrEqual(150);
     expect(metrics.baselineAverageOccupancy).toBe(1.2);
     expect(metrics.vehiclesAvoidedPct).toBeGreaterThan(0);
     expect(metrics.averageOccupancy).toBeGreaterThan(1.2);
     expect(metrics.recoveryPct).toBeNull();
-    expect(metrics.vehiclesBySlot).toHaveLength(6);
+    expect(metrics.vehiclesBySlot).toHaveLength(SLOT_COUNT);
+    expect(metrics.trips?.finished).toBeGreaterThanOrEqual(0);
   });
 
   // Semillas emparejadas entre escenarios (sección 11 de la memoria): con la

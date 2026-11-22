@@ -81,6 +81,9 @@ export function detourBudgetMin(trip: {
 // Modo en puntos: paradas por viaje y distancia a pie hasta una parada
 export const MAX_TRIP_STOPS = 5;
 export const WALK_RADIUS_M = 800;
+// Sin paradas (y a la vuelta), lo lejos que puede pasar la ruta del conductor
+// de la dirección del pasajero para buscarla
+export const PICKUP_RADIUS_M = 800;
 
 // Cancelaciones tardías (conductor y pasajero, la misma regla): con 3 en 30
 // días, 7 días sin publicar (conductor) o sin pedir plaza (pasajero)

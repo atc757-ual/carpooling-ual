@@ -25,6 +25,36 @@ describe('simulation labels', () => {
     expect(resultKpis(withIncidents, 'S0').at(-1)?.label).toBe('Recuperación tras incidencias');
   });
 
+  it('adds the vehicles avoided on each leg and how the driver trips end', () => {
+    const stat = (mean: number) => ({ mean, sd: 1, ciLow: mean - 1, ciHigh: mean + 1 });
+    const kpis = resultKpis(
+      {
+        ...RESULTS,
+        summary: {
+          ...RESULTS.summary,
+          legs: { toCampusAvoidedPct: stat(18), fromCampusAvoidedPct: stat(12.5) },
+          tripStates: { finished: stat(40), expired: stat(22), cancelled: stat(0) },
+        },
+      },
+      'S0',
+    );
+
+    expect(kpis.slice(4).map(({ label, value }) => [label, value])).toEqual([
+      ['Evitados a la ida', '18 %'],
+      ['Evitados a la vuelta', '12,5 %'],
+      ['Viajes de los conductores', '40 hechos'],
+    ]);
+    expect(kpis[6].hint).toBe('22 caducados sin pasajeros · 0 cancelados');
+  });
+
+  it('labels only the slots on the hour', () => {
+    const { groups } = chartLayout([
+      { slot: '07:00', vehicles: 1, baselineVehicles: 2 },
+      { slot: '07:30', vehicles: 1, baselineVehicles: 2 },
+    ]);
+    expect(groups.map(({ isHour }) => isHour)).toEqual([true, false]);
+  });
+
   it('writes the run state and comparison', () => {
     expect(comparisonLabel(RUN)).toBe('S1 frente a S0');
     expect(runStatusLabel('running')).toBe('En curso');
@@ -54,7 +84,7 @@ describe('slot chart', () => {
 
   it('describes all the data for screen readers', () => {
     expect(chartDescription(RESULTS.series, { baseline: 'S0', scenario: 'S1' })).toBe(
-      'Vehículos que llegan al campus por franja horaria. 07:00: S0 10, S1 8; 07:30: S0 20, S1 17.',
+      'Vehículos por franja horaria (llegadas al campus y salidas para volver). 07:00: S0 10, S1 8; 07:30: S0 20, S1 17.',
     );
   });
 });

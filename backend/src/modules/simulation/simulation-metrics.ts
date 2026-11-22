@@ -14,6 +14,10 @@ export interface ReplicaMetrics {
   vehiclesUsed: number;
   baselineVehiclesUsed: number;
   vehiclesAvoidedPct: number;
+  // La vuelta (los vehículos de arriba son los del día: ida y vuelta); null
+  // en las ejecuciones de antes de simularla
+  returnVehiclesUsed: number | null;
+  returnBaselineVehiclesUsed: number | null;
   requestsCoveredPct: number;
   averageOccupancy: number;
   baselineAverageOccupancy: number;
@@ -21,8 +25,18 @@ export interface ReplicaMetrics {
   // Solo en escenarios con incidencias (S5): pasajeros afectados que encuentran
   // otro viaje, en %
   recoveryPct: number | null;
+  // Cómo terminan los viajes de los conductores (de los dos tramos); null en
+  // las ejecuciones de antes de distinguirlo
+  trips: TripStates | null;
   vehiclesBySlot: number[];
   baselineVehiclesBySlot: number[];
+}
+
+// Viajes terminados (con pasajeros), caducados (sin ninguno) y cancelados
+export interface TripStates {
+  finished: number;
+  expired: number;
+  cancelled: number;
 }
 
 export interface SimulationOutput {
@@ -51,8 +65,24 @@ export interface SimulationSummary {
   requestsCoveredPct: MetricStat;
   matchingP95Ms: MetricStat;
   recoveryPct: MetricStat | null;
+  // Vehículos evitados en cada tramo (null si alguna réplica es de antes de
+  // simular la vuelta)
+  legs: LegStats | null;
+  // Viajes de cada estado por réplica (null si alguna réplica es de antes)
+  tripStates: TripStateStats | null;
   // Contraste de HE1 frente a HE0 sobre los vehículos (réplicas emparejadas)
   vehiclesReduction: PairedTest;
+}
+
+export interface LegStats {
+  toCampusAvoidedPct: MetricStat;
+  fromCampusAvoidedPct: MetricStat;
+}
+
+export interface TripStateStats {
+  finished: MetricStat;
+  expired: MetricStat;
+  cancelled: MetricStat;
 }
 
 export interface SlotSeries {
@@ -122,6 +152,49 @@ function describeRecovery(replicas: ReplicaMetrics[]): MetricStat | null {
   return values.length === 0 ? null : describeValues(values);
 }
 
+function avoidedPct(base: number, scenario: number): number {
+  return base > 0 ? ((base - scenario) / base) * 100 : 0;
+}
+
+// Vehículos evitados a la ida (el día menos la vuelta) y a la vuelta
+function describeLegs(replicas: ReplicaMetrics[]): LegStats | null {
+  const legs = replicas.map((r) =>
+    r.returnVehiclesUsed === null || r.returnBaselineVehiclesUsed === null
+      ? null
+      : {
+          toCampus: avoidedPct(
+            r.baselineVehiclesUsed - r.returnBaselineVehiclesUsed,
+            r.vehiclesUsed - r.returnVehiclesUsed,
+          ),
+          fromCampus: avoidedPct(
+            r.returnBaselineVehiclesUsed,
+            r.returnVehiclesUsed,
+          ),
+        },
+  );
+  if (legs.length === 0 || legs.some((leg) => leg === null)) {
+    return null;
+  }
+  const known = legs.filter((leg) => leg !== null);
+  return {
+    toCampusAvoidedPct: describeValues(known.map((leg) => leg.toCampus)),
+    fromCampusAvoidedPct: describeValues(known.map((leg) => leg.fromCampus)),
+  };
+}
+
+function describeTripStates(replicas: ReplicaMetrics[]): TripStateStats | null {
+  const states = replicas.map((r) => r.trips);
+  if (states.length === 0 || states.some((trips) => trips === null)) {
+    return null;
+  }
+  const known = states.filter((trips) => trips !== null);
+  return {
+    finished: describeValues(known.map((trips) => trips.finished)),
+    expired: describeValues(known.map((trips) => trips.expired)),
+    cancelled: describeValues(known.map((trips) => trips.cancelled)),
+  };
+}
+
 function slotSeries(output: SimulationOutput): SlotSeries[] {
   return output.slots.map((slot, index) => ({
     slot,
@@ -159,6 +232,8 @@ export function aggregate(output: SimulationOutput): AggregatedResults {
     requestsCoveredPct: describeEach(replicas, (r) => r.requestsCoveredPct),
     matchingP95Ms: describeEach(replicas, (r) => r.matchingP95Ms),
     recoveryPct: describeRecovery(replicas),
+    legs: describeLegs(replicas),
+    tripStates: describeTripStates(replicas),
     vehiclesReduction: pairedTest(
       replicas.map((r) => r.baselineVehiclesUsed - r.vehiclesUsed),
     ),
@@ -170,12 +245,20 @@ export function aggregate(output: SimulationOutput): AggregatedResults {
   };
 }
 
-const CSV_COLUMNS: readonly (keyof ReplicaMetrics)[] = [
+// Las cifras sueltas de una réplica (sin las franjas ni los estados)
+type ScalarMetric = Exclude<
+  keyof ReplicaMetrics,
+  'trips' | 'vehiclesBySlot' | 'baselineVehiclesBySlot'
+>;
+
+const CSV_COLUMNS: readonly ScalarMetric[] = [
   'replica',
   'seed',
   'vehiclesUsed',
   'baselineVehiclesUsed',
   'vehiclesAvoidedPct',
+  'returnVehiclesUsed',
+  'returnBaselineVehiclesUsed',
   'requestsCoveredPct',
   'averageOccupancy',
   'baselineAverageOccupancy',
@@ -183,10 +266,24 @@ const CSV_COLUMNS: readonly (keyof ReplicaMetrics)[] = [
   'recoveryPct',
 ];
 
+// Los viajes de cada estado, al final de cada fila
+const TRIP_COLUMNS: readonly (keyof TripStates)[] = [
+  'finished',
+  'expired',
+  'cancelled',
+];
+
 // Métricas por réplica en CSV (RF-20), una fila por réplica
 export function toCsv(replicas: ReplicaMetrics[]): string {
+  const header = [
+    ...CSV_COLUMNS,
+    ...TRIP_COLUMNS.map((state) => `trips_${state}`),
+  ];
   const rows = replicas.map((replica) =>
-    CSV_COLUMNS.map((column) => String(replica[column] ?? '')).join(','),
+    [
+      ...CSV_COLUMNS.map((column) => String(replica[column] ?? '')),
+      ...TRIP_COLUMNS.map((state) => String(replica.trips?.[state] ?? '')),
+    ].join(','),
   );
-  return [CSV_COLUMNS.join(','), ...rows].join('\n') + '\n';
+  return [header.join(','), ...rows].join('\n') + '\n';
 }

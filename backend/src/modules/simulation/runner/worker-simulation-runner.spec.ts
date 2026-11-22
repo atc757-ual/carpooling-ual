@@ -99,7 +99,8 @@ describe('WorkerSimulationRunner', () => {
     ]);
     const [, output] = events.onFinished.mock.calls[0];
     expect(output.replicas).toHaveLength(2);
-    expect(output.slots).toHaveLength(6);
+    // Las franjas del día: 6 de ida y 18 de vuelta
+    expect(output.slots).toHaveLength(24);
     expect(events.onFailed).not.toHaveBeenCalled();
   });
 

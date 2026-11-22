@@ -1,12 +1,12 @@
 import type { ScenarioConfig } from '../scenario-config';
 import type { ReplicaMetrics } from '../simulation-metrics';
+import { DAY_SLOTS } from '../engine/day-slots';
 import type { SimulationJob } from './simulation-runner';
 
 // Métricas inventadas pero deterministas de una réplica, para desarrollar el
 // panel sin el motor real: la misma semilla da siempre el mismo resultado.
 // Las fórmulas solo buscan valores verosímiles; no modelan nada
 
-const SLOT_MINUTES = 30;
 // Ocupación sin carpooling (personas por coche) de la que parte la base
 const BASELINE_OCCUPANCY = 1.2;
 // Parte de los usuarios que comparten coche que viajan como pasajeros
@@ -34,22 +34,8 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-function toTime(minutes: number): string {
-  const hours = String(Math.floor(minutes / 60)).padStart(2, '0');
-  return `${hours}:${String(minutes % 60).padStart(2, '0')}`;
-}
-
-// Inicio de cada franja de 30 minutos entre dos horas (en minutos del día)
-export function slotsBetween(startMin: number, endMin: number): string[] {
-  const slots: string[] = [];
-  for (let m = startMin; m < endMin; m += SLOT_MINUTES) {
-    slots.push(toTime(m));
-  }
-  return slots;
-}
-
-// Franja de llegadas al campus del motor falso: de 07:00 a 10:00
-export const FAKE_SLOTS = slotsBetween(7 * 60, 10 * 60);
+// Las mismas franjas que el motor de agentes: la ida y la vuelta
+export const FAKE_SLOTS = DAY_SLOTS;
 
 // Media de plazas (parameters.vehicleCapacities) o 4 si no hay
 function averageSeats(config: ScenarioConfig): number {
@@ -75,6 +61,19 @@ function distribute(vehicles: number, slotCount: number): number[] {
   );
   const total = weights.reduce((sum, weight) => sum + weight, 0);
   return weights.map((weight) => Math.round((vehicles * weight) / total));
+}
+
+// Viajes de los conductores en los dos tramos: cancelados según las
+// incidencias, terminados según los pasajeros con plaza y el resto, caducados
+function fakeTrips(
+  adopters: number,
+  covered: number,
+  incidents: number,
+): { finished: number; expired: number; cancelled: number } {
+  const trips = Math.round(adopters * (1 - PASSENGER_SHARE) * 2);
+  const cancelled = Math.round(trips * incidents);
+  const finished = Math.round((trips - cancelled) * covered);
+  return { finished, expired: trips - cancelled - finished, cancelled };
 }
 
 export function fakeReplica(job: SimulationJob, index: number): ReplicaMetrics {
@@ -113,11 +112,15 @@ export function fakeReplica(job: SimulationJob, index: number): ReplicaMetrics {
     vehiclesAvoidedPct: round(
       ((baselineVehicles - vehicles) / baselineVehicles) * 100,
     ),
+    // La mitad de los vehículos, a la vuelta (los de arriba son los del día)
+    returnVehiclesUsed: Math.round(vehicles / 2),
+    returnBaselineVehiclesUsed: Math.round(baselineVehicles / 2),
     requestsCoveredPct: round(covered * 100),
     averageOccupancy: round(carUsers / vehicles),
     baselineAverageOccupancy: round(baselineOccupancy),
     matchingP95Ms: Math.round((120 + config.users * 0.25) * noise(0.1)),
     recoveryPct: incidents > 0 ? round(clamp(80 * noise(0.08), 0, 100)) : null,
+    trips: fakeTrips(carUsers * config.adoptionRate, covered, incidents),
     vehiclesBySlot: distribute(vehicles, FAKE_SLOTS.length),
     baselineVehiclesBySlot: distribute(baselineVehicles, FAKE_SLOTS.length),
   };

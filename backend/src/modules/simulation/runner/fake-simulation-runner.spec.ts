@@ -1,7 +1,8 @@
 import { Logger } from '@nestjs/common';
 import type { ScenarioConfig } from '../scenario-config';
 import type { SimulationOutput } from '../simulation-metrics';
-import { FAKE_SLOTS, fakeReplica, slotsBetween } from './fake-replica';
+import { slotsBetween } from '../engine/day-slots';
+import { FAKE_SLOTS, fakeReplica } from './fake-replica';
 import { FakeSimulationRunner } from './fake-simulation-runner';
 import type { SimulationJob, SimulationRunListener } from './simulation-runner';
 
@@ -83,10 +84,22 @@ describe('fake simulation runner', () => {
     expect(fakeReplica(job('s5'), 0).recoveryPct).not.toBeNull();
   });
 
-  it('splits the morning into 30-minute slots', () => {
+  it('splits the day (there and back) into 30-minute slots', () => {
     expect(slotsBetween(420, 510)).toEqual(['07:00', '07:30', '08:00']);
-    expect(FAKE_SLOTS).toHaveLength(6);
-    expect(fakeReplica(job('s1'), 0).vehiclesBySlot).toHaveLength(6);
+    // 6 de llegadas (07:00-10:00) y 18 de salidas (12:00-21:00)
+    expect(FAKE_SLOTS).toHaveLength(24);
+    expect(FAKE_SLOTS.slice(5, 7)).toEqual(['09:30', '12:00']);
+    expect(fakeReplica(job('s1'), 0).vehiclesBySlot).toHaveLength(24);
+  });
+
+  it('gives the return vehicles and how the trips end', () => {
+    const replica = fakeReplica(job('s5'), 0);
+    // La mitad del día, redondeada
+    expect(
+      Math.abs((replica.returnVehiclesUsed ?? 0) * 2 - replica.vehiclesUsed),
+    ).toBeLessThanOrEqual(1);
+    expect(replica.trips?.cancelled).toBeGreaterThan(0);
+    expect(fakeReplica(job('s1'), 0).trips?.cancelled).toBe(0);
   });
 
   it('covers more with more demand and less with smaller cars', () => {

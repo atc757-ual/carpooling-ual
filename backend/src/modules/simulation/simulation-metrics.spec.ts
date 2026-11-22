@@ -13,11 +13,14 @@ function replica(overrides: Partial<ReplicaMetrics> = {}): ReplicaMetrics {
     vehiclesUsed: 85,
     baselineVehiclesUsed: 100,
     vehiclesAvoidedPct: 15,
+    returnVehiclesUsed: 40,
+    returnBaselineVehiclesUsed: 50,
     requestsCoveredPct: 70,
     averageOccupancy: 1.4,
     baselineAverageOccupancy: 1.2,
     matchingP95Ms: 250,
     recoveryPct: null,
+    trips: { finished: 10, expired: 4, cancelled: 0 },
     vehiclesBySlot: [40, 45],
     baselineVehiclesBySlot: [50, 50],
     ...overrides,
@@ -116,13 +119,57 @@ describe('simulation metrics', () => {
     ).toBeNull();
   });
 
-  it('exports one CSV row per replica, with empty recovery when missing', () => {
-    const csv = toCsv([replica(), replica({ replica: 2, recoveryPct: 75 })]);
+  it('exports one CSV row per replica, with empty values when missing', () => {
+    const csv = toCsv([
+      replica(),
+      replica({
+        replica: 2,
+        recoveryPct: 75,
+        returnVehiclesUsed: null,
+        returnBaselineVehiclesUsed: null,
+        trips: null,
+      }),
+    ]);
     const lines = csv.trimEnd().split('\n');
     expect(lines[0]).toBe(
-      'replica,seed,vehiclesUsed,baselineVehiclesUsed,vehiclesAvoidedPct,requestsCoveredPct,averageOccupancy,baselineAverageOccupancy,matchingP95Ms,recoveryPct',
+      'replica,seed,vehiclesUsed,baselineVehiclesUsed,vehiclesAvoidedPct,returnVehiclesUsed,returnBaselineVehiclesUsed,requestsCoveredPct,averageOccupancy,baselineAverageOccupancy,matchingP95Ms,recoveryPct,trips_finished,trips_expired,trips_cancelled',
     );
-    expect(lines[1]).toBe('1,7,85,100,15,70,1.4,1.2,250,');
-    expect(lines[2].endsWith(',75')).toBe(true);
+    expect(lines[1]).toBe('1,7,85,100,15,40,50,70,1.4,1.2,250,,10,4,0');
+    expect(lines[2]).toBe('2,7,85,100,15,,,70,1.4,1.2,250,75,,,');
+  });
+
+  it('gives the vehicles avoided on each leg and how the trips end', () => {
+    const { summary } = aggregate({
+      slots: ['08:00', '08:30'],
+      replicas: [
+        replica(),
+        replica({ vehiclesUsed: 90, returnVehiclesUsed: 45 }),
+      ],
+    });
+    // Ida: 50 de base y 45 con carpooling en las dos (10 %); vuelta: 50 de
+    // base y 40 o 45 (20 % y 10 %, media 15 %)
+    expect(summary.legs?.toCampusAvoidedPct.mean).toBe(10);
+    expect(summary.legs?.fromCampusAvoidedPct.mean).toBe(15);
+    expect(summary.tripStates).toMatchObject({
+      finished: { mean: 10 },
+      expired: { mean: 4 },
+      cancelled: { mean: 0 },
+    });
+  });
+
+  it('leaves the legs and the trip states out of runs saved before them', () => {
+    const { summary } = aggregate({
+      slots: ['08:00', '08:30'],
+      replicas: [
+        replica(),
+        replica({
+          returnVehiclesUsed: null,
+          returnBaselineVehiclesUsed: null,
+          trips: null,
+        }),
+      ],
+    });
+    expect(summary.legs).toBeNull();
+    expect(summary.tripStates).toBeNull();
   });
 });

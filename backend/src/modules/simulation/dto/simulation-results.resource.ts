@@ -81,11 +81,51 @@ class PairedTestResource {
 }
 
 // Métricas de RF-18 agregadas entre réplicas
+class LegStatsResource {
+  @ApiProperty({
+    type: MetricStatResource,
+    description: 'Vehicles avoided on the way to campus, in %',
+  })
+  toCampusAvoidedPct: MetricStatResource;
+
+  @ApiProperty({
+    type: MetricStatResource,
+    description: 'Vehicles avoided on the way back from campus, in %',
+  })
+  fromCampusAvoidedPct: MetricStatResource;
+}
+
+class TripStateStatsResource {
+  @ApiProperty({
+    type: MetricStatResource,
+    description: 'Driver trips done with passengers, per replica',
+  })
+  finished: MetricStatResource;
+
+  @ApiProperty({
+    type: MetricStatResource,
+    description: 'Driver trips that expired without passengers, per replica',
+  })
+  expired: MetricStatResource;
+
+  @ApiProperty({
+    type: MetricStatResource,
+    description: 'Driver trips cancelled (S5), per replica',
+  })
+  cancelled: MetricStatResource;
+}
+
 class SimulationSummaryResource {
-  @ApiProperty({ type: ComparedStatResource })
+  @ApiProperty({
+    type: ComparedStatResource,
+    description: 'Vehicles of the whole day (to and from campus)',
+  })
   vehiclesUsed: ComparedStatResource;
 
-  @ApiProperty({ type: ComparedStatResource, description: 'People per car' })
+  @ApiProperty({
+    type: ComparedStatResource,
+    description: 'People per car (each person makes two trips a day)',
+  })
   averageOccupancy: ComparedStatResource;
 
   @ApiProperty({ type: MetricStatResource })
@@ -103,6 +143,22 @@ class SimulationSummaryResource {
     description: 'Only in scenarios with incidents (S5)',
   })
   recoveryPct: MetricStatResource | null;
+
+  @ApiProperty({
+    type: LegStatsResource,
+    nullable: true,
+    description:
+      'Vehicles avoided on each leg; null in runs saved before the return trip was simulated',
+  })
+  legs: LegStatsResource | null;
+
+  @ApiProperty({
+    type: TripStateStatsResource,
+    nullable: true,
+    description:
+      'How the driver trips end; null in runs saved before it was recorded',
+  })
+  tripStates: TripStateStatsResource | null;
 
   @ApiProperty({
     type: PairedTestResource,
@@ -152,6 +208,18 @@ export class SimulationResultsResource {
   series: SlotSeriesResource[];
 }
 
+// Los datos que no existían en las ejecuciones guardadas antes, a null
+function withOptionalStats(
+  summary: Partial<SimulationSummaryResource>,
+): SimulationSummaryResource {
+  return {
+    ...(summary as SimulationSummaryResource),
+    legs: summary.legs ?? null,
+    tripStates: summary.tripStates ?? null,
+    vehiclesReduction: summary.vehiclesReduction ?? null,
+  };
+}
+
 // Solo para ejecuciones terminadas, que siempre tienen resumen y serie
 export function toSimulationResultsResource(
   run: SimulationRun,
@@ -161,12 +229,9 @@ export function toSimulationResultsResource(
     href: `${simulationHref(run.id)}/results`,
     replicas: run.progress,
     criterionMet: run.criterionMet ?? false,
-    summary: {
-      ...(run.summary as SimulationSummaryResource),
-      vehiclesReduction:
-        (run.summary as Partial<SimulationSummaryResource>).vehiclesReduction ??
-        null,
-    },
+    summary: withOptionalStats(
+      run.summary as Partial<SimulationSummaryResource>,
+    ),
     series: run.series ?? [],
   };
 }

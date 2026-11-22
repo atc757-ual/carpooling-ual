@@ -17,11 +17,11 @@ import { TwinFeed } from './twin-feed';
 const SCENARIO: ScenarioConfig = {
   code: 'S5',
   name: 'Incidencias',
-  users: 300,
+  users: 3000,
   adoptionRate: 0.5,
   modalSplit: { own_car: 0.5, public_transport: 0.5 },
   timeWindowMin: 15,
-  parameters: { cancellationRate: 0.2 },
+  parameters: { cancellationRate: 0.4 },
 };
 
 describe('twin feed (event contract)', () => {
@@ -35,13 +35,15 @@ describe('twin feed (event contract)', () => {
 
     const events = apply.mock.calls.map(([event]): TwinEvent => event);
     const types = new Set(events.map(({ type }) => type));
-    // Todo el ciclo de vida que usa el motor, también las cancelaciones (S5)
+    // Todo el ciclo de vida que usa el motor: las cancelaciones (S5) y los
+    // viajes que caducan sin pasajeros
     expect([...types].sort()).toEqual([
       'request.accepted',
       'request.boarded',
       'request.cancelled',
       'request.created',
       'trip.cancelled',
+      'trip.expired',
       'trip.finished',
       'trip.published',
       'trip.started',
