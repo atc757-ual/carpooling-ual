@@ -42,6 +42,17 @@ describe('RouteTimeline', () => {
     expect(root.querySelector('.route-timeline--timed')).not.toBeNull();
   });
 
+  it('marks the time of the stops in between, smaller than the start and the end', () => {
+    const root = render([
+      { name: 'Salida del conductor', detail: 'Salida', time: '08:00' },
+      { name: 'Puerta de Purchena', detail: 'Tu punto de recogida', time: '08:04' },
+      { name: 'Campus UAL', detail: 'Llegada', time: '08:13' },
+    ]);
+
+    expect(texts(root, '.route-timeline__time--stop')).toEqual(['08:04']);
+    expect(texts(root, '.route-timeline__time')).toEqual(['08:00', '08:04', '08:13']);
+  });
+
   it('supports translating aria-label or overriding it', () => {
     TestBed.configureTestingModule({
       providers: [

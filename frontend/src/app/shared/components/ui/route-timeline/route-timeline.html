@@ -3,10 +3,12 @@
   [class.route-timeline--timed]="hasTimes()"
   [attr.aria-label]="timelineAriaLabel()"
 >
-  @for (stop of stops(); track $index; let isLast = $last) {
+  @for (stop of stops(); track $index; let isFirst = $first, isLast = $last) {
     <li class="route-timeline__stop">
       @if (stop.time; as time) {
-        <span class="route-timeline__time">{{ time }}</span>
+        <span class="route-timeline__time" [class.route-timeline__time--stop]="!isFirst && !isLast"
+          ><span class="route-timeline__time-text">{{ time }}</span></span
+        >
       } @else if (hasTimes()) {
         <span class="route-timeline__time-slot" aria-hidden="true"></span>
       }
