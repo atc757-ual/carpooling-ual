@@ -19,7 +19,8 @@
   min-width: 0;
 }
 
-.search-results__panel {
+.search-results__panel,
+.search-results__exact {
   margin: 0;
 
   ion-card-content {
@@ -260,4 +261,15 @@
   gap: var(--space-s);
   padding: var(--space-l) var(--space-base);
   text-align: center;
+}
+
+// Tras la cancelación del conductor: el viaje al 100 %, destacado con el
+// borde de marca, y el título de los demás
+.search-results__exact {
+  border: var(--border-width-m) solid var(--color-primary);
+}
+
+.search-results__others {
+  margin: 0;
+  color: var(--color-text);
 }

@@ -101,6 +101,8 @@ describe('SearchResultsPage', () => {
   let searchState: TripSearchStateService;
   let search: ReturnType<typeof vi.fn>;
   let listMine: ReturnType<typeof vi.fn>;
+  // Tras la cancelación del conductor: las opciones de su solicitud
+  let relocationOptions: ReturnType<typeof vi.fn>;
 
   async function setUp(
     current: TripSearch | null,
@@ -123,7 +125,7 @@ describe('SearchResultsPage', () => {
         { provide: TravelPreferencesStore, useValue: { format: () => [] } },
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
         { provide: MatchingService, useValue: { search } },
-        { provide: SeatRequestsService, useValue: { listMine } },
+        { provide: SeatRequestsService, useValue: { listMine, relocationOptions } },
         {
           provide: LocationService,
           useValue: { checkPermission: () => Promise.resolve('prompt') },
@@ -325,5 +327,100 @@ describe('SearchResultsPage', () => {
     page.isEditing.set(true);
 
     expect(page.isEditing()).toBe(true);
+  });
+
+  describe('after the driver cancels (relocation)', () => {
+    const RELOCATION: TripSearch = { ...SEARCH, relocationRequestId: 'r1' };
+    const EXACT: TripMatch = { ...MATCH, id: 'exact' };
+    const ON_TIME: TripMatch = { ...MATCH, id: 'on-time' };
+    const LATER: TripMatch = { ...MATCH, id: 'later' };
+
+    async function setUpOptions(options: {
+      exactMatch: TripMatch | null;
+      matches: TripMatch[];
+      sameDayMatches: TripMatch[];
+    }): Promise<ComponentFixture<SearchResultsPage>> {
+      relocationOptions = vi.fn().mockResolvedValue(options);
+      const fixture = await setUp(RELOCATION);
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    const idsOf = (trips: TripResult[]) => trips.map(({ id }) => id);
+
+    it('highlights the exact match on top and puts the rest of the trips below', async () => {
+      const fixture = await setUpOptions({
+        exactMatch: EXACT,
+        matches: [ON_TIME],
+        sameDayMatches: [LATER],
+      });
+      const page = fixture.componentInstance;
+      const root = fixture.nativeElement as HTMLElement;
+
+      expect(relocationOptions).toHaveBeenCalledWith('r1');
+      expect(search).not.toHaveBeenCalled();
+      expect(page.relocationOutcome()).toBe('exact');
+      expect(page.exactTrip()?.id).toBe('exact');
+      expect(idsOf(page.trips())).toEqual(['on-time', 'later']);
+      expect(page.bestTripId()).toBeNull();
+      expect(root.querySelector('.search-results__exact .notice--success')?.textContent).toContain(
+        'Este viaje encaja al 100 %',
+      );
+      expect(root.textContent).toContain('Otros viajes de ese día por tu ruta');
+      // El detalle de cualquiera de ellos se abre desde aquí
+      expect(idsOf([...searchState.results()])).toEqual(['exact', 'on-time', 'later']);
+    });
+
+    it('without an exact match, shows the ones on time on top and the rest of the day below', async () => {
+      const fixture = await setUpOptions({
+        exactMatch: null,
+        matches: [ON_TIME],
+        sameDayMatches: [LATER],
+      });
+      const page = fixture.componentInstance;
+      const root = fixture.nativeElement as HTMLElement;
+
+      expect(page.relocationOutcome()).toBe('onTime');
+      expect(idsOf(page.priorityTrips())).toEqual(['on-time']);
+      expect(idsOf(page.trips())).toEqual(['later']);
+      expect(root.querySelector('.search-results__exact .notice--info')?.textContent).toContain(
+        'Ninguno encaja al 100 %',
+      );
+    });
+
+    it('with none on time, says so and still shows the rest of the day', async () => {
+      const fixture = await setUpOptions({
+        exactMatch: null,
+        matches: [],
+        sameDayMatches: [LATER],
+      });
+      const root = fixture.nativeElement as HTMLElement;
+
+      expect(fixture.componentInstance.relocationOutcome()).toBe('none');
+      expect(root.querySelector('.search-results__exact .notice--warning')?.textContent).toContain(
+        'no hay ninguno a tu hora',
+      );
+      expect(root.querySelectorAll('.search-results__panel app-trip-result-card')).toHaveLength(1);
+    });
+
+    it('with nothing that day, offers to change the search instead of the empty state', async () => {
+      const fixture = await setUpOptions({ exactMatch: null, matches: [], sameDayMatches: [] });
+      const root = fixture.nativeElement as HTMLElement;
+
+      expect(root.querySelector('app-empty-state')).toBeNull();
+      expect(root.querySelector('.search-results__panel')).toBeNull();
+      expect(root.querySelector('.search-results__exact ion-button')?.textContent).toContain(
+        'Cambiar',
+      );
+    });
+
+    it('a wider margin goes back to a normal search', async () => {
+      const fixture = await setUpOptions({ exactMatch: null, matches: [], sameDayMatches: [] });
+      searchState.set({ ...RELOCATION, margin: 15 });
+
+      fixture.componentInstance.handleWidenMargin();
+
+      expect(searchState.search()).toEqual({ ...SEARCH, margin: 20 });
+    });
   });
 });

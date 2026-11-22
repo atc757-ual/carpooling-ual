@@ -34,7 +34,11 @@
         <div class="passenger-detail__main">
           <!-- Una sola tarjeta, en este orden: el estado (aviso y progreso con
                la hora de cada paso), el código de recogida, el seguimiento y
-               «Tu recorrido» con el mapa. Debajo, «Conductor y coche» -->
+               «Tu recorrido» con el mapa. Debajo, «Conductor y coche».
+               Si el conductor canceló, arriba de todo: buscarle otro viaje -->
+          @if (isRelocatable(request, now())) {
+            <app-relocation-card [request]="request" [trip]="trip" [now]="now()" />
+          }
           <app-passenger-request-route [request]="request" [trip]="trip" part="route">
             <div class="passenger-detail__status">
               <output
@@ -62,7 +66,9 @@
                     <b>{{
                       'request.driverCancelled' | transloco: { driver: firstName(trip.driver.name) }
                     }}</b>
-                    {{ 'request.puedesBuscarOtroViaje' | transloco }}
+                    @if (!isRelocatable(request, now())) {
+                      {{ 'request.puedesBuscarOtroViaje' | transloco }}
+                    }
                   } @else {
                     @switch (request.status) {
                       @case ('pending') {

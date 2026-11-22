@@ -185,6 +185,12 @@
     "details": {
       "arrival": "arrive by",
       "departure": "leave at"
+    },
+    "relocation": {
+      "exactTitle": "This trip matches yours 100%. Check it and request your seat.",
+      "onTimeTitle": "None matches 100%, but these leave at your time.",
+      "noneTitle": "We looked for trips like yours, but there are none at your time.",
+      "othersTitle": "Other trips that day on your route"
     }
   },
   "location": {
@@ -755,6 +761,16 @@
     "send": "Send rating"
   },
   "request": {
+    "relocation": {
+      "title": "Your driver has cancelled the trip",
+      "explanation": "We'll look for trips like yours and, if one matches 100%, we'll show it to you first.",
+      "button": "Find another trip now",
+      "campus": "Campus",
+      "timeLeft": {
+        "one": "Available for 1 more min",
+        "other": "Available for {{ count }} more min"
+      }
+    },
     "cargandoSolicitud": "Loading your request…",
     "encontramosEstaSolicitud": "We couldn't find this request",
     "puedeQueEsteDisponible": "It may no longer be available. You can check your trips or look for another one.",

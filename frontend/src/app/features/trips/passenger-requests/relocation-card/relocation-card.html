@@ -1,0 +1,31 @@
+<ion-card class="relocation-card">
+  <ion-card-content>
+    <h2 class="relocation-card__title">{{ 'request.relocation.title' | transloco }}</h2>
+    <p class="relocation-card__text text-body">
+      {{ 'request.relocation.explanation' | transloco }}
+    </p>
+    <ion-button
+      type="button"
+      expand="block"
+      color="primary"
+      [disabled]="isOpening()"
+      (click)="handleSearch()"
+    >
+      @if (isOpening()) {
+        <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+      } @else {
+        <ion-icon slot="start" [icon]="priorityIcon" aria-hidden="true" />
+      }
+      {{ 'request.relocation.button' | transloco }}
+    </ion-button>
+    <!-- Cuánto le queda: la tarjeta se ofrece 30 min tras la cancelación -->
+    <p class="relocation-card__time-left text-caption text-color-muted">
+      {{
+        (minutesLeft() === 1
+          ? 'request.relocation.timeLeft.one'
+          : 'request.relocation.timeLeft.other'
+        ) | transloco: { count: minutesLeft() }
+      }}
+    </p>
+  </ion-card-content>
+</ion-card>

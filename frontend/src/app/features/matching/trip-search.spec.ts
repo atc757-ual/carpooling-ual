@@ -19,6 +19,12 @@ describe('parseTripSearch', () => {
     );
   });
 
+  it('keeps the cancelled request of a search for another trip', () => {
+    const search: TripSearch = { ...SEARCH, relocationRequestId: 'r1' };
+
+    expect(parseTripSearch(search)).toEqual(search);
+  });
+
   it('reads a trip back from the campus', () => {
     const search: TripSearch = { ...SEARCH, direction: 'from-campus', parking: PARKING_P3 };
 

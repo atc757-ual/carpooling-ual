@@ -42,6 +42,7 @@ import { passengerRequestLabel, passengerTripTab } from '../my-trips/trip-tabs';
 import { PassengerProgress } from './passenger-progress/passenger-progress';
 import { PassengerRequestActions } from './passenger-request-actions/passenger-request-actions';
 import { PassengerRequestRoute } from './passenger-request-route/passenger-request-route';
+import { isRelocatable, RelocationCard } from './relocation-card/relocation-card';
 import { TripReviewCard } from '../trip-review/trip-review-card';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
@@ -75,6 +76,7 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
     PassengerProgress,
     PassengerRequestRoute,
     PassengerRequestActions,
+    RelocationCard,
     TripReviewCard,
     TranslocoPipe,
   ],
@@ -90,6 +92,7 @@ export class PassengerRequestDetailPage {
   private readonly translate: Translate = (key, params) => this.transloco.translate(key, params);
 
   readonly id = input.required<string>();
+  protected readonly isRelocatable = isRelocatable;
   private readonly requestHeading = viewChild.required<TemplateRef<unknown>>('requestHeading');
   // Para abrir «Reportar» desde la lista «Viaje y seguridad»
   protected readonly actions = viewChild(PassengerRequestActions);
@@ -111,7 +114,7 @@ export class PassengerRequestDetailPage {
   readonly trip = computed(() => (this.tripResource.hasValue() ? this.tripResource.value() : null));
 
   readonly isPageVisible = signal(true);
-  private readonly now = signal(Date.now());
+  protected readonly now = signal(Date.now());
 
   // El código se ve desde 10 min antes de la salida (cuando el conductor ya
   // puede iniciar) o en cuanto inicia: así lo tiene aunque al subir no haya

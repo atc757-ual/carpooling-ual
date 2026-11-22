@@ -1,0 +1,33 @@
+// Arriba del detalle y destacada: borde del color de marca, como lo primero
+// que hay que hacer
+.relocation-card {
+  margin: 0;
+  border: var(--border-width-m) solid var(--color-primary);
+}
+
+.relocation-card ion-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+// Título de tarjeta: 18px, como el de las demás tarjetas (filters-card)
+.relocation-card__title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle-s);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+.relocation-card__text {
+  margin: 0;
+  color: var(--color-text);
+}
+
+// Debajo del botón y centrado: cuánto le queda para usarla
+.relocation-card__time-left {
+  margin: 0;
+  text-align: center;
+}

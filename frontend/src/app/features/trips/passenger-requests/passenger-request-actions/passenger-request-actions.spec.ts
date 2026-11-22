@@ -119,6 +119,21 @@ describe('PassengerRequestActions', () => {
     expect(actions.closedReason()).toContain(text);
   });
 
+  it.each([
+    [0, false],
+    [31, true],
+  ])(
+    'when the driver cancelled %i min ago, offers its own search: %s (before, the card on top does)',
+    (minutesAgo, canSearch) => {
+      const cancelledByDriver = request('cancelled', {
+        rejectionReason: 'trip_cancelled',
+        cancelledAt: new Date(Date.now() - minutesAgo * 60_000).toISOString(),
+      });
+
+      expect(create(cancelledByDriver, trip('cancelled')).canSearchAnother()).toBe(canSearch);
+    },
+  );
+
   it('offers a priority search with the same route when the request did not go ahead', async () => {
     const actions = create(
       request('rejected', { pickupName: 'Avenida del Mediterráneo, 120', seats: 2 }),

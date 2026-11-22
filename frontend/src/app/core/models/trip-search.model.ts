@@ -32,4 +32,8 @@ export interface TripSearch {
   // Minutos de margen sobre la hora (±)
   margin: number;
   seats: number;
+  // Si viene de «Buscar otro viaje» tras la cancelación del conductor: la
+  // solicitud cancelada. Los resultados salen de sus opciones, con el viaje
+  // que encaja al 100 % destacado arriba
+  relocationRequestId?: string;
 }
