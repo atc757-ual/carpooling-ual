@@ -6,19 +6,23 @@
   </p>
 
   <div class="sweep__form">
-    <ion-segment
-      class="sweep__parameter"
-      aria-label="Supuesto que se varía: % de usuarios en coche propio o % de adopción"
-      [value]="parameter()"
-      (ionChange)="handleParameter($event.detail.value)"
-    >
-      <ion-segment-button value="ownCarShare">
-        <ion-label>En coche</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="adoptionRate">
-        <ion-label>Adopción</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+    <!-- El supuesto que se varía: pestañas segmentadas del tema -->
+    <fieldset class="segmented-tabs sweep__parameter">
+      <legend class="visually-hidden">
+        Supuesto que se varía: % de usuarios en coche propio o % de adopción
+      </legend>
+      @for (option of parameters; track option.value) {
+        <button
+          type="button"
+          class="segmented-tabs__option"
+          [class.segmented-tabs__option--selected]="parameter() === option.value"
+          [attr.aria-pressed]="parameter() === option.value"
+          (click)="handleParameter(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </fieldset>
     <ion-input
       class="sweep__values"
       label="Valores (%)"

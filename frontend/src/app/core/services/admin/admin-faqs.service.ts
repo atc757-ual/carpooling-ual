@@ -2,7 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AdminFaq, AdminFaqFields, AdminFaqTopic } from '../../models/admin-faq.model';
+import {
+  AdminFaq,
+  AdminFaqFields,
+  AdminFaqTopic,
+  AdminFaqTopicFields,
+} from '../../models/admin-faq.model';
 import { ApiError } from '../../models/api-error.model';
 
 // Lo más que devuelve la API por página
@@ -18,6 +23,16 @@ export class AdminFaqsService {
 
   listTopics(): Promise<AdminFaqTopic[]> {
     return this.call(this.http.get<AdminFaqTopic[]>(this.topicsUrl));
+  }
+
+  // Los nombres y el icono de un tema (su clave no cambia)
+  updateTopic(key: string, changes: Partial<AdminFaqTopicFields>): Promise<AdminFaqTopic> {
+    return this.call(this.http.patch<AdminFaqTopic>(`${this.topicsUrl}/${key}`, changes));
+  }
+
+  // Un puesto arriba o abajo en el orden de los temas
+  moveTopic(key: string, direction: 'up' | 'down'): Promise<AdminFaqTopic> {
+    return this.call(this.http.post<AdminFaqTopic>(`${this.topicsUrl}/${key}/move`, { direction }));
   }
 
   // Todas, en el orden de los temas: la API pagina de 100 en 100 y se piden

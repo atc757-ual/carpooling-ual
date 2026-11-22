@@ -1,0 +1,66 @@
+// Como las tarjetas de las preguntas: 16px de relleno y las filas con una
+// línea entre ellas
+.faq-topics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: var(--space-base);
+}
+
+.faq-topics__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.faq-topics__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Cada tema: el icono, los dos nombres y las acciones a la derecha
+.faq-topics__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding-block: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border);
+}
+
+// El icono en un círculo azul claro, como en las tarjetas de Ayuda
+.faq-topics__icon {
+  display: grid;
+  flex: none;
+  width: var(--box-size-m);
+  height: var(--box-size-m);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  place-items: center;
+
+  ion-icon {
+    font-size: var(--icon-size-s);
+  }
+}
+
+.faq-topics__names {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.faq-topics__name {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.faq-topics__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+}

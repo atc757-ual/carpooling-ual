@@ -299,6 +299,7 @@ for (const viewport of VIEWPORTS) {
         .should('contain', 'Borrador')
         .and('contain', 'Falta el inglés');
       cy.contains('Este tema aún no tiene preguntas.');
+      cy.contains('.faq-topics__row', 'Valoraciones').should('contain', 'Ratings');
 
       cy.contains('.faqs-editor__row', '¿Qué es el margen horario?')
         .find('ion-button[title="Pasar a borrador"]')

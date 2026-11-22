@@ -55,6 +55,19 @@ describe('SensitivitySweep', () => {
     expect(sweep.parameter()).toBe('adoptionRate');
   });
 
+  it('switches the assumption with the segmented tabs', async () => {
+    const root = await render();
+    const options = root.querySelectorAll<HTMLButtonElement>('.segmented-tabs__option');
+
+    expect(options[0].getAttribute('aria-pressed')).toBe('true');
+    options[1].click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.parameter()).toBe('adoptionRate');
+    expect(options[1].getAttribute('aria-pressed')).toBe('true');
+    expect(options[0].classList).not.toContain('segmented-tabs__option--selected');
+  });
+
   it('starts the sweep with the scenario of the page and shows it', async () => {
     const started = vi.fn();
     await render();

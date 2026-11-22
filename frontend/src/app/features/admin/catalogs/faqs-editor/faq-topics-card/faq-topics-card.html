@@ -1,0 +1,48 @@
+<ion-card class="faq-topics">
+  <div class="faq-topics__head">
+    <h2 class="admin-list__title">Temas</h2>
+    <span class="text-body-s text-color-muted">En el orden en que salen en Ayuda.</span>
+  </div>
+  <ul class="faq-topics__list">
+    @for (row of rows(); track row.topic.key) {
+      <li class="faq-topics__row">
+        <span class="faq-topics__icon" aria-hidden="true">
+          <ion-icon [icon]="row.icon" />
+        </span>
+        <span class="faq-topics__names">
+          <span class="faq-topics__name">{{ row.topic.nameEs }}</span>
+          <span class="text-body-s text-color-muted" lang="en">{{ row.topic.nameEn }}</span>
+        </span>
+        <span class="faq-topics__actions">
+          <ion-button
+            fill="clear"
+            size="small"
+            [disabled]="!row.canMoveUp || busyKey() !== null"
+            [attr.aria-label]="'Subir: ' + row.topic.nameEs"
+            (click)="handleMove(row.topic, 'up')"
+          >
+            <ion-icon slot="icon-only" [icon]="upIcon" aria-hidden="true" />
+          </ion-button>
+          <ion-button
+            fill="clear"
+            size="small"
+            [disabled]="!row.canMoveDown || busyKey() !== null"
+            [attr.aria-label]="'Bajar: ' + row.topic.nameEs"
+            (click)="handleMove(row.topic, 'down')"
+          >
+            <ion-icon slot="icon-only" [icon]="downIcon" aria-hidden="true" />
+          </ion-button>
+          <ion-button
+            fill="clear"
+            size="small"
+            title="Editar"
+            [attr.aria-label]="'Editar: ' + row.topic.nameEs"
+            (click)="handleEdit(row.topic)"
+          >
+            <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+          </ion-button>
+        </span>
+      </li>
+    }
+  </ul>
+</ion-card>

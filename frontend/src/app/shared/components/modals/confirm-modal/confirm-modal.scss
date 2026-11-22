@@ -64,3 +64,25 @@
   --border-color: var(--color-border-strong);
   --color: var(--color-text);
 }
+
+// Ventanas con formulario del panel (pregunta frecuente, tema): el título a
+// la izquierda, los campos a todo el ancho y, en escritorio, los botones a
+// su medida y a la derecha
+.confirm--form {
+  align-items: stretch;
+  text-align: left;
+
+  .confirm__actions {
+    ion-button {
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      justify-content: flex-end;
+
+      ion-button {
+        width: auto;
+      }
+    }
+  }
+}

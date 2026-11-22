@@ -1,0 +1,61 @@
+<app-modal-header title="Editar tema" (closed)="handleCancel()" />
+
+<!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+<form
+  class="modal-body confirm confirm--form faq-topic-modal"
+  (submit)="$event.preventDefault(); handleConfirm()"
+>
+  <div class="faq-topic-modal__names">
+    <ion-input
+      label="Nombre en español"
+      labelPlacement="stacked"
+      fill="outline"
+      [maxlength]="maxName"
+      [counter]="true"
+      [value]="nameEs()"
+      (ionInput)="nameEs.set($event.detail.value ?? '')"
+    />
+    <ion-input
+      label="Nombre en inglés"
+      labelPlacement="stacked"
+      fill="outline"
+      [maxlength]="maxName"
+      [counter]="true"
+      [value]="nameEn()"
+      (ionInput)="nameEn.set($event.detail.value ?? '')"
+    />
+  </div>
+
+  <!-- El icono: tarjetas de opción solo con el icono (el nombre, para los
+       lectores de pantalla); el elegido, con el borde azul -->
+  <fieldset class="faq-topic-modal__icons">
+    <legend class="text-label text-label--strong">Icono</legend>
+    <ion-radio-group
+      class="faq-topic-modal__grid"
+      [value]="icon()"
+      (ionChange)="handleIcon($event.detail.value)"
+    >
+      @for (option of icons; track option.name) {
+        <ion-item class="option-card faq-topic-modal__icon" lines="none">
+          <ion-radio [value]="option.name" [attr.aria-label]="option.name">
+            <ion-icon [icon]="option.icon" aria-hidden="true" />
+          </ion-radio>
+        </ion-item>
+      }
+    </ion-radio-group>
+  </fieldset>
+
+  @if (errorMessage(); as error) {
+    <p class="faq-topic-modal__error text-body-s" role="alert">{{ error }}</p>
+  }
+
+  <div class="confirm__actions">
+    <ion-button type="submit" [disabled]="!isValid() || isSaving()">
+      @if (isSaving()) {
+        <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+      }
+      Guardar
+    </ion-button>
+    <ion-button type="button" fill="outline" (click)="handleCancel()"> Cancelar </ion-button>
+  </div>
+</form>
