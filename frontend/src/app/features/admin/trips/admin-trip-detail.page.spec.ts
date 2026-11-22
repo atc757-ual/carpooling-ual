@@ -15,6 +15,7 @@ import { AdminTripDetailPage } from './admin-trip-detail.page';
 
 const DETAIL: AdminTripDetail = {
   id: 't1',
+  code: 'VJ-0001',
   href: '/api/admin/trips/t1',
   status: 'confirmed',
   departureAt: '2026-11-02T07:30:00.000Z',

@@ -96,6 +96,8 @@ describe('Trips API (e2e)', () => {
       vehicleId,
       origin: ALMERIA_CENTRE,
       destination: UAL_CAMPUS,
+      originName: 'Almería',
+      destinationName: 'Campus UAL',
       departureAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       offeredSeats: 3,
       ...overrides,
@@ -207,6 +209,7 @@ describe('Trips API (e2e)', () => {
         '@type': 'Trip',
         id: trip.id,
         href: `/api/trips/${trip.id}`,
+        code: expect.stringMatching(/^VJ-\d{4,}$/) as string,
         driver: {
           id: trip.driver.id,
           name: 'ana',
@@ -308,6 +311,23 @@ describe('Trips API (e2e)', () => {
           'departureAt',
           'offeredSeats',
         ]),
+      );
+    });
+
+    it('requires the names of the origin and the destination', async () => {
+      const { token, vehicleId } = await readyDriver('ana');
+
+      const response = await api('post', '/trips', token)
+        .send({
+          ...tripBody(vehicleId),
+          originName: '',
+          destinationName: undefined,
+        })
+        .expect(400);
+
+      const { fields } = response.body as { fields: { field: string }[] };
+      expect(new Set(fields.map(({ field }) => field))).toEqual(
+        new Set(['originName', 'destinationName']),
       );
     });
 

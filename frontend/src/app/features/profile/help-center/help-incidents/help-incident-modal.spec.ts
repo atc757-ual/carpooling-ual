@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../../../core/i18n/testing-transloco';
 import type { MyIncident } from '../../../../core/models/my-incident.model';
 import { HelpIncidentModal, incidentMoments } from './help-incident-modal';
-import { incidentCategoryKey, incidentRoute } from './my-incident-labels';
+import { incidentCategoryKey, incidentRoute, incidentTripLine } from './my-incident-labels';
 import { MY_INCIDENT } from './my-incident.testing';
 
 const REVIEWED: MyIncident = {
@@ -60,6 +60,24 @@ describe('my incident labels', () => {
       incidentRoute({
         ...MY_INCIDENT,
         trip: { ...MY_INCIDENT.trip, originName: null, destinationName: null },
+      }),
+    ).toBe('');
+  });
+
+  it('puts the trip in one line: code, route and day, with what there is', () => {
+    expect(incidentTripLine(MY_INCIDENT)).toMatch(
+      /^VJ-0012 · Roquetas de Mar → Campus UAL · .+2026$/,
+    );
+    expect(
+      incidentTripLine({
+        ...MY_INCIDENT,
+        trip: {
+          ...MY_INCIDENT.trip,
+          code: null,
+          originName: null,
+          destinationName: null,
+          departureAt: null,
+        },
       }),
     ).toBe('');
   });

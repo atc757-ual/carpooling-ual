@@ -114,6 +114,8 @@ export type TripStatus =
 export interface DriverTrip extends PublishedTrip {
   // El vehículo con el que se publicó (su declaración se confirma al iniciar)
   vehicleId: string;
+  // «VJ-0042»: para citarlo (soporte, incidencias, panel)
+  code: string;
   origin: GeoPoint;
   destination: GeoPoint;
   availableSeats: number;

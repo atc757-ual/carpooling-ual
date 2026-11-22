@@ -87,6 +87,7 @@ for (const viewport of VIEWPORTS) {
         departureAt: tripMatch().departureAt,
         origin: { type: 'Point', coordinates: [-2.6146, 36.7642] },
         destination: { type: 'Point', coordinates: [-2.4, 36.83] },
+        code: 'VJ-0001',
         originName: 'Roquetas de Mar',
         destinationName: 'Campus UAL · Parking P1',
         status: 'published',

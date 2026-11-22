@@ -25,6 +25,7 @@ const ACCESS_TOKEN = {
 const TRIP = {
   id: 't1',
   href: '/api/trips/t1',
+  code: 'VJ-0001',
   originName: 'Roquetas de Mar',
   destinationName: 'Campus UAL',
   departureAt: '2099-01-15T07:30:00.000Z',

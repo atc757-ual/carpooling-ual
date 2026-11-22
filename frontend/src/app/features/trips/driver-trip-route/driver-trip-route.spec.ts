@@ -19,6 +19,7 @@ import { DriverTripRoute } from './driver-trip-route';
 
 const TRIP: DriverTrip = {
   id: 't1',
+  code: 'VJ-0001',
   departureAt: '2099-01-15T07:00:00.000Z',
   offeredSeats: 3,
   availableSeats: 2,

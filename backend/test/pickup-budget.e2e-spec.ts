@@ -86,6 +86,8 @@ describe('Detour budget of a trip (e2e)', () => {
       .expect(201);
     const trip = await api('post', '/trips', driver)
       .send({
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL',
         vehicleId: (vehicle.body as { id: string }).id,
         origin: ALMERIA_CENTRE,
         destination: UAL_CAMPUS,
@@ -140,6 +142,8 @@ describe('Detour budget of a trip (e2e)', () => {
     const [{ id: vehicleId }] = vehicles.body as { id: string }[];
     const trip = (overrides: Record<string, unknown>) =>
       api('post', '/trips', driver).send({
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL',
         vehicleId,
         origin: ALMERIA_CENTRE,
         destination: UAL_CAMPUS,

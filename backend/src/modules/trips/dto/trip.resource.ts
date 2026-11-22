@@ -88,6 +88,12 @@ export class TripResource {
   @ApiProperty({ example: '/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90' })
   href: string;
 
+  @ApiProperty({
+    example: 'VJ-0042',
+    description: 'Short code to cite the trip (consecutive number)',
+  })
+  code: string;
+
   @ApiProperty({ type: TripDriverResource })
   driver: TripDriverResource;
 
@@ -231,6 +237,17 @@ export function tripHref(id: string): string {
   return `/${API_PREFIX}/trips/${id}`;
 }
 
+// El número de un código de viaje («VJ-0042», «vj42»…); null si no lo es
+export function parseTripCode(text: string): number | null {
+  const match = /^VJ-?(\d{1,9})$/i.exec(text.trim());
+  return match ? Number(match[1]) : null;
+}
+
+// «VJ-0042»: el número con al menos cuatro cifras
+export function tripCode(number: number): string {
+  return `VJ-${String(number).padStart(4, '0')}`;
+}
+
 export function toTripResource({
   trip,
   driverName,
@@ -246,6 +263,7 @@ export function toTripResource({
     '@type': 'Trip',
     id: trip.id,
     href: tripHref(trip.id),
+    code: tripCode(trip.number),
     driver: {
       id: trip.driverId,
       name: driverName,

@@ -40,6 +40,7 @@ function trip() {
     maxDetourM: 500,
     stops: [],
     status: 'published',
+    code: 'VJ-0001',
     originName: 'Roquetas de Mar',
     destinationName: 'Campus UAL · Parking P1 (Sur)',
     driver: { id: 'user-1', name: 'Lucía Cortés' },

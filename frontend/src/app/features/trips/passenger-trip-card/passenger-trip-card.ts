@@ -76,7 +76,9 @@ export class PassengerTripCard {
   // «Conduce Lucía Cortés · 2 plazas · Matrícula 1234BCD» (la matrícula, al confirmarla)
   readonly details = computed(() => {
     const { request, trip } = this.item();
+    // El código delante: «VJ-0042 · Conduce Mario · 1 plaza»
     const parts = [
+      trip.code,
       translate('screens.passengerTripCard.drives', { name: trip.driver.name }),
       formatSeats(request.seats),
     ];

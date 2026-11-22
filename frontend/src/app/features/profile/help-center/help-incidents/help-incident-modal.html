@@ -12,18 +12,9 @@
     </span>
   </div>
 
-  <!-- El viaje: la ruta y el día; sin los nombres, «Viaje del 18 nov 2026» -->
-  @if (route) {
-    <p class="text-body-s text-color-muted help-incident__trip">
-      {{ route }}
-      @if (departure) {
-        · {{ departure }}
-      }
-    </p>
-  } @else if (departure) {
-    <p class="text-body-s text-color-muted help-incident__trip">
-      {{ 'help.incidents.tripOn' | transloco: { date: departure } }}
-    </p>
+  <!-- El viaje: «VJ-0042 · Roquetas de Mar → Campus UAL · 18 nov 2026» -->
+  @if (tripLine) {
+    <p class="text-body-s text-color-muted help-incident__trip">{{ tripLine }}</p>
   }
 
   <section class="help-incident__section">

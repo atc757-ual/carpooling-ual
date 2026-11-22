@@ -35,6 +35,7 @@ export type { ReporterRole } from './incident-events';
 // El viaje de la incidencia como lo ve quien la gestiona: el trayecto, la
 // hora y el conductor
 export interface IncidentTripView {
+  number: number;
   originName: string | null;
   destinationName: string | null;
   departureAt: Date;
@@ -342,6 +343,7 @@ export class IncidentsService {
           : null,
         trip: trip
           ? {
+              number: trip.number,
               originName: trip.originName,
               destinationName: trip.destinationName,
               departureAt: trip.departureAt,

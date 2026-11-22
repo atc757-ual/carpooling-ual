@@ -8,6 +8,8 @@ export interface MyIncident {
   code: string;
   trip: {
     id: string;
+    // «VJ-0042»; null si el viaje ya no existe
+    code: string | null;
     originName: string | null;
     destinationName: string | null;
     departureAt: string | null;

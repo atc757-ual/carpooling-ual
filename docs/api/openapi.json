@@ -14641,7 +14641,7 @@
             "name": "driver",
             "required": false,
             "in": "query",
-            "description": "Text to search in the name or the email of the driver",
+            "description": "Text to search in the name or the email of the driver, or the code of the trip (VJ-0042)",
             "schema": {
               "maxLength": 100,
               "example": "javier",
@@ -17619,7 +17619,9 @@
           "vehicleId",
           "origin",
           "destination",
-          "offeredSeats"
+          "offeredSeats",
+          "originName",
+          "destinationName"
         ]
       },
       "TripDriverResource": {
@@ -17757,6 +17759,11 @@
             "type": "string",
             "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           },
+          "code": {
+            "type": "string",
+            "example": "VJ-0042",
+            "description": "Short code to cite the trip (consecutive number)"
+          },
           "driver": {
             "$ref": "#/components/schemas/TripDriverResource"
           },
@@ -17890,6 +17897,7 @@
           "@type",
           "id",
           "href",
+          "code",
           "driver",
           "vehicleId",
           "vehicle",
@@ -17929,6 +17937,11 @@
           "href": {
             "type": "string",
             "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
+          },
+          "code": {
+            "type": "string",
+            "example": "VJ-0042",
+            "description": "Short code to cite the trip (consecutive number)"
           },
           "driver": {
             "$ref": "#/components/schemas/TripDriverResource"
@@ -18053,6 +18066,7 @@
           "@type",
           "id",
           "href",
+          "code",
           "driver",
           "vehicleId",
           "vehicle",
@@ -19973,6 +19987,12 @@
             "type": "string",
             "example": "/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           },
+          "code": {
+            "type": "string",
+            "example": "VJ-0042",
+            "nullable": true,
+            "description": "Short code of the trip; null if it no longer exists"
+          },
           "originName": {
             "type": "string",
             "example": "Roquetas de Mar",
@@ -20001,6 +20021,7 @@
         "required": [
           "id",
           "href",
+          "code",
           "originName",
           "destinationName",
           "departureAt",
@@ -23047,6 +23068,11 @@
             "type": "string",
             "example": "/api/admin/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           },
+          "code": {
+            "type": "string",
+            "example": "VJ-0042",
+            "description": "Short code to cite the trip (consecutive number)"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -23091,6 +23117,7 @@
           "@type",
           "id",
           "href",
+          "code",
           "status",
           "departureAt",
           "originName",
@@ -23179,6 +23206,11 @@
             "type": "string",
             "example": "/api/admin/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90"
           },
+          "code": {
+            "type": "string",
+            "example": "VJ-0042",
+            "description": "Short code to cite the trip (consecutive number)"
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -23235,6 +23267,7 @@
           "@type",
           "id",
           "href",
+          "code",
           "status",
           "departureAt",
           "originName",

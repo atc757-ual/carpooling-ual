@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { API_PREFIX } from '../../../app.setup';
-import { tripHref } from '../../trips/dto/trip.resource';
+import { tripCode, tripHref } from '../../trips/dto/trip.resource';
 import {
   INCIDENT_CATEGORIES,
   INCIDENT_SOURCES,
@@ -29,6 +29,14 @@ export class IncidentTripResource {
 
   @ApiProperty({ example: '/api/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90' })
   href: string;
+
+  @ApiProperty({
+    example: 'VJ-0042',
+    type: String,
+    nullable: true,
+    description: 'Short code of the trip; null if it no longer exists',
+  })
+  code: string | null;
 
   @ApiProperty({ example: 'Roquetas de Mar', type: String, nullable: true })
   originName: string | null;
@@ -189,6 +197,7 @@ export function toIncidentResource({
     trip: {
       id: incident.tripId,
       href: tripHref(incident.tripId),
+      code: trip ? tripCode(trip.number) : null,
       originName: trip?.originName ?? null,
       destinationName: trip?.destinationName ?? null,
       departureAt: trip?.departureAt.toISOString() ?? null,

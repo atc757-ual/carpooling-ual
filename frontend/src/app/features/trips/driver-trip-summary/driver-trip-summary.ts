@@ -67,11 +67,13 @@ export class DriverTripSummary {
     return tripStatusLabel(this.trip().status);
   });
   readonly seatsLabel = computed(() => {
-    const { availableSeats, offeredSeats } = this.trip();
-    return translate('screens.driverTripSummary.freeOf', {
+    // El código delante: «VJ-0042 · 2 libres de 3»
+    const { availableSeats, offeredSeats, code } = this.trip();
+    const seats = translate('screens.driverTripSummary.freeOf', {
       available: availableSeats,
       offered: offeredSeats,
     });
+    return `${code} · ${seats}`;
   });
   // Lo que lee el lector de pantalla del enlace (toda la tarjeta)
   readonly linkLabel = computed(() =>

@@ -61,6 +61,13 @@
   font-weight: var(--font-weight-semibold);
 }
 
+// El código, debajo del trayecto y en gris (también en la tarjeta del móvil)
+.admin-trips__code {
+  display: block;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
 // Móvil: cada viaje, una tarjeta con lo justo: el trayecto y la flecha arriba
 // y debajo la salida y el estado. El conductor y las plazas, en el detalle
 @container admin-list (max-width: 47.98rem) {

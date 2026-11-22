@@ -316,6 +316,10 @@
           {{ statusLabel() }}
         </span>
       </div>
+      <!-- El código, para citarlo en soporte o en una incidencia -->
+      <span class="text-caption text-color-muted">
+        {{ 'common.tripCode' | transloco: { code: trip()?.code } }}
+      </span>
       <ion-breadcrumbs class="passenger-detail__breadcrumbs ion-hide-md-down">
         <ion-breadcrumb routerLink="/tabs/trips" routerDirection="back">{{
           'request.tusViajes' | transloco

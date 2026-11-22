@@ -85,6 +85,7 @@ export class AdminTripDetailPage {
     }
     const trip = this.detail.value();
     return {
+      code: trip.code,
       route: tripRoute(trip),
       origin: trip.originName ?? 'Origen',
       destination: trip.destinationName ?? 'Destino',

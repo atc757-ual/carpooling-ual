@@ -106,7 +106,8 @@
       "sent": "Sent",
       "read": "Read"
     },
-    "writeTo": "Message {{ name }}"
+    "writeTo": "Message {{ name }}",
+    "tripCode": "Trip {{ code }}"
   },
   "search": {
     "pending": {
@@ -887,8 +888,7 @@
         "open": "Reported",
         "inReview": "Under review",
         "reviewed": "Resolved"
-      },
-      "tripOn": "Trip on {{ date }}"
+      }
     }
   },
   "auth": {

@@ -34,6 +34,14 @@ export function incidentRoute(incident: MyIncident): string {
     .join(' → ');
 }
 
+// El viaje en una línea: el código, la ruta y el día (lo que haya)
+export function incidentTripLine(incident: MyIncident): string {
+  const { code, departureAt } = incident.trip;
+  return [code, incidentRoute(incident), departureAt ? incidentDate(departureAt) : '']
+    .filter((part) => part)
+    .join(' · ');
+}
+
 export function incidentDate(isoDate: string): string {
   return dateTimeFormat({ day: 'numeric', month: 'short', year: 'numeric' }).format(
     new Date(isoDate),

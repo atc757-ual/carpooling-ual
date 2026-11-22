@@ -23,6 +23,7 @@ import { DriverTripDetailPage } from './driver-trip-detail.page';
 function trip(id: string, extra: Partial<DriverTrip> = {}): DriverTrip {
   return {
     id,
+    code: 'VJ-0001',
     departureAt: '2099-01-15T06:40:00.000Z',
     offeredSeats: 3,
     availableSeats: 1,

@@ -103,6 +103,8 @@ describe('Relocation options after the driver cancels (e2e)', () => {
   ): Promise<string> {
     const trip = await api('post', '/trips', token)
       .send({
+        originName: 'Roquetas de Mar',
+        destinationName: 'Campus UAL',
         vehicleId,
         origin: ALMERIA_CENTRE,
         destination: UAL_CAMPUS,

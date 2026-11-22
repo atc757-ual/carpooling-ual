@@ -22,6 +22,8 @@ export interface AdminTripFilter {
   from?: string;
   to?: string;
   driverIds?: readonly string[];
+  // El número del código VJ-0042
+  number?: number;
 }
 
 // Un trayecto compartido: de dónde a dónde y cuántos coches dejaron de salir
@@ -193,6 +195,9 @@ export class TripStatsService {
         "trip.departureAt < ((CAST(:to AS timestamp) + interval '1 day') AT TIME ZONE :zone)",
         { to: filter.to, zone: CAMPUS_TIME_ZONE },
       );
+    }
+    if (filter.number !== undefined) {
+      query.andWhere('trip.number = :number', { number: filter.number });
     }
     if (filter.driverIds !== undefined) {
       query.andWhere('trip.driverId IN (:...driverIds)', {

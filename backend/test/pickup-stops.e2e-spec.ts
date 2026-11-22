@@ -115,6 +115,8 @@ describe('Picking up at stops (e2e)', () => {
       driver,
       publish: (body) =>
         api('post', '/trips', driver).send({
+          originName: 'Roquetas de Mar',
+          destinationName: 'Campus UAL',
           vehicleId: (vehicle.body as { id: string }).id,
           origin: ALMERIA_CENTRE,
           destination: campus,

@@ -11,6 +11,7 @@ import { API_PREFIX } from '../../../app.setup';
 import { PaginationQueryDto } from '../../../shared/pagination/pagination-query.dto';
 import { requestHref } from '../../requests/dto/seat-request.resource';
 import { REQUEST_STATUSES } from '../../requests/request-status';
+import { tripCode } from '../../trips/dto/trip.resource';
 import { TRIP_STATUSES } from '../../trips/trip-status';
 import type { TripStatus } from '../../trips/trip-status';
 import type { AdminTripDetail, AdminTripRow } from '../admin-trips.service';
@@ -47,7 +48,8 @@ export class ListAdminTripsQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({
     maxLength: 100,
-    description: 'Text to search in the name or the email of the driver',
+    description:
+      'Text to search in the name or the email of the driver, or the code of the trip (VJ-0042)',
     example: 'javier',
   })
   @Transform(({ value }: { value: unknown }) =>
@@ -87,6 +89,12 @@ export class AdminTripRowResource {
     example: '/api/admin/trips/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90',
   })
   href: string;
+
+  @ApiProperty({
+    example: 'VJ-0042',
+    description: 'Short code to cite the trip (consecutive number)',
+  })
+  code: string;
 
   @ApiProperty({ enum: TRIP_STATUSES })
   status: TripStatus;
@@ -170,6 +178,7 @@ export function toAdminTripRowResource({
     '@type': 'AdminTrip',
     id: trip.id,
     href: adminTripHref(trip.id),
+    code: tripCode(trip.number),
     status: trip.status,
     departureAt: trip.departureAt.toISOString(),
     originName: trip.originName,
