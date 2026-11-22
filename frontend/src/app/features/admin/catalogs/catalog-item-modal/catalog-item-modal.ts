@@ -5,6 +5,7 @@ import { AdminCatalogChanges } from '../../../../core/models/admin-catalog.model
 import { ApiError } from '../../../../core/models/api-error.model';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { LocationModal } from '../../../matching/location-modal/location-modal';
+import { ModalHeader } from '../../../../shared/components/modals/modal-header/modal-header';
 import { presentOverParent } from '../../../../shared/utils/modal-stack.util';
 import { CatalogField, FIELD_LABELS, formatPoint } from '../catalog-config';
 
@@ -37,7 +38,7 @@ export interface CatalogItemModalOptions {
 // se elige en el mapa) y, para un avatar, la imagen
 @Component({
   selector: 'app-catalog-item-modal',
-  imports: [IonButton, IonIcon, IonInput, IonSpinner],
+  imports: [IonButton, IonIcon, IonInput, IonSpinner, ModalHeader],
   templateUrl: './catalog-item-modal.html',
   styleUrls: [
     '../../../../shared/components/modals/confirm-modal/confirm-modal.scss',
