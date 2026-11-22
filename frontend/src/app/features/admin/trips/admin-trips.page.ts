@@ -114,6 +114,7 @@ export class AdminTripsPage {
   readonly rows = computed(() =>
     (this.trips.value()?.items ?? []).map((trip) => ({
       id: trip.id,
+      code: trip.code,
       departure: formatDateTime(trip.departureAt),
       route: tripRoute(trip),
       driver: trip.driver.name ?? 'Cuenta eliminada',

@@ -6,9 +6,8 @@ import type { MyIncident } from '../../../../core/models/my-incident.model';
 import { ModalHeader } from '../../../../shared/components/modals/modal-header/modal-header';
 import {
   incidentCategoryKey,
-  incidentDate,
   incidentDateTime,
-  incidentRoute,
+  incidentTripLine,
   MY_INCIDENT_STATUS,
 } from './my-incident-labels';
 
@@ -52,16 +51,14 @@ export class HelpIncidentModal implements OnInit {
   readonly pendingIcon = ellipseOutline;
   status = MY_INCIDENT_STATUS.open;
   categoryKey = '';
-  route = '';
-  departure: string | null = null;
+  tripLine = '';
   moments: IncidentMoment[] = [];
 
   ngOnInit(): void {
     const incident = this.incident;
     this.status = MY_INCIDENT_STATUS[incident.status];
     this.categoryKey = incidentCategoryKey(incident.category);
-    this.route = incidentRoute(incident);
-    this.departure = incident.trip.departureAt ? incidentDate(incident.trip.departureAt) : null;
+    this.tripLine = incidentTripLine(incident);
     this.moments = incidentMoments(incident);
   }
 

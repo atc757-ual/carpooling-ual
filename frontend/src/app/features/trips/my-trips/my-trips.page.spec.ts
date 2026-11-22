@@ -21,6 +21,7 @@ import { MyTripsPage } from './my-trips.page';
 function trip(id: string, status: DriverTrip['status']): DriverTrip {
   return {
     id,
+    code: 'VJ-0001',
     departureAt: '2099-01-15T06:40:00.000Z',
     offeredSeats: 3,
     availableSeats: 3,

@@ -6,6 +6,7 @@ export const MY_INCIDENT: MyIncident = {
   code: 'INC-0004',
   trip: {
     id: 'trip-1',
+    code: 'VJ-0012',
     originName: 'Roquetas de Mar',
     destinationName: 'Campus UAL',
     departureAt: '2026-11-18T07:30:00.000Z',

@@ -106,7 +106,8 @@
       "sent": "Enviado",
       "read": "Leído"
     },
-    "writeTo": "Escribir a {{ name }}"
+    "writeTo": "Escribir a {{ name }}",
+    "tripCode": "Viaje {{ code }}"
   },
   "search": {
     "pending": {
@@ -887,8 +888,7 @@
         "open": "Registrada",
         "inReview": "En revisión",
         "reviewed": "Atendida"
-      },
-      "tripOn": "Viaje del {{ date }}"
+      }
     }
   },
   "auth": {

@@ -46,6 +46,7 @@ function trip(availableSeats: number, status: string, minutesAhead?: number) {
     origin: { type: 'Point', coordinates: [-2.6, 36.76] },
     destination: { type: 'Point', coordinates: [-2.4045, 36.8322] },
     status,
+    code: 'VJ-0001',
     originName: 'Roquetas de Mar',
     destinationName: 'Campus UAL · Parking P1 (Sur)',
   };

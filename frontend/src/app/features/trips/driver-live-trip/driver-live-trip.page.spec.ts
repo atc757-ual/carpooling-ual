@@ -40,6 +40,7 @@ const RENDERER = {
 
 const TRIP: DriverTrip = {
   id: 't1',
+  code: 'VJ-0001',
   departureAt: new Date().toISOString(),
   offeredSeats: 3,
   availableSeats: 0,
@@ -335,9 +336,7 @@ describe('DriverLiveTripPage', () => {
     expect(callBtn?.hasAttribute('disabled')).toBe(true);
 
     page.handleCallPassenger({ id: 'p-r1', name: 'Carlos Ruiz' });
-    expect(showInfoMock).toHaveBeenCalledWith(
-      'No comparte su teléfono. Escríbele por el chat.',
-    );
+    expect(showInfoMock).toHaveBeenCalledWith('No comparte su teléfono. Escríbele por el chat.');
   });
 
   it('keeps the SOS in the action row and reports an incident in place', async () => {

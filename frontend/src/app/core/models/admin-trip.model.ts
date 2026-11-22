@@ -14,6 +14,8 @@ export const ADMIN_TRIP_STATUSES: readonly TripStatus[] = [
 export interface AdminTripRow {
   id: string;
   href: string;
+  // «VJ-0042»: para citarlo y buscarlo
+  code: string;
   status: TripStatus;
   departureAt: string;
   originName: string | null;

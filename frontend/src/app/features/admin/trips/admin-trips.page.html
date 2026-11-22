@@ -9,7 +9,7 @@
   </div>
   <ion-searchbar
     class="admin-heading__search"
-    placeholder="Buscar por conductor (nombre o correo)"
+    placeholder="Buscar por conductor (nombre o correo) o código (VJ-0042)"
     [value]="query().driver ?? ''"
     [debounce]="300"
     (ionInput)="handleFilter('driver', $event.detail.value)"
@@ -105,7 +105,10 @@
             @for (row of rows(); track row.id) {
               <tr>
                 <td class="admin-trips__nowrap admin-trips__cell-departure">{{ row.departure }}</td>
-                <td class="admin-trips__cell-route">{{ row.route }}</td>
+                <td class="admin-trips__cell-route">
+                  {{ row.route }}
+                  <span class="admin-trips__code text-caption">{{ row.code }}</span>
+                </td>
                 <td class="admin-trips__cell-driver">{{ row.driver }}</td>
                 <td class="admin-trips__nowrap admin-trips__cell-seats">{{ row.seats }}</td>
                 <td class="admin-trips__cell-status">

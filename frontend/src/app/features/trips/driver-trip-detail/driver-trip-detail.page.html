@@ -109,6 +109,10 @@
           {{ statusLabel() }}
         </span>
       </div>
+      <!-- El código, para citarlo en soporte o en una incidencia -->
+      <span class="text-caption text-color-muted">
+        {{ 'common.tripCode' | transloco: { code: trip.code } }}
+      </span>
       @if (trip.finishedBy === 'system') {
         <span class="text-body-s text-color-muted">
           {{ 'myTrips.cerradoAutomaticamenteHabiaPasado' | transloco }}

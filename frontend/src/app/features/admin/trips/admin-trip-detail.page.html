@@ -21,7 +21,7 @@
         <span [class]="trip.statusClass + ' trip-heading__status'">{{ trip.status }}</span>
       </div>
       <p class="text-body-s admin-heading__subtitle admin-detail__wrap">
-        Salida: {{ trip.departure }} · Conductor: {{ trip.driver.name }}
+        {{ trip.code }} · Salida: {{ trip.departure }} · Conductor: {{ trip.driver.name }}
       </p>
     </div>
   }
