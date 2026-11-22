@@ -1,6 +1,5 @@
 .faq-modal {
   gap: var(--space-base);
-  text-align: left;
 
   ion-input,
   ion-textarea,
@@ -36,8 +35,14 @@
   }
 }
 
+// Las pestañas del idioma a todo el ancho, mitad y mitad, como en los
+// documentos legales
 .faq-modal__langs {
-  width: 100%;
+  display: flex;
+
+  .segmented-tabs__option {
+    flex: 1;
+  }
 }
 
 .faq-modal__notice {

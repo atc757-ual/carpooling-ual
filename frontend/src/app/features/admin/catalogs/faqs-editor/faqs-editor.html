@@ -6,6 +6,7 @@
   </div>
   <div class="faqs-editor__filters">
     <ion-select
+      class="faqs-editor__topic-select"
       aria-label="Tema"
       fill="outline"
       justify="space-between"
@@ -162,4 +163,10 @@
       }
     </ion-card>
   }
+}
+
+<!-- Los temas: sus nombres, su icono y su orden (al cambiarlos, se recarga
+     el editor entero para que las preguntas lleven ya el nombre nuevo) -->
+@if (topics().length > 0) {
+  <app-faq-topics-card [topics]="topics()" (changed)="handleRetry()" />
 }

@@ -11,14 +11,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import {
-  IonButton,
-  IonInput,
-  IonLabel,
-  IonProgressBar,
-  IonSegment,
-  IonSegmentButton,
-} from '@ionic/angular';
+import { IonButton, IonInput, IonProgressBar } from '@ionic/angular';
 import { SweepParameter } from '../../../../core/models/admin-simulation.model';
 import { ApiError } from '../../../../core/models/api-error.model';
 import { AdminSimulationSweepsService } from '../../../../core/services/admin/admin-simulation-sweeps.service';
@@ -41,15 +34,7 @@ const POLL_MS = 2000;
 // su progreso y, al terminar, el gráfico y la tabla
 @Component({
   selector: 'app-sensitivity-sweep',
-  imports: [
-    IonButton,
-    IonInput,
-    IonLabel,
-    IonProgressBar,
-    IonSegment,
-    IonSegmentButton,
-    SensitivityChart,
-  ],
+  imports: [IonButton, IonInput, IonProgressBar, SensitivityChart],
   templateUrl: './sensitivity-sweep.html',
   styleUrl: './sensitivity-sweep.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,6 +52,10 @@ export class SensitivitySweep {
   readonly started = output<void>();
 
   readonly parameter = signal<SweepParameter>('ownCarShare');
+  protected readonly parameters: readonly { value: SweepParameter; label: string }[] = [
+    { value: 'ownCarShare', label: 'En coche' },
+    { value: 'adoptionRate', label: 'Adopción' },
+  ];
   readonly valuesText = linkedSignal(() => DEFAULT_VALUES[this.parameter()]);
   readonly values = computed(() => parseValues(this.valuesText()));
   readonly isStarting = signal(false);

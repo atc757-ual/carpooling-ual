@@ -629,6 +629,45 @@ ion-item.option-card {
   }
 }
 
+// Pestañas del panel (control segmentado: idioma y vista del texto en los
+// documentos legales, idioma de una pregunta frecuente): un fieldset con un
+// botón por opción, una al lado de la otra, esquinas de 8px y la elegida en
+// azul
+.segmented-tabs {
+  display: inline-flex;
+  gap: var(--space-xxs);
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: var(--space-xxs);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: var(--color-surface-subtle);
+}
+
+.segmented-tabs__option {
+  min-height: var(--box-size-m);
+  padding: 0 var(--space-base);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+  }
+}
+
+.segmented-tabs__option--selected {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
 // Menú de opciones de la cabecera de conversación (tres puntos): flotante y compacto
 .conversation-options-popover {
   --width: auto;

@@ -18,35 +18,39 @@
       </div>
     }
   </div>
-  <ion-select
-    #documentSelect
-    class="legal-editor__select"
-    aria-label="Documento"
-    fill="outline"
-    justify="space-between"
-    interface="popover"
-    [value]="type()"
-    (ionChange)="handleType($event.detail.value, documentSelect)"
-  >
-    @for (option of types; track option.value) {
-      <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
-    }
-  </ion-select>
-  <!-- El idioma que se edita: «Qué ha cambiado» y el texto -->
-  <fieldset class="legal-editor__tabs">
-    <legend class="visually-hidden">Idioma</legend>
-    @for (option of langs; track option.value) {
-      <button
-        type="button"
-        class="legal-editor__tab"
-        [class.legal-editor__tab--selected]="lang() === option.value"
-        [attr.aria-pressed]="lang() === option.value"
-        (click)="handleLang(option.value)"
-      >
-        {{ option.label }}
-      </button>
-    }
-  </fieldset>
+  <!-- El documento y el idioma: en escritorio, en la misma línea; en el
+       móvil, el desplegable arriba y las pestañas debajo -->
+  <div class="legal-editor__pick">
+    <ion-select
+      #documentSelect
+      class="legal-editor__select"
+      aria-label="Documento"
+      fill="outline"
+      justify="space-between"
+      interface="popover"
+      [value]="type()"
+      (ionChange)="handleType($event.detail.value, documentSelect)"
+    >
+      @for (option of types; track option.value) {
+        <ion-select-option [value]="option.value">{{ option.label }}</ion-select-option>
+      }
+    </ion-select>
+    <!-- El idioma que se edita: «Qué ha cambiado» y el texto -->
+    <fieldset class="legal-editor__tabs segmented-tabs">
+      <legend class="visually-hidden">Idioma</legend>
+      @for (option of langs; track option.value) {
+        <button
+          type="button"
+          class="legal-editor__tab segmented-tabs__option"
+          [class.segmented-tabs__option--selected]="lang() === option.value"
+          [attr.aria-pressed]="lang() === option.value"
+          (click)="handleLang(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </fieldset>
+  </div>
 </ion-card>
 
 @if (errorMessage(); as message) {
@@ -102,13 +106,13 @@
   <ion-card class="legal-editor__card">
     <div class="legal-editor__head">
       <h2 class="admin-list__title">Texto</h2>
-      <fieldset class="legal-editor__tabs">
+      <fieldset class="legal-editor__tabs segmented-tabs">
         <legend class="visually-hidden">Vista del texto</legend>
         @for (option of views(); track option.value) {
           <button
             type="button"
-            class="legal-editor__tab"
-            [class.legal-editor__tab--selected]="view() === option.value"
+            class="legal-editor__tab segmented-tabs__option"
+            [class.segmented-tabs__option--selected]="view() === option.value"
             [attr.aria-pressed]="view() === option.value"
             (click)="handleView(option.value)"
           >

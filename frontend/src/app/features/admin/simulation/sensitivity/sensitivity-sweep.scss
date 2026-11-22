@@ -24,12 +24,12 @@
 }
 
 .sweep__parameter {
+  display: flex;
   flex: 1 1 16rem; // 256px
-  --background: var(--color-surface-subtle);
+  margin: 0;
 
-  ion-segment-button {
-    min-height: var(--control-height-s);
-    text-transform: none;
+  .segmented-tabs__option {
+    flex: 1;
   }
 }
 

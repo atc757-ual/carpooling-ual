@@ -21,7 +21,33 @@
   gap: var(--space-s) var(--space-base);
 }
 
-// Ancho completo en el móvil y la mitad en escritorio
+// El documento y el idioma: en el móvil, uno debajo del otro; en escritorio,
+// en la misma línea, el desplegable en la mitad y las pestañas en el resto.
+// Las pestañas, siempre a todo su ancho y a partes iguales
+.legal-editor__pick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  .segmented-tabs {
+    display: flex;
+  }
+
+  .segmented-tabs__option {
+    flex: 1;
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-base);
+
+    .segmented-tabs {
+      flex: 1;
+    }
+  }
+}
+
 .legal-editor__select {
   width: 100%;
 
@@ -74,40 +100,8 @@
   font-weight: var(--font-weight-semibold);
 }
 
-// Editar, Vista previa y Comparar: un control segmentado con la elegida en azul
-.legal-editor__tabs {
-  display: inline-flex;
-  min-width: 0;
-  max-width: 100%;
-  margin: 0;
-  padding: var(--space-xxs);
-  border: 0;
-  border-radius: var(--radius-full);
-  background: var(--color-surface-subtle);
-}
-
-.legal-editor__tab {
-  min-height: var(--box-size-m);
-  padding: 0 var(--space-base);
-  border: 0;
-  border-radius: var(--radius-full);
-  background: none;
-  color: var(--color-text-muted);
-  font: inherit;
-  font-size: var(--font-size-label);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--focus-ring);
-  }
-}
-
-.legal-editor__tab--selected {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-weight: var(--font-weight-semibold);
-}
+// El idioma y Editar / Vista previa / Comparar: pestañas del tema
+// (`.segmented-tabs`)
 
 // Vigente y nueva, lado a lado en escritorio y una sobre otra en el móvil
 .legal-editor__compare {

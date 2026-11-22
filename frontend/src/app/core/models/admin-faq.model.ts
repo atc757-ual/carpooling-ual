@@ -12,6 +12,9 @@ export interface AdminFaqTopic {
   sortOrder: number;
 }
 
+// Lo que el panel puede cambiar de un tema
+export type AdminFaqTopicFields = Pick<AdminFaqTopic, 'nameEs' | 'nameEn' | 'icon'>;
+
 // Una pregunta con sus dos idiomas, publicada o no
 export interface AdminFaq {
   id: string;
