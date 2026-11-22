@@ -187,23 +187,22 @@ export class PublishTripDto {
   @Type(() => ReturnTripDto)
   returnTrip?: ReturnTripDto;
 
-  @ApiPropertyOptional({
+  // Obligatorio: sin él, el viaje no se puede reconocer en las listas
+  @ApiProperty({
     maxLength: 160,
     description: 'Name of the origin as chosen when publishing',
     example: 'Roquetas de Mar',
   })
-  @IsOptional()
   @IsString()
   @Length(1, 160)
-  originName?: string;
+  originName!: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     maxLength: 160,
     description: 'Name of the destination as chosen when publishing',
     example: 'Campus UAL · Parking P1 (Sur)',
   })
-  @IsOptional()
   @IsString()
   @Length(1, 160)
-  destinationName?: string;
+  destinationName!: string;
 }
