@@ -8,6 +8,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { HelpAudience, HelpFaq, HelpTopic } from '../../../core/models/faq.model';
 import { FaqsService } from '../../../core/services/help/faqs.service';
 import { HelpAudienceService } from '../../../core/services/help/help-audience.service';
+import { IncidentsService } from '../../../core/services/incidents/incidents.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { HeadingHost } from './heading-host.testing';
 import { HelpCenterPage } from './help-center.page';
@@ -52,6 +53,10 @@ describe('HelpCenterPage', () => {
         provideRouter([]),
         provideTestingTransloco(),
         { provide: FaqsService, useValue: { list, listTopics } },
+        {
+          provide: IncidentsService,
+          useValue: { listMine: vi.fn().mockResolvedValue({ items: [], total: 0 }) },
+        },
         {
           provide: HelpAudienceService,
           useValue: { audience, select: (value: HelpAudience) => audience.set(value) },

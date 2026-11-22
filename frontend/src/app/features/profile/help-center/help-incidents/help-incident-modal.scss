@@ -1,0 +1,62 @@
+.help-incident {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.help-incident__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.help-incident__trip,
+.help-incident__text,
+.help-incident__pending,
+.help-incident__section h3 {
+  margin: 0;
+}
+
+.help-incident__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+// Lo que escribió el usuario, tal cual (con sus saltos de línea)
+.help-incident__text {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.help-incident__moments {
+  padding: 0;
+}
+
+.help-incident__moment {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --min-height: var(--control-height-s);
+
+  ion-icon {
+    margin-inline-end: var(--space-s);
+    color: var(--color-success);
+    font-size: var(--icon-size-base);
+  }
+}
+
+// El momento que aún no ha llegado, en gris (el texto «Pendiente» lo dice
+// también, no solo el color)
+.help-incident__moment--pending ion-icon,
+.help-incident__moment--pending ion-label {
+  color: var(--color-text-muted);
+}
+
+// La respuesta del equipo, destacada en el azul suave de la marca
+.help-incident__answer {
+  padding: var(--space-s) var(--space-base);
+  border-radius: var(--radius-s);
+  background: var(--color-primary-subtle);
+}

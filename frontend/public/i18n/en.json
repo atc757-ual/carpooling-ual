@@ -872,7 +872,24 @@
     "moreText": "Write to us and we'll reply by email.",
     "contactSupport": "Write to support",
     "loadError": "We couldn't load the questions.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "incidents": {
+      "title": "Your incidents",
+      "empty": "You have not reported any incidents.",
+      "paginationAria": "Pages of your incidents",
+      "detailTitle": "Incident {{ code }}",
+      "yourReport": "What you told us",
+      "progress": "Progress",
+      "notYet": "Pending",
+      "answer": "Reply from the Carpooling UAL team",
+      "pendingHint": "The team will review it. Once they do, you will see their reply here.",
+      "status": {
+        "open": "Reported",
+        "inReview": "Under review",
+        "reviewed": "Resolved"
+      },
+      "tripOn": "Trip on {{ date }}"
+    }
   },
   "auth": {
     "layout": {
@@ -1866,7 +1883,9 @@
       "safety": "I felt in danger",
       "safetyShort": "In danger",
       "other": "Other reason",
-      "otherShort": "Other reason"
+      "otherShort": "Other reason",
+      "chatBehavior": "Behaviour in the chat",
+      "chatBehaviorShort": "In the chat"
     },
     "travelPreferences": {
       "conversation": "Conversation",

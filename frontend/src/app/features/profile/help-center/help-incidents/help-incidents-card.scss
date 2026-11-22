@@ -1,0 +1,48 @@
+// Como la tarjeta de soporte de al lado: sin sombra y con el radio de control
+:host {
+  display: block;
+}
+
+.help-incidents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: var(--space-base);
+  border-radius: var(--radius-s);
+  box-shadow: none;
+}
+
+.help-incidents__title,
+.help-incidents__empty {
+  margin: 0;
+}
+
+.help-incidents__list {
+  padding: 0;
+}
+
+// Sin el relleno lateral del ion-item: ya lo pone la tarjeta
+.help-incidents__item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.help-incidents__label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.help-incidents__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.help-incidents__skeleton {
+  height: var(--space-xxl);
+  border-radius: var(--radius-s);
+}
