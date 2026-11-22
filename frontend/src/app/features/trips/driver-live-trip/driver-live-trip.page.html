@@ -59,7 +59,7 @@
                         {{ 'live.valoraTusPasajeros' | transloco }}
                       } @else {
                         {{
-                          (boardedCount() === 1 ? 'live.carsLess.one' : 'live.carsLess.other')
+                          (boardedCount() === 1 ? 'live.sharedWith.one' : 'live.sharedWith.other')
                             | transloco: { count: boardedCount() }
                         }}
                       }
