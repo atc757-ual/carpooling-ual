@@ -22,6 +22,7 @@ import { TravelPreferencesService } from '../catalogs/travel-preferences.service
 import { TravelPreferenceNotOfferedError } from './errors/travel-preference-not-offered.error';
 import { EmailAlreadyRegisteredError } from './errors/email-already-registered.error';
 import { UserNotFoundError } from './errors/user-not-found.error';
+import { PhoneNotVerifiedError } from './errors/phone-not-verified.error';
 import { PROFILE_ENTITIES } from './profile-entities';
 import { ProfileType } from './profile-type';
 import type { TravelPreferences } from './travel-preferences';
@@ -41,7 +42,10 @@ import { VehiclesService } from './vehicles.service';
 export interface AccountChanges {
   firstName?: string;
   lastName?: string;
-  phone?: string;
+  // null: lo quita (el teléfono es opcional)
+  phone?: string | null;
+  // Compartirlo en los viajes (pide el teléfono verificado)
+  sharePhone?: boolean;
   timeToleranceMin?: number;
   avatarKey?: string | null;
   bio?: string | null;
@@ -71,7 +75,7 @@ export interface CreateUserInput {
   // Llega ya convertida en hash: este service nunca ve contraseñas en claro
   passwordHash: string;
   profiles: ProfileType[];
-  phone?: string;
+  phone?: string | null;
   termsAcceptedAt?: Date;
   isEmailVerified?: boolean;
 }
@@ -422,10 +426,11 @@ export class UsersService {
     return new Map(users.map((user) => [user.id, fullName(user)]));
   }
 
-  // Nombre de pila y teléfono de los que lo tienen verificado (con el código del
-  // SMS), en UNA consulta. Solo para quien puede verlo según la Política de
-  // privacidad: el conductor y los pasajeros aceptados de un viaje
-  async getVerifiedPhones(
+  // Nombre de pila y teléfono de los que deciden compartirlo (y lo tienen
+  // verificado con el código del SMS), en UNA consulta. Solo para quien puede
+  // verlo según la Política de privacidad: el conductor y los pasajeros
+  // aceptados de un viaje
+  async getSharedPhones(
     userIds: string[],
   ): Promise<Map<string, { name: string; phone: string }>> {
     const uniqueIds = [...new Set(userIds)];
@@ -438,6 +443,7 @@ export class UsersService {
         id: In(uniqueIds),
         phone: Not(IsNull()),
         phoneVerifiedAt: Not(IsNull()),
+        sharePhone: true,
       },
     });
     return new Map(
@@ -543,6 +549,7 @@ export class UsersService {
       email: user.email,
       phone: user.phone,
       phoneVerified: user.phoneVerifiedAt !== null,
+      sharePhone: user.sharePhone,
       profiles: this.getActiveProfiles(user),
       isAccessRevoked: this.isAccessRevoked(user),
       activeMode: user.activeMode,
@@ -639,6 +646,30 @@ function toPublicProfile(user: User): PublicUserProfile {
   };
 }
 
+// Si comparte el teléfono después del cambio: cambiar o quitar el número deja
+// de compartirlo (el nuevo no está verificado), y empezar a compartirlo pide
+// el teléfono verificado
+function resolveSharePhone(
+  user: User,
+  changes: AccountChanges,
+  isPhoneChanged: boolean,
+): boolean {
+  if (changes.sharePhone === true) {
+    if (
+      isPhoneChanged ||
+      user.phone === null ||
+      user.phoneVerifiedAt === null
+    ) {
+      throw new PhoneNotVerifiedError();
+    }
+    return true;
+  }
+  if (isPhoneChanged || changes.sharePhone === false) {
+    return false;
+  }
+  return user.sharePhone;
+}
+
 function buildAccountUpdate(
   user: User,
   changes: AccountChanges,
@@ -649,10 +680,16 @@ function buildAccountUpdate(
   const update: Partial<User> = Object.fromEntries(
     changedDirect.map((field) => [field, changes[field]]),
   );
-  if (changedDirect.includes('phone')) {
+  const changedFields: string[] = [...changedDirect];
+  const isPhoneChanged = changedDirect.includes('phone');
+  if (isPhoneChanged) {
     update.phoneVerifiedAt = null;
   }
-  const changedFields: string[] = [...changedDirect];
+  const nextSharePhone = resolveSharePhone(user, changes, isPhoneChanged);
+  if (nextSharePhone !== user.sharePhone) {
+    update.sharePhone = nextSharePhone;
+    changedFields.push('sharePhone');
+  }
 
   if (changes.preferences !== undefined) {
     let preferencesChanged = false;

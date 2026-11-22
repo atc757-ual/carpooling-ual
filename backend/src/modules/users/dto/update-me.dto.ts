@@ -1,15 +1,17 @@
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsIn,
   IsObject,
   IsOptional,
+  IsPhoneNumber,
   IsString,
   Length,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { RegisterDto } from '../../auth/dto/register.dto';
+import { normalizePhone, RegisterDto } from '../../auth/dto/register.dto';
 import {
   CONVERSATION_PREFERENCES,
   type ConversationPreference,
@@ -71,8 +73,38 @@ export class UpdateTravelPreferencesDto {
 // y de su perfil público. El correo no se cambia (es la identidad verificada
 // de la UAL)
 export class UpdateMeDto extends PartialType(
-  PickType(RegisterDto, ['firstName', 'lastName', 'phone'] as const),
+  PickType(RegisterDto, ['firstName', 'lastName'] as const),
 ) {
+  // El teléfono es opcional: null (o vacío) lo quita. Cambiarlo o quitarlo
+  // pierde la verificación y deja de compartirlo
+  @ApiProperty({
+    required: false,
+    type: String,
+    nullable: true,
+    maxLength: 16,
+    description:
+      'International format with country code (spaces, dashes and parentheses are ignored); null removes it. Changing or removing it drops the verification and stops sharing it',
+    example: '+34600123456',
+  })
+  @Transform(normalizePhone)
+  @IsOptional()
+  @IsString()
+  @MaxLength(16)
+  @IsPhoneNumber()
+  phone?: string | null;
+
+  // Compartir el teléfono en los viajes: la otra persona del viaje puede
+  // llamar con el viaje en curso. Pide el teléfono verificado
+  @ApiProperty({
+    required: false,
+    description:
+      'Let the other person of my trips call me while the trip is in progress. Needs a verified phone (409 PHONE_NOT_VERIFIED)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  sharePhone?: boolean;
+
   @ApiProperty({
     required: false,
     enum: TIME_TOLERANCES_MIN,

@@ -65,6 +65,17 @@ for (const viewport of VIEWPORTS) {
       cy.wait('@register').its('request.body.phone').should('equal', '+393331234567');
     });
 
+    it('registers without a phone: it is optional and is not sent', () => {
+      cy.intercept('POST', REGISTER_URL, { statusCode: 202 }).as('register');
+
+      fillForm('mario.perez@ual.es');
+      cy.get('ion-input[formControlName="phone"] input.native-input').clear();
+      cy.contains('Teléfono de contacto (opcional)');
+      cy.contains('ion-button', 'Crear mi cuenta').click();
+
+      cy.wait('@register').its('request.body').should('not.have.property', 'phone');
+    });
+
     it('does not let type digits or symbols in the name', () => {
       cy.get('ion-input[formControlName="firstName"] input').type('Mario_2!');
 

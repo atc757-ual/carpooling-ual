@@ -124,9 +124,10 @@ export class ChatService {
 
   // A quién puede llamar el usuario: a la otra persona de la conversación o,
   // al conductor que no indica pasajero (las pantallas del viaje), a todos sus
-  // pasajeros aceptados. Solo con el teléfono verificado y con el viaje
-  // en curso, para la recogida (la Política de privacidad: el
-  // teléfono solo lo ven el conductor y los pasajeros aceptados de un viaje)
+  // pasajeros aceptados. Solo los que comparten su teléfono (verificado) y
+  // con el viaje en curso, para la recogida (la Política de privacidad: el
+  // teléfono solo lo ven el conductor y los pasajeros aceptados de un viaje,
+  // si quien viaja decide compartirlo)
   async contacts(
     userId: string,
     ref: ConversationRef,
@@ -135,7 +136,7 @@ export class ChatService {
     if (!CALLABLE_TRIP_STATUSES.has(trip.status)) {
       return [];
     }
-    const phones = await this.usersService.getVerifiedPhones(contactIds);
+    const phones = await this.usersService.getSharedPhones(contactIds);
     return contactIds.flatMap((id) => {
       const contact = phones.get(id);
       if (!contact) {

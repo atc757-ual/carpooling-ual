@@ -248,6 +248,11 @@ describe('Auth API (e2e)', () => {
       expect(await pendingRow('phone')).toEqual({ phone: '+34600123456' });
     });
 
+    it('registers without a phone: it is optional', async () => {
+      await register({ phone: '' }).expect(202);
+      expect(await pendingRow('phone')).toEqual({ phone: null });
+    });
+
     it('does not put the phone in the user.registered event (minimisation)', async () => {
       await registerVerified();
 
@@ -264,7 +269,6 @@ describe('Auth API (e2e)', () => {
       ['without the country code', '600123456'],
       ['too short', '+34123'],
       ['with letters', '+34abc123456'],
-      ['missing', undefined],
     ])('rejects a phone %s with 400', async (_case, phone) => {
       const response = await register({ phone }).expect(400);
 

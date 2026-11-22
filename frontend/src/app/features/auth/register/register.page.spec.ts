@@ -92,6 +92,15 @@ describe('RegisterPage', () => {
     expect(page.isSubmitting()).toBe(false);
   });
 
+  it('creates the account without a phone: it is optional and is not sent', async () => {
+    page.form.setValue({ ...FORM, phone: '' });
+
+    await submit();
+
+    expect(register).toHaveBeenCalledWith(expect.objectContaining({ phone: undefined }));
+    expect(navigateByUrl).toHaveBeenCalledWith('/auth/verify');
+  });
+
   it('only accepts letters in the name, with a space, hyphen or apostrophe between them', () => {
     const { firstName, lastName } = page.form.controls;
     firstName.setValue('-Mario');

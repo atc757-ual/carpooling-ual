@@ -62,7 +62,8 @@ export class UserResource {
   @ApiProperty({
     type: String,
     nullable: true,
-    description: 'International format (E.164); null if never registered',
+    description:
+      'International format (E.164); null if the user has not given one (it is optional)',
     example: '+34600123456',
   })
   phone: string | null;
@@ -73,6 +74,13 @@ export class UserResource {
     example: false,
   })
   phoneVerified: boolean;
+
+  @ApiProperty({
+    description:
+      'Whether the other person of my trips can call me while the trip is in progress (only with a verified phone; off by default)',
+    example: false,
+  })
+  sharePhone: boolean;
 
   @ApiProperty({
     enum: ['driver', 'passenger', 'admin'],
@@ -144,6 +152,7 @@ export function toUserResource(user: UserSummary): UserResource {
     email: user.email,
     phone: user.phone,
     phoneVerified: user.phoneVerified,
+    sharePhone: user.sharePhone,
     profiles: user.profiles,
     isAccessRevoked: user.isAccessRevoked,
     activeMode: user.activeMode,

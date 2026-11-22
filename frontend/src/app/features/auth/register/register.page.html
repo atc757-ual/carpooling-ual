@@ -91,7 +91,7 @@
           fill="outline"
           [placeholder]="phonePlaceholder()"
           [helperText]="'auth.register.phoneHelper' | transloco"
-          [errorText]="phoneErrorKey() | transloco"
+          [errorText]="'auth.validation.phoneInvalid' | transloco"
         >
           <app-phone-prefix-select slot="start" formControlName="phonePrefix" />
         </ion-input>

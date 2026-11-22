@@ -4,6 +4,7 @@ import {
   Equals,
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   Length,
@@ -23,6 +24,16 @@ function normalizePersonName({ value }: { value: unknown }): unknown {
   return typeof value === 'string'
     ? value.normalize('NFC').trim().replace(/\s+/g, ' ')
     : value;
+}
+
+// El teléfono sin espacios, guiones ni paréntesis; vacío, como no darlo
+// (null). Lo comparten el registro y el cambio de cuenta
+export function normalizePhone({ value }: { value: unknown }): unknown {
+  if (typeof value !== 'string') {
+    return value;
+  }
+  const phone = value.replace(/[\s\-()]/g, '');
+  return phone === '' ? null : phone;
 }
 
 const PERSON_NAME_MESSAGE =
@@ -79,23 +90,26 @@ export class RegisterDto {
   @Length(8, 72)
   password!: string;
 
-  // Formato internacional (con prefijo de país) para admitir también números
-  // extranjeros (Erasmus). Se quitan espacios, guiones y paréntesis, así que
-  // "+34 600 12 34 56" se guarda como +34600123456 (E.164)
+  // Opcional: solo sirve para que la otra persona del viaje llame, si se
+  // comparte. Formato internacional (con prefijo de país) para admitir también
+  // números extranjeros (Erasmus). Se quitan espacios, guiones y paréntesis,
+  // así que "+34 600 12 34 56" se guarda como +34600123456 (E.164)
   @ApiProperty({
+    required: false,
+    type: String,
+    nullable: true,
     description:
-      'International format with country code; spaces, dashes and ' +
+      'Optional. International format with country code; spaces, dashes and ' +
       'parentheses are ignored',
     maxLength: 16,
     example: '+34600123456',
   })
-  @Transform(({ value }: { value: unknown }) =>
-    typeof value === 'string' ? value.replace(/[\s\-()]/g, '') : value,
-  )
+  @Transform(normalizePhone)
+  @IsOptional()
   @IsString()
   @MaxLength(16)
   @IsPhoneNumber()
-  phone!: string;
+  phone?: string | null;
 
   // Tiene que aceptar las normas y la política de privacidad para registrarse;
   // se guarda la fecha como prueba del consentimiento (RGPD)

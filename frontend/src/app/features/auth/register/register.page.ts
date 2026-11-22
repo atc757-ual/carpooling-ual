@@ -108,7 +108,8 @@ export class RegisterPage {
     ],
     // El prefijo del país (España por defecto) y el número, solo con cifras
     phonePrefix: [SPANISH_PREFIX],
-    phone: ['', [Validators.required, phoneNumberValidator('phonePrefix')]],
+    // Opcional: solo sirve para que quien viaje contigo te llame, si lo compartes
+    phone: ['', [phoneNumberValidator('phonePrefix')]],
     email: ['', [Validators.required, Validators.email, ualEmailValidator()]],
     password: ['', NEW_PASSWORD_VALIDATORS],
     acceptedTerms: [false, Validators.requiredTrue],
@@ -171,12 +172,6 @@ export class RegisterPage {
     return personNameErrorKey(this.form.controls.lastName, 'lastName');
   }
 
-  phoneErrorKey(): string {
-    return this.form.controls.phone.hasError('required')
-      ? 'auth.validation.phoneRequired'
-      : 'auth.validation.phoneInvalid';
-  }
-
   emailErrorKey(): string {
     return getUalEmailErrorKey(this.form.controls.email);
   }
@@ -216,7 +211,8 @@ export class RegisterPage {
       await this.auth.register({
         firstName: normalizePersonName(firstName),
         lastName: normalizePersonName(lastName),
-        phone: buildPhone(phonePrefix, phone),
+        // Sin número, no se envía (es opcional)
+        phone: phone.trim() === '' ? undefined : buildPhone(phonePrefix, phone),
         email,
         password,
         acceptedTerms: true,

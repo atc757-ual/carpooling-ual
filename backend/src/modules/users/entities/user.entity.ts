@@ -49,10 +49,16 @@ export class User {
   @Column({ name: 'password_hash', type: 'text', select: false })
   passwordHash: string;
 
-  // Formato internacional E.164 (+34600123456). NULL solo en el administrador
-  // inicial y el seed: el registro público lo exige
+  // Formato internacional E.164 (+34600123456). Opcional: solo sirve para que
+  // la otra persona del viaje llame con el viaje en curso, si se comparte
   @Column({ type: 'varchar', length: 16, nullable: true })
   phone: string | null;
+
+  // Si deja que la otra persona del viaje le llame (con el viaje en curso).
+  // Empieza desactivado y solo se activa con el teléfono verificado; cambiar
+  // o quitar el número lo desactiva
+  @Column({ name: 'share_phone', type: 'boolean', default: false })
+  sharePhone = false;
 
   // Cuándo verificó su teléfono con el código de 6 cifras por SMS. Cambiar el
   // número de teléfono lo pone a NULL

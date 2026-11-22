@@ -394,10 +394,17 @@ describe('Chat API (e2e)', () => {
 
   it('gives the phones to call only while the trip is in progress: the driver to the passenger and the accepted passengers to the driver', async () => {
     const { tripId, dan, pia, leo } = await confirmedTrip();
-    const setPhone = (id: string, phone: string, isVerified: boolean) =>
+    // Verificado y compartido (lo normal para poder llamar), salvo que se diga
+    const setPhone = (
+      id: string,
+      phone: string,
+      isVerified: boolean,
+      isShared = true,
+    ) =>
       dataSource.query(
-        `UPDATE users SET phone = $2, phone_verified_at = $3 WHERE id = $1`,
-        [id, phone, isVerified ? new Date() : null],
+        `UPDATE users SET phone = $2, phone_verified_at = $3, share_phone = $4
+          WHERE id = $1`,
+        [id, phone, isVerified ? new Date() : null, isShared],
       );
     const contactsOf = async (session: Session) =>
       (
@@ -460,7 +467,11 @@ describe('Chat API (e2e)', () => {
     await setPhone(dan.id, '+34600111222', false);
     expect(await contactsOf(pia)).toEqual([]);
 
-    // Verificado otra vez, sí; con el viaje terminado, ya no
+    // Verificado pero sin compartirlo, tampoco: compartirlo es voluntario
+    await setPhone(dan.id, '+34600111222', true, false);
+    expect(await contactsOf(pia)).toEqual([]);
+
+    // Verificado y compartido otra vez, sí; con el viaje terminado, ya no
     await setPhone(dan.id, '+34600111222', true);
     expect(await contactsOf(pia)).toHaveLength(1);
     await trips.finish(dan.id, tripId);

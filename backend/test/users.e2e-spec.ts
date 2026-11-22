@@ -115,6 +115,7 @@ describe('Users API (e2e)', () => {
       email: `${EMAIL_PREFIX}ana@ual.es`,
       phone: TEST_PHONE,
       phoneVerified: false,
+      sharePhone: false,
       profiles: ['passenger'],
       isAccessRevoked: false,
       activeMode: null,
@@ -949,6 +950,61 @@ describe('Users API (e2e)', () => {
   });
 
   // Verificación del teléfono por SMS (OTP de 6 cifras)
+  describe('PATCH /api/users/me: optional phone and sharing it', () => {
+    it('shares the phone only once verified, and stops when it changes or is removed', async () => {
+      const ana = await createUser('ana');
+      expect(
+        (await updateMe({}, ana.accessToken).expect(200)).body,
+      ).toMatchObject({ sharePhone: false });
+
+      // Sin verificar, no se puede compartir
+      const unverified = await updateMe(
+        { sharePhone: true },
+        ana.accessToken,
+      ).expect(409);
+      expect(unverified.body).toMatchObject({ code: 'PHONE_NOT_VERIFIED' });
+
+      await dataSource.query(
+        `UPDATE users SET phone_verified_at = now() WHERE id = $1`,
+        [ana.id],
+      );
+      const shared = await updateMe(
+        { sharePhone: true },
+        ana.accessToken,
+      ).expect(200);
+      expect(shared.body).toMatchObject({
+        phoneVerified: true,
+        sharePhone: true,
+      });
+
+      // Cambiar el número lo deja sin verificar y sin compartir, y no se
+      // puede compartir el nuevo en el mismo cambio
+      await updateMe(
+        { phone: '+34611223344', sharePhone: true },
+        ana.accessToken,
+      ).expect(409);
+      const changed = await updateMe(
+        { phone: '+34611223344' },
+        ana.accessToken,
+      ).expect(200);
+      expect(changed.body).toMatchObject({
+        phoneVerified: false,
+        sharePhone: false,
+      });
+
+      // Quitarlo (null o vacío): el teléfono es opcional
+      const removed = await updateMe({ phone: '' }, ana.accessToken).expect(
+        200,
+      );
+      expect(removed.body).toMatchObject({
+        phone: null,
+        phoneVerified: false,
+        sharePhone: false,
+      });
+      await updateMe({ phone: null }, ana.accessToken).expect(200);
+    });
+  });
+
   describe('POST /api/users/me/phone-verification and /confirm', () => {
     it('sends a 6-digit SMS code, verifies the phone, records user.phone_verified without the phone and resets when the phone changes', async () => {
       const ana = await createUser('ana');

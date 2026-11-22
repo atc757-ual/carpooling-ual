@@ -113,4 +113,34 @@ describe('ProfilePhoneModal', () => {
     component.backToNumber();
     expect(component.step()).toBe('number');
   });
+
+  it('removes the phone after confirming it in the same window', async () => {
+    const root = fixture.nativeElement as HTMLElement;
+    updateMe.mockResolvedValueOnce({ ...mockUser, phone: null, sharePhone: false });
+
+    root
+      .querySelector('.profile-phone-modal__remove')
+      ?.closest('form')
+      ?.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+    expect(component.step()).toBe('remove');
+
+    await component.handleRemovePhone();
+
+    expect(updateMe).toHaveBeenCalledWith({ phone: null });
+    expect(showSuccess).toHaveBeenCalled();
+    expect(dismiss).toHaveBeenCalledWith(expect.objectContaining({ phone: null }), 'saved');
+  });
+
+  it('keeps the phone and goes back to the number when removing it fails', async () => {
+    updateMe.mockRejectedValueOnce(new Error('offline'));
+    component.step.set('remove');
+
+    await component.handleRemovePhone();
+
+    expect(showError).toHaveBeenCalled();
+    expect(dismiss).not.toHaveBeenCalled();
+    expect(component.step()).toBe('number');
+    expect(component.isSaving()).toBe(false);
+  });
 });

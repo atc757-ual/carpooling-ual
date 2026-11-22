@@ -12,7 +12,8 @@ export interface RegisterRequest {
   email: string;
   password: string;
   // Formato internacional, p. ej. +34600123456
-  phone: string;
+  // Opcional: sin él, no se envía
+  phone?: string;
   // Aceptación de las normas y la política de privacidad (obligatoria)
   acceptedTerms: true;
 }
