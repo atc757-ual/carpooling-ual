@@ -221,4 +221,33 @@ describe('Push notifications (e2e)', () => {
     });
     expect(JSON.stringify(push.message)).not.toContain('portal');
   });
+
+  it('writes to each device in the language of the app on it', async () => {
+    const [dan, pia] = await Promise.all([
+      sessionFor('dan', ['driver']),
+      sessionFor('pia', ['passenger']),
+    ]);
+    const tripId = await publishedTrip(dan);
+    await api('put', '/users/me/push-tokens', dan)
+      .send({ token: 'dan-es', platform: 'web' })
+      .expect(204);
+    await api('put', '/users/me/push-tokens', dan)
+      .send({ token: 'dan-en', platform: 'android', language: 'en' })
+      .expect(204);
+    await api('put', '/users/me/push-tokens', dan)
+      .send({ token: 'dan-fr', platform: 'web', language: 'fr' })
+      .expect(400);
+    sender.clear();
+
+    await app.get(RequestsService).request(pia.id, tripId);
+
+    const pushes = await waitForPush(2);
+    const titleFor = (id: string) =>
+      pushes.find(
+        ({ recipients }) =>
+          recipients.fids.includes(id) || recipients.tokens.includes(id),
+      )?.message.title;
+    expect(titleFor('dan-es')).toBe('Te han pedido plaza');
+    expect(titleFor('dan-en')).toBe('Someone asked for a seat');
+  });
 });

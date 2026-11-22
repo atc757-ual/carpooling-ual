@@ -5603,7 +5603,7 @@
     },
     "/api/users/me/push-tokens": {
       "put": {
-        "description": "When the user turns push notifications on (and every time the app gets the token). A token belongs to one user: registering it moves it to them.",
+        "description": "When the user turns push notifications on, every time the app gets the token and when the user changes the language of the app. A token belongs to one user: registering it moves it to them.",
         "operationId": "PushController_register",
         "parameters": [],
         "requestBody": {
@@ -15463,6 +15463,15 @@
               true
             ],
             "example": true
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "es",
+              "en"
+            ],
+            "description": "Language of the emails and push notifications (es by default)",
+            "example": "en"
           }
         },
         "required": [
@@ -15626,6 +15635,15 @@
             "description": "Whether the other person of my trips can call me while the trip is in progress (only with a verified phone; off by default)",
             "example": false
           },
+          "language": {
+            "type": "string",
+            "enum": [
+              "es",
+              "en"
+            ],
+            "description": "Language of my emails and push notifications",
+            "example": "es"
+          },
           "profiles": {
             "type": "array",
             "example": [
@@ -15690,6 +15708,7 @@
           "phone",
           "phoneVerified",
           "sharePhone",
+          "language",
           "profiles",
           "isAccessRevoked",
           "activeMode",
@@ -16059,6 +16078,15 @@
             "description": "Surnames (one, two or compound), seen only by the user and the administration. Same rules as firstName",
             "maxLength": 100,
             "example": "García de la Fuente"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "es",
+              "en"
+            ],
+            "description": "Language of the emails and push notifications (es by default)",
+            "example": "en"
           },
           "phone": {
             "type": "string",
@@ -17422,6 +17450,15 @@
               "web",
               "android"
             ]
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "es",
+              "en"
+            ],
+            "description": "Language of the push notifications on this device (es by default)",
+            "example": "en"
           }
         },
         "required": [

@@ -2,17 +2,23 @@ import type { DataSource, EntityManager, QueryRunner } from 'typeorm';
 import { MemoryPushSender } from '../../shared/push/memory-push-sender';
 import type { PushMessage } from '../../shared/push/push-sender';
 import type { PushTokensService } from './push-tokens.service';
-import { PushService } from './push.service';
+import { LocalizedPushMessage, PushService } from './push.service';
 
-const MESSAGE: PushMessage = {
+const SPANISH: PushMessage = {
   title: 'Hola',
   body: 'Texto',
   data: { type: 't' },
 };
+const MESSAGE: LocalizedPushMessage = {
+  es: SPANISH,
+  en: { title: 'Hi', body: 'Text', data: { type: 't' } },
+};
+
+const SPANISH_DEVICE = new Map([['es', { tokens: ['t1'], fids: [] }]]);
 
 describe('PushService', () => {
   let sender: MemoryPushSender;
-  let tokens: { recipientsOf: jest.Mock; removeInvalid: jest.Mock };
+  let tokens: { recipientsByLanguage: jest.Mock; removeInvalid: jest.Mock };
   let push: PushService;
   let subscribers: unknown[];
 
@@ -34,7 +40,7 @@ describe('PushService', () => {
   beforeEach(() => {
     sender = new MemoryPushSender();
     tokens = {
-      recipientsOf: jest.fn().mockResolvedValue({ tokens: ['t1'], fids: [] }),
+      recipientsByLanguage: jest.fn().mockResolvedValue(SPANISH_DEVICE),
       removeInvalid: jest.fn().mockResolvedValue(undefined),
     };
     subscribers = [];
@@ -59,7 +65,7 @@ describe('PushService', () => {
     } as never);
     await flush();
     expect(sender.sent).toEqual([
-      { recipients: { tokens: ['t1'], fids: [] }, message: MESSAGE },
+      { recipients: { tokens: ['t1'], fids: [] }, message: SPANISH },
     ]);
 
     const rolledBack = inTransaction();
@@ -80,9 +86,25 @@ describe('PushService', () => {
     await flush();
     expect(sender.sent).toHaveLength(1);
 
-    tokens.recipientsOf.mockResolvedValue({ tokens: [], fids: [] });
+    tokens.recipientsByLanguage.mockResolvedValue(new Map());
     await push.deliver({ userIds: ['u2'], message: MESSAGE });
     expect(sender.sent).toHaveLength(1);
+  });
+
+  it('sends each device the message in its language', async () => {
+    tokens.recipientsByLanguage.mockResolvedValue(
+      new Map([
+        ['es', { tokens: ['t1'], fids: [] }],
+        ['en', { tokens: [], fids: ['f2'] }],
+      ]),
+    );
+
+    await push.deliver({ userIds: ['u1', 'u2'], message: MESSAGE });
+
+    expect(sender.sent).toEqual([
+      { recipients: { tokens: ['t1'], fids: [] }, message: MESSAGE.es },
+      { recipients: { tokens: [], fids: ['f2'] }, message: MESSAGE.en },
+    ]);
   });
 
   it('drops the expired tokens and never fails when sending fails', async () => {
@@ -90,7 +112,7 @@ describe('PushService', () => {
     await push.deliver({ userIds: ['u1'], message: MESSAGE });
     expect(tokens.removeInvalid).toHaveBeenCalledWith(['t1']);
 
-    tokens.recipientsOf.mockRejectedValue(new Error('database down'));
+    tokens.recipientsByLanguage.mockRejectedValue(new Error('database down'));
     await expect(
       push.deliver({ userIds: ['u1'], message: MESSAGE }),
     ).resolves.toBeUndefined();

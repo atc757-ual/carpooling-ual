@@ -1,3 +1,4 @@
+import { DEFAULT_LANGUAGE } from '../../shared/i18n/app-language';
 import {
   Body,
   Controller,
@@ -37,7 +38,7 @@ export class PushController {
   @ApiOperation({
     summary: 'Register or renew a push token of this device',
     description:
-      'When the user turns push notifications on (and every time the app gets the token). A token belongs to one user: registering it moves it to them.',
+      'When the user turns push notifications on, every time the app gets the token and when the user changes the language of the app. A token belongs to one user: registering it moves it to them.',
   })
   @ApiNoContentResponse()
   @ApiErrorResponses(ERRORS)
@@ -45,7 +46,11 @@ export class PushController {
     @CurrentUser() user: AccessTokenPayload,
     @Body() dto: RegisterPushTokenDto,
   ): Promise<void> {
-    await this.tokens.register(user.sub, dto.token, dto.platform);
+    await this.tokens.register(user.sub, {
+      token: dto.token,
+      platform: dto.platform,
+      language: dto.language ?? DEFAULT_LANGUAGE,
+    });
   }
 
   @Delete()

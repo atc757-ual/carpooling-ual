@@ -1,3 +1,5 @@
+import type { AppLanguage } from '../../shared/i18n/app-language';
+import { DEFAULT_LANGUAGE } from '../../shared/i18n/app-language';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -28,6 +30,7 @@ export interface RegisterInput {
   email: string;
   password: string;
   phone?: string | null;
+  language?: AppLanguage;
 }
 
 export interface CreateAdminInput {
@@ -110,6 +113,7 @@ export class AuthService {
       lastName: input.lastName,
       email: input.email,
       phone: input.phone ?? null,
+      language: input.language ?? DEFAULT_LANGUAGE,
       passwordHash: await hash(input.password, BCRYPT_COST),
     });
   }
@@ -248,6 +252,7 @@ export class AuthService {
       phone: user.phone,
       phoneVerified: user.phoneVerifiedAt !== null,
       sharePhone: user.sharePhone,
+      language: user.language,
       profiles: this.usersService.getActiveProfiles(user),
       isAccessRevoked: this.usersService.isAccessRevoked(user),
       activeMode: user.activeMode,

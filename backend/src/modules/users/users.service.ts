@@ -1,3 +1,5 @@
+import type { AppLanguage } from '../../shared/i18n/app-language';
+import { DEFAULT_LANGUAGE } from '../../shared/i18n/app-language';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -46,6 +48,8 @@ export interface AccountChanges {
   phone?: string | null;
   // Compartirlo en los viajes (pide el teléfono verificado)
   sharePhone?: boolean;
+  // El de sus correos y avisos push (lo manda la app al cambiarlo)
+  language?: AppLanguage;
   timeToleranceMin?: number;
   avatarKey?: string | null;
   bio?: string | null;
@@ -56,6 +60,7 @@ const DIRECT_ACCOUNT_FIELDS = [
   'firstName',
   'lastName',
   'phone',
+  'language',
   'timeToleranceMin',
   'avatarKey',
   'bio',
@@ -76,6 +81,7 @@ export interface CreateUserInput {
   passwordHash: string;
   profiles: ProfileType[];
   phone?: string | null;
+  language?: AppLanguage;
   termsAcceptedAt?: Date;
   isEmailVerified?: boolean;
 }
@@ -173,6 +179,7 @@ export class UsersService {
         email: input.email,
         passwordHash: input.passwordHash,
         phone: input.phone ?? null,
+        language: input.language ?? DEFAULT_LANGUAGE,
         termsAcceptedAt,
         emailVerifiedAt: input.isEmailVerified ? new Date() : null,
       }),
@@ -550,6 +557,7 @@ export class UsersService {
       phone: user.phone,
       phoneVerified: user.phoneVerifiedAt !== null,
       sharePhone: user.sharePhone,
+      language: user.language,
       profiles: this.getActiveProfiles(user),
       isAccessRevoked: this.isAccessRevoked(user),
       activeMode: user.activeMode,

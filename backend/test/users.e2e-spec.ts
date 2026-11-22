@@ -116,6 +116,7 @@ describe('Users API (e2e)', () => {
       phone: TEST_PHONE,
       phoneVerified: false,
       sharePhone: false,
+      language: 'es',
       profiles: ['passenger'],
       isAccessRevoked: false,
       activeMode: null,
@@ -537,6 +538,23 @@ describe('Users API (e2e)', () => {
         [ana.id],
       );
       expect(events).toHaveLength(0);
+    });
+
+    it('keeps the language of the app for the emails (es by default)', async () => {
+      const ana = await createUser('ana');
+
+      const before = await request(app.getHttpServer())
+        .get('/api/users/me')
+        .set('Authorization', `Bearer ${ana.accessToken}`)
+        .expect(200);
+      expect(before.body).toMatchObject({ language: 'es' });
+
+      const changed = await updateMe(
+        { language: 'en' },
+        ana.accessToken,
+      ).expect(200);
+      expect(changed.body).toMatchObject({ language: 'en' });
+      await updateMe({ language: 'fr' }, ana.accessToken).expect(400);
     });
 
     it('updates avatar, bio and travel preferences without storing bio text in the event', async () => {

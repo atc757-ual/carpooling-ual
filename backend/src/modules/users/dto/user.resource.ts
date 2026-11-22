@@ -1,3 +1,5 @@
+import { APP_LANGUAGES } from '../../../shared/i18n/app-language';
+import type { AppLanguage } from '../../../shared/i18n/app-language';
 import { ApiProperty } from '@nestjs/swagger';
 import { API_PREFIX } from '../../../app.setup';
 import {
@@ -83,6 +85,13 @@ export class UserResource {
   sharePhone: boolean;
 
   @ApiProperty({
+    enum: APP_LANGUAGES,
+    description: 'Language of my emails and push notifications',
+    example: 'es',
+  })
+  language: AppLanguage;
+
+  @ApiProperty({
     enum: ['driver', 'passenger', 'admin'],
     isArray: true,
     example: ['driver', 'passenger'],
@@ -153,6 +162,7 @@ export function toUserResource(user: UserSummary): UserResource {
     phone: user.phone,
     phoneVerified: user.phoneVerified,
     sharePhone: user.sharePhone,
+    language: user.language,
     profiles: user.profiles,
     isAccessRevoked: user.isAccessRevoked,
     activeMode: user.activeMode,

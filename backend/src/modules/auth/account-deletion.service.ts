@@ -4,7 +4,7 @@ import { User } from '../users/entities/user.entity';
 import { UserNotFoundError } from '../users/errors/user-not-found.error';
 import { UsersService } from '../users/users.service';
 import { CODE_TTL_MINUTES, EmailCodesService } from './email-codes.service';
-import { buildAccountDeletionCodeMail } from './mail/account-deletion-code.mail';
+import { buildCodeMail } from './mail/code-mail';
 import { RefreshTokensService } from './refresh-tokens.service';
 
 // Eliminación (desactivación) de la cuenta con un código de 6 cifras enviado al
@@ -65,11 +65,12 @@ export class AccountDeletionService {
   private async sendCode(user: User, code: string): Promise<void> {
     try {
       await this.mailSender.send(
-        buildAccountDeletionCodeMail({
+        buildCodeMail('accountDeletion', {
           to: user.email,
           name: user.firstName,
           code,
           expiresInMinutes: CODE_TTL_MINUTES,
+          language: user.language,
         }),
       );
     } catch (error) {

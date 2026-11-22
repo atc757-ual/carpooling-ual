@@ -7,7 +7,7 @@ import { BCRYPT_COST } from './auth.service';
 import { CODE_TTL_MINUTES, EmailCodesService } from './email-codes.service';
 import { InvalidVerificationCodeError } from './errors/invalid-verification-code.error';
 import { PasswordUnchangedError } from './errors/password-unchanged.error';
-import { buildPasswordResetCodeMail } from './mail/password-reset-code.mail';
+import { buildCodeMail } from './mail/code-mail';
 import { RefreshTokensService } from './refresh-tokens.service';
 
 export interface PasswordReset {
@@ -103,11 +103,12 @@ export class PasswordResetService {
   private async sendCode(user: User, code: string): Promise<void> {
     try {
       await this.mailSender.send(
-        buildPasswordResetCodeMail({
+        buildCodeMail('passwordReset', {
           to: user.email,
           name: user.firstName,
           code,
           expiresInMinutes: CODE_TTL_MINUTES,
+          language: user.language,
         }),
       );
     } catch (error) {

@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsString, Length } from 'class-validator';
+import { IsIn, IsOptional, IsString, Length } from 'class-validator';
+import { APP_LANGUAGES } from '../../../shared/i18n/app-language';
+import type { AppLanguage } from '../../../shared/i18n/app-language';
 import {
   PUSH_PLATFORMS,
   type PushPlatform,
@@ -20,4 +22,16 @@ export class RegisterPushTokenDto {
   @ApiProperty({ enum: PUSH_PLATFORMS })
   @IsIn(PUSH_PLATFORMS)
   platform!: PushPlatform;
+
+  // La app lo vuelve a registrar al cambiar de idioma
+  @ApiProperty({
+    required: false,
+    enum: APP_LANGUAGES,
+    description:
+      'Language of the push notifications on this device (es by default)',
+    example: 'en',
+  })
+  @IsOptional()
+  @IsIn(APP_LANGUAGES)
+  language?: AppLanguage;
 }
