@@ -1,6 +1,8 @@
 <figure class="chart">
   <figcaption class="chart__caption">
-    <span class="text-label chart__title">Vehículos que llegan al campus por franja horaria</span>
+    <span class="text-label chart__title"
+      >Vehículos por franja horaria: llegadas al campus y salidas para volver</span
+    >
     <span class="chart__legend">
       <span class="chart__key chart__key--baseline" aria-hidden="true"></span>
       {{ baselineLabel() }}
@@ -36,14 +38,17 @@
         [attr.width]="group.scenario.width"
         [attr.height]="group.scenario.height"
       />
-      <text
-        class="chart__axis"
-        [attr.x]="group.labelX"
-        [attr.y]="plot.bottom + 18"
-        text-anchor="middle"
-      >
-        {{ group.slot }}
-      </text>
+      <!-- Solo las horas en punto: con las 24 franjas del día no caben todas -->
+      @if (group.isHour) {
+        <text
+          class="chart__axis"
+          [attr.x]="group.labelX"
+          [attr.y]="plot.bottom + 18"
+          text-anchor="middle"
+        >
+          {{ group.slot }}
+        </text>
+      }
     }
   </svg>
 </figure>

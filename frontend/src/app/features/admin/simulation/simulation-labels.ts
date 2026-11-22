@@ -88,6 +88,31 @@ export function resultKpis(results: SimulationResults, baselineCode: string): Kp
       interval: interval(summary.matchingP95Ms, ' ms'),
     },
   ];
+  if (summary.legs) {
+    kpis.push(
+      {
+        label: 'Evitados a la ida',
+        value: `${formatNumber(summary.legs.toCampusAvoidedPct.mean)} %`,
+        hint: 'Llegadas al campus por la mañana',
+        interval: interval(summary.legs.toCampusAvoidedPct, ' %'),
+      },
+      {
+        label: 'Evitados a la vuelta',
+        value: `${formatNumber(summary.legs.fromCampusAvoidedPct.mean)} %`,
+        hint: 'Salidas del campus por la tarde',
+        interval: interval(summary.legs.fromCampusAvoidedPct, ' %'),
+      },
+    );
+  }
+  if (summary.tripStates) {
+    const { finished, expired, cancelled } = summary.tripStates;
+    kpis.push({
+      label: 'Viajes de los conductores',
+      value: `${formatNumber(finished.mean, 0)} hechos`,
+      hint: `${formatNumber(expired.mean, 0)} caducados sin pasajeros · ${formatNumber(cancelled.mean, 0)} cancelados`,
+      interval: interval(finished),
+    });
+  }
   if (summary.recoveryPct) {
     kpis.push({
       label: 'Recuperación tras incidencias',

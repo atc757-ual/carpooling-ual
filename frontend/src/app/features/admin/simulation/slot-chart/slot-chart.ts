@@ -18,6 +18,8 @@ export interface ChartBar {
 
 export interface ChartGroup {
   slot: string;
+  // Las horas en punto llevan su etiqueta (las medias, no: no caben)
+  isHour: boolean;
   labelX: number;
   baseline: ChartBar;
   scenario: ChartBar;
@@ -53,6 +55,7 @@ export function chartLayout(series: readonly SlotSeries[]): ChartLayout {
     const start = PLOT.left + index * groupWidth + (groupWidth * GROUP_PADDING) / 2;
     return {
       slot: point.slot,
+      isHour: point.slot.endsWith(':00'),
       labelX: PLOT.left + index * groupWidth + groupWidth / 2,
       baseline: bar(point.baselineVehicles, start),
       scenario: bar(point.vehicles, start + barWidth + BAR_GAP),
@@ -76,10 +79,10 @@ export function chartDescription(
         `${s.slot}: ${labels.baseline} ${s.baselineVehicles}, ${labels.scenario} ${s.vehicles}`,
     )
     .join('; ');
-  return `Vehículos que llegan al campus por franja horaria. ${points}.`;
+  return `Vehículos por franja horaria (llegadas al campus y salidas para volver). ${points}.`;
 }
 
-// «Vehículos que llegan al campus por franja horaria»: barras agrupadas de la
+// «Vehículos por franja horaria» (llegadas y salidas): barras agrupadas de la
 // base frente al escenario, en SVG propio (sin librerías de gráficas). Los
 // colores salen de los roles del tema; además del color, la base va con borde
 // y el escenario relleno, para distinguirlos sin color

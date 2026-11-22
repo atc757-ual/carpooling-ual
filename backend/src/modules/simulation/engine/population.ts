@@ -9,6 +9,12 @@ export const ARRIVAL_MEAN_MIN = 8 * 60 + 15;
 export const ARRIVAL_SD_MIN = 35;
 export const ARRIVAL_FROM_MIN = 7 * 60;
 export const ARRIVAL_TO_MIN = 10 * 60;
+// La vuelta: salida del campus normal 14:30 ± 90 min, de 12:00 a 21:00,
+// independiente de la llegada (supuesto provisional, como las llegadas)
+export const DEPARTURE_MEAN_MIN = 14 * 60 + 30;
+export const DEPARTURE_SD_MIN = 90;
+export const DEPARTURE_FROM_MIN = 12 * 60;
+export const DEPARTURE_TO_MIN = 21 * 60;
 // 60 % en la capital (2-8 km del campus) y el resto en municipios cercanos
 const CITY_SHARE = 0.6;
 const CITY_KM: [number, number] = [2, 8];
@@ -27,6 +33,8 @@ export interface Commuter {
   origin: PlanePoint;
   // Hora a la que quiere llegar, en minutos del día
   desiredArrivalMin: number;
+  // Hora a la que quiere salir del campus para volver, en minutos del día
+  desiredDepartureMin: number;
   windowMin: number;
 }
 
@@ -54,11 +62,31 @@ export function createRandom(seed: number): Random {
   };
 }
 
-// Normal por Box-Muller, recortada al intervalo
-function normalBetween(random: Random, range: [number, number]): number {
+interface Band {
+  meanMin: number;
+  sdMin: number;
+  range: [number, number];
+}
+
+const ARRIVALS: Band = {
+  meanMin: ARRIVAL_MEAN_MIN,
+  sdMin: ARRIVAL_SD_MIN,
+  range: [ARRIVAL_FROM_MIN, ARRIVAL_TO_MIN],
+};
+const DEPARTURES: Band = {
+  meanMin: DEPARTURE_MEAN_MIN,
+  sdMin: DEPARTURE_SD_MIN,
+  range: [DEPARTURE_FROM_MIN, DEPARTURE_TO_MIN],
+};
+
+// Normal por Box-Muller, recortada a la franja
+function normalBetween(
+  random: Random,
+  { meanMin, sdMin, range }: Band,
+): number {
   const u = Math.max(random(), Number.EPSILON);
   const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * random());
-  const value = ARRIVAL_MEAN_MIN + z * ARRIVAL_SD_MIN;
+  const value = meanMin + z * sdMin;
   return Math.round(Math.min(range[1] - 1, Math.max(range[0], value)));
 }
 
@@ -107,15 +135,16 @@ export function generatePopulation(
     const commuter: Commuter = {
       id: `u-${index}`,
       origin: randomOrigin(random),
-      desiredArrivalMin: normalBetween(random, [
-        ARRIVAL_FROM_MIN,
-        ARRIVAL_TO_MIN,
-      ]),
+      desiredArrivalMin: normalBetween(random, ARRIVALS),
       windowMin: windowOf(config, random),
+      desiredDepartureMin: 0,
     };
     const capacity = capacityOf(config, random);
     const isAdopter = random() < config.adoptionRate;
     const isDriver = random() < DRIVER_SHARE;
+    // La hora de vuelta también se sortea siempre, adopte o no: el escenario
+    // y S0 siguen consumiendo los mismos números (semillas emparejadas)
+    commuter.desiredDepartureMin = normalBetween(random, DEPARTURES);
     if (!isAdopter) {
       population.soloCommuters.push(commuter);
     } else if (isDriver) {

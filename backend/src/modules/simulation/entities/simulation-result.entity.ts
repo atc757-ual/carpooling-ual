@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import type { ReplicaMetrics } from '../simulation-metrics';
+import type { ReplicaMetrics, TripStates } from '../simulation-metrics';
 import { numericTransformer } from '../../../shared/database/numeric.transformer';
 
 // Resultado de una réplica (RESULTADO del modelo de datos): el escenario con
@@ -33,6 +33,18 @@ export class SimulationResult {
 
   @Column({ name: 'baseline_vehicle_count', type: 'integer' })
   baselineVehicleCount: number;
+
+  // Los de la vuelta (los de arriba son los del día); NULL en las réplicas de
+  // antes de simularla
+  @Column({ name: 'return_vehicle_count', type: 'integer', nullable: true })
+  returnVehicleCount: number | null;
+
+  @Column({
+    name: 'return_baseline_vehicle_count',
+    type: 'integer',
+    nullable: true,
+  })
+  returnBaselineVehicleCount: number | null;
 
   @Column({
     name: 'average_occupancy',
@@ -74,6 +86,10 @@ export class SimulationResult {
   })
   recoveryRate: number | null;
 
+  // Viajes terminados, caducados y cancelados; NULL en las de antes
+  @Column({ name: 'trip_states', type: 'jsonb', nullable: true })
+  tripStates: TripStates | null;
+
   @Column({ name: 'vehicles_by_slot', type: 'jsonb' })
   vehiclesBySlot: number[];
 
@@ -107,6 +123,9 @@ export function toResultRow(
     seed: metrics.seed,
     vehicleCount: metrics.vehiclesUsed,
     baselineVehicleCount: metrics.baselineVehiclesUsed,
+    returnVehicleCount: metrics.returnVehiclesUsed,
+    returnBaselineVehicleCount: metrics.returnBaselineVehiclesUsed,
+    tripStates: metrics.trips,
     averageOccupancy: metrics.averageOccupancy,
     baselineAverageOccupancy: metrics.baselineAverageOccupancy,
     coveredRequestsRate: toRate(metrics.requestsCoveredPct),
@@ -135,11 +154,14 @@ export function toReplicaMetrics(row: SimulationResult): ReplicaMetrics {
     vehiclesUsed: row.vehicleCount,
     baselineVehiclesUsed: row.baselineVehicleCount,
     vehiclesAvoidedPct: Math.round(avoided * 100) / 100,
+    returnVehiclesUsed: row.returnVehicleCount,
+    returnBaselineVehiclesUsed: row.returnBaselineVehicleCount,
     requestsCoveredPct: toPct(row.coveredRequestsRate),
     averageOccupancy: row.averageOccupancy,
     baselineAverageOccupancy: row.baselineAverageOccupancy,
     matchingP95Ms: row.matchingP95Ms,
     recoveryPct: row.recoveryRate === null ? null : toPct(row.recoveryRate),
+    trips: row.tripStates,
     vehiclesBySlot: row.vehiclesBySlot,
     baselineVehiclesBySlot: row.baselineVehiclesBySlot,
   };

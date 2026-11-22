@@ -21511,6 +21511,65 @@
           "baseline"
         ]
       },
+      "LegStatsResource": {
+        "type": "object",
+        "properties": {
+          "toCampusAvoidedPct": {
+            "description": "Vehicles avoided on the way to campus, in %",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          },
+          "fromCampusAvoidedPct": {
+            "description": "Vehicles avoided on the way back from campus, in %",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "toCampusAvoidedPct",
+          "fromCampusAvoidedPct"
+        ]
+      },
+      "TripStateStatsResource": {
+        "type": "object",
+        "properties": {
+          "finished": {
+            "description": "Driver trips done with passengers, per replica",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          },
+          "expired": {
+            "description": "Driver trips that expired without passengers, per replica",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          },
+          "cancelled": {
+            "description": "Driver trips cancelled (S5), per replica",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "finished",
+          "expired",
+          "cancelled"
+        ]
+      },
       "WilcoxonResource": {
         "type": "object",
         "properties": {
@@ -21596,10 +21655,15 @@
         "type": "object",
         "properties": {
           "vehiclesUsed": {
-            "$ref": "#/components/schemas/ComparedStatResource"
+            "description": "Vehicles of the whole day (to and from campus)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ComparedStatResource"
+              }
+            ]
           },
           "averageOccupancy": {
-            "description": "People per car",
+            "description": "People per car (each person makes two trips a day)",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ComparedStatResource"
@@ -21625,6 +21689,26 @@
               }
             ]
           },
+          "legs": {
+            "nullable": true,
+            "description": "Vehicles avoided on each leg; null in runs saved before the return trip was simulated",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LegStatsResource"
+              }
+            ]
+          },
+          "tripStates": {
+            "nullable": true,
+            "description": "How the driver trips end; null in runs saved before it was recorded",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TripStateStatsResource"
+              }
+            ]
+          },
           "vehiclesReduction": {
             "nullable": true,
             "description": "Hypothesis test; null in runs saved before it existed",
@@ -21643,6 +21727,8 @@
           "requestsCoveredPct",
           "matchingP95Ms",
           "recoveryPct",
+          "legs",
+          "tripStates",
           "vehiclesReduction"
         ]
       },

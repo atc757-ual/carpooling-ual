@@ -71,6 +71,12 @@ export interface SimulationResults {
     requestsCoveredPct: MetricStat;
     matchingP95Ms: MetricStat;
     recoveryPct: MetricStat | null;
+    // Vehículos evitados a la ida y a la vuelta; null en las ejecuciones de
+    // antes de simular la vuelta
+    legs: { toCampusAvoidedPct: MetricStat; fromCampusAvoidedPct: MetricStat } | null;
+    // Viajes de los conductores por réplica: hechos, caducados sin pasajeros
+    // y cancelados; null en las de antes
+    tripStates: { finished: MetricStat; expired: MetricStat; cancelled: MetricStat } | null;
   };
   series: SlotSeries[];
 }

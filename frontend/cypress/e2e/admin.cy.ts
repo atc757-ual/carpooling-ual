@@ -508,6 +508,8 @@ for (const viewport of VIEWPORTS) {
           requestsCoveredPct: stat(74.5),
           matchingP95Ms: stat(171),
           recoveryPct: null,
+          legs: { toCampusAvoidedPct: stat(18), fromCampusAvoidedPct: stat(14.8) },
+          tripStates: { finished: stat(40), expired: stat(22), cancelled: stat(0) },
         },
         series: [
           { slot: '07:00', vehicles: 8, baselineVehicles: 10 },
@@ -528,6 +530,8 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('3/3 réplicas · criterio cumplido', { timeout: 6000 });
       cy.contains('.results__kpi', 'Vehículos evitados').contains('16,4 %');
+      cy.contains('.results__kpi', 'Evitados a la vuelta').contains('14,8 %');
+      cy.contains('.results__kpi', 'Viajes de los conductores').contains('22 caducados');
       cy.get('svg[role="img"]')
         .should('have.attr', 'aria-label')
         .and('contain', '07:30: S0 20, S1 17');

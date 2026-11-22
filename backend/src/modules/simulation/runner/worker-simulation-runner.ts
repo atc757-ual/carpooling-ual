@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
 import { Logger, OnModuleDestroy } from '@nestjs/common';
 import type { ReplicaMetrics } from '../simulation-metrics';
-import { FAKE_SLOTS } from './fake-replica';
+import { DAY_SLOTS } from '../engine/day-slots';
 import type {
   SimulationJob,
   SimulationRunListener,
@@ -70,7 +70,7 @@ export class WorkerSimulationRunner
         notify(() => listener.onProgress(job.runId, done));
       } else {
         this.close(job.runId);
-        const output = { slots: FAKE_SLOTS, replicas: run.replicas };
+        const output = { slots: DAY_SLOTS, replicas: run.replicas };
         // Si no se pueden guardar los resultados, la ejecución ha fallado: sin
         // esto se quedaría en curso para siempre
         notify(() =>

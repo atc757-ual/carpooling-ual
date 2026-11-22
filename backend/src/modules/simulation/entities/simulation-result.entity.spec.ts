@@ -20,11 +20,14 @@ const METRICS: ReplicaMetrics = {
   vehiclesUsed: 85,
   baselineVehiclesUsed: 100,
   vehiclesAvoidedPct: 15,
+  returnVehiclesUsed: 40,
+  returnBaselineVehiclesUsed: 50,
   requestsCoveredPct: 70,
   averageOccupancy: 1.4,
   baselineAverageOccupancy: 1.2,
   matchingP95Ms: 0.65,
   recoveryPct: null,
+  trips: { finished: 12, expired: 5, cancelled: 1 },
   vehiclesBySlot: [40, 45],
   baselineVehiclesBySlot: [50, 50],
 };
@@ -58,6 +61,8 @@ describe('simulation result rows', () => {
       row.seed,
       row.vehicleCount,
       row.baselineVehicleCount,
+      row.returnVehicleCount,
+      row.returnBaselineVehicleCount,
       row.matchingP95Ms,
     ]) {
       expect(Number.isInteger(value)).toBe(true);
@@ -68,5 +73,20 @@ describe('simulation result rows', () => {
     const row = toResultRow('run-1', 'scenario-1', METRICS) as SimulationResult;
 
     expect(toReplicaMetrics(row)).toEqual({ ...METRICS, matchingP95Ms: 1 });
+  });
+
+  it('reads the replicas saved before the return trip with those fields empty', () => {
+    const row = {
+      ...toResultRow('run-1', 'scenario-1', METRICS),
+      returnVehicleCount: null,
+      returnBaselineVehicleCount: null,
+      tripStates: null,
+    } as SimulationResult;
+
+    expect(toReplicaMetrics(row)).toMatchObject({
+      returnVehiclesUsed: null,
+      returnBaselineVehiclesUsed: null,
+      trips: null,
+    });
   });
 });

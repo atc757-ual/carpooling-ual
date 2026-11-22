@@ -56,6 +56,8 @@ export const RESULTS: SimulationResults = {
     requestsCoveredPct: stat(74.5),
     matchingP95Ms: stat(171),
     recoveryPct: null,
+    legs: null,
+    tripStates: null,
   },
   series: [
     { slot: '07:00', vehicles: 8, baselineVehicles: 10 },

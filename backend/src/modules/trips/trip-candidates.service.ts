@@ -10,12 +10,13 @@ import type {
 import { TripPickupsService } from './trip-pickups.service';
 import { TripRoutesService } from './trip-routes.service';
 import type { TripPickupMode } from './entities/trip.entity';
-import { MINUTE_MS, WALK_RADIUS_M } from './trip-timing';
+import { MINUTE_MS, PICKUP_RADIUS_M, WALK_RADIUS_M } from './trip-timing';
 
-// La ruta del conductor tiene que pasar a menos de 1 km de la dirección del
-// pasajero, y su extremo del campus, a menos de 1 km del parking elegido (el
-// campus mide ~1 km: cualquier parking cercano le sirve)
-export const PICKUP_RADIUS_M = 800;
+// La ruta del conductor tiene que pasar cerca de la dirección del pasajero
+// (PICKUP_RADIUS_M, en trip-timing.ts: la usa también la simulación), y su
+// extremo del campus, a menos de 1 km del parking elegido (el campus mide
+// ~1 km: cualquier parking cercano le sirve)
+export { PICKUP_RADIUS_M } from './trip-timing';
 export const CAMPUS_RADIUS_M = 1000;
 // Solo los más cercanos pasan a calcular el desvío con OSRM (una petición
 // por candidato)
