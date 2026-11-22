@@ -1052,6 +1052,19 @@ ion-item.role-card {
   }
 }
 
+// El icono del aviso, del color de su borde (en info se queda en azul)
+.notice--success > ion-icon {
+  color: var(--color-success);
+}
+
+.notice--warning > ion-icon {
+  color: var(--color-warning);
+}
+
+.notice--danger > ion-icon {
+  color: var(--color-danger);
+}
+
 // Franja del título del panel de administración (la pinta su cabecera; cada
 // sección pone su plantilla con appHeadingContent): como la de la app, el
 // título a 20px en el móvil y 24px en escritorio y la descripción a 14px, sobre
