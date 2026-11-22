@@ -1,3 +1,5 @@
+import type { AppLanguage } from '../../../shared/i18n/app-language';
+import { DEFAULT_LANGUAGE } from '../../../shared/i18n/app-language';
 import {
   Column,
   CreateDateColumn,
@@ -24,6 +26,11 @@ export class PendingRegistration {
   // Opcional (NULL si no lo dio)
   @Column({ type: 'varchar', length: 16, nullable: true })
   phone: string | null;
+
+  // El idioma de la app al registrarse: el del correo con el código y el que
+  // tendrá la cuenta
+  @Column({ type: 'varchar', length: 2, default: DEFAULT_LANGUAGE })
+  language: AppLanguage;
 
   @Column({ name: 'password_hash', type: 'text' })
   passwordHash: string;

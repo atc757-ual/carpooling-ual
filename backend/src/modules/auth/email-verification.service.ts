@@ -3,7 +3,7 @@ import { MailSender } from '../../shared/mail/mail-sender';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { CODE_TTL_MINUTES } from './email-codes.service';
-import { buildVerificationCodeMail } from './mail/verification-code.mail';
+import { buildCodeMail } from './mail/code-mail';
 import {
   IssuedCode,
   PendingRegistrationInput,
@@ -56,6 +56,7 @@ export class EmailVerificationService {
           email: pending.email,
           passwordHash: pending.passwordHash,
           phone: pending.phone,
+          language: pending.language,
           termsAcceptedAt: pending.termsAcceptedAt,
           isEmailVerified: true,
           // Nace como pasajero; el perfil de conductor se activa al registrar
@@ -70,14 +71,20 @@ export class EmailVerificationService {
   // Si el envío falla, no se lanza el error: el registro ya está guardado y se
   // puede pedir otro código. Se registra en el log sin el correo (dato
   // personal)
-  private async sendCode({ code, email, name }: IssuedCode): Promise<void> {
+  private async sendCode({
+    code,
+    email,
+    name,
+    language,
+  }: IssuedCode): Promise<void> {
     try {
       await this.mailSender.send(
-        buildVerificationCodeMail({
+        buildCodeMail('verification', {
           to: email,
           name,
           code,
           expiresInMinutes: CODE_TTL_MINUTES,
+          language,
         }),
       );
     } catch (error) {

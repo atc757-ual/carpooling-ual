@@ -1,3 +1,4 @@
+import { setAppLocale } from '../../i18n/app-locale';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -77,13 +78,38 @@ describe('PushNotificationsService', () => {
     await vi.waitFor(() => {
       const put = http.expectOne('/api/users/me/push-tokens');
       expect(put.request.method).toBe('PUT');
-      expect(put.request.body).toEqual({ token: 'device-token', platform: 'android' });
+      expect(put.request.body).toEqual({
+        token: 'device-token',
+        platform: 'android',
+        language: 'es',
+      });
       put.flush(null, { status: 204, statusText: 'No Content' });
     });
 
     await expect(enabling).resolves.toBe(true);
     expect(push.status()).toBe('on');
     expect(stored['push.token']).toBe('device-token');
+  });
+
+  it('registers the token again with the new language only when they are on', async () => {
+    await push.refreshLanguage();
+    http.expectNone('/api/users/me/push-tokens');
+
+    const enabling = push.enable();
+    await vi.waitFor(() =>
+      http.expectOne('/api/users/me/push-tokens').flush(null, { status: 204, statusText: '' }),
+    );
+    await enabling;
+    setAppLocale('en');
+
+    const refreshing = push.refreshLanguage();
+    await vi.waitFor(() => {
+      const put = http.expectOne('/api/users/me/push-tokens');
+      expect(put.request.body).toMatchObject({ token: 'device-token', language: 'en' });
+      put.flush(null, { status: 204, statusText: 'No Content' });
+    });
+    await refreshing;
+    setAppLocale('es');
   });
 
   it('stays off when the permission is not given, and says when it is blocked', async () => {

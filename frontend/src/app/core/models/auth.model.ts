@@ -16,6 +16,8 @@ export interface RegisterRequest {
   phone?: string;
   // Aceptación de las normas y la política de privacidad (obligatoria)
   acceptedTerms: true;
+  // El idioma de la app: el del correo con el código y el de la cuenta
+  language?: 'es' | 'en';
 }
 
 // El código de 6 cifras que se envía al correo al registrarse

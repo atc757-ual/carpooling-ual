@@ -1,3 +1,5 @@
+import type { AppLanguage } from '../../shared/i18n/app-language';
+import { translate } from '../../shared/i18n/translate';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -117,8 +119,12 @@ export class TripEmailsListener
     const { publicWebUrl } = this.configService.getOrThrow<MailConfig>('mail');
     return {
       to: passenger.email,
+      language: passenger.language,
       passengerName: passenger.firstName,
-      driverFirstName: firstName(driverNames.get(trip.driverId) ?? ''),
+      driverFirstName: firstName(
+        driverNames.get(trip.driverId) ?? '',
+        passenger.language,
+      ),
       departureAt: trip.departureAt,
       originName: trip.originName,
       destinationName: trip.destinationName,
@@ -134,8 +140,10 @@ const KIND_BY_EVENT: Readonly<Partial<Record<string, TripEmailKind>>> = {
   'request.completed': 'trip_finished',
 };
 
-function firstName(name: string): string {
-  return name.trim().split(/\s+/)[0] || 'tu conductor';
+// Sin nombre (cuenta borrada), «tu conductor» en su idioma
+function firstName(name: string, language: AppLanguage): string {
+  const fallback = translate(language, 'mail.trip.yourDriver');
+  return name.trim().split(/\s+/)[0] || fallback;
 }
 
 function pendingOf(queryRunner: QueryRunner): PendingTripEmail[] {

@@ -1,0 +1,99 @@
+{
+  "mail": {
+    "greeting": "Hola, {{ name }}:",
+    "code": {
+      "expires": "Caduca en {{ minutes }} minutos.",
+      "verification": {
+        "subject": "Tu código de verificación de Carpooling UAL",
+        "intro": "Tu código para verificar el correo en Carpooling UAL es:",
+        "ignore": "Si no te has registrado tú, ignora este correo: nadie podrá usar tu dirección sin este código."
+      },
+      "passwordReset": {
+        "subject": "Tu código para cambiar la contraseña de Carpooling UAL",
+        "intro": "Tu código para cambiar la contraseña en Carpooling UAL es:",
+        "ignore": "Si no lo has pedido tú, ignora este correo: tu contraseña no cambiará sin este código."
+      },
+      "accountDeletion": {
+        "subject": "Tu código para eliminar la cuenta de Carpooling UAL",
+        "intro": "Tu código para confirmar la eliminación de tu cuenta en Carpooling UAL es:",
+        "ignore": "Si no lo has pedido tú, ignora este correo: tu cuenta no se eliminará sin este código."
+      }
+    },
+    "trip": {
+      "origin": "Origen",
+      "destination": "Destino",
+      "yourDriver": "tu conductor",
+      "footer": "Recibes este correo porque viajas con Carpooling UAL.",
+      "confirmed": {
+        "subject": "Tienes plaza en el viaje de {{ driver }}",
+        "title": "{{ driver }} ha confirmado tu plaza.",
+        "leaves": "Sale el {{ when }}.",
+        "pickup": "Te recoge en {{ place }} a las {{ time }}.",
+        "details": "Mira los detalles y tu código de recogida en la app: {{ url }}",
+        "boardingCode": "El código de recogida aparece en la app 10 minutos antes de la salida.",
+        "button": "Ver tu plaza"
+      },
+      "finished": {
+        "subject": "Tu viaje con {{ driver }} ha terminado",
+        "title": "Tu viaje con {{ driver }} ha terminado.",
+        "thanks": "Gracias por compartir coche.",
+        "rate": "Valora a {{ driver }}: ayuda a la comunidad. Tienes 7 días.",
+        "button": "Valorar a {{ driver }}"
+      }
+    }
+  },
+  "push": {
+    "request_received": {
+      "title": "Te han pedido plaza",
+      "body": "Ábrela para aceptarla o rechazarla."
+    },
+    "passenger_joined": {
+      "title": "Alguien se ha unido a tu viaje",
+      "body": "Lo has aceptado automáticamente: mira dónde le recoges."
+    },
+    "request_cancelled": {
+      "title": "Han cancelado una solicitud",
+      "body": "Se ha liberado una plaza de tu viaje."
+    },
+    "request_accepted": {
+      "title": "Han aceptado tu solicitud",
+      "body": "Ya tienes plaza: mira la hora y el punto de recogida."
+    },
+    "request_rejected": {
+      "title": "No han aceptado tu solicitud",
+      "body": "Busca otro viaje: tu próxima solicitud tendrá prioridad."
+    },
+    "trip_cancelled": {
+      "title": "Han cancelado el viaje",
+      "body": "Busca otro viaje: tu próxima solicitud tendrá prioridad."
+    },
+    "trip_started": {
+      "title": "Tu conductor va de camino",
+      "body": "Sigue el coche en el mapa."
+    },
+    "trip_completed": {
+      "title": "Tu viaje ha terminado",
+      "body": "Valora a tu conductor: ayuda a la comunidad."
+    },
+    "trip_auto_finished": {
+      "title": "Hemos cerrado tu viaje",
+      "body": "Había pasado una hora de la llegada: valora a tus pasajeros."
+    },
+    "pending_requests_reminder": {
+      "title": "Tienes solicitudes por responder",
+      "body": "Respóndelas antes de 10 min de la salida o caducarán."
+    },
+    "trip_expired": {
+      "title": "Tu viaje se ha quedado sin pasajeros",
+      "body": "Lo hemos cerrado: puedes publicar otro cuando quieras."
+    },
+    "trip_start_reminder": {
+      "title": "Es la hora de tu viaje",
+      "body": "Inícialo: si no, se cancelará a los 10 min."
+    },
+    "chat_message": {
+      "title": "{{ name }} te ha escrito",
+      "body": "Abre el chat del viaje para leerlo."
+    }
+  }
+}

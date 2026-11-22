@@ -1,3 +1,5 @@
+import type { AppLanguage } from '../../../shared/i18n/app-language';
+import { DEFAULT_LANGUAGE } from '../../../shared/i18n/app-language';
 import {
   Column,
   CreateDateColumn,
@@ -59,6 +61,10 @@ export class User {
   // o quitar el número lo desactiva
   @Column({ name: 'share_phone', type: 'boolean', default: false })
   sharePhone = false;
+
+  // El idioma de la app: el de sus correos y sus avisos push
+  @Column({ type: 'varchar', length: 2, default: DEFAULT_LANGUAGE })
+  language: AppLanguage = DEFAULT_LANGUAGE;
 
   // Cuándo verificó su teléfono con el código de 6 cifras por SMS. Cambiar el
   // número de teléfono lo pone a NULL

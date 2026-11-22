@@ -1,0 +1,99 @@
+{
+  "mail": {
+    "greeting": "Hi {{ name }},",
+    "code": {
+      "expires": "It expires in {{ minutes }} minutes.",
+      "verification": {
+        "subject": "Your Carpooling UAL verification code",
+        "intro": "Your code to verify your email in Carpooling UAL is:",
+        "ignore": "If you did not sign up, ignore this email: nobody can use your address without this code."
+      },
+      "passwordReset": {
+        "subject": "Your code to change your Carpooling UAL password",
+        "intro": "Your code to change your password in Carpooling UAL is:",
+        "ignore": "If you did not ask for it, ignore this email: your password will not change without this code."
+      },
+      "accountDeletion": {
+        "subject": "Your code to delete your Carpooling UAL account",
+        "intro": "Your code to confirm the deletion of your Carpooling UAL account is:",
+        "ignore": "If you did not ask for it, ignore this email: your account will not be deleted without this code."
+      }
+    },
+    "trip": {
+      "origin": "Origin",
+      "destination": "Destination",
+      "yourDriver": "your driver",
+      "footer": "You get this email because you ride with Carpooling UAL.",
+      "confirmed": {
+        "subject": "You have a seat on {{ driver }}'s ride",
+        "title": "{{ driver }} has confirmed your seat.",
+        "leaves": "It leaves on {{ when }}.",
+        "pickup": "You are picked up at {{ place }} at {{ time }}.",
+        "details": "See the details and your boarding code in the app: {{ url }}",
+        "boardingCode": "The boarding code appears in the app 10 minutes before departure.",
+        "button": "See your seat"
+      },
+      "finished": {
+        "subject": "Your ride with {{ driver }} is over",
+        "title": "Your ride with {{ driver }} is over.",
+        "thanks": "Thanks for sharing a car.",
+        "rate": "Rate {{ driver }}: it helps the community. You have 7 days.",
+        "button": "Rate {{ driver }}"
+      }
+    }
+  },
+  "push": {
+    "request_received": {
+      "title": "Someone asked for a seat",
+      "body": "Open it to accept or decline it."
+    },
+    "passenger_joined": {
+      "title": "Someone joined your ride",
+      "body": "You accepted them automatically: see where you pick them up."
+    },
+    "request_cancelled": {
+      "title": "A request was cancelled",
+      "body": "A seat on your ride is free again."
+    },
+    "request_accepted": {
+      "title": "Your request was accepted",
+      "body": "You have a seat: check the time and the pickup point."
+    },
+    "request_rejected": {
+      "title": "Your request wasn't accepted",
+      "body": "Look for another ride: your next request will have priority."
+    },
+    "trip_cancelled": {
+      "title": "The ride was cancelled",
+      "body": "Look for another ride: your next request will have priority."
+    },
+    "trip_started": {
+      "title": "Your driver is on the way",
+      "body": "Follow the car on the map."
+    },
+    "trip_completed": {
+      "title": "Your ride is over",
+      "body": "Rate your driver: it helps the community."
+    },
+    "trip_auto_finished": {
+      "title": "We closed your ride",
+      "body": "An hour had passed since the arrival: rate your passengers."
+    },
+    "pending_requests_reminder": {
+      "title": "You have requests to answer",
+      "body": "Answer them up to 10 min before departure or they will expire."
+    },
+    "trip_expired": {
+      "title": "Your ride ended up with no passengers",
+      "body": "We closed it: you can publish another one whenever you like."
+    },
+    "trip_start_reminder": {
+      "title": "It's time for your ride",
+      "body": "Start it: otherwise it will be cancelled after 10 min."
+    },
+    "chat_message": {
+      "title": "{{ name }} wrote to you",
+      "body": "Open the ride chat to read it."
+    }
+  }
+}

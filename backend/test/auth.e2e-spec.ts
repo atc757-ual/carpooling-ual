@@ -386,6 +386,24 @@ describe('Auth API (e2e)', () => {
       expect(mail?.text).toContain('Caduca en 15 minutos.');
     });
 
+    it('writes in the language of the app and keeps it for the account', async () => {
+      await register({ language: 'en' }).expect(202);
+
+      const mail = testMailbox(app).lastSentTo(ANA);
+      expect(mail?.subject).toBe('Your Carpooling UAL verification code');
+      expect(mail?.text).toContain('It expires in 15 minutes.');
+
+      const verified = await request(app.getHttpServer())
+        .post('/api/auth/verify-email')
+        .send({ email: ANA, code: lastCodeSentTo(app, ANA) })
+        .expect(200);
+      expect(verified.body).toMatchObject({ user: { language: 'en' } });
+    });
+
+    it('rejects a language the app does not have', async () => {
+      await register({ language: 'fr' }).expect(400);
+    });
+
     it('never stores the code in clear', async () => {
       await register().expect(202);
       const code = lastCodeSentTo(app, ANA);

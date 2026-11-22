@@ -28,6 +28,7 @@ describe('TripEmailsListener', () => {
     send = jest.fn<(message: unknown) => Promise<void>>().mockResolvedValue();
     findById = jest.fn<(id: string) => Promise<unknown>>().mockResolvedValue({
       email: 'mario@ual.es',
+      language: 'es',
       firstName: 'Mario',
       deactivatedAt: null,
     });

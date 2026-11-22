@@ -158,6 +158,7 @@ describe('UsersService', () => {
         email: 'ana@ual.es',
         phoneVerified: false,
         sharePhone: false,
+        language: 'es',
         profiles: ['passenger'],
         isAccessRevoked: false,
         avatarKey: 'sun',

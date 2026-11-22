@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import {
   Equals,
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -11,6 +12,8 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
+import { APP_LANGUAGES } from '../../../shared/i18n/app-language';
+import type { AppLanguage } from '../../../shared/i18n/app-language';
 
 // Nombre de persona: letras de cualquier idioma (con tildes, ñ, ç…) y, entre
 // ellas, un espacio, un guion o un apóstrofo (Ana-María, O'Connor). Sin
@@ -120,4 +123,16 @@ export class RegisterDto {
   })
   @Equals(true)
   acceptedTerms!: true;
+
+  // El idioma de la app: el del correo con el código y de los siguientes
+  @ApiProperty({
+    required: false,
+    enum: APP_LANGUAGES,
+    description:
+      'Language of the emails and push notifications (es by default)',
+    example: 'en',
+  })
+  @IsOptional()
+  @IsIn(APP_LANGUAGES)
+  language?: AppLanguage;
 }
