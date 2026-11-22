@@ -136,6 +136,7 @@ describe('API docs (e2e)', () => {
       '/api/requests/{id}/drop-off',
       '/api/requests/{id}/no-show',
       '/api/requests/{id}/reject',
+      '/api/requests/{id}/relocation-options',
       '/api/shares/{token}',
       '/api/support/messages',
       '/api/trips',

@@ -14,6 +14,7 @@ import {
   assertRequestTransition,
   LIVE_REQUEST_STATUSES,
   PARTICIPANT_REQUEST_STATUSES,
+  TRIP_CANCELLED_REASON,
 } from './request-status';
 import type { RequestStatus } from './request-status';
 
@@ -224,6 +225,9 @@ export class TripChangesListener implements OnModuleInit {
         request.status = to;
         if (to === 'cancelled') {
           request.cancelledAt = new Date();
+          // Por qué: la canceló el viaje, no el pasajero (así puede pedir
+          // que le busquemos otro, POST /api/requests/{id}/relocation)
+          request.rejectionReason = TRIP_CANCELLED_REASON;
         } else {
           request.answeredAt = new Date();
         }

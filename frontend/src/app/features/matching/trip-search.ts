@@ -84,7 +84,8 @@ export function parseTripSearch(value: unknown): TripSearch | null {
   if (typeof value !== 'object' || value === null) {
     return null;
   }
-  const { place, parking, direction, date, time, margin, seats } = value as Record<string, unknown>;
+  const { place, parking, direction, date, time, margin, seats, relocationRequestId } =
+    value as Record<string, unknown>;
   const isValid =
     isPlace(place) &&
     isParking(parking) &&
@@ -110,5 +111,6 @@ export function parseTripSearch(value: unknown): TripSearch | null {
     time,
     margin: Number(margin),
     seats,
+    ...(typeof relocationRequestId === 'string' && { relocationRequestId }),
   };
 }

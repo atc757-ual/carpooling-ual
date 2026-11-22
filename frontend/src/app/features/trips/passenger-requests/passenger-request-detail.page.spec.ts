@@ -221,6 +221,35 @@ describe('PassengerRequestDetailPage', () => {
     expect(navigateSpy).toHaveBeenCalledWith('/tabs/trips');
   });
 
+  it('puts on top the card to find another trip when the driver just cancelled', async () => {
+    const root = await render(
+      seatRequest('cancelled', {
+        rejectionReason: 'trip_cancelled',
+        cancelledAt: new Date().toISOString(),
+      }),
+      { ...TRIP, status: 'cancelled' },
+    );
+
+    const card = root.querySelector('app-relocation-card');
+    expect(card?.textContent).toContain('Buscar otro viaje ahora');
+    // Antes que «Tu recorrido», y sin el botón de abajo
+    expect(card?.nextElementSibling?.tagName.toLowerCase()).toBe('app-passenger-request-route');
+    expect(root.textContent).not.toContain('Buscar con prioridad');
+  });
+
+  it('no longer offers the card 30 min after the driver cancelled', async () => {
+    const root = await render(
+      seatRequest('cancelled', {
+        rejectionReason: 'trip_cancelled',
+        cancelledAt: new Date(Date.now() - 31 * 60_000).toISOString(),
+      }),
+      { ...TRIP, status: 'cancelled' },
+    );
+
+    expect(root.querySelector('app-relocation-card')).toBeNull();
+    expect(root.textContent).toContain('Buscar con prioridad');
+  });
+
   it('offers a priority search after a rejection, keeping the route and the time', async () => {
     const root = await render(seatRequest('rejected', { answeredAt: '2099-01-14T21:30:00.000Z' }));
 

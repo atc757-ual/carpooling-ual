@@ -49,7 +49,7 @@
               }}</ion-button>
             </form>
           </app-empty-state>
-        } @else if (trips().length === 0) {
+        } @else if (trips().length === 0 && !isRelocation()) {
           <app-empty-state
             class="search-results__state"
             [isCard]="true"
@@ -86,87 +86,138 @@
             }}</ion-button>
           </app-empty-state>
         } @else {
-          <!-- En una sola tarjeta: el recuento con el orden y los filtros
-               y, debajo, los viajes en una lista -->
-          <ion-card class="search-results__panel">
-            <ion-card-content>
-              @if (requestedCount()) {
-                <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
-                <div class="notice notice--info search-results__requested">
-                  <span>
-                    <b>{{ 'searchResults.alreadyRequested' | transloco }}</b>
-                    {{
-                      (requestedCount() === 1
-                        ? 'searchResults.alreadyRequestedIn.one'
-                        : 'searchResults.alreadyRequestedIn.other'
-                      ) | transloco: { count: requestedCount() }
-                    }}
-                  </span>
-                  <a class="search-results__requested-link" routerLink="/tabs/trips">{{
-                    'searchResults.myTripsLink' | transloco
-                  }}</a>
-                </div>
-              }
-              <div class="search-results__results-header">
-                <output class="search-results__count" [attr.aria-label]="resultsSummary()">
-                  <span class="search-results__badge">{{ resultsCountLabel() }}</span>
-                  <span class="search-results__time"> {{ resultsTimeWindow() }}</span>
-                </output>
-                <!-- «Ordenar por» y, a su lado, el botón «Filtros» -->
-                <div class="search-results__tools">
-                  <ion-select
-                    class="search-results__sort"
-                    [attr.aria-label]="'searchResults.sortLabel' | transloco"
-                    interface="popover"
-                    fill="outline"
-                    [label]="'searchResults.sortBy' | transloco"
-                    labelPlacement="floating"
-                    [value]="sortOrder()"
-                    (ionChange)="handleSortChange($event.detail.value)"
-                  >
-                    <ion-select-option value="detour">{{
-                      'searchResults.bestMatch' | transloco
-                    }}</ion-select-option>
-                    <ion-select-option value="arrival">{{
-                      'searchResults.earliest' | transloco
-                    }}</ion-select-option>
-                  </ion-select>
-                  <app-preference-filters
-                    [selected]="preferenceFilters()"
-                    [resultCount]="sortedTrips().length"
-                    (toggled)="handlePreferenceToggle($event)"
-                    (cleared)="clearPreferenceFilters()"
-                  />
-                </div>
-              </div>
-              @if (sortedTrips().length === 0) {
-                <!-- Ningún viaje pasa los filtros: se quitan aquí mismo -->
-                <div class="search-results__filtered-empty">
-                  <span class="text-body text-body--strong">{{
-                    'searchResults.filteredEmpty' | transloco
-                  }}</span>
-                  <form (submit)="$event.preventDefault(); clearPreferenceFilters()">
-                    <ion-button type="submit" fill="outline">{{
-                      'searchFilters.clear' | transloco
-                    }}</ion-button>
-                  </form>
-                </div>
-              } @else {
-                <!-- ion-list (role="list"): cada tarjeta es un ion-item (listitem) -->
-                <ion-list class="search-results__items" lines="none">
-                  @for (trip of sortedTrips(); track trip.id) {
-                    <app-trip-result-card
-                      [trip]="trip"
-                      [isRequested]="requestedTripIds().has(trip.id)"
-                      [isBestMatch]="trip.id === bestTripId()"
-                      [isPreferenceMatch]="isPreferenceMatch(trip)"
-                      [fit]="fitOf(trip)"
-                    />
+          <!-- Tras la cancelación del conductor: arriba, el aviso de lo que
+               se encontró y el viaje al 100 % o los que encajan con su
+               horario (la plaza la pide él); debajo, los demás de ese día -->
+          @if (isRelocation()) {
+            <ion-card class="search-results__exact">
+              <ion-card-content>
+                @switch (relocationOutcome()) {
+                  @case ('exact') {
+                    <output class="notice notice--success notice--icon">
+                      <ion-icon [icon]="exactIcon" aria-hidden="true" />
+                      <span>{{ 'searchResults.relocation.exactTitle' | transloco }}</span>
+                    </output>
                   }
-                </ion-list>
-              }
-            </ion-card-content>
-          </ion-card>
+                  @case ('onTime') {
+                    <output class="notice notice--info notice--icon">
+                      <ion-icon [icon]="infoIcon" aria-hidden="true" />
+                      <span>{{ 'searchResults.relocation.onTimeTitle' | transloco }}</span>
+                    </output>
+                  }
+                  @default {
+                    <output class="notice notice--warning notice--icon">
+                      <ion-icon [icon]="infoIcon" aria-hidden="true" />
+                      <span>{{ 'searchResults.relocation.noneTitle' | transloco }}</span>
+                    </output>
+                  }
+                }
+                @if (exactTrip(); as exact) {
+                  <ion-list class="search-results__items" lines="none">
+                    <app-trip-result-card [trip]="exact" [isBestMatch]="true" fit="good" />
+                  </ion-list>
+                } @else if (priorityTrips().length > 0) {
+                  <ion-list class="search-results__items" lines="none">
+                    @for (trip of priorityTrips(); track trip.id) {
+                      <app-trip-result-card [trip]="trip" [fit]="fitOf(trip)" />
+                    }
+                  </ion-list>
+                } @else if (trips().length === 0) {
+                  <ion-button fill="outline" (click)="isEditing.set(true)">{{
+                    'searchResults.change' | transloco
+                  }}</ion-button>
+                }
+              </ion-card-content>
+            </ion-card>
+          }
+          @if (trips().length > 0) {
+            <!-- En una sola tarjeta: el recuento con el orden y los filtros
+               y, debajo, los viajes en una lista -->
+            <ion-card class="search-results__panel">
+              <ion-card-content>
+                @if (isRelocation()) {
+                  <h2 class="search-results__others text-body text-body--strong">
+                    {{ 'searchResults.relocation.othersTitle' | transloco }}
+                  </h2>
+                }
+                @if (requestedCount()) {
+                  <!-- Los viajes que ya pediste no se repiten aquí: están en Tus viajes -->
+                  <div class="notice notice--info search-results__requested">
+                    <span>
+                      <b>{{ 'searchResults.alreadyRequested' | transloco }}</b>
+                      {{
+                        (requestedCount() === 1
+                          ? 'searchResults.alreadyRequestedIn.one'
+                          : 'searchResults.alreadyRequestedIn.other'
+                        ) | transloco: { count: requestedCount() }
+                      }}
+                    </span>
+                    <a class="search-results__requested-link" routerLink="/tabs/trips">{{
+                      'searchResults.myTripsLink' | transloco
+                    }}</a>
+                  </div>
+                }
+                <div class="search-results__results-header">
+                  <output class="search-results__count" [attr.aria-label]="resultsSummary()">
+                    <span class="search-results__badge">{{ resultsCountLabel() }}</span>
+                    <span class="search-results__time"> {{ resultsTimeWindow() }}</span>
+                  </output>
+                  <!-- «Ordenar por» y, a su lado, el botón «Filtros» -->
+                  <div class="search-results__tools">
+                    <ion-select
+                      class="search-results__sort"
+                      [attr.aria-label]="'searchResults.sortLabel' | transloco"
+                      interface="popover"
+                      fill="outline"
+                      [label]="'searchResults.sortBy' | transloco"
+                      labelPlacement="floating"
+                      [value]="sortOrder()"
+                      (ionChange)="handleSortChange($event.detail.value)"
+                    >
+                      <ion-select-option value="detour">{{
+                        'searchResults.bestMatch' | transloco
+                      }}</ion-select-option>
+                      <ion-select-option value="arrival">{{
+                        'searchResults.earliest' | transloco
+                      }}</ion-select-option>
+                    </ion-select>
+                    <app-preference-filters
+                      [selected]="preferenceFilters()"
+                      [resultCount]="sortedTrips().length"
+                      (toggled)="handlePreferenceToggle($event)"
+                      (cleared)="clearPreferenceFilters()"
+                    />
+                  </div>
+                </div>
+                @if (sortedTrips().length === 0) {
+                  <!-- Ningún viaje pasa los filtros: se quitan aquí mismo -->
+                  <div class="search-results__filtered-empty">
+                    <span class="text-body text-body--strong">{{
+                      'searchResults.filteredEmpty' | transloco
+                    }}</span>
+                    <form (submit)="$event.preventDefault(); clearPreferenceFilters()">
+                      <ion-button type="submit" fill="outline">{{
+                        'searchFilters.clear' | transloco
+                      }}</ion-button>
+                    </form>
+                  </div>
+                } @else {
+                  <!-- ion-list (role="list"): cada tarjeta es un ion-item (listitem) -->
+                  <ion-list class="search-results__items" lines="none">
+                    @for (trip of sortedTrips(); track trip.id) {
+                      <app-trip-result-card
+                        [trip]="trip"
+                        [isRequested]="requestedTripIds().has(trip.id)"
+                        [isBestMatch]="trip.id === bestTripId()"
+                        [isPreferenceMatch]="isPreferenceMatch(trip)"
+                        [fit]="fitOf(trip)"
+                      />
+                    }
+                  </ion-list>
+                }
+              </ion-card-content>
+            </ion-card>
+          }
         }
       } @else {
         <app-empty-state

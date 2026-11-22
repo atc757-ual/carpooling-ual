@@ -16,8 +16,15 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/angular';
-import { alertCircleOutline, createOutline, searchOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  checkmarkCircleOutline,
+  informationCircleOutline,
+  createOutline,
+  searchOutline,
+} from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
+import { TripMatch } from '../../../core/models/trip-match.model';
 import { TripResult } from '../../../core/models/trip-result.model';
 import { TripDirection, TripSearch } from '../../../core/models/trip-search.model';
 import { MatchingService } from '../../../core/services/matching/matching.service';
@@ -49,6 +56,19 @@ import { EmptyState } from '../../../shared/components/ui/empty-state/empty-stat
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 
 type SearchSortOrder = 'arrival' | 'detour';
+
+// Los viajes encontrados. Tras la cancelación del conductor, arriba y aparte
+// el que encaja al 100 % o, si no hay, los que encajan con su horario; en
+// trips, los demás de ese día
+interface FoundTrips {
+  exact: TripResult | null;
+  priority: TripResult[];
+  trips: TripResult[];
+}
+
+// Qué se encontró al buscar otro viaje: uno al 100 %, alguno a su hora o
+// ninguno (cada caso con su aviso)
+export type RelocationOutcome = 'exact' | 'onTime' | 'none';
 
 const ACTIVE_REQUEST_STATUSES = new Set(['pending', 'accepted']);
 
@@ -128,14 +148,30 @@ export class SearchResultsPage {
 
   readonly results = resource({
     params: () => this.search() ?? undefined,
-    loader: async ({ params }) =>
-      (await this.matching.search(toSearchRequest(params))).map((match) =>
-        toTripResult(match, params),
-      ),
+    loader: ({ params }) => this.loadResults(params),
   });
 
+  // Tras la cancelación del conductor, los resultados son las opciones de su
+  // solicitud: arriba, con su aviso, el viaje al 100 % o los que encajan con
+  // su horario; debajo, los demás de ese día
+  readonly isRelocation = computed(() => Boolean(this.search()?.relocationRequestId));
+  readonly exactTrip = computed(() => {
+    const exact = this.results.hasValue() ? this.results.value().exact : null;
+    return exact && !this.requestedTripIds().has(exact.id) ? exact : null;
+  });
+  readonly priorityTrips = computed(() =>
+    (this.results.hasValue() ? this.results.value().priority : []).filter(
+      ({ id }) => !this.requestedTripIds().has(id),
+    ),
+  );
+  readonly relocationOutcome = computed<RelocationOutcome>(() => {
+    if (this.exactTrip()) {
+      return 'exact';
+    }
+    return this.priorityTrips().length > 0 ? 'onTime' : 'none';
+  });
   private readonly foundTrips = computed(() =>
-    this.results.hasValue() ? this.results.value() : [],
+    this.results.hasValue() ? this.results.value().trips : [],
   );
   // Los viajes en que ya pediste plaza están en Tus viajes: aquí no se
   // repiten (se avisa de cuántos con un enlace)
@@ -178,7 +214,11 @@ export class SearchResultsPage {
     return search ? getMatchFit(trip, search) : 'fair';
   }
 
-  readonly bestTripId = computed(() => (this.trips().length > 0 ? this.trips()[0].id : null));
+  // Al buscar otro viaje, lo mejor ya va destacado arriba: abajo no hay
+  // «Mejor coincidencia»
+  readonly bestTripId = computed(() =>
+    this.trips().length > 0 && !this.isRelocation() ? this.trips()[0].id : null,
+  );
   readonly sortOrder = signal<SearchSortOrder>('detour');
   // Filtros por las preferencias del conductor (solo en la lista; el
   // matching no cambia) y la etiqueta «Coincide con tus preferencias»
@@ -253,10 +293,35 @@ export class SearchResultsPage {
 
   protected readonly editIcon = createOutline;
   protected readonly emptyIcon = searchOutline;
+  protected readonly exactIcon = checkmarkCircleOutline;
+  protected readonly infoIcon = informationCircleOutline;
   protected readonly errorIcon = alertCircleOutline;
 
   constructor() {
-    effect(() => this.searchState.setResults(this.trips()));
+    // El detalle de un viaje lo busca entre estos (también los de arriba)
+    effect(() => {
+      const exact = this.exactTrip();
+      this.searchState.setResults([
+        ...(exact ? [exact] : []),
+        ...this.priorityTrips(),
+        ...this.trips(),
+      ]);
+    });
+  }
+
+  private async loadResults(search: TripSearch): Promise<FoundTrips> {
+    const toResult = (match: TripMatch): TripResult => toTripResult(match, search);
+    if (search.relocationRequestId) {
+      const options = await this.seatRequests.relocationOptions(search.relocationRequestId);
+      const onTime = options.matches.map(toResult);
+      const sameDay = options.sameDayMatches.map(toResult);
+      // Con uno al 100 %, los que encajan con su horario bajan con los demás
+      return options.exactMatch
+        ? { exact: toResult(options.exactMatch), priority: [], trips: [...onTime, ...sameDay] }
+        : { exact: null, priority: onTime, trips: sameDay };
+    }
+    const matches = await this.matching.search(toSearchRequest(search));
+    return { exact: null, priority: [], trips: matches.map(toResult) };
   }
 
   ionViewWillEnter(): void {
@@ -267,7 +332,10 @@ export class SearchResultsPage {
     const search = this.search();
     const margin = this.widerMargin();
     if (search && margin) {
-      this.searchState.set({ ...search, margin } satisfies TripSearch);
+      // Con más margen ya es una búsqueda normal (sin el viaje al 100 %)
+      const normalSearch: TripSearch = { ...search, margin };
+      delete normalSearch.relocationRequestId;
+      this.searchState.set(normalSearch);
     }
   }
 

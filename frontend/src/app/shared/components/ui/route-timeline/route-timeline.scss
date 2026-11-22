@@ -37,6 +37,25 @@
   line-height: var(--route-line);
 }
 
+// Recogidas y paradas intermedias: su hora, más pequeña (18px) que la de
+// salida y llegada, en el mismo hueco para que el punto y la línea no se
+// muevan
+.route-timeline__time--stop {
+  display: inline-grid;
+
+  &::before {
+    content: '00:00';
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+}
+
+.route-timeline__time--stop .route-timeline__time-text {
+  grid-area: 1 / 1;
+  align-self: center;
+  font-size: var(--font-size-subtitle-s);
+}
+
 // Reserva el hueco de la hora en paradas intermedias sin hora (p. ej. recogida)
 .route-timeline__time-slot::before {
   content: '00:00';

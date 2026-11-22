@@ -33,6 +33,14 @@ describe('SeatRequestsService', () => {
     expect(await created).toEqual({ id: 'r1', status: 'pending' });
   });
 
+  it('gets the other trips for a request whose driver cancelled', async () => {
+    const options = requests.relocationOptions('r1');
+    const body = { exactMatch: null, matches: [], sameDayMatches: [] };
+    http.expectOne({ method: 'GET', url: '/api/requests/r1/relocation-options' }).flush(body);
+
+    expect(await options).toEqual(body);
+  });
+
   it('gets one of my requests by its id, and not a request of someone else', async () => {
     const mine = requests.getMine('r1');
     http.expectOne('/api/requests/r1').flush({ id: 'r1', passenger: { id: 'me' } });

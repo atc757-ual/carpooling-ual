@@ -13,6 +13,9 @@ export const REQUEST_STATUSES = [
 ] as const;
 export type RequestStatus = (typeof REQUEST_STATUSES)[number];
 
+// Motivo de una solicitud cancelada porque el conductor canceló el viaje
+export const TRIP_CANCELLED_REASON = 'trip_cancelled';
+
 // Quién marcó la bajada de una plaza
 export const DROP_OFF_ACTORS = ['driver', 'passenger', 'system'] as const;
 export type DropOffActor = (typeof DROP_OFF_ACTORS)[number];

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { Point } from 'typeorm';
 import { CampusParkingsService } from '../places/campus-parkings.service';
 import {
   EMPTY_TRAVEL_PREFERENCES,
@@ -12,8 +13,13 @@ import {
   CANDIDATE_SOURCE,
   type CandidateSource,
   type TripCandidate,
+  type TripDirection,
 } from './candidate-source';
-import { scoreCandidates, type ScoredMatch } from './compatibility';
+import {
+  scoreCandidates,
+  type ScoredMatch,
+  type TimeReference,
+} from './compatibility';
 import { REQUEST_CUTOFF_MIN } from '../trips/trip-timing';
 import { DEFAULT_MARGIN_MIN, SearchTripsDto } from './dto/search-trips.dto';
 
@@ -21,6 +27,19 @@ import { DEFAULT_MARGIN_MIN, SearchTripsDto } from './dto/search-trips.dto';
 // (la zona de servicio mide 30 km; sobra para la ruta y el desvío)
 export const MAX_TRAVEL_MIN = 120;
 const MS_PER_MINUTE = 60_000;
+
+// Qué se busca: dónde, en qué sentido, a qué hora (de llegada o de salida) y
+// con qué margen. La búsqueda del pasajero y la reubicación tras una
+// cancelación lo construyen cada una a su manera
+export interface MatchCriteria {
+  place: Point;
+  campus: Point;
+  direction: TripDirection;
+  desiredAt: Date;
+  timeReference: TimeReference;
+  marginMin: number;
+  seats: number;
+}
 
 export interface TripMatch {
   match: ScoredMatch<TripCandidate>;
@@ -51,20 +70,37 @@ export class MatchingService {
     const parking = await this.campusParkingsService.getActive(
       search.parkingId,
     );
-    const marginMin = search.marginMin ?? DEFAULT_MARGIN_MIN;
-    const seats = search.seats ?? 1;
-    const isToCampus = search.direction === 'to-campus';
-    const desiredMs = search.desiredAt.getTime();
-    const earliestMin = marginMin + (isToCampus ? MAX_TRAVEL_MIN : 0);
+    return this.findMatches(passengerId, {
+      place: { type: 'Point', coordinates: search.place.coordinates },
+      campus: parking.location,
+      direction: search.direction,
+      desiredAt: search.desiredAt,
+      timeReference: search.direction === 'to-campus' ? 'arrival' : 'departure',
+      marginMin: search.marginMin ?? DEFAULT_MARGIN_MIN,
+      seats: search.seats ?? 1,
+    });
+  }
+
+  // Los viajes que encajan con unos criterios, del más compatible al menos,
+  // con el perfil público de cada conductor y su coche
+  async findMatches(
+    passengerId: string,
+    criteria: MatchCriteria,
+  ): Promise<TripMatch[]> {
+    const { marginMin, seats, desiredAt, timeReference } = criteria;
+    const desiredMs = desiredAt.getTime();
+    // Comparando la llegada, la salida puede ser hasta MAX_TRAVEL_MIN antes
+    const earliestMin =
+      marginMin + (timeReference === 'arrival' ? MAX_TRAVEL_MIN : 0);
     // Los viajes que ya pasaron el corte de solicitudes no se ofrecen: no se
     // podría pedir plaza en ellos
     const cutoffMs = Date.now() + REQUEST_CUTOFF_MIN * MS_PER_MINUTE;
 
     const candidates = await this.candidateSource.findCandidates({
       passengerId,
-      place: { type: 'Point', coordinates: search.place.coordinates },
-      campus: parking.location,
-      direction: search.direction,
+      place: criteria.place,
+      campus: criteria.campus,
+      direction: criteria.direction,
       departureFrom: new Date(
         Math.max(desiredMs - earliestMin * MS_PER_MINUTE, cutoffMs),
       ),
@@ -72,8 +108,8 @@ export class MatchingService {
       seats,
     });
     const matches = scoreCandidates(candidates, {
-      desiredAt: search.desiredAt,
-      timeReference: isToCampus ? 'arrival' : 'departure',
+      desiredAt,
+      timeReference,
       marginMin,
       seats,
     });

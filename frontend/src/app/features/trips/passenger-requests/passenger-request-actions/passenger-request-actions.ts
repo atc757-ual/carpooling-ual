@@ -32,6 +32,7 @@ import { formatTime } from '../../../matching/trip-results';
 import { TripSearchStateService } from '../../../matching/trip-search-state.service';
 import { AfterTripReport, isAfterTripReportOpen } from '../../after-trip-report/after-trip-report';
 import { PassengerIncidentModal } from '../passenger-incident-modal/passenger-incident-modal';
+import { isRelocatable } from '../relocation-card/relocation-card';
 import {
   freeCancellationUntil,
   isWithinLeadMinutes,
@@ -185,8 +186,12 @@ export class PassengerRequestActions {
     this.trip().status === 'finished' ? checkmarkCircleOutline : informationCircleOutline,
   );
 
+  // Si el conductor canceló, la tarjeta de arriba ya le busca otro viaje
   readonly canSearchAnother = computed(() => {
     const status = this.request().status;
+    if (isRelocatable(this.request(), Date.now())) {
+      return false;
+    }
     return (
       status === 'rejected' ||
       status === 'cancelled' ||

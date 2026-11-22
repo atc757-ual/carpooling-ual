@@ -185,6 +185,12 @@
     "details": {
       "arrival": "llegada",
       "departure": "salida"
+    },
+    "relocation": {
+      "exactTitle": "Este viaje encaja al 100 % con el tuyo. Revísalo y solicita tu plaza.",
+      "onTimeTitle": "Ninguno encaja al 100 %, pero estos salen a tu hora.",
+      "noneTitle": "Hemos buscado viajes parecidos al tuyo, pero no hay ninguno a tu hora.",
+      "othersTitle": "Otros viajes de ese día por tu ruta"
     }
   },
   "location": {
@@ -755,6 +761,16 @@
     "send": "Enviar valoración"
   },
   "request": {
+    "relocation": {
+      "title": "Tu conductor ha cancelado el viaje",
+      "explanation": "Te buscamos viajes como el tuyo y, si alguno encaja al 100 %, te lo enseñamos el primero.",
+      "button": "Buscar otro viaje ahora",
+      "campus": "Campus",
+      "timeLeft": {
+        "one": "Disponible durante 1 min más",
+        "other": "Disponible durante {{ count }} min más"
+      }
+    },
     "cargandoSolicitud": "Cargando tu solicitud…",
     "encontramosEstaSolicitud": "No encontramos esta solicitud",
     "puedeQueEsteDisponible": "Puede que ya no esté disponible. Puedes revisar tus viajes o buscar otro.",
