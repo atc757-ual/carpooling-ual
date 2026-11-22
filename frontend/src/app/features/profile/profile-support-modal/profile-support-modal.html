@@ -32,6 +32,31 @@
     </div>
   </fieldset>
 
+  <!-- Con «Un viaje»: de cuál, entre sus viajes recientes (opcional: también
+       llegan dudas generales sobre los viajes) -->
+  @if (topic() === 'trip') {
+    <ion-select
+      formControlName="tripId"
+      fill="outline"
+      interface="popover"
+      labelPlacement="stacked"
+      [label]="'profile.supportModal.tripLabel' | transloco"
+      [disabled]="tripOptions.isLoading()"
+    >
+      <ion-select-option value="">{{
+        'profile.supportModal.noTrip' | transloco
+      }}</ion-select-option>
+      @for (option of tripOptions.value() ?? []; track option.id) {
+        <ion-select-option [value]="option.id">{{ option.label }}</ion-select-option>
+      }
+    </ion-select>
+    @if (tripOptions.error()) {
+      <p class="text-body-s text-color-muted profile-support-modal__hint">
+        {{ 'profile.supportModal.tripsError' | transloco }}
+      </p>
+    }
+  }
+
   <div class="profile-support-modal__field">
     <span id="support-message-label" class="text-label text-label--strong">
       {{ 'profile.supportModal.messageLabel' | transloco }}

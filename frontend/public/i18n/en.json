@@ -569,7 +569,10 @@
       "messagePlaceholder": "Describe the problem or your idea in as much detail as you can.",
       "messageError": "Write 20 to 1000 characters.",
       "send": "Send message",
-      "sent": "We've received your message. We'll reply by email."
+      "sent": "We've received your message. We'll reply by email.",
+      "tripLabel": "Which trip is it about?",
+      "noTrip": "None in particular",
+      "tripsError": "We could not load your trips: you can send it without choosing one."
     },
     "pushEnabledToast": "We'll notify you even when Carpooling UAL is closed.",
     "pushEnableError": "We couldn't turn on notifications. Please try again.",

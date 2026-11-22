@@ -31,6 +31,20 @@ describe('SupportService', () => {
     await expect(sending).resolves.toBeUndefined();
   });
 
+  it('sends the trip only with the trip topic', async () => {
+    const withTrip = support.sendMessage('trip', 'El conductor no ha llegado.', 't1');
+    const tripRequest = http.expectOne('/api/support/messages');
+    expect(tripRequest.request.body).toMatchObject({ topic: 'trip', tripId: 't1' });
+    tripRequest.flush(null, { status: 202, statusText: 'Accepted' });
+    await withTrip;
+
+    const otherTopic = support.sendMessage('account', 'No puedo cambiar mi correo.', 't1');
+    const accountRequest = http.expectOne('/api/support/messages');
+    expect(accountRequest.request.body).not.toHaveProperty('tripId');
+    accountRequest.flush(null, { status: 202, statusText: 'Accepted' });
+    await otherTopic;
+  });
+
   it('throws an ApiError when it fails', async () => {
     const sending = support.sendMessage('bug', 'Algo ha fallado al publicar un viaje.');
     http
