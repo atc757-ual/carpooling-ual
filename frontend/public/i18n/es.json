@@ -569,7 +569,10 @@
       "messagePlaceholder": "Describe el problema o tu idea con el detalle que puedas.",
       "messageError": "Escribe entre 20 y 1000 caracteres.",
       "send": "Enviar mensaje",
-      "sent": "Hemos recibido tu mensaje. Te responderemos por correo."
+      "sent": "Hemos recibido tu mensaje. Te responderemos por correo.",
+      "tripLabel": "¿Sobre qué viaje?",
+      "noTrip": "Ninguno en concreto",
+      "tripsError": "No hemos podido cargar tus viajes: puedes enviarlo sin elegir uno."
     },
     "pushEnabledToast": "Te avisaremos aunque no tengas Carpooling UAL abierto.",
     "pushEnableError": "No hemos podido activar las notificaciones. Inténtalo de nuevo.",

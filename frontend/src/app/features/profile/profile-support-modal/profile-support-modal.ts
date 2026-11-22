@@ -1,6 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, resource, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IonButton, IonIcon, IonSpinner, IonTextarea, ModalController } from '@ionic/angular';
+import {
+  IonButton,
+  IonIcon,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+  IonTextarea,
+  ModalController,
+} from '@ionic/angular';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { alertCircleOutline } from 'ionicons/icons';
@@ -11,15 +20,17 @@ import {
   SupportService,
   SupportTopic,
 } from '../../../core/services/support/support.service';
+import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { IonicFormStatus } from '../../../shared/directives/ionic-form-status.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { loadSupportTrips } from './support-trips';
 
 const TOPICS: readonly SupportTopic[] = ['trip', 'account', 'bug', 'suggestion', 'other'];
 
 // «Escribir a soporte» (desde Ayuda y soporte, tras las preguntas frecuentes):
-// solo el motivo y el mensaje, que llegan por correo al equipo de soporte; responde
-// al correo del usuario. Se abre con ModalController;
+// el motivo, el mensaje y, con «Un viaje», de cuál de sus viajes (opcional),
+// que llegan por correo al equipo de soporte; responde al correo del usuario. Se abre con ModalController;
 // cierra con el rol 'sent' o 'cancel'
 @Component({
   selector: 'app-profile-support-modal',
@@ -28,6 +39,8 @@ const TOPICS: readonly SupportTopic[] = ['trip', 'account', 'bug', 'suggestion',
     ReactiveFormsModule,
     IonButton,
     IonIcon,
+    IonSelect,
+    IonSelectOption,
     IonSpinner,
     IonTextarea,
     TranslocoPipe,
@@ -41,9 +54,12 @@ export class ProfileSupportModal {
   private readonly modalController = inject(ModalController);
   private readonly toast = inject(ToastService);
   private readonly transloco = inject(TranslocoService);
+  private readonly trips = inject(TripsService);
 
   readonly form = inject(NonNullableFormBuilder).group({
     topic: ['' as SupportTopic | '', Validators.required],
+    // '' = «Ninguno en concreto»
+    tripId: [''],
     message: [
       '',
       [
@@ -52,6 +68,14 @@ export class ProfileSupportModal {
         Validators.maxLength(SUPPORT_MESSAGE_MAX_LENGTH),
       ],
     ],
+  });
+  readonly topic = toSignal(this.form.controls.topic.valueChanges, {
+    initialValue: this.form.controls.topic.value,
+  });
+  // Sus viajes recientes, solo cuando elige «Un viaje» (una vez)
+  readonly tripOptions = resource({
+    params: () => (this.topic() === 'trip' ? true : undefined),
+    loader: () => loadSupportTrips(this.trips),
   });
   readonly isSending = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -66,11 +90,11 @@ export class ProfileSupportModal {
       this.form.markAllAsTouched();
       return;
     }
-    const { topic, message } = this.form.getRawValue();
+    const { topic, message, tripId } = this.form.getRawValue();
     this.errorMessage.set(null);
     this.isSending.set(true);
     try {
-      await this.support.sendMessage(topic as SupportTopic, message.trim());
+      await this.support.sendMessage(topic as SupportTopic, message.trim(), tripId || undefined);
       void this.toast.showSuccess(this.transloco.translate('profile.supportModal.sent'));
       await this.modalController.dismiss(null, 'sent');
     } catch (error) {

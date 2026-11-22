@@ -38,7 +38,7 @@ export function incidentRoute(incident: MyIncident): string {
 export function incidentTripLine(incident: MyIncident): string {
   const { code, departureAt } = incident.trip;
   return [code, incidentRoute(incident), departureAt ? incidentDate(departureAt) : '']
-    .filter((part) => part)
+    .filter(Boolean)
     .join(' · ');
 }
 

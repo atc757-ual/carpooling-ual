@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsString, Length } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsIn, IsOptional, IsString, IsUUID, Length } from 'class-validator';
 
 // De qué trata el mensaje (se ve en el asunto del correo a soporte)
 export const SUPPORT_TOPICS = [
@@ -28,4 +28,13 @@ export class SendSupportMessageDto {
   @IsString()
   @Length(SUPPORT_MESSAGE_MIN_LENGTH, SUPPORT_MESSAGE_MAX_LENGTH)
   message!: string;
+
+  @ApiPropertyOptional({
+    format: 'uuid',
+    description:
+      'The trip it is about, one the user drove or requested a seat on. Only with topic trip; ignored otherwise',
+  })
+  @IsOptional()
+  @IsUUID()
+  tripId?: string;
 }

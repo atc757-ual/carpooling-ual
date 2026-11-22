@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
@@ -84,6 +85,25 @@ describe('Support messages API (e2e)', () => {
       .expect(({ body }) =>
         expect(body).toMatchObject({ code: 'VALIDATION_FAILED' }),
       );
+  });
+
+  // Sin depender de los datos de la base (en el CI está vacía): un viaje que
+  // no existe. El de otro usuario da lo mismo (tests del servicio)
+  it('takes only a trip of the user: another one is not found', async () => {
+    const unknownTrip = { id: randomUUID() };
+    const sentBefore = testMailbox(app).sentTo(supportTo).length;
+
+    await send({
+      topic: 'trip',
+      message: MESSAGE,
+      tripId: 'not-a-uuid',
+    }).expect(400);
+    await send({ topic: 'trip', message: MESSAGE, tripId: unknownTrip.id })
+      .expect(404)
+      .expect(({ body }) =>
+        expect(body).toMatchObject({ code: 'TRIP_NOT_FOUND' }),
+      );
+    expect(testMailbox(app).sentTo(supportTo)).toHaveLength(sentBefore);
   });
 
   it('requires a session and sends nothing without it', async () => {

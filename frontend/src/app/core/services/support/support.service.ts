@@ -17,10 +17,15 @@ export const SUPPORT_MESSAGE_MAX_LENGTH = 1000;
 export class SupportService {
   private readonly http = inject(HttpClient);
 
-  async sendMessage(topic: SupportTopic, message: string): Promise<void> {
+  // tripId: el viaje del que trata (solo con el motivo «Un viaje»)
+  async sendMessage(topic: SupportTopic, message: string, tripId?: string): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.post<void>(`${environment.apiUrl}/support/messages`, { topic, message }),
+        this.http.post<void>(`${environment.apiUrl}/support/messages`, {
+          topic,
+          message,
+          ...(topic === 'trip' && tripId ? { tripId } : {}),
+        }),
       );
     } catch (error) {
       throw ApiError.fromHttpError(error);

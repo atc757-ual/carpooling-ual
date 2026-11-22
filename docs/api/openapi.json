@@ -11281,7 +11281,7 @@
     },
     "/api/support/messages": {
       "post": {
-        "description": "Emails the message of the authenticated user to the support mailbox (SUPPORT_EMAIL); the team replies to the user email. Nothing is stored.",
+        "description": "Emails the message of the authenticated user to the support mailbox (SUPPORT_EMAIL); the team replies to the user email. With topic trip, it can name one of the trips of the user (code, route and departure go in the email). Nothing is stored.",
         "operationId": "SupportController_sendMessage",
         "parameters": [],
         "requestBody": {
@@ -11319,7 +11319,7 @@
             }
           },
           "404": {
-            "description": "TMF630 error: USER_NOT_FOUND",
+            "description": "TMF630 error: USER_NOT_FOUND, TRIP_NOT_FOUND",
             "content": {
               "application/json": {
                 "schema": {
@@ -20275,6 +20275,11 @@
             "minLength": 20,
             "maxLength": 1000,
             "example": "El conductor no ha llegado al punto de recogida y no responde."
+          },
+          "tripId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The trip it is about, one the user drove or requested a seat on. Only with topic trip; ignored otherwise"
           }
         },
         "required": [
