@@ -257,4 +257,147 @@ describe('PlaceField', () => {
     field.markFromLocation();
     expect(field.isFromLocation()).toBe(true);
   });
+
+  it('keeps the inline list on desktop: touching the field opens no window', async () => {
+    const create = stubModal(null, 'cancel');
+
+    await field().handleOpenSearch();
+
+    expect(create).not.toHaveBeenCalled();
+  });
+});
+
+// En el móvil (por debajo de 768px), tocar el campo abre la búsqueda a
+// pantalla completa (PlaceSearchModal) y lo que se elige allí se resuelve aquí
+describe('PlaceField on mobile', () => {
+  let fixture: ComponentFixture<Host>;
+  const places = { suggest: vi.fn(), getPlace: vi.fn(), reverse: vi.fn() };
+  const location = { checkPermission: vi.fn(), getCurrentPoint: vi.fn() };
+  const originalMatchMedia = globalThis.matchMedia;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    globalThis.matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }) as unknown as typeof globalThis.matchMedia;
+    TestBed.configureTestingModule({
+      imports: [Host],
+      providers: [
+        provideAppTransloco(),
+        provideIonicAngular(),
+        { provide: PlacesService, useValue: places },
+        { provide: LocationService, useValue: location },
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    globalThis.matchMedia = originalMatchMedia;
+  });
+
+  const field = (): PlaceField => fixture.debugElement.children[0].componentInstance as PlaceField;
+
+  // Las ventanas, simuladas en orden: cada una se cierra con su resultado
+  function stubModals(...results: { data: unknown; role: string }[]) {
+    const create = vi.spyOn(TestBed.inject(ModalController), 'create');
+    for (const result of results) {
+      create.mockResolvedValueOnce({
+        present: vi.fn(),
+        onDidDismiss: vi.fn().mockResolvedValue(result),
+      } as unknown as HTMLIonModalElement);
+    }
+    return create;
+  }
+
+  it('is read-only and opens the search sheet with what it had', async () => {
+    fixture.componentInstance.place.setValue(ROQUETAS);
+    fixture.detectChanges();
+    const create = stubModals({ data: null, role: 'cancel' });
+
+    expect(field().isMobile()).toBe(true);
+    await field().handleOpenSearch();
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        initialBreakpoint: 0.6,
+        componentProps: expect.objectContaining({
+          title: 'Origen',
+          canLocate: true,
+          initialText: ROQUETAS.name,
+        }),
+      }),
+    );
+    expect(fixture.componentInstance.place.value).toEqual(ROQUETAS);
+  });
+
+  it('takes the suggestion chosen in the sheet', async () => {
+    places.getPlace.mockResolvedValue(PLACE);
+    stubModals({ data: SUGGESTION, role: 'suggestion' });
+
+    await field().handleOpenSearch();
+
+    expect(places.getPlace).toHaveBeenCalledWith('a1');
+    expect(fixture.componentInstance.place.value).toMatchObject({ id: 'a1' });
+  });
+
+  it('takes the current address confirmed in the sheet', async () => {
+    stubModals({ data: PLACE, role: 'place' });
+
+    await field().handleOpenSearch();
+
+    expect(fixture.componentInstance.place.value).toMatchObject({ id: 'a1' });
+    expect(field().isFromLocation()).toBe(true);
+  });
+
+  it('removes the address when asked to', async () => {
+    fixture.componentInstance.place.setValue(ROQUETAS);
+    fixture.detectChanges();
+    stubModals({ data: null, role: 'clear' });
+
+    await field().handleOpenSearch();
+
+    expect(fixture.componentInstance.place.value).toBeNull();
+    expect(field().text()).toBe('');
+  });
+
+  it('picks on the map from the centre of Almería when it has no address', async () => {
+    const create = stubModals({ data: null, role: 'map' }, { data: PLACE, role: 'select' });
+
+    await field().handleOpenSearch();
+
+    expect(create).toHaveBeenLastCalledWith(
+      expect.objectContaining({ componentProps: { adjustPoint: [-2.4637, 36.8381] } }),
+    );
+    expect(fixture.componentInstance.place.value).toMatchObject({ id: 'a1' });
+  });
+
+  it('uses the location from its button inside the field without opening the sheet', async () => {
+    location.checkPermission.mockResolvedValue('granted');
+    location.getCurrentPoint.mockResolvedValue([-2.45, 36.837]);
+    places.reverse.mockResolvedValue(PLACE);
+    const create = stubModals();
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>('.place-field__locate')
+      ?.click();
+    await fixture.whenStable();
+
+    expect(create).not.toHaveBeenCalled();
+    expect(location.getCurrentPoint).toHaveBeenCalled();
+  });
+
+  it('asks for the location permission from the field the first time', async () => {
+    location.checkPermission.mockResolvedValue('prompt');
+    places.reverse.mockResolvedValue(PLACE);
+    stubModals({ data: null, role: 'locate' }, { data: [-2.45, 36.837], role: 'located' });
+
+    await field().handleOpenSearch();
+
+    expect(places.reverse).toHaveBeenCalledWith([-2.45, 36.837]);
+    expect(fixture.componentInstance.place.value).toMatchObject({ id: 'a1' });
+  });
 });

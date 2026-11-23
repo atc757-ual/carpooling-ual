@@ -1,0 +1,84 @@
+<app-modal-header [title]="title" (closed)="handleClose()" />
+
+<ion-content class="place-search">
+  <div class="place-search__body">
+    <ion-searchbar
+      class="place-search__bar"
+      [value]="text()"
+      [placeholder]="placeholder"
+      [attr.aria-label]="title"
+      [debounce]="0"
+      autocomplete="off"
+      (ionInput)="handleInput($event.detail.value ?? '')"
+    />
+
+    <!-- Antes de escribir: los atajos. Al escribir, la lista ocupa su sitio -->
+    @if (text().trim().length === 0) {
+      <ion-list class="place-search__shortcuts" lines="full">
+        <!-- La dirección de la ubicación del momento, para confirmarla -->
+        @if (located(); as place) {
+          <ion-item
+            class="place-search__located"
+            button
+            [detail]="false"
+            (click)="handleUseLocated(place)"
+          >
+            <ion-icon slot="start" [icon]="locatedIcon" aria-hidden="true" />
+            <ion-label>
+              <span class="place-search__located-title">{{
+                'screens.placeSearch.yourLocation' | transloco
+              }}</span>
+              <span class="place-search__name">{{ place.name }}</span>
+              <span class="text-caption text-color-muted">{{ place.locality }}</span>
+            </ion-label>
+          </ion-item>
+        } @else if (canLocate) {
+          <ion-item button [detail]="false" (click)="handleLocate()">
+            <ion-icon slot="start" [icon]="locateIcon" aria-hidden="true" />
+            <ion-label>{{ 'labels.forms.useLocation' | transloco }}</ion-label>
+          </ion-item>
+        }
+        <ion-item button [detail]="false" (click)="handleMap()">
+          <ion-icon slot="start" [icon]="mapIcon" aria-hidden="true" />
+          <ion-label>{{ 'screens.placeSearch.pickOnMap' | transloco }}</ion-label>
+        </ion-item>
+        <!-- Con una dirección ya puesta: dejar el campo vacío -->
+        @if (initialText) {
+          <ion-item button [detail]="false" (click)="handleClear()">
+            <ion-icon slot="start" [icon]="clearIcon" aria-hidden="true" />
+            <ion-label>{{ 'screens.placeSearch.clear' | transloco }}</ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+
+    <!-- Lo que se está haciendo («Buscando tu ubicación…»): lo leen los lectores -->
+    <output class="place-search__status text-caption text-color-muted">{{ status() }}</output>
+
+    @if (message(); as message) {
+      <p class="place-search__message" role="alert">{{ message }}</p>
+    }
+
+    @if (suggestions().length > 0) {
+      <ion-list
+        class="place-search__results"
+        lines="full"
+        [attr.aria-label]="'labels.forms.addressesFor' | transloco: { label: title }"
+      >
+        @for (suggestion of suggestions(); track suggestion.id) {
+          <ion-item button [detail]="false" (click)="handleSelect(suggestion)">
+            <ion-icon slot="start" [icon]="placeIcon" aria-hidden="true" />
+            <ion-label>
+              <span class="place-search__name">{{ suggestion.name }}</span>
+              <span class="text-caption text-color-muted">{{ suggestion.locality }}</span>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+      <!-- Lo exige la licencia de los datos de CartoCiudad -->
+      <p class="place-search__credit text-caption text-color-muted">
+        {{ 'search.cartoCredit' | transloco }}
+      </p>
+    }
+  </div>
+</ion-content>

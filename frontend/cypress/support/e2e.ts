@@ -94,9 +94,19 @@ beforeEach(() => {
 // Escribe una dirección en el campo de dirección de ese bloque y elige la
 // sugerencia
 export function choosePlace(scope: string, place: string): void {
-  cy.get(`${scope} app-place-field input`).clear();
-  cy.get(`${scope} app-place-field input`).type(place);
-  cy.contains(`${scope} .place-field__suggestion`, place).click();
+  cy.get(`${scope} app-place-field input`).then(($input) => {
+    if ($input.prop('readOnly')) {
+      // Móvil: el campo abre la búsqueda en una hoja; se escribe y se elige allí
+      cy.wrap($input).click();
+      cy.get('app-place-search-modal ion-searchbar input').clear();
+      cy.get('app-place-search-modal ion-searchbar input').type(place);
+      cy.contains('app-place-search-modal .place-search__results ion-item', place).click();
+    } else {
+      cy.wrap($input).clear();
+      cy.wrap($input).type(place);
+      cy.contains(`${scope} .place-field__suggestion`, place).click();
+    }
+  });
 }
 
 // Elige el parking del campus (empieza vacío en Buscar y en Publicar)

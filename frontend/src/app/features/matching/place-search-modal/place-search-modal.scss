@@ -1,0 +1,62 @@
+// Ventana a pantalla completa del móvil: la búsqueda arriba y la lista con
+// todo el alto que deja el teclado
+.place-search__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-base) var(--space-l);
+}
+
+// En azul claro, como el buscador de Ayuda (roles --color-search-field*)
+.place-search__bar {
+  --background: var(--color-search-field);
+  --box-shadow: none;
+  --border-radius: var(--radius-s);
+  --color: var(--color-on-search-field);
+  --placeholder-color: var(--color-search-field-muted);
+  --placeholder-opacity: 1;
+  --icon-color: var(--color-search-field-icon);
+  --clear-button-color: var(--color-search-field-muted);
+
+  min-height: var(--control-height-s);
+  padding: 0;
+}
+
+.place-search__shortcuts ion-icon,
+.place-search__results ion-icon {
+  color: var(--color-primary);
+  font-size: var(--icon-size-base);
+}
+
+.place-search__results ion-label,
+.place-search__located ion-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.place-search__name {
+  color: var(--color-text);
+  font-size: var(--font-size-body);
+}
+
+.place-search__message {
+  margin: 0;
+  color: var(--color-danger-text);
+  font-size: var(--font-size-body-s);
+}
+
+.place-search__credit {
+  margin: 0;
+}
+
+// La ubicación encontrada, para confirmarla: su título en azul
+.place-search__located-title {
+  color: var(--color-link);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
+.place-search__status:empty {
+  display: none;
+}
