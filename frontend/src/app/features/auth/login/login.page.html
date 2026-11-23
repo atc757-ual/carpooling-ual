@@ -78,13 +78,11 @@
         >
           <ion-icon slot="start" [icon]="lockIcon" aria-hidden="true" />
           <!-- Botón nativo y no ion-input-password-toggle: ese trae su nombre
-               para lectores de pantalla fijo en inglés («Show password»). Fuera
-               del orden de tabulación (tabindex=-1): con el teclado se pasa del
-               campo de la contraseña al control siguiente -->
+               para lectores de pantalla fijo en inglés («Show password»). Con
+               el teclado se llega a él tras el campo (WCAG 2.1.1) -->
           <button
             slot="end"
             type="button"
-            tabindex="-1"
             class="auth-password-toggle"
             [attr.aria-label]="
               (isPasswordVisible() ? 'auth.password.hide' : 'auth.password.show') | transloco

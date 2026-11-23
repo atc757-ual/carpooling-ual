@@ -18,12 +18,12 @@
   }
 
   <section class="help-incident__section">
-    <h3 class="text-label text-label--strong">{{ 'help.incidents.yourReport' | transloco }}</h3>
+    <h2 class="text-label text-label--strong">{{ 'help.incidents.yourReport' | transloco }}</h2>
     <p class="text-body-s help-incident__text">{{ incident.description }}</p>
   </section>
 
   <section class="help-incident__section">
-    <h3 class="text-label text-label--strong">{{ 'help.incidents.progress' | transloco }}</h3>
+    <h2 class="text-label text-label--strong">{{ 'help.incidents.progress' | transloco }}</h2>
     <ion-list class="help-incident__moments" lines="none">
       @for (moment of moments; track moment.labelKey) {
         <ion-item class="help-incident__moment" [class.help-incident__moment--pending]="!moment.at">
@@ -43,7 +43,7 @@
 
   @if (incident.review; as review) {
     <section class="help-incident__section help-incident__answer">
-      <h3 class="text-label text-label--strong">{{ 'help.incidents.answer' | transloco }}</h3>
+      <h2 class="text-label text-label--strong">{{ 'help.incidents.answer' | transloco }}</h2>
       <p class="text-body-s help-incident__text">{{ review.resolution }}</p>
     </section>
   } @else {

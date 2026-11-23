@@ -36,9 +36,9 @@
           <!-- El título, sobre el borde del recuadro (como la etiqueta de un
                campo con borde) -->
           <ion-label class="ion-text-wrap participant-profile__bio">
-            <h3 class="participant-profile__bio-label text-caption">
+            <h2 class="participant-profile__bio-label text-caption">
               {{ 'profile.aboutMe' | transloco }}
-            </h3>
+            </h2>
             <p class="text-body-s">{{ person.bio }}</p>
           </ion-label>
         </ion-item>
@@ -47,9 +47,9 @@
       @if (preferences().length > 0) {
         <ion-item>
           <ion-label class="ion-text-wrap">
-            <h3 class="participant-profile__title text-caption text-color-muted">
+            <h2 class="participant-profile__title text-caption text-color-muted">
               {{ 'participantProfile.preferences' | transloco }}
-            </h3>
+            </h2>
             <ul class="participant-profile__preferences">
               @for (preference of preferences(); track preference) {
                 <li>
@@ -64,9 +64,9 @@
       <!-- La fila entera abre el correo -->
       <ion-item lines="none" [href]="'mailto:' + person.email" [detail]="false">
         <ion-label class="ion-text-wrap">
-          <h3 class="participant-profile__title text-caption text-color-muted">
+          <h2 class="participant-profile__title text-caption text-color-muted">
             {{ 'participantProfile.contact' | transloco }}
-          </h3>
+          </h2>
           <p class="participant-profile__email text-body-s">
             <ion-icon [icon]="mailIcon" aria-hidden="true" />
             <span>{{ person.email }}</span>
