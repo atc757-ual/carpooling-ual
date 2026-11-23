@@ -32,137 +32,143 @@
         </app-empty-state>
       } @else if (trip(); as trip) {
         <div class="passenger-detail__main">
-          <!-- Una sola tarjeta, en este orden: el estado (aviso y progreso con
-               la hora de cada paso), el código de recogida, el seguimiento y
-               «Tu recorrido» con el mapa. Debajo, «Conductor y coche».
-               Si el conductor canceló, lo primero: buscarle otro viaje -->
+          <!-- Si el conductor canceló, lo primero: buscarle otro viaje. Después,
+               «Tu recorrido» con el estado y el código de recogida. «Conductor y
+               coche» va en la columna de 4 -->
           @if (isRelocatable(request, now())) {
             <app-relocation-card [request]="request" [trip]="trip" [now]="now()" />
           }
+          <!-- «Tu recorrido»: arriba el estado (aviso y progreso con la hora de
+               cada paso) y el código de recogida; debajo, la ruta con el mapa -->
           <app-passenger-request-route [request]="request" [trip]="trip" part="route">
-            <div class="passenger-detail__status">
-              <output
-                class="notice passenger-detail__notice"
-                [class.notice--warning]="statusKind() === 'pending'"
-                [class.notice--success]="statusKind() === 'accepted'"
-                [class.notice--danger]="statusKind() === 'danger'"
-                [class.notice--info]="statusKind() === 'neutral'"
-              >
-                <ion-icon
-                  class="passenger-detail__notice-icon"
-                  [icon]="
-                    statusKind() === 'pending'
-                      ? pendingIcon
-                      : statusKind() === 'accepted'
-                        ? acceptedIcon
-                        : statusKind() === 'danger'
-                          ? dangerIcon
-                          : infoIcon
-                  "
-                  aria-hidden="true"
-                />
-                <span>
-                  @if (trip.status === 'cancelled' && request.status !== 'completed') {
-                    <b>{{
-                      'request.driverCancelled' | transloco: { driver: firstName(trip.driver.name) }
-                    }}</b>
-                    @if (!isRelocatable(request, now())) {
-                      {{ 'request.puedesBuscarOtroViaje' | transloco }}
-                    }
-                  } @else {
-                    @switch (request.status) {
-                      @case ('pending') {
-                        <b>{{
-                          'request.pendingTitle'
-                            | transloco: { driver: firstName(trip.driver.name) }
-                        }}</b>
-                        {{ 'request.aunTienesPlazaAvisaremos' | transloco }}
+            <div class="passenger-detail__top">
+              <div class="passenger-detail__status">
+                <output
+                  class="notice passenger-detail__notice"
+                  [class.notice--warning]="statusKind() === 'pending'"
+                  [class.notice--success]="statusKind() === 'accepted'"
+                  [class.notice--danger]="statusKind() === 'danger'"
+                  [class.notice--info]="statusKind() === 'neutral'"
+                >
+                  <ion-icon
+                    class="passenger-detail__notice-icon"
+                    [icon]="
+                      statusKind() === 'pending'
+                        ? pendingIcon
+                        : statusKind() === 'accepted'
+                          ? acceptedIcon
+                          : statusKind() === 'danger'
+                            ? dangerIcon
+                            : infoIcon
+                    "
+                    aria-hidden="true"
+                  />
+                  <span>
+                    @if (trip.status === 'cancelled' && request.status !== 'completed') {
+                      <b>{{
+                        'request.driverCancelled'
+                          | transloco: { driver: firstName(trip.driver.name) }
+                      }}</b>
+                      @if (!isRelocatable(request, now())) {
+                        {{ 'request.puedesBuscarOtroViaje' | transloco }}
                       }
-                      @case ('accepted') {
-                        <b>{{
-                          'request.acceptedTitle'
-                            | transloco: { driver: firstName(trip.driver.name) }
-                        }}</b>
-                        {{ 'request.solicitudSidoAceptada' | transloco }}
-                      }
-                      @case ('completed') {
-                        <b>{{ 'request.viajeTerminado' | transloco }}</b>
-                        @if (request.droppedOffBy === 'system') {
-                          {{ 'request.cerramosAutomaticamenteUnaHora' | transloco }}
-                        } @else {
-                          {{ 'request.hasLlegadoDestino' | transloco }}
-                        }
-                        {{
-                          'request.rateDriver' | transloco: { driver: firstName(trip.driver.name) }
-                        }}
-                      }
-                      @case ('rejected') {
-                        @if (request.rejectionReason === 'trip_full') {
-                          <b>{{ 'request.estaVezPodidoSer' | transloco }}</b>
-                          {{ 'request.viajeCompletadoTodasSus' | transloco }}
-                        } @else {
+                    } @else {
+                      @switch (request.status) {
+                        @case ('pending') {
                           <b>{{
-                            'request.rejectedTitle'
+                            'request.pendingTitle'
                               | transloco: { driver: firstName(trip.driver.name) }
                           }}</b>
-                          {{ 'request.tienesPlazaEsteViaje' | transloco }}
+                          {{ 'request.aunTienesPlazaAvisaremos' | transloco }}
                         }
-                      }
-                      @case ('expired') {
-                        <b>{{ 'request.estaVezPodidoSer2' | transloco }}</b>
-                        {{ 'request.conductorRespondioTiempoLas' | transloco }}
-                      }
-                      @case ('cancelled') {
-                        @if (request.rejectionReason === 'no_show') {
-                          <b>{{ 'request.canceladaPresentasteTiempo' | transloco }}</b>
-                          {{ 'request.conductorMarcoQuePresentaste' | transloco }}
-                        } @else {
-                          <b>{{ 'request.solicitudEstaCancelada' | transloco }}</b>
-                          {{ 'request.puedesBuscarOtroViaje2' | transloco }}
+                        @case ('accepted') {
+                          <b>{{
+                            'request.acceptedTitle'
+                              | transloco: { driver: firstName(trip.driver.name) }
+                          }}</b>
+                          {{ 'request.solicitudSidoAceptada' | transloco }}
+                        }
+                        @case ('completed') {
+                          <b>{{ 'request.viajeTerminado' | transloco }}</b>
+                          @if (request.droppedOffBy === 'system') {
+                            {{ 'request.cerramosAutomaticamenteUnaHora' | transloco }}
+                          } @else {
+                            {{ 'request.hasLlegadoDestino' | transloco }}
+                          }
+                          {{
+                            'request.rateDriver'
+                              | transloco: { driver: firstName(trip.driver.name) }
+                          }}
+                        }
+                        @case ('rejected') {
+                          @if (request.rejectionReason === 'trip_full') {
+                            <b>{{ 'request.estaVezPodidoSer' | transloco }}</b>
+                            {{ 'request.viajeCompletadoTodasSus' | transloco }}
+                          } @else {
+                            <b>{{
+                              'request.rejectedTitle'
+                                | transloco: { driver: firstName(trip.driver.name) }
+                            }}</b>
+                            {{ 'request.tienesPlazaEsteViaje' | transloco }}
+                          }
+                        }
+                        @case ('expired') {
+                          <b>{{ 'request.estaVezPodidoSer2' | transloco }}</b>
+                          {{ 'request.conductorRespondioTiempoLas' | transloco }}
+                        }
+                        @case ('cancelled') {
+                          @if (request.rejectionReason === 'no_show') {
+                            <b>{{ 'request.canceladaPresentasteTiempo' | transloco }}</b>
+                            {{ 'request.conductorMarcoQuePresentaste' | transloco }}
+                          } @else {
+                            <b>{{ 'request.solicitudEstaCancelada' | transloco }}</b>
+                            {{ 'request.puedesBuscarOtroViaje2' | transloco }}
+                          }
                         }
                       }
                     }
-                  }
-                </span>
-              </output>
-              <app-passenger-progress [request]="request" [trip]="trip" />
-            </div>
-
-            <!-- Código de recogida de 4 cifras (solo con la plaza aceptada) -->
-            @if (request.status === 'accepted') {
-              <section class="passenger-detail__board-code" aria-labelledby="board-code-title">
-                <h2 id="board-code-title" class="text-subtitle">
-                  {{ 'request.codigoRecogida' | transloco }}
-                </h2>
-                <div class="passenger-detail__code-card">
-                  @if (request.boardedAt) {
-                    <div class="passenger-detail__boarded-badge">
-                      <span class="status status--accepted">{{
-                        'request.subidaConfirmada' | transloco
-                      }}</span>
-                      <p class="text-caption text-color-muted">
-                        {{ 'request.estasBordoDelVehiculo' | transloco }}
+                  </span>
+                </output>
+                <app-passenger-progress [request]="request" [trip]="trip" />
+              </div>
+              <!-- Código de recogida de 4 cifras (solo con la plaza aceptada), bajo los
+                   pasos: lo que hay que tener a mano al subir al coche -->
+              @if (request.status === 'accepted') {
+                <section class="passenger-detail__board-code" aria-labelledby="board-code-title">
+                  <h2 id="board-code-title" class="passenger-detail__section-title">
+                    {{ 'request.codigoRecogida' | transloco }}
+                  </h2>
+                  <div class="passenger-detail__code-card">
+                    @if (request.boardedAt) {
+                      <div class="passenger-detail__boarded-badge">
+                        <span class="status status--accepted">{{
+                          'request.subidaConfirmada' | transloco
+                        }}</span>
+                        <p class="text-caption text-color-muted">
+                          {{ 'request.estasBordoDelVehiculo' | transloco }}
+                        </p>
+                      </div>
+                    } @else if (!isBoardCodeVisible()) {
+                      <!-- Hasta 10 min antes de la salida (o hasta que inicie), sin código -->
+                      <p class="text-body-s text-color-muted">
+                        {{
+                          'request.boardCodeLater'
+                            | transloco: { driver: firstName(trip.driver.name) }
+                        }}
                       </p>
-                    </div>
-                  } @else if (!isBoardCodeVisible()) {
-                    <!-- Hasta 10 min antes de la salida (o hasta que inicie), sin código -->
-                    <p class="text-body-s text-color-muted">
-                      {{
-                        'request.boardCodeLater'
-                          | transloco: { driver: firstName(trip.driver.name) }
-                      }}
-                    </p>
-                  } @else if (request.boardCode) {
-                    <div class="passenger-detail__code-digits">{{ request.boardCode }}</div>
-                    <p class="text-caption text-color-muted">
-                      {{
-                        'request.boardCodeHint' | transloco: { driver: firstName(trip.driver.name) }
-                      }}
-                    </p>
-                  }
-                </div>
-              </section>
-            }
+                    } @else if (request.boardCode) {
+                      <div class="passenger-detail__code-digits">{{ request.boardCode }}</div>
+                      <p class="text-caption text-color-muted">
+                        {{
+                          'request.boardCodeHint'
+                            | transloco: { driver: firstName(trip.driver.name) }
+                        }}
+                      </p>
+                    }
+                  </div>
+                </section>
+              }
+            </div>
           </app-passenger-request-route>
         </div>
 
@@ -172,13 +178,13 @@
           class="passenger-detail__aside"
           [attr.aria-label]="'request.viajeAcciones' | transloco"
         >
-          <!-- En escritorio, dos tarjetas: el
-               conductor y el coche y, debajo, la seguridad y las acciones -->
-          <div class="passenger-detail__aside-card live-column">
+          <!-- Una tarjeta por objetivo: el conductor y el coche, el viaje y la
+               seguridad, las acciones y la valoración -->
+          <div class="passenger-detail__aside-card">
             <app-passenger-request-route [request]="request" [trip]="trip" part="driver" />
           </div>
 
-          <div class="passenger-detail__aside-card live-column">
+          <div class="passenger-detail__aside-card">
             <!-- Con la plaza aceptada y hasta que termine: una lista con cada
                opción a la vista (seguirlo, compartirlo y, en curso, reportar) -->
             @if (
@@ -186,8 +192,10 @@
               (trip.status === 'confirmed' || trip.status === 'in_progress')
             ) {
               <ion-card class="passenger-detail__safety">
+                <ion-card-header>
+                  <ion-card-title>{{ 'request.viajeSeguridad' | transloco }}</ion-card-title>
+                </ion-card-header>
                 <ion-card-content>
-                  <h2 class="text-subtitle">{{ 'request.viajeSeguridad' | transloco }}</h2>
                   <ul class="passenger-detail__items">
                     <li class="passenger-detail__item">
                       <div class="passenger-detail__item-text">

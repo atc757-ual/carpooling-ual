@@ -65,12 +65,6 @@
   }
 }
 
-@include bp.up(md) {
-  .driver-detail__title {
-    font-size: var(--font-size-title);
-  }
-}
-
 .driver-detail__main,
 .driver-detail__aside {
   display: flex;

@@ -149,27 +149,28 @@ ion-card.passenger-route ion-card-content {
   font-size: var(--font-size-caption);
 }
 
+// El coche: su icono gris
 .passenger-route__vehicle {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-s);
   padding-top: var(--space-s);
   border-top: var(--border-width-s) solid var(--color-border-subtle);
 
-  ion-icon {
+  > ion-icon {
     flex: 0 0 auto;
     color: var(--color-text-muted);
     font-size: var(--icon-size-base);
   }
 }
 
-.passenger-route__swatch {
-  display: inline-block;
-  width: var(--dot-size);
-  height: var(--dot-size);
-  margin-inline-end: var(--space-xs);
-  border: var(--border-width-s) solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  background: var(--swatch-color);
-  vertical-align: -0.05rem; // -0.8px
+.passenger-route__vehicle-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.passenger-route__plate {
+  flex: 0 0 auto;
 }

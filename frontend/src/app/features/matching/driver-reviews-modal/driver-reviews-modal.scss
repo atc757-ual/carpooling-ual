@@ -72,16 +72,21 @@
   line-height: 1;
 }
 
-// «5 · Muy bien»: ancho fijo para que las barras empiecen a la par
+// «5 · Muy bien», en una línea (la columna se ajusta a la más larga)
 .driver-reviews__bar-label {
-  min-width: 5.5rem; // 88px
+  white-space: nowrap;
 }
 
+// Una sola rejilla para las cinco filas (subgrid): la columna de la etiqueta
+// mide lo que la más larga («5 · Muy bien») y todas las barras empiezan y
+// acaban a la misma altura
 .driver-reviews__bars {
-  display: flex;
+  display: grid;
   flex: 1;
-  flex-direction: column;
-  gap: var(--space-xs);
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  column-gap: var(--space-s);
+  row-gap: var(--space-xs);
+  min-width: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -89,9 +94,14 @@
 
 .driver-reviews__bar {
   display: grid;
-  grid-template-columns: 1.5rem 1fr 1.5rem; // 24px · barra · 24px
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: var(--space-s);
+
+  // El número de valoraciones, alineado a la derecha
+  > :last-child {
+    justify-self: end;
+  }
 }
 
 .driver-reviews__track {

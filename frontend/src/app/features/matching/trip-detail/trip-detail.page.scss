@@ -50,12 +50,6 @@
   }
 }
 
-@include bp.up(md) {
-  .trip-detail__title {
-    font-size: var(--font-size-title);
-  }
-}
-
 .trip-detail__main,
 .trip-detail__aside {
   display: flex;

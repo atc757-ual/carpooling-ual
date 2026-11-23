@@ -18,6 +18,7 @@ import { TripDriver } from '../../../../core/models/trip-result.model';
 import { TravelPreferencesStore } from '../../../../core/services/catalogs/travel-preferences.store';
 import { VehicleColorsStore } from '../../../../core/services/catalogs/vehicle-colors.store';
 import { TripCallService } from '../../../../core/services/trips/trip-call.service';
+import { LicensePlate } from '../../../../shared/components/ui/license-plate/license-plate';
 import { CoPassengers } from '../co-passengers/co-passengers';
 import { TripsService } from '../../../../core/services/trips/trips.service';
 import {
@@ -55,6 +56,7 @@ const RATING_FORMAT = () =>
   selector: 'app-passenger-request-route',
   imports: [
     CoPassengers,
+    LicensePlate,
     LoadingState,
     IonButton,
     IonCard,
@@ -247,7 +249,6 @@ export class PassengerRequestRoute {
   protected readonly chatIcon = chatbubblesOutline;
   protected readonly vehicleName = vehicleDisplayName;
   protected readonly vehicleColor = (color: string | null) => this.colors.label(color);
-  protected readonly vehicleSwatch = (color: string | null) => this.colors.swatch(color);
 
   chatDriverLabel(): string {
     const name = getFirstName(this.trip().driver.name);
