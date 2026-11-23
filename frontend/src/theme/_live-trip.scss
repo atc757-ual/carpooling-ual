@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // «En curso» (y las pantallas con su misma columna): estilos de las tarjetas
 // de los componentes que van dentro de la hoja del móvil y de cada columna de
 // escritorio. Van aquí, globales, porque un componente no puede dar estilo a
@@ -19,7 +21,7 @@ ion-modal.live-sheet.live-sheet {
 
   // En escritorio no se ve nunca, ni mientras se cierra al pasar del móvil a
   // escritorio: su contenido ya va en la columna de 4 y saldría dos veces
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     display: none;
   }
 
@@ -77,7 +79,7 @@ ion-modal.live-sheet.live-sheet {
 // Escritorio: cada columna (.live-column, con el mixin card de
 // features/trips/_live-desktop-column.scss), una sola tarjeta con las de
 // dentro planas. La clase dos veces, como en la hoja
-@media (min-width: 768px) {
+@include bp.up(md) {
   .live-column.live-column {
     ion-card {
       margin: 0;

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Notificaciones
 ion-content {
   --background: var(--color-surface-subtle);
@@ -498,7 +500,7 @@ ion-content {
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .notifications__layout {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -516,7 +518,7 @@ ion-content {
   }
 }
 
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   .notifications__pagination {
     display: flex;
     align-items: center;

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .audience-picker__legend {
   margin: 0 0 var(--space-s);
 }
@@ -14,7 +16,7 @@
 
   // En escritorio, del ancho de su contenido (las dos iguales), no de toda
   // la tarjeta
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     width: fit-content;
   }
 }
@@ -36,7 +38,7 @@
   --background-hover-opacity: 1;
   --indicator-height: 0;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     min-width: 11rem; // 176px: las dos iguales
   }
 }

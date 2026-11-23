@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: flex;
   flex-direction: column;
@@ -28,7 +30,7 @@
   display: grid;
   gap: var(--space-s);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: center;
   }

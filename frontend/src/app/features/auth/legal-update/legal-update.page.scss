@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Los documentos, uno debajo de otro a 16px
 .legal-update__list {
   display: flex;
@@ -125,7 +127,7 @@
   gap: var(--space-s);
 
   // Escritorio: en fila, centrados y más separados
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     flex-direction: row;
     justify-content: center;
     gap: var(--space-l);

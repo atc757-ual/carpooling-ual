@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -104,7 +106,7 @@
   padding: var(--space-s);
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   // El mapa y, encima, abajo a la derecha, «Actualizado hace…»
   .trip-live-map__frame {
     position: relative;

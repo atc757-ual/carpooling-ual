@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // «En curso» del conductor: lo que solo cambia en escritorio. En su propio fichero porque la hoja principal
 // está al límite de tamaño de estilos por componente
 
@@ -55,7 +57,7 @@
 // Tabletas (768 a 1023px): el mapa y la columna de la derecha en 3:2 y con
 // 16px entre ellos (en 2:1 la columna mide unos 230px y la fila de botones no
 // cabe desplegada); desde 1024px, las columnas de siempre
-@media (min-width: 768px) and (max-width: 1023.98px) {
+@include bp.between(md, lg) {
   .driver-live-trip__layout {
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
     gap: var(--space-base);

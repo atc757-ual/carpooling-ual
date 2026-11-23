@@ -1,7 +1,7 @@
 // Estilos compartidos de «En curso» (pasajero y conductor). En escritorio: cada columna se ve como
 // una sola tarjeta (la de 8, «Lo siguiente» y el mapa; la de 4, todo lo demás)
 // con las secciones planas dentro, separadas por una línea fina como en la
-// hoja del móvil. Se usa dentro de @media (min-width: 768px)
+// hoja del móvil. Se usa dentro de @include bp.up(md) (768px o más)
 @mixin card {
   gap: 0;
   padding-inline: var(--space-base);

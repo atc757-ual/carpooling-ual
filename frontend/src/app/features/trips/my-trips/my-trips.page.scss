@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // En el móvil, una columna de tarjetas: el viaje en curso, las pastillas de
 // estado y los viajes, por días. En escritorio, esa columna (8 de 12) y a la
 // derecha la de 4 con los atajos y las cifras, fija al hacer scroll
@@ -25,7 +27,7 @@
   order: 1;
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .my-trips {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);

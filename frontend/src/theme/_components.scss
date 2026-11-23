@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Aspecto por defecto de los componentes de Ionic con los tokens del tema.
 // Solo con sus variables CSS y ::part(), sin !important (ver CLAUDE.md).
 
@@ -348,7 +350,7 @@ ion-modal.legal-dialog {
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   ion-modal.location-dialog,
   ion-modal.info-dialog,
   ion-modal.legal-dialog {
@@ -360,7 +362,7 @@ ion-modal.legal-dialog {
 // En escritorio, las de formularios y avisos, como mucho de 768px de alto (o el
 // 90 % si la pantalla es más baja): con 720px de ancho, más alto se ve
 // desproporcionado. Lo que no cabe se desplaza dentro (.modal-body)
-@media (min-width: 768px) {
+@include bp.up(md) {
   ion-modal.info-dialog {
     --max-height: min(90%, 48rem); // 768px
 
@@ -415,7 +417,7 @@ ion-modal.legal-dialog {
 // centrada) que indica que se pueden cerrar. El calendario y la hora, igual,
 // y con sitio abajo para la barra del sistema (las demás ya lo dejan en su
 // contenido)
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   ion-modal.location-dialog,
   ion-modal.info-dialog,
   ion-modal.legal-dialog,
@@ -766,7 +768,7 @@ ion-card-title {
   line-height: var(--line-height-title);
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   ion-card-title {
     font-size: var(--font-size-subtitle);
   }
@@ -1084,7 +1086,7 @@ ion-item.role-card {
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     font-size: var(--font-size-title);
   }
 }
@@ -1108,7 +1110,7 @@ ion-searchbar.admin-heading__search {
   --color: var(--color-text);
   --border-radius: var(--radius-base);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     width: calc((100% - var(--space-base)) * 2 / 3);
   }
 }
@@ -1209,7 +1211,7 @@ ion-searchbar.admin-heading__search {
 // intermedios): cada fila, una tarjeta dentro de la lista (cada pantalla
 // reparte sus celdas con grid-template-areas). La tabla sigue siendo la misma
 // para el lector de pantalla
-@container admin-list (max-width: 47.98rem) {
+@include bp.container-down(admin-list, md) {
   .admin-table {
     thead {
       position: absolute;
@@ -1243,7 +1245,7 @@ ion-searchbar.admin-heading__search {
   display: none;
 }
 
-@container admin-list (max-width: 47.98rem) {
+@include bp.container-down(admin-list, md) {
   .admin-table tbody tr:has(.admin-table__link--row) {
     position: relative;
   }
@@ -1313,7 +1315,7 @@ ion-searchbar.admin-heading__search {
 // casillas, así la etiqueta queda alineada con la primera. En el móvil, a todo
 // el ancho (las casillas se reparten)
 .code-field {
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     width: fit-content;
     max-width: 100%;
     margin-inline: auto;
@@ -1646,7 +1648,7 @@ ion-toggle {
   line-height: var(--line-height-subtitle);
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .section-item__title.section-item__title {
     font-size: var(--font-size-subtitle);
   }

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .admin-page__subtitle {
   color: var(--color-text-muted);
 }
@@ -10,7 +12,7 @@
   grid-template-areas: 'aside' 'main';
   gap: var(--space-base);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
     grid-template-areas: 'main aside';
     align-items: start;
@@ -26,7 +28,7 @@
   grid-area: aside;
   min-width: 0;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     position: sticky;
     top: var(--space-l);
   }
@@ -92,7 +94,7 @@
 
 // Móvil: cada elemento en una línea, con sus acciones a la derecha. «Activo»
 // es lo normal y no se muestra; «Desactivado» sí
-@container admin-list (max-width: 47.98rem) {
+@include bp.container-down(admin-list, md) {
   .catalogs__table tbody tr {
     display: flex;
     flex-wrap: wrap;

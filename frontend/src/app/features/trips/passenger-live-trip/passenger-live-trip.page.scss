@@ -1,4 +1,5 @@
 @use '../live-desktop-column' as live-column;
+@use 'breakpoints' as bp;
 
 // «En curso» del pasajero. En el móvil, el mapa a toda la pantalla y los
 // detalles en la hoja inferior (live-sheet, en el tema); en escritorio, el
@@ -59,7 +60,7 @@ ion-card.live-alert.live-alert[class] {
 
 // El código de recogida en el móvil: el título y, debajo, a quién decírselo,
 // a la izquierda; las cuatro casillas a la derecha, centradas en su alto
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   .ride__panel ion-card-content.ride__code {
     display: grid;
     grid-template-areas:
@@ -167,7 +168,7 @@ ion-card.live-alert.live-alert[class] {
   --live-trip-map-height-desktop: 31.25rem; // 500px
 }
 
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   .ride.tab-page {
     padding: 0;
   }
@@ -193,7 +194,7 @@ ion-card.live-alert.live-alert[class] {
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .ride__layout {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -207,7 +208,7 @@ ion-card.live-alert.live-alert[class] {
 
 // Tabletas (768 a 1023px): el mapa y la columna de la derecha en 3:2 y con
 // 16px entre ellos, para que la fila de botones quepa desplegada
-@media (min-width: 768px) and (max-width: 1023.98px) {
+@include bp.between(md, lg) {
   .ride__layout {
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
     gap: var(--space-base);
@@ -323,7 +324,7 @@ ion-card.live-alert.live-alert[class] {
 }
 
 // Escritorio: cada columna, una sola tarjeta (_live-desktop-column.scss)
-@media (min-width: 768px) {
+@include bp.up(md) {
   .ride__main,
   .ride__side {
     @include live-column.card;

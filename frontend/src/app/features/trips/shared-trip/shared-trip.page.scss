@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // La página pública del viaje compartido: cabecera con la marca y, debajo, en
 // 8 + 4 desde 768px como «En curso». En curso y en el móvil, el mapa de
 // fondo (de borde a borde) y el detalle en la hoja inferior
@@ -112,7 +114,7 @@
   --loading-state-padding: var(--space-xxxl) var(--space-base) var(--space-base);
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .shared-trip__layout {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -127,7 +129,7 @@
 }
 
 // En curso y en el móvil: el mapa de borde a borde bajo la cabecera
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   .shared-trip--live {
     padding: 0;
   }

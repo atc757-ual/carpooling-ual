@@ -1,5 +1,4 @@
-// Punto de corte md (768px, el de Ionic y el de .ion-hide-md-down)
-$desktop: 768px;
+@use 'breakpoints' as bp;
 
 .auth-layout {
   display: flex;
@@ -128,7 +127,7 @@ $desktop: 768px;
   line-height: var(--line-height-label);
 }
 
-@media (min-width: $desktop) {
+@include bp.up(md) {
   // El panel visual se queda fijo con el alto de la pantalla mientras, si el
   // formulario no cabe, ion-content lo desplaza
   .auth-layout__visual {

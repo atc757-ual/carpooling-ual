@@ -1,4 +1,5 @@
 @use '../live-desktop-column' as live-column;
+@use 'breakpoints' as bp;
 
 // En el móvil, una columna: cabecera, recorrido, pasajeros y, debajo, las
 // acciones y el impacto. En escritorio, 8 + 4 (las dos columnas se desplazan juntas)
@@ -64,7 +65,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .driver-detail__title {
     font-size: var(--font-size-title);
   }
@@ -124,7 +125,7 @@ ion-card.driver-detail__impact ion-card-content {
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .driver-detail {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);

@@ -1,15 +1,7 @@
 // Tokens de diseño que no dependen del modo claro/oscuro (los colores y las
 // sombras están en _roles.scss). Tamaños en rem, con su equivalente en px.
 
-@use 'sass:map';
-
-// Puntos de corte (los de Ionic). Son de Sass porque @media no admite var().
-$breakpoints: (
-  sm: 576px,
-  md: 768px,
-  lg: 992px,
-  xl: 1200px,
-);
+@use 'breakpoints' as bp;
 
 :root {
   // Espaciado: padding, margin y gap
@@ -151,7 +143,7 @@ $breakpoints: (
 }
 
 // En escritorio, más margen lateral en el área con sesión
-@media (min-width: map.get($breakpoints, md)) {
+@include bp.up(md) {
   :root {
     --page-gutter-min: var(--space-l);
   }

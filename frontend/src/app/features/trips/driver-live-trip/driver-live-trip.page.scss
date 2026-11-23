@@ -1,4 +1,5 @@
 @use '../live-desktop-column' as live-column;
+@use 'breakpoints' as bp;
 
 // Viaje en curso del conductor. En el móvil, el mapa a toda la pantalla y
 // los detalles en la hoja inferior (live-sheet, en el tema); en escritorio,
@@ -60,7 +61,7 @@
   --live-trip-map-height-desktop: 31.25rem; // 500px
 }
 
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   .driver-live-trip {
     padding: 0;
   }
@@ -187,7 +188,7 @@
 
 // En escritorio, los puntos sobran (las flechas van junto al título): la
 // tarjeta, más baja
-@media (min-width: 768px) {
+@include bp.up(md) {
   .pickup-dots {
     display: none;
   }
@@ -238,7 +239,7 @@
   flex: none;
   gap: var(--space-xs);
 
-  @media (max-width: 767.98px) {
+  @include bp.down(md) {
     display: none;
   }
 }
@@ -315,7 +316,7 @@
   margin: 0;
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .driver-live-trip__layout {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);

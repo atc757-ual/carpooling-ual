@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Un ion-item azul claro con el borde de la marca, sin flecha (el aviso entero es el
 // enlace): el texto a la izquierda y el coche con el punto que late a la derecha
 .live-trip-banner {
@@ -97,13 +99,13 @@
   white-space: nowrap;
 }
 
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   .live-trip-banner__route {
     display: none;
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .live-trip-banner__ends {
     display: none;
   }
