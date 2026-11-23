@@ -16,7 +16,7 @@ describe('toPushMessage', () => {
       },
       en: {
         title: 'Your request was accepted',
-        body: 'You have a seat: check the time and the pickup point.',
+        body: 'You have a seat: check the time and the pick-up point.',
         data: { type: 'request_accepted', tripId: 't1', requestId: 'r1' },
       },
     });
