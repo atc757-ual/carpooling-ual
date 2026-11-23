@@ -180,7 +180,7 @@ describe('Legal documents (e2e)', () => {
     expect(response.body).toMatchObject({
       '@type': 'LegalDocument',
       type: 'privacy',
-      version: '1.1',
+      version: '1.2',
     });
     expect((response.body as Document).content).toContain('<h2>');
     await request(app.getHttpServer())
@@ -191,7 +191,7 @@ describe('Legal documents (e2e)', () => {
     const english = await request(app.getHttpServer())
       .get('/api/legal-documents/privacy?lang=en')
       .expect(200);
-    expect(english.body).toMatchObject({ version: '1.1', lang: 'en' });
+    expect(english.body).toMatchObject({ version: '1.2', lang: 'en' });
     expect((english.body as Document).content).toContain(
       '<h2>In a nutshell</h2>',
     );
@@ -324,7 +324,7 @@ describe('Legal documents (e2e)', () => {
       const draft = await admin('put', '/privacy/draft')
         .send({ content: '<p>Aclaración</p>', summary: 'Una aclaración.' })
         .expect(200);
-      expect(draft.body).toMatchObject({ version: '1.2', changeType: 'minor' });
+      expect(draft.body).toMatchObject({ version: '1.3', changeType: 'minor' });
       // Cambiar el tipo cambia el número del borrador
       await admin('put', '/privacy/draft')
         .send({
@@ -417,50 +417,40 @@ describe('Legal documents (e2e)', () => {
     expect(untranslated).toEqual([]);
   });
 
-  it('publishes the privacy policy 1.1 with its migration, as a minor change', async () => {
+  it('publishes the privacy policies 1.1 and 1.2 with their migrations, as minor changes', async () => {
     const current = await request(app.getHttpServer())
       .get('/api/legal-documents/privacy')
       .expect(200);
     expect(current.body).toMatchObject({
-      version: '1.1',
+      version: '1.2',
       changeType: 'minor',
     });
     const { content, summary } = current.body as {
       content: string;
       summary: string;
     };
-    expect(summary).toContain('parte del servicio');
-    expect(content).toContain('Ubicación del conductor durante el viaje');
-    expect(content).toContain('artículo 6.1.b');
-    expect(content).toContain('Compartir el viaje en directo');
-    // Lo registra como si se publicara desde el panel
-    const [event] = await dataSource.query<{ payload: { version: string } }[]>(
-      `SELECT e.payload FROM events e
-         JOIN legal_documents d ON d.id = e.source_entity_id
-        WHERE e.type = 'legal_document.published' AND d.type = 'privacy'
-          AND d.version = '1.1'`,
-    );
-    expect(event.payload).toMatchObject({ version: '1.1', adminId: null });
-  });
-
-  it('prepares the privacy policy 1.2 as a draft, with the trip emails and the direct chat', async () => {
-    const draft = await admin('get', '/privacy/draft').expect(200);
-    expect(draft.body).toMatchObject({
-      version: '1.2',
-      status: 'draft',
-      changeType: 'minor',
-    });
-    const { content, summary } = draft.body as {
-      content: string;
-      summary: string;
-    };
+    // La 1.2: los correos del viaje y el chat directo
     expect(summary).toContain('correos');
     expect(content).toContain('<h2>Correos del viaje</h2>');
     expect(content).toContain('un chat de los dos');
     expect(content).toContain('el pasajero de esa conversación');
     expect(content).not.toContain('saber si todos han leído');
-    // Lo demás, igual que la 1.1
+    // Lo que ya traía la 1.1
+    expect(content).toContain('Ubicación del conductor durante el viaje');
+    expect(content).toContain('artículo 6.1.b');
     expect(content).toContain('Compartir el viaje en directo');
+    // Las dos, registradas como si se publicaran desde el panel
+    const events = await dataSource.query<{ payload: { version: string } }[]>(
+      `SELECT e.payload FROM events e
+         JOIN legal_documents d ON d.id = e.source_entity_id
+        WHERE e.type = 'legal_document.published' AND d.type = 'privacy'
+          AND d.version IN ('1.1', '1.2')
+        ORDER BY d.version`,
+    );
+    expect(events.map(({ payload }) => payload)).toEqual([
+      expect.objectContaining({ version: '1.1', adminId: null }),
+      expect.objectContaining({ version: '1.2', adminId: null }),
+    ]);
   });
 
   it('lets only admins manage the documents', async () => {
