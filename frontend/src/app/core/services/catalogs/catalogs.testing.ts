@@ -2,17 +2,25 @@ import { Provider, signal } from '@angular/core';
 import { LanguageService } from '../ui/language.service';
 import { CatalogsService, TravelPreferenceOptionItem, VehicleColorItem } from './catalogs.service';
 
-// Los 8 colores del catálogo (migración AddVehicleColors), para los tests
+// Los 8 colores del catálogo (migraciones AddVehicleColors y
+// AddVehicleColorNamesEn), para los tests
 export const VEHICLE_COLORS_FIXTURE: VehicleColorItem[] = [
-  ['white', 'Blanco', '#ffffff'],
-  ['black', 'Negro', '#202124'],
-  ['grey', 'Gris', '#808080'],
-  ['silver', 'Plata', '#c0c0c0'],
-  ['blue', 'Azul', '#2673c9'],
-  ['red', 'Rojo', '#d83b3b'],
-  ['green', 'Verde', '#31865b'],
-  ['other', 'Otro', '#8b6f9b'],
-].map(([key, name, hex]) => ({ key, name, hexLight: hex, hexDark: hex, isActive: true }));
+  ['white', 'Blanco', 'White', '#ffffff'],
+  ['black', 'Negro', 'Black', '#202124'],
+  ['grey', 'Gris', 'Grey', '#808080'],
+  ['silver', 'Plata', 'Silver', '#c0c0c0'],
+  ['blue', 'Azul', 'Blue', '#2673c9'],
+  ['red', 'Rojo', 'Red', '#d83b3b'],
+  ['green', 'Verde', 'Green', '#31865b'],
+  ['other', 'Otro', 'Other', '#8b6f9b'],
+].map(([key, name, nameEn, hex]) => ({
+  key,
+  name,
+  nameEn,
+  hexLight: hex,
+  hexDark: hex,
+  isActive: true,
+}));
 
 // Las 11 opciones de las preferencias (migración AddTravelPreferenceOptions)
 export const TRAVEL_PREFERENCE_OPTIONS_FIXTURE: TravelPreferenceOptionItem[] = (

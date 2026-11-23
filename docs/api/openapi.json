@@ -17080,6 +17080,10 @@
             "type": "string",
             "example": "Alfa Romeo"
           },
+          "nameEn": {
+            "type": "string",
+            "example": "Blue"
+          },
           "hexLight": {
             "type": "string",
             "example": "#2673c9",
@@ -17099,6 +17103,7 @@
           "@type",
           "key",
           "name",
+          "nameEn",
           "hexLight",
           "hexDark",
           "isActive"
@@ -17118,6 +17123,10 @@
           "name": {
             "type": "string",
             "example": "Alfa Romeo"
+          },
+          "nameEn": {
+            "type": "string",
+            "example": "Blue"
           },
           "hexLight": {
             "type": "string",
@@ -17142,6 +17151,7 @@
           "@type",
           "key",
           "name",
+          "nameEn",
           "hexLight",
           "hexDark",
           "isActive",
@@ -17156,6 +17166,11 @@
             "example": "Lynk & Co",
             "maxLength": 60
           },
+          "nameEn": {
+            "type": "string",
+            "example": "Blue",
+            "maxLength": 60
+          },
           "hexLight": {
             "type": "string",
             "example": "#2673c9"
@@ -17167,6 +17182,7 @@
         },
         "required": [
           "name",
+          "nameEn",
           "hexLight",
           "hexDark"
         ]
@@ -17182,6 +17198,11 @@
           "isActive": {
             "type": "boolean",
             "example": false
+          },
+          "nameEn": {
+            "type": "string",
+            "example": "Blue",
+            "maxLength": 60
           },
           "hexLight": {
             "type": "string",
@@ -18728,7 +18749,13 @@
             "type": "string",
             "nullable": true,
             "example": "Rojo",
-            "description": "The color name from the catalog (the link opens without an account)"
+            "description": "The colour name from the catalog, in Spanish (the link opens without an account)"
+          },
+          "colorNameEn": {
+            "type": "string",
+            "nullable": true,
+            "example": "Red",
+            "description": "The colour name from the catalog, in English"
           },
           "plate": {
             "type": "string",
@@ -18742,6 +18769,7 @@
           "model",
           "color",
           "colorName",
+          "colorNameEn",
           "plate"
         ]
       },

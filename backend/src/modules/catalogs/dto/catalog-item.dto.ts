@@ -1,3 +1,4 @@
+import { applyDecorators } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
@@ -29,23 +30,28 @@ export class CatalogItemResource {
   name: string;
 }
 
+// Un nombre de un elemento (en español o en inglés): sin espacios a los lados,
+// de hasta 60 caracteres y con al menos una letra o un número
+export function CatalogName(): PropertyDecorator {
+  return applyDecorators(
+    Transform(trim),
+    IsString(),
+    MaxLength(60),
+    Matches(HAS_LETTER_OR_DIGIT),
+  );
+}
+
 export class CreateCatalogItemDto {
   @ApiProperty({ example: 'Lynk & Co', maxLength: 60 })
-  @Transform(trim)
-  @IsString()
-  @MaxLength(60)
-  @Matches(HAS_LETTER_OR_DIGIT)
+  @CatalogName()
   name: string;
 }
 
 // Solo cambia lo que se envía; la clave no cambia nunca
 export class UpdateCatalogItemDto {
   @ApiPropertyOptional({ example: 'Lynk & Co', maxLength: 60 })
-  @Transform(trim)
   @IsOptional()
-  @IsString()
-  @MaxLength(60)
-  @Matches(HAS_LETTER_OR_DIGIT)
+  @CatalogName()
   name?: string;
 
   @ApiPropertyOptional({ example: false })

@@ -18,7 +18,14 @@ function sharedTrip(changes: Partial<SharedTrip> = {}): SharedTrip {
     destinationName: 'Parking P1',
     estimatedArrivalAt: '2026-11-14T08:00:00.000Z',
     driver: { firstName: 'Lucía' },
-    vehicle: { brand: 'Seat', model: 'Ibiza', color: 'red', colorName: 'Rojo', plate: '1234ABC' },
+    vehicle: {
+      brand: 'Seat',
+      model: 'Ibiza',
+      color: 'red',
+      colorName: 'Rojo',
+      colorNameEn: 'Red',
+      plate: '1234ABC',
+    },
     position: null,
     route: null,
     ...changes,
@@ -56,12 +63,14 @@ describe('shared trip utils', () => {
 
   it('describes the car with what is known', () => {
     expect(describeSharedVehicle(sharedTrip().vehicle)).toBe('Seat Ibiza · Rojo · 1234 ABC');
+    expect(describeSharedVehicle(sharedTrip().vehicle, 'en')).toBe('Seat Ibiza · Red · 1234 ABC');
     expect(
       describeSharedVehicle({
         brand: null,
         model: null,
         color: null,
         colorName: null,
+        colorNameEn: null,
         plate: null,
       }),
     ).toBeNull();

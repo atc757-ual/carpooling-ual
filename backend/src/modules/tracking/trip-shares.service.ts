@@ -12,7 +12,10 @@ import { TripStatusService } from '../trips/trip-status.service';
 import { TripsService } from '../trips/trips.service';
 import type { VehicleRecognitionDetails } from '../users/vehicles.service';
 import { VehiclesService } from '../users/vehicles.service';
-import { VehicleColorsService } from '../catalogs/vehicle-colors.service';
+import {
+  VehicleColorNames,
+  VehicleColorsService,
+} from '../catalogs/vehicle-colors.service';
 import { TripPosition } from './entities/trip-position.entity';
 import { TripShare } from './entities/trip-share.entity';
 import { ShareNotAllowedError } from './errors/share-not-allowed.error';
@@ -39,9 +42,9 @@ export interface SharedTripView {
   request: SeatRequest;
   driverFirstName: string;
   vehicle: VehicleRecognitionDetails | null;
-  // El nombre del color («Rojo»): quien abre el enlace no puede pedir el
-  // catálogo
-  colorName: string | null;
+  // Los nombres del color («Rojo» y «Red»): quien abre el enlace no puede
+  // pedir el catálogo
+  colorNames: VehicleColorNames | null;
   // Solo con el viaje abierto (confirmado o en curso)
   plate: string | null;
   routeDurationMin: number | null;
@@ -138,11 +141,11 @@ export class TripSharesService {
     }
     const isOpen = SHAREABLE_TRIP_STATUSES.has(trip.status);
     const isLive = trip.status === 'in_progress';
-    const [plate, route, position, colorName] = await Promise.all([
+    const [plate, route, position, colorNames] = await Promise.all([
       isOpen ? this.vehiclesService.getPlate(trip.vehicleId) : null,
       isOpen ? this.tripRoutes.getForTrip(trip) : null,
       isLive ? this.findLatestPosition(trip.id) : null,
-      this.vehicleColors.getName(vehicle?.color ?? null),
+      this.vehicleColors.getNames(vehicle?.color ?? null),
     ]);
     return {
       share,
@@ -151,7 +154,7 @@ export class TripSharesService {
       request,
       driverFirstName: driverName,
       vehicle,
-      colorName,
+      colorNames,
       plate,
       routeDurationMin: route?.durationMin ?? null,
       position,

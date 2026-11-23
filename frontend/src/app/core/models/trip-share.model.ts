@@ -29,6 +29,7 @@ export interface SharedTrip {
     model: string | null;
     color: string | null;
     colorName: string | null;
+    colorNameEn: string | null;
     // Sin matrícula cuando el viaje ya terminó
     plate: string | null;
   } | null;

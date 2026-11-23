@@ -17,6 +17,7 @@ interface VehicleBrand {
 export interface VehicleColorItem {
   key: string;
   name: string;
+  nameEn: string;
   hexLight: string;
   hexDark: string;
   isActive: boolean;

@@ -1,17 +1,33 @@
 import { provideAppTransloco } from '../../i18n/testing-transloco';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { LanguageService } from '../ui/language.service';
 import { ThemeService } from '../ui/theme.service';
 import { CatalogsService, VehicleColorItem } from './catalogs.service';
 import { VehicleColorsStore } from './vehicle-colors.store';
 
 const COLORS: VehicleColorItem[] = [
-  { key: 'blue', name: 'Azul', hexLight: '#2673c9', hexDark: '#5b9be0', isActive: true },
-  { key: 'gold', name: 'Oro', hexLight: '#c9a227', hexDark: '#e0c060', isActive: false },
+  {
+    key: 'blue',
+    name: 'Azul',
+    nameEn: 'Blue',
+    hexLight: '#2673c9',
+    hexDark: '#5b9be0',
+    isActive: true,
+  },
+  {
+    key: 'gold',
+    name: 'Oro',
+    nameEn: 'Gold',
+    hexLight: '#c9a227',
+    hexDark: '#e0c060',
+    isActive: false,
+  },
 ];
 
 describe('VehicleColorsStore', () => {
   const isDark = signal(false);
+  const language = signal('es');
 
   async function create(
     vehicleColors: () => Promise<VehicleColorItem[]>,
@@ -21,6 +37,7 @@ describe('VehicleColorsStore', () => {
         provideAppTransloco(),
         { provide: CatalogsService, useValue: { vehicleColors } },
         { provide: ThemeService, useValue: { isDark } },
+        { provide: LanguageService, useValue: { currentLanguage: language } },
       ],
     });
     const store = TestBed.inject(VehicleColorsStore);
@@ -28,7 +45,19 @@ describe('VehicleColorsStore', () => {
     return store;
   }
 
-  beforeEach(() => isDark.set(false));
+  beforeEach(() => {
+    isDark.set(false);
+    language.set('es');
+  });
+
+  it('names the color in the language of the app', async () => {
+    const store = await create(() => Promise.resolve(COLORS));
+
+    expect(store.label('blue')).toBe('Azul');
+    language.set('en');
+    expect(store.label('blue')).toBe('Blue');
+    expect(store.label('gold')).toBe('Gold');
+  });
 
   it('names and paints every color, but offers only the active ones', async () => {
     const store = await create(() => Promise.resolve(COLORS));

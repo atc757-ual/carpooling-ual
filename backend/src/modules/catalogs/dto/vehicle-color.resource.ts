@@ -4,6 +4,7 @@ import type { VehicleColor } from '../entities/vehicle-color.entity';
 import {
   adminFieldsOf,
   CatalogItemResource,
+  CatalogName,
   CreateCatalogItemDto,
   toCatalogItemResource,
   UpdateCatalogItemDto,
@@ -13,8 +14,11 @@ import {
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 // Un color, como lo ve la app: todos, para nombrar el de cada vehículo; solo
-// los activos se pueden elegir
+// los activos se pueden elegir. name, en español; nameEn, en inglés
 export class VehicleColorResource extends CatalogItemResource {
+  @ApiProperty({ example: 'Blue' })
+  nameEn: string;
+
   @ApiProperty({ example: '#2673c9', description: 'Swatch in the light theme' })
   hexLight: string;
 
@@ -31,6 +35,10 @@ export class AdminVehicleColorResource extends VehicleColorResource {
 }
 
 export class CreateVehicleColorDto extends CreateCatalogItemDto {
+  @ApiProperty({ example: 'Blue', maxLength: 60 })
+  @CatalogName()
+  nameEn: string;
+
   @ApiProperty({ example: '#2673c9' })
   @Matches(HEX_COLOR)
   hexLight: string;
@@ -41,6 +49,11 @@ export class CreateVehicleColorDto extends CreateCatalogItemDto {
 }
 
 export class UpdateVehicleColorDto extends UpdateCatalogItemDto {
+  @ApiPropertyOptional({ example: 'Blue', maxLength: 60 })
+  @IsOptional()
+  @CatalogName()
+  nameEn?: string;
+
   @ApiPropertyOptional({ example: '#2673c9' })
   @IsOptional()
   @Matches(HEX_COLOR)
@@ -57,6 +70,7 @@ export function toVehicleColorResource(
 ): VehicleColorResource {
   return {
     ...toCatalogItemResource('VehicleColor', color),
+    nameEn: color.nameEn,
     hexLight: color.hexLight,
     hexDark: color.hexDark,
     isActive: color.isActive,

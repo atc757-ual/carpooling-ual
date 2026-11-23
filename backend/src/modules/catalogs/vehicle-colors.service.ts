@@ -4,6 +4,11 @@ import { EventsService } from '../../events/events.service';
 import { CatalogItemsService } from './catalog-items.service';
 import { VehicleColor } from './entities/vehicle-color.entity';
 
+export interface VehicleColorNames {
+  name: string;
+  nameEn: string;
+}
+
 // Colores del vehículo (catálogo del panel), con su tono en el tema claro y
 // en el oscuro. vehicles.color apunta a su clave
 @Injectable()
@@ -31,22 +36,23 @@ export class VehicleColorsService extends CatalogItemsService<VehicleColor> {
     });
   }
 
-  // El nombre de un color («Rojo»), aunque ya no se ofrezca; null sin color o
-  // con una clave desconocida. Para quien no tiene sesión y no puede pedir el
-  // catálogo (el viaje compartido en directo)
-  async getName(key: string | null): Promise<string | null> {
+  // Los nombres de un color («Rojo» y «Red»), aunque ya no se ofrezca; null
+  // sin color o con una clave desconocida. Para quien no tiene sesión y no
+  // puede pedir el catálogo (el viaje compartido en directo)
+  async getNames(key: string | null): Promise<VehicleColorNames | null> {
     if (key === null) {
       return null;
     }
     const color = await this.colorsDataSource.manager.findOneBy(VehicleColor, {
       key,
     });
-    return color?.name ?? null;
+    return color ? { name: color.name, nameEn: color.nameEn } : null;
   }
 
   protected override payloadOf(color: VehicleColor): Record<string, unknown> {
     return {
       ...super.payloadOf(color),
+      nameEn: color.nameEn,
       hexLight: color.hexLight,
       hexDark: color.hexDark,
     };

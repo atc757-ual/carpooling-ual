@@ -83,9 +83,17 @@ export class SharedVehicleResource {
     nullable: true,
     example: 'Rojo',
     description:
-      'The color name from the catalog (the link opens without an account)',
+      'The colour name from the catalog, in Spanish (the link opens without an account)',
   })
   colorName: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Red',
+    description: 'The colour name from the catalog, in English',
+  })
+  colorNameEn: string | null;
 
   @ApiProperty({
     type: String,
@@ -191,7 +199,12 @@ export function toTripShareResource(view: SharedTripView): TripShareResource {
     vehicle:
       view.vehicle === null
         ? null
-        : { ...view.vehicle, colorName: view.colorName, plate: view.plate },
+        : {
+            ...view.vehicle,
+            colorName: view.colorNames?.name ?? null,
+            colorNameEn: view.colorNames?.nameEn ?? null,
+            plate: view.plate,
+          },
     position:
       position === null
         ? null
