@@ -91,7 +91,7 @@
   ion-icon {
     flex: none;
     color: var(--color-link);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 }
 

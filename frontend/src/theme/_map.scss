@@ -10,7 +10,7 @@
 // claros, también en modo oscuro
 .map-pin {
   box-sizing: border-box;
-  border: 0.1875rem solid $neutral-0; // 3px
+  border: var(--border-width-l) solid $neutral-0;
   border-radius: var(--radius-full);
   background: $blue-500;
   box-shadow: var(--shadow-base);

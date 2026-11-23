@@ -162,7 +162,7 @@
     box-sizing: border-box;
     width: var(--timeline-dot);
     height: var(--timeline-dot);
-    border: 0.125rem solid var(--color-link); // 2px
+    border: var(--border-width-m) solid var(--color-link);
     border-radius: var(--radius-full);
     background: var(--color-surface);
   }

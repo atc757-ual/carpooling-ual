@@ -57,7 +57,7 @@
   &:focus-visible,
   &:focus-within {
     outline: var(--focus-ring);
-    outline-offset: 0.25rem;
+    outline-offset: var(--space-xs);
   }
 }
 

@@ -14,7 +14,7 @@
   --detail-icon-opacity: 1;
 
   border: var(--border-width-s) solid var(--color-border-subtle);
-  border-left: 0.25rem solid var(--color-border-subtle); // 4px
+  border-left: var(--border-width-xl) solid var(--color-border-subtle);
   border-radius: var(--radius-s);
 
   // El foco del teclado, como en el resto de la app (Ionic lo marca con

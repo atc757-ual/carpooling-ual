@@ -513,6 +513,8 @@
         <ul class="rules">
           <li>Reglas y bordes: 0,0625rem (1px). Bordes suaves (<code>--color-border-subtle</code>) solo para separar listas; los campos llevan contorno contrastado (<code>--color-border-strong</code>, ≥ 3:1).</li>
           <li>Foco visible: 0,125rem (2px); en botones, 0,1875rem (3px) separado del borde.</li>
+          <li>Grosores (<code>--border-width-s</code> / <code>-m</code> / <code>-l</code> / <code>-xl</code>): 1, 2, 3 y 4px. El de 4px (<code>-xl</code>) es el borde de acento de un lado (avisos, conversaciones, tarjetas de resultados, pestañas activas).</li>
+          <li>Sin medidas sueltas en el SCSS: espacios, letra, iconos, radios y bordes, siempre con su token; si un valor no está en la escala, se usa el más cercano.</li>
           <li>Contorno interactivo neutro (botón secundario con borde): neutral-5 <code>#87919F</code>.</li>
           <li>Elevación: nivel 0 en listas; sombras <code>s</code> / <code>base</code> / <code>l</code> solo para segmentos activos, menús, modales y avisos flotantes.</li>
         </ul>

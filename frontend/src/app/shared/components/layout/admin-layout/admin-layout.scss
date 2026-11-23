@@ -49,7 +49,7 @@
 // el botón de volver) y en 18px, por debajo del nombre de la franja (20px)
 .admin-mobile-header__title {
   overflow: hidden;
-  padding-inline-end: 2.75rem; // 44px
+  padding-inline-end: var(--control-height-s);
   font-family: var(--font-family-heading);
   font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
@@ -117,7 +117,7 @@
 
 .admin-mobile-nav .admin-nav__link {
   border-bottom: 0;
-  border-inline-start: 0.1875rem solid transparent; // 3px
+  border-inline-start: var(--border-width-l) solid transparent;
 }
 
 .admin-mobile-nav .admin-nav__link--active {
@@ -284,7 +284,7 @@
   gap: var(--space-s);
   min-height: var(--control-height-base);
   padding-inline: var(--space-base);
-  border-bottom: 0.1875rem solid transparent; // 3px
+  border-bottom: var(--border-width-l) solid transparent;
   color: inherit;
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);

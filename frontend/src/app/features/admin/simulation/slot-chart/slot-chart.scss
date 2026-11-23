@@ -30,12 +30,12 @@
   width: var(--dot-size);
   height: var(--dot-size);
   margin-inline-start: var(--space-s);
-  border-radius: 0.125rem; // 2px
+  border-radius: var(--radius-xs);
 }
 
 // La base: hueca con borde; el escenario: relleno. Se distinguen sin color
 .chart__key--baseline {
-  border: 0.125rem solid var(--color-text-muted); // 2px
+  border: var(--border-width-m) solid var(--color-text-muted);
   background: var(--color-surface-subtle);
 }
 

@@ -41,7 +41,7 @@ ion-input-otp.input-otp-size-medium {
   border-color: var(--color-border-strong);
 
   &:focus {
-    border-width: 0.125rem; // 2px
+    border-width: var(--border-width-m);
     border-color: var(--color-link);
   }
 }
@@ -50,7 +50,7 @@ ion-input-otp.input-otp-size-medium {
 // para escribir (entonces vuelve el azul del foco) y, además, un tintineo
 // corto de lado a lado. Sin movimiento para quien lo ha pedido en el sistema
 :host ::ng-deep ion-input-otp.code-input--wrong .native-input {
-  border-width: 0.125rem; // 2px
+  border-width: var(--border-width-m);
   border-color: var(--color-danger);
 }
 
