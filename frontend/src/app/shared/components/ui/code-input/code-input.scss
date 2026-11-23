@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -28,7 +30,7 @@ ion-input-otp.input-otp-size-medium {
   width: 100%;
   justify-content: space-between;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     justify-content: center;
   }
 }

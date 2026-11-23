@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // En el móvil, una columna; en escritorio, 8 + 4 a todo el ancho
 .trip-detail {
   box-sizing: border-box;
@@ -48,7 +50,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .trip-detail__title {
     font-size: var(--font-size-title);
   }
@@ -159,7 +161,7 @@ ion-card.trip-detail__actions ion-card-content {
   --empty-state-min-height: 23.4375rem; // 375px
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .trip-detail {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);

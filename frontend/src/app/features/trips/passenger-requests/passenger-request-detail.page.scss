@@ -1,4 +1,5 @@
 @use '../live-desktop-column' as live-column;
+@use 'breakpoints' as bp;
 
 // En el móvil, una columna; en escritorio, 8 + 4 (las dos columnas se desplazan juntas)
 .passenger-detail {
@@ -58,7 +59,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .passenger-detail__title {
     font-size: var(--font-size-title);
   }
@@ -216,7 +217,7 @@
   gap: var(--space-xs);
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .passenger-detail {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);

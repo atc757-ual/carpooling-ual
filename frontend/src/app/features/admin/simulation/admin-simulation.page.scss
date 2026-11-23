@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .admin-page__subtitle {
   margin: 0;
   color: var(--color-text-muted);
@@ -16,7 +18,7 @@
   grid-template-areas: 'aside' 'main';
   gap: var(--space-base);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
     grid-template-areas: 'main aside';
     align-items: start;
@@ -34,7 +36,7 @@
 .simulation__aside {
   grid-area: aside;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     position: sticky;
     top: var(--space-l);
   }
@@ -79,7 +81,7 @@
   grid-template-areas: 'title' 'bar' 'label' 'cancel';
   gap: var(--space-s);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       'title cancel'
@@ -128,7 +130,7 @@
 // Móvil: cada ejecución, una tarjeta: la comparación y «Ver resultados»
 // arriba; debajo, la fecha y el estado; y las réplicas, la semilla y el
 // criterio
-@container admin-list (max-width: 47.98rem) {
+@include bp.container-down(admin-list, md) {
   .simulation__table tbody tr {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:

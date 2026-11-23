@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .location {
   display: flex;
   flex-direction: column;
@@ -54,7 +56,7 @@
   border-radius: var(--radius-s);
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .location__map {
     max-width: none;
     height: 28rem; // 448px
@@ -89,7 +91,7 @@
   flex-direction: column;
   gap: var(--space-s);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     flex-direction: row;
 
     form {

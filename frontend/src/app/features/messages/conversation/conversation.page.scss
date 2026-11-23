@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: flex;
   min-width: 0;
@@ -292,7 +294,7 @@
 }
 
 // Escritorio: en una línea, con sus iconos y una flecha entre los dos
-@media (min-width: 768px) {
+@include bp.up(md) {
   .conversation__route {
     flex-direction: row;
     align-items: center;

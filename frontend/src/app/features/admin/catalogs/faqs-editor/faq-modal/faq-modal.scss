@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .faq-modal {
   gap: var(--space-base);
 
@@ -14,7 +16,7 @@
   gap: var(--space-base);
   width: 100%;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: 1fr 1fr;
   }
 }

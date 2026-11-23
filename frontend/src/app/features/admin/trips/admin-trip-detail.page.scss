@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // La distribución, las tarjetas y las listas, las de los detalles del panel
 // (theme/_admin-detail.scss); aquí, lo propio del viaje
 
@@ -42,7 +44,7 @@
 }
 
 // Escritorio: «Origen → Destino» en una línea (sin iconos) y el estado al lado
-@media (min-width: 768px) {
+@include bp.up(md) {
   .trip-heading {
     flex-wrap: wrap;
     align-items: center;
@@ -92,7 +94,7 @@
 .trip-detail__route {
   --trip-route-map-height: 15rem; // 240px
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     --trip-route-map-height: 20rem; // 320px
   }
 }

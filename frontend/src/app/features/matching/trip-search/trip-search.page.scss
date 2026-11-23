@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // El fondo gris y las tarjetas blancas, de ../../tabs/tab-page.scss y
 // theme/_components.scss
 
@@ -16,7 +18,7 @@
 
 // Escritorio: el saludo arriba; la búsqueda en la columna de 8 y, en la de
 // 4, la invitación a publicar y las preguntas frecuentes
-@media (min-width: 768px) {
+@include bp.up(md) {
   .trip-search {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -37,7 +39,7 @@
 }
 
 // Móvil: la columna lateral, al final
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   .trip-search__aside {
     order: 1;
   }

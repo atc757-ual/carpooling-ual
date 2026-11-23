@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // En móvil, la cabecera queda compacta y las secciones pasan al menú lateral.
 .admin-header {
   position: relative;
@@ -104,7 +106,7 @@
   color: var(--color-on-admin);
 
   // En escritorio, 24px arriba: que no quede pegada a la navegación
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     padding-block-start: var(--space-l);
   }
 }
@@ -163,7 +165,7 @@
 }
 
 // En escritorio se mantiene la navegación superior y la cuenta queda visible.
-@media (min-width: 768px) {
+@include bp.up(md) {
   .admin-header__bar {
     padding-block: var(--space-xs) 0;
   }
@@ -225,7 +227,7 @@
   }
 
   // En anchos intermedios, las secciones en una fila: sin sus iconos caben
-  @media (max-width: 1023.98px) {
+  @include bp.down(lg) {
     .admin-nav {
       flex-wrap: nowrap;
     }
@@ -328,7 +330,7 @@
   color: var(--color-on-admin);
 
   // En escritorio, 24px arriba: que no quede pegada a la navegación
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     padding-block-start: var(--space-l);
   }
 }

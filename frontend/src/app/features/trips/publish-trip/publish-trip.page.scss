@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Publicar viaje: tarjetas blancas sobre el fondo gris de la pestaña, con los
 // campos apilados a 16px. La confirmación mide como mucho 36rem (576px); los
 // pasos, en escritorio, van en la columna de 8 con la de 4 al lado (como
@@ -61,7 +63,7 @@
 
 // En escritorio, la ayuda (preguntas o qué pasa después) a la derecha, fija
 // al bajar
-@media (min-width: 768px) {
+@include bp.up(md) {
   .publish__layout {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
 

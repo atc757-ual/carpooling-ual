@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Una fila de la lista (dentro de la tarjeta de resultados): un ion-item con
 // borde y, a la izquierda, una franja del color de cómo encaja (verde, ámbar o
 // rojo). Al pasar por encima, el fondo; la flecha es la del ion-item (detail)
@@ -85,7 +87,7 @@
 .trip-card__preference--desktop-only {
   display: none;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     display: inline-block;
   }
 }
@@ -93,7 +95,7 @@
 .trip-card__preference--more {
   color: var(--color-text-muted);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     display: none;
   }
 }

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Móvil: los resultados en una columna (el resumen va en la cabecera fija).
 // Escritorio: 8 + 4 a todo el ancho (los resultados en la de 8 y «Tu trayecto»
 // en la de 4)
@@ -82,7 +84,7 @@
   gap: var(--space-s);
   margin: 0;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -135,7 +137,7 @@
   align-items: center;
   gap: var(--space-s);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     order: 1;
     flex: none;
   }
@@ -151,7 +153,7 @@
 
   // En escritorio, un ancho fijo: dentro de una fila que se ajusta a su
   // contenido, el 100 % de Ionic empujaba el botón «Filtros» fuera
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     flex: none;
     width: 14rem; // 224px
   }
@@ -163,7 +165,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   .search-results {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);

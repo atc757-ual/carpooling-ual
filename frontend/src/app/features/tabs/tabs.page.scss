@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Cabeceras arriba e ion-tabs ocupa el resto
 ion-tabs {
   position: relative;
@@ -134,7 +136,7 @@ ion-tab-button {
   gap: var(--space-xs);
   padding: var(--space-base) var(--page-gutter);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     padding: 0 var(--space-base) var(--space-base) var(--page-gutter);
   }
 

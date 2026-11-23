@@ -1,0 +1,47 @@
+// Puntos de corte de la app. Son de Sass porque @media no admite var(). Cada
+// hoja importa este fichero con el alias bp (src/theme está en los
+// includePaths de angular.json) y no genera CSS. Mixins: «up» desde un punto
+// (escritorio, a partir de md), «down» por debajo de él (móvil), «between»
+// entre dos y «container-down» para un contenedor con nombre.
+
+@use 'sass:map';
+
+// El móvil pequeño (xs), el escritorio (md, el de Ionic y el de
+// .ion-hide-md-down) y el escritorio ancho (lg)
+$breakpoints: (
+  xs: 360px,
+  sm: 576px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1200px,
+);
+
+// El límite superior de un tramo: 0,02px menos que el siguiente punto, para que
+// los dos @media no se solapen ni dejen hueco con tamaños fraccionarios
+@function upper($name) {
+  @return map.get($breakpoints, $name) - 0.02px;
+}
+
+@mixin up($name) {
+  @media (min-width: map.get($breakpoints, $name)) {
+    @content;
+  }
+}
+
+@mixin down($name) {
+  @media (max-width: upper($name)) {
+    @content;
+  }
+}
+
+@mixin between($from, $to) {
+  @media (min-width: map.get($breakpoints, $from)) and (max-width: upper($to)) {
+    @content;
+  }
+}
+
+@mixin container-down($container, $name) {
+  @container #{$container} (max-width: upper($name)) {
+    @content;
+  }
+}

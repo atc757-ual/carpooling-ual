@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Pantallas de detalle del panel (usuario, viaje): la ruta en la franja, dos
 // columnas de tarjetas y las listas con una línea entre filas. Lo propio de
 // cada pantalla (avatar, perfiles…) va en su componente
@@ -38,7 +40,7 @@
   grid-template-areas: 'aside' 'main';
   gap: var(--space-base);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
     grid-template-areas: 'main aside';
     align-items: start;
@@ -48,7 +50,7 @@
 // En el móvil, lo principal primero (p. ej. el informe de una incidencia,
 // que hay que leer antes que sus datos)
 .admin-detail--main-first {
-  @media (max-width: 767.98px) {
+  @include bp.down(md) {
     grid-template-areas: 'main' 'aside';
   }
 }

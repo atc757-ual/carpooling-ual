@@ -515,6 +515,7 @@
           <li>Foco visible: 0,125rem (2px); en botones, 0,1875rem (3px) separado del borde.</li>
           <li>Grosores (<code>--border-width-s</code> / <code>-m</code> / <code>-l</code> / <code>-xl</code>): 1, 2, 3 y 4px. El de 4px (<code>-xl</code>) es el borde de acento de un lado (avisos, conversaciones, tarjetas de resultados, pestañas activas).</li>
           <li>Sin medidas sueltas en el SCSS: espacios, letra, iconos, radios y bordes, siempre con su token; si un valor no está en la escala, se usa el más cercano.</li>
+          <li>Puntos de corte (<code>theme/_breakpoints.scss</code>): móvil pequeño 360&nbsp;px (<code>xs</code>), escritorio 768&nbsp;px (<code>md</code>) y escritorio ancho 1024&nbsp;px (<code>lg</code>). Nunca un <code>@media</code> con la medida escrita a mano: <code>@use 'breakpoints' as bp;</code> y <code>@include bp.up(md)</code>, <code>bp.down(md)</code>, <code>bp.between(md, lg)</code> o <code>bp.container-down(admin-list, md)</code>. Las <code>@container</code> de un componente con su propio ancho se quedan en el componente.</li>
           <li>Contorno interactivo neutro (botón secundario con borde): neutral-5 <code>#87919F</code>.</li>
           <li>Elevación: nivel 0 en listas; sombras <code>s</code> / <code>base</code> / <code>l</code> solo para segmentos activos, menús, modales y avisos flotantes.</li>
         </ul>

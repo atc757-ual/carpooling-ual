@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Campos apilados a 16px, como el formulario de Publicar
 :host {
   display: block;
@@ -26,7 +28,7 @@
   align-items: start;
 }
 
-@media (max-width: 359px) {
+@include bp.down(xs) {
   .vehicle-form__row {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -219,7 +221,7 @@
   grid-area: seats;
 }
 
-@media (max-width: 359px) {
+@include bp.down(xs) {
   .vehicle-form__grid:not(.vehicle-form__grid--edit) {
     grid-template-areas:
       'engine engine'

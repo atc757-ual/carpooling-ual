@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .admin-page__subtitle {
   color: var(--color-text-muted);
 }
@@ -9,7 +11,7 @@
   grid-template-areas: 'aside' 'main';
   gap: var(--space-base);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
     grid-template-areas: 'main aside';
     align-items: start;
@@ -25,7 +27,7 @@
   grid-area: aside;
   min-width: 0;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     position: sticky;
     top: var(--space-l);
   }
@@ -70,7 +72,7 @@
 
 // Móvil: cada viaje, una tarjeta con lo justo: el trayecto y la flecha arriba
 // y debajo la salida y el estado. El conductor y las plazas, en el detalle
-@container admin-list (max-width: 47.98rem) {
+@include bp.container-down(admin-list, md) {
   .admin-trips__table tbody tr {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .profile {
   align-items: stretch;
   ion-card {
@@ -13,7 +15,7 @@
     'aside'
     'main';
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: 2fr 1fr;
     grid-template-areas: 'main aside';
     align-items: start;

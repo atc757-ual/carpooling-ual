@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // El botón de compartir en directo y, mientras se comparte, la etiqueta
 // «En directo» (punto verde que late), y las acciones: «Enviar el enlace»
 // y «Dejar de compartir» (con borde; en escritorio a la par mitad y mitad,
@@ -81,7 +83,7 @@
   flex-direction: column;
   gap: var(--space-s);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     flex-direction: row;
 
     ion-button {

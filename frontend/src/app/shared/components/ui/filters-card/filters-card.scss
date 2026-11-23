@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -8,7 +10,7 @@
   gap: var(--space-base);
   padding: var(--space-xs) var(--space-base);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     padding: var(--space-base);
   }
 }
@@ -90,7 +92,7 @@
   flex-direction: column;
   gap: var(--space-base);
 
-  @media (max-width: 767.98px) {
+  @include bp.down(md) {
     display: none;
 
     &.filters-card__panel--open {

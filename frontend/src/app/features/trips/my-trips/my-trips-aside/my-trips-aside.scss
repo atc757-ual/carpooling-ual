@@ -1,4 +1,5 @@
 @use '../../live-desktop-column' as live-column;
+@use 'breakpoints' as bp;
 
 // Dos secciones: arriba las cifras; debajo, «Te puede interesar». En el
 // móvil, una tarjeta cada una; en escritorio, la columna de 4 es una sola
@@ -9,7 +10,7 @@
   gap: var(--space-s);
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   :host {
     @include live-column.card;
   }

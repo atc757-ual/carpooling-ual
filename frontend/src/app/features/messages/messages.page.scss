@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .messages {
   align-items: stretch;
   height: 100%;
@@ -19,7 +21,7 @@
   grid-template-areas: 'main';
   gap: var(--space-base);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: minmax(17rem, 1fr) minmax(0, 2fr);
     grid-template-areas: 'main detail';
     align-items: stretch;
@@ -35,7 +37,7 @@
   display: none;
   grid-area: detail;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     display: flex;
     min-height: 32rem;
   }
@@ -69,7 +71,7 @@
   margin: 0;
 }
 
-@media (min-width: 768px) {
+@include bp.up(md) {
   // Ambos paneles ocupan la misma fila del grid y se estiran hasta su altura.
   // El contenido de la lista puede crecer; el chat acompaña esa altura.
   .messages__main,
@@ -301,7 +303,7 @@
   padding-block: var(--space-s);
 }
 
-@media (max-width: 767.98px) {
+@include bp.down(md) {
   .messages__filters {
     flex-wrap: nowrap;
     max-width: 100%;

@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Centrado, como la ventana de la ubicación: el icono en un círculo, el
 // título, la explicación y los dos botones a todo el ancho
 .confirm {
@@ -48,7 +50,7 @@
     width: 100%;
   }
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     flex-direction: row;
 
     form {
@@ -77,7 +79,7 @@
       width: 100%;
     }
 
-    @media (min-width: 768px) {
+    @include bp.up(md) {
       justify-content: flex-end;
 
       ion-button {

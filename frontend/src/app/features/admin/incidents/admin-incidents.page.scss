@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // Móvil: los filtros y la lista en una columna. Escritorio: la lista en la
 // columna de 8 y los filtros en la de 4, fijos al bajar (como en Usuarios)
 .incidents {
@@ -5,7 +7,7 @@
   grid-template-areas: 'aside' 'main';
   gap: var(--space-base);
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); // 256px
     grid-template-areas: 'main aside';
     align-items: start;
@@ -21,7 +23,7 @@
   grid-area: aside;
   min-width: 0;
 
-  @media (min-width: 768px) {
+  @include bp.up(md) {
     position: sticky;
     top: var(--space-l);
   }
@@ -55,7 +57,7 @@
 // Lista estrecha (el móvil o la columna de 8 en anchos intermedios): cada
 // incidencia, una tarjeta de dos líneas: la categoría con su
 // estado y, debajo, el código y la fecha. El viaje, en el detalle
-@container admin-list (max-width: 47.98rem) {
+@include bp.container-down(admin-list, md) {
   .incidents__table tbody tr {
     grid-template-columns: auto minmax(0, 1fr) auto auto;
     grid-template-areas:
