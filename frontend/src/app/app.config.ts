@@ -25,6 +25,7 @@ import { provideTransloco, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { SplashScreenPlugin } from './core/plugins/splash-screen-plugin';
 import { AuthService } from './core/services/auth/auth.service';
 import { LanguageSyncService } from './core/services/users/language-sync.service';
 import { preventIosFocusZoom } from './shared/utils/ios-viewport.util';
@@ -82,6 +83,8 @@ export const appConfig: ApplicationConfig = {
     // Antes de mostrar la primera pantalla, recupera la sesión guardada (así
     // los guards ya saben si hay usuario)
     provideAppInitializer(() => inject(AuthService).restoreSession()),
+    // En la app Android, el splash nativo se queda hasta la primera pantalla
+    provideAppInitializer(() => inject(SplashScreenPlugin).hideWhenReady()),
     // Con la sesión abierta, el idioma de la app es el de los correos y las
     // push: lo manda a la API cuando no coincide (LanguageSyncService)
     provideAppInitializer(() => {

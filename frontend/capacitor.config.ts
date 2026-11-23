@@ -18,6 +18,13 @@ const config: CapacitorConfig = {
     CapacitorHttp: {
       enabled: true,
     },
+    // El splash nativo (tema AppTheme.NoActionBarLaunch) se queda hasta que la
+    // app ha pintado su primera pantalla (SplashScreenPlugin.hide): sin el
+    // fogonazo en blanco mientras carga la web
+    SplashScreen: {
+      launchAutoHide: false,
+      backgroundColor: '#1235FF',
+    },
   },
 };
 
