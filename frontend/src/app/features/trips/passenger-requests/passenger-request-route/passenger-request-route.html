@@ -102,7 +102,6 @@
           </div>
         }
       </div>
-
       <!-- Con plaza, las preferencias están en su perfil (su nombre lo abre) -->
       @if (!hadSeat() && preferences().length > 0) {
         <section
@@ -116,22 +115,17 @@
       }
 
       @if (trip().vehicle; as vehicle) {
+        <!-- El coche: su icono, el modelo y el color y, con
+             la plaza aceptada, la matrícula como una placa -->
         <div class="passenger-route__vehicle">
           <ion-icon [icon]="carIcon" aria-hidden="true" />
-          <div>
-            <div class="text-body-s text-body--strong">{{ vehicleName(vehicle) }}</div>
-            <div class="text-caption text-color-muted">
-              <span
-                class="passenger-route__swatch"
-                [style.--swatch-color]="vehicleSwatch(vehicle.color)"
-                aria-hidden="true"
-              ></span>
-              {{ vehicleColor(vehicle.color) }}
-              @if (request().status === 'accepted' && request().vehiclePlate; as plate) {
-                · {{ 'tripDetail.plate' | transloco }} <b>{{ plate }}</b>
-              }
-            </div>
+          <div class="passenger-route__vehicle-text">
+            <span class="text-body-s text-body--strong">{{ vehicleName(vehicle) }}</span>
+            <span class="text-caption text-color-muted">{{ vehicleColor(vehicle.color) }}</span>
           </div>
+          @if (request().status === 'accepted' && request().vehiclePlate; as plate) {
+            <app-license-plate class="passenger-route__plate" [plate]="plate" />
+          }
         </div>
       }
     </ion-card-content>

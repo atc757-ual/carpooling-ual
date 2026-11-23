@@ -61,7 +61,7 @@ describe('PassengerRequestRoute', () => {
         provideIonicAngular(),
         provideAppTransloco(),
         { provide: TripsService, useValue: { getRoute: vi.fn().mockResolvedValue(null) } },
-        { provide: VehicleColorsStore, useValue: { label: () => 'Gris', swatch: () => '#808080' } },
+        { provide: VehicleColorsStore, useValue: { label: () => 'Gris' } },
         { provide: TravelPreferencesStore, useValue: { format: () => ['Con música'] } },
         {
           provide: TripCallService,

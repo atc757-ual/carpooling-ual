@@ -1,4 +1,3 @@
-@use '../live-desktop-column' as live-column;
 @use 'breakpoints' as bp;
 
 // En el móvil, una columna; en escritorio, 8 + 4 (las dos columnas se desplazan juntas)
@@ -59,17 +58,12 @@
   }
 }
 
-@include bp.up(md) {
-  .passenger-detail__title {
-    font-size: var(--font-size-title);
-  }
-}
-
+// Las tarjetas de cada columna, a 16px
 .passenger-detail__main,
 .passenger-detail__aside {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
+  gap: var(--space-base);
   min-width: 0;
 }
 
@@ -77,11 +71,11 @@
 .passenger-detail__aside-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
+  gap: var(--space-base);
   min-width: 0;
 }
 
-// Estado, arriba de la tarjeta: el aviso y el progreso debajo
+// Estado: el aviso y el progreso debajo
 .passenger-detail__status {
   display: flex;
   flex-direction: column;
@@ -129,11 +123,6 @@
     flex-direction: column;
     gap: var(--space-s);
   }
-
-  h2 {
-    margin: 0;
-    font-weight: var(--font-weight-semibold);
-  }
 }
 
 .passenger-detail__items {
@@ -174,14 +163,30 @@
 }
 
 // Dentro de «Tu recorrido», encima del mapa
+// Lo de arriba de «Tu recorrido»: el estado y el código de recogida, cada
+// parte separada por una línea fina, y otra antes del título del recorrido
+.passenger-detail__top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  padding-bottom: var(--space-base);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+}
+
 .passenger-detail__board-code {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
+  padding-top: var(--space-base);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
 
-  h2 {
-    margin: 0;
-  }
+// Título de una sección dentro de la tarjeta: 16px en seminegrita
+.passenger-detail__section-title {
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
 }
 
 .passenger-detail__code-card {
@@ -225,14 +230,8 @@
     gap: var(--space-l);
   }
 
-  // La columna de 4, en dos tarjetas: el conductor y el coche y,
-  // debajo, la seguridad y las acciones, cada una con sus secciones separadas
-  // por una línea fina (_live-desktop-column.scss)
+  // La columna de 4: una tarjeta por objetivo, 16px entre ellas
   .passenger-detail__aside {
     gap: var(--space-base);
-  }
-
-  .passenger-detail__aside-card {
-    @include live-column.card;
   }
 }

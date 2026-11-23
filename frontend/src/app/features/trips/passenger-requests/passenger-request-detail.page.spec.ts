@@ -201,6 +201,35 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).toContain('Verás el código 10 minutos antes de la salida');
   });
 
+  it('keeps the status and, under its steps, the pickup code in the route card', async () => {
+    const root = await render(seatRequest('accepted', { answeredAt: '2099-01-14T21:30:00.000Z' }), {
+      ...TRIP,
+      status: 'confirmed',
+    });
+
+    const top = root.querySelector('app-passenger-request-route .passenger-detail__top');
+    const status = top?.querySelector('.passenger-detail__status');
+    const code = top?.querySelector('.passenger-detail__board-code');
+    expect(status).not.toBeNull();
+    expect(code?.textContent).toContain('Código de recogida');
+    // El código va después del estado y sus pasos
+    expect(status?.compareDocumentPosition(code as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    // La matrícula, como placa, en la fila del coche
+    expect(root.querySelector('.passenger-route__vehicle app-license-plate')).not.toBeNull();
+    // La seguridad, en su propia tarjeta con su título
+    expect(root.querySelector('.passenger-detail__safety ion-card-title')?.textContent).toContain(
+      'Viaje y seguridad',
+    );
+  });
+
+  it('has no pickup code nor plate while the request is pending', async () => {
+    const root = await render(seatRequest('pending'));
+
+    expect(root.querySelector('.passenger-detail__board-code')).toBeNull();
+    expect(root.querySelector('app-license-plate')).toBeNull();
+    expect(root.querySelector('.passenger-detail__top .passenger-detail__status')).not.toBeNull();
+  });
+
   it('sends a started trip to its live screen instead of showing the map here', async () => {
     const root = await render(seatRequest('accepted'), { ...TRIP, status: 'in_progress' });
 

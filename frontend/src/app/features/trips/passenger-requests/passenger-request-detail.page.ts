@@ -18,6 +18,8 @@ import {
   IonButton,
   IonCard,
   IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
   IonContent,
   IonIcon,
 } from '@ionic/angular';
@@ -71,6 +73,8 @@ const BOARD_CODE_LEAD_MS = 10 * 60_000;
     IonButton,
     IonCard,
     IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
     IonContent,
     IonIcon,
     PassengerProgress,
