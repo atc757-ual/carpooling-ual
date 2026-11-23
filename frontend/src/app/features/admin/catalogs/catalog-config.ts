@@ -32,6 +32,13 @@ const NAME_COLUMN: CatalogColumn = {
   isName: true,
 };
 
+// El nombre en inglés (los catálogos que la app enseña en los dos idiomas)
+const ENGLISH_NAME_COLUMN: CatalogColumn = {
+  label: 'Inglés',
+  cell: (item) => ({ text: item.nameEn ?? '' }),
+  isSecondary: true,
+};
+
 function colorColumn(label: string, tone: 'hexLight' | 'hexDark'): CatalogColumn {
   return {
     label,
@@ -65,8 +72,13 @@ export const CATALOG_CONFIGS: readonly CatalogConfig[] = [
     id: 'vehicle-colors',
     label: 'Colores',
     singular: 'color',
-    fields: ['name', 'hexLight', 'hexDark'],
-    columns: [NAME_COLUMN, colorColumn('Claro', 'hexLight'), colorColumn('Oscuro', 'hexDark')],
+    fields: ['name', 'nameEn', 'hexLight', 'hexDark'],
+    columns: [
+      NAME_COLUMN,
+      ENGLISH_NAME_COLUMN,
+      colorColumn('Claro', 'hexLight'),
+      colorColumn('Oscuro', 'hexDark'),
+    ],
     creation: 'form',
     note: 'Un vehículo conserva su color aunque se desactive; solo se eligen los activos.',
   },
@@ -83,7 +95,7 @@ export const CATALOG_CONFIGS: readonly CatalogConfig[] = [
         }),
       },
       { ...NAME_COLUMN, label: 'Valor' },
-      { label: 'Inglés', cell: (item) => ({ text: item.nameEn ?? '' }), isSecondary: true },
+      ENGLISH_NAME_COLUMN,
     ],
     creation: 'none',
     note: 'Los valores son fijos en la base de datos (uno nuevo requiere una migración): aquí se cambian sus textos, su orden y si se ofrecen.',

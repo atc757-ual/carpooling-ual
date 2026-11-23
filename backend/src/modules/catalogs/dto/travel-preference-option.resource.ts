@@ -1,10 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import type { TravelPreferenceOption } from '../entities/travel-preference-option.entity';
 import {
   adminFieldsOf,
   CatalogItemResource,
+  CatalogName,
   toCatalogItemResource,
   UpdateCatalogItemDto,
 } from './catalog-item.dto';
@@ -35,13 +35,8 @@ export class AdminTravelPreferenceOptionResource extends TravelPreferenceOptionR
 // Solo los textos y si se ofrece: el grupo y el valor no cambian
 export class UpdateTravelPreferenceOptionDto extends UpdateCatalogItemDto {
   @ApiPropertyOptional({ example: 'Soft music', maxLength: 60 })
-  @Transform(({ value }: { value: unknown }) =>
-    typeof value === 'string' ? value.trim() : value,
-  )
   @IsOptional()
-  @IsString()
-  @MaxLength(60)
-  @Matches(/[\p{L}\p{N}]/u)
+  @CatalogName()
   nameEn?: string;
 }
 

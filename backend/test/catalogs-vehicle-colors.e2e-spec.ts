@@ -120,17 +120,23 @@ describe('Vehicle colors catalog (e2e)', () => {
         '@type': 'VehicleColor',
         key: 'white',
         name: 'Blanco',
+        nameEn: 'White',
         hexLight: '#ffffff',
         hexDark: '#e8eaed',
         isActive: true,
       },
-      expect.objectContaining({ key: 'black', name: 'Negro' }),
+      expect.objectContaining({ key: 'black', name: 'Negro', nameEn: 'Black' }),
     ]);
   });
 
   it('adds a color that drivers can choose, and keeps it named once deactivated', async () => {
     await admin('post')
-      .send({ name: 'E2E Color Oro', hexLight: '#c9a227', hexDark: '#e0c060' })
+      .send({
+        name: 'E2E Color Oro',
+        nameEn: 'E2E Gold',
+        hexLight: '#c9a227',
+        hexDark: '#e0c060',
+      })
       .expect(201);
     const vehicle = await registerVehicle('e2e-color-oro', '4321ZZX').expect(
       201,
@@ -138,10 +144,14 @@ describe('Vehicle colors catalog (e2e)', () => {
     expect((vehicle.body as { color: string }).color).toBe('e2e-color-oro');
 
     await admin('patch', '/e2e-color-oro')
-      .send({ isActive: false, hexDark: '#d4b04a' })
+      .send({ isActive: false, nameEn: 'E2E Golden', hexDark: '#d4b04a' })
       .expect(200);
     const gold = (await colors()).find(({ key }) => key === 'e2e-color-oro');
-    expect(gold).toMatchObject({ isActive: false, hexDark: '#d4b04a' });
+    expect(gold).toMatchObject({
+      isActive: false,
+      nameEn: 'E2E Golden',
+      hexDark: '#d4b04a',
+    });
 
     const rejected = await registerVehicle('e2e-color-oro', '4322ZZX').expect(
       400,
@@ -151,13 +161,21 @@ describe('Vehicle colors catalog (e2e)', () => {
     );
   });
 
-  it('rejects an unknown color and invalid swatches', async () => {
+  it('rejects an unknown color, invalid swatches and a color without its English name', async () => {
     const unknown = await registerVehicle('gold', '4323ZZX').expect(400);
     expect((unknown.body as { code: string }).code).toBe(
       'VEHICLE_COLOR_NOT_OFFERED',
     );
     await admin('post')
-      .send({ name: 'E2E Color Mal', hexLight: 'red', hexDark: '#000000' })
+      .send({
+        name: 'E2E Color Mal',
+        nameEn: 'E2E Bad',
+        hexLight: 'red',
+        hexDark: '#000000',
+      })
+      .expect(400);
+    await admin('post')
+      .send({ name: 'E2E Color Sin', hexLight: '#c9a227', hexDark: '#e0c060' })
       .expect(400);
     await admin('patch', '/white').send({ hexDark: '#12345' }).expect(400);
   });

@@ -57,7 +57,9 @@ describe('TripSharesService', () => {
     findLatestRequest: jest.fn(),
   };
   const vehiclesService = { getPlate: jest.fn() };
-  const vehicleColors = { getName: jest.fn().mockResolvedValue('Rojo') };
+  const vehicleColors = {
+    getNames: jest.fn().mockResolvedValue({ name: 'Rojo', nameEn: 'Red' }),
+  };
   const eventsService = { record: jest.fn() };
   let manager: { findOneBy: jest.Mock; create: jest.Mock; save: jest.Mock };
 
@@ -225,7 +227,12 @@ describe('TripSharesService', () => {
         destinationName: 'Parking P1',
         estimatedArrivalAt: '2026-11-14T08:50:00.000Z',
         driver: { firstName: 'Lucía' },
-        vehicle: { brand: 'Seat', colorName: 'Rojo', plate: '1234ABC' },
+        vehicle: {
+          brand: 'Seat',
+          colorName: 'Rojo',
+          colorNameEn: 'Red',
+          plate: '1234ABC',
+        },
         position: null,
         route: null,
       });

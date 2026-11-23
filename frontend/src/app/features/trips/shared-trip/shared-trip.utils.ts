@@ -48,14 +48,19 @@ export function describeSharedTrip(trip: SharedTrip, translate: Translate): Shar
   };
 }
 
-// «Seat Ibiza · Rojo · 1234 ABC», con lo que se sepa
-export function describeSharedVehicle(vehicle: SharedTrip['vehicle']): string | null {
+// «Seat Ibiza · Rojo · 1234 ABC» (el color, en el idioma de la app), con lo
+// que se sepa
+export function describeSharedVehicle(
+  vehicle: SharedTrip['vehicle'],
+  language = 'es',
+): string | null {
   if (vehicle === null) {
     return null;
   }
   const name = [vehicle.brand, vehicle.model].filter(Boolean).join(' ');
   const plate = vehicle.plate ? formatPlate(vehicle.plate) : null;
-  const parts = [name, vehicle.colorName, plate].filter(Boolean);
+  const color = language === 'en' ? vehicle.colorNameEn : vehicle.colorName;
+  const parts = [name, color, plate].filter(Boolean);
   return parts.length > 0 ? parts.join(' · ') : null;
 }
 

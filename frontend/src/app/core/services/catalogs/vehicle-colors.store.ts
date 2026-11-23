@@ -1,5 +1,6 @@
 import { translate } from '@jsverse/transloco';
 import { computed, inject, Injectable, resource } from '@angular/core';
+import { LanguageService } from '../ui/language.service';
 import { ThemeService } from '../ui/theme.service';
 import { CatalogsService, VehicleColorItem } from './catalogs.service';
 
@@ -10,6 +11,7 @@ import { CatalogsService, VehicleColorItem } from './catalogs.service';
 export class VehicleColorsStore {
   private readonly theme = inject(ThemeService);
   private readonly catalogs = inject(CatalogsService);
+  private readonly language = inject(LanguageService);
   // Si fallan, el recurso guarda el error y no hay colores
   private readonly catalog = resource({ loader: () => this.catalogs.vehicleColors() });
   private readonly colors = computed<readonly VehicleColorItem[]>(() =>
@@ -22,12 +24,17 @@ export class VehicleColorsStore {
   // Los que se pueden elegir, en su orden
   readonly offered = computed(() => this.colors().filter(({ isActive }) => isActive));
 
-  // «Azul»; sin color, «Color sin indicar»; uno que aún no ha llegado, nada
+  // «Azul» (o «Blue», en el idioma de la app); sin color, «Color sin
+  // indicar»; uno que aún no ha llegado, nada
   label(key: string | null): string {
     if (key === null) {
       return translate('screens.vehicleColors.colorSinIndicar');
     }
-    return this.byKey().get(key)?.name ?? '';
+    const color = this.byKey().get(key);
+    if (!color) {
+      return '';
+    }
+    return this.language.currentLanguage() === 'en' ? color.nameEn : color.name;
   }
 
   // El tono del tema activo

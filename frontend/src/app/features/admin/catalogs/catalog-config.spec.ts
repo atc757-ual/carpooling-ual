@@ -25,15 +25,16 @@ describe('catalog config', () => {
       expect(cells('vehicle-brands', base)).toEqual([{ text: 'N' }]);
     });
 
-    it('shows both tones of a color with their swatch', () => {
-      expect(labels('vehicle-colors')).toEqual(['Nombre', 'Claro', 'Oscuro']);
-      expect(cells('vehicle-colors', { ...base, hexLight: '#111111', hexDark: '#222222' })).toEqual(
-        [
-          { text: 'N' },
-          { text: '#111111', swatch: '#111111' },
-          { text: '#222222', swatch: '#222222' },
-        ],
-      );
+    it('shows the English name and both tones of a color with their swatch', () => {
+      expect(labels('vehicle-colors')).toEqual(['Nombre', 'Inglés', 'Claro', 'Oscuro']);
+      expect(
+        cells('vehicle-colors', { ...base, nameEn: 'E', hexLight: '#111111', hexDark: '#222222' }),
+      ).toEqual([
+        { text: 'N' },
+        { text: 'E' },
+        { text: '#111111', swatch: '#111111' },
+        { text: '#222222', swatch: '#222222' },
+      ]);
     });
 
     it('names the preference of an option and keeps an unknown one as it comes', () => {

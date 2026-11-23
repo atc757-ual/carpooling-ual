@@ -105,7 +105,9 @@ export class SharedTripPage {
   );
   // La hoja inferior del móvil, la misma que en «En curso»
   readonly sheet = injectLiveSheet(/^\/seguir\//);
-  readonly vehicleText = computed(() => describeSharedVehicle(this.trip()?.vehicle ?? null));
+  readonly vehicleText = computed(() =>
+    describeSharedVehicle(this.trip()?.vehicle ?? null, this.language.currentLanguage()),
+  );
   readonly mapEnds = computed(() => {
     const trip = this.trip();
     this.language.currentLanguage();
