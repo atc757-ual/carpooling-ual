@@ -1,0 +1,55 @@
+:host {
+  display: flex;
+  min-width: 0;
+}
+
+// En la línea del nombre: ocupa lo que quede y, si no cabe, se corta con «…»
+// (el nombre no se corta nunca)
+:host(.participant-email--inline) {
+  flex: 1 1 0;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+// Sin sobre, en una línea de detalles: con la letra de esa línea
+:host(.participant-email--plain) .participant-email {
+  font-size: inherit;
+}
+
+.participant-email__separator {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+}
+
+// Texto pequeño en azul, con el sobre delante: se lee y se pulsa
+.participant-email {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  color: var(--color-link);
+  font-size: var(--font-size-body-s);
+  text-decoration: none;
+
+  ion-icon {
+    flex: 0 0 auto;
+    font-size: var(--icon-size-s);
+  }
+
+  &:hover .participant-email__address {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    border-radius: var(--radius-s);
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+// Un correo largo se corta con puntos suspensivos en vez de desbordar
+.participant-email__address {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

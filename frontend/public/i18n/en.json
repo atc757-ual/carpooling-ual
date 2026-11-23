@@ -107,6 +107,7 @@
       "read": "Read"
     },
     "writeTo": "Message {{ name }}",
+    "emailTo": "Email {{ name }}",
     "tripCode": "Trip {{ code }}"
   },
   "search": {

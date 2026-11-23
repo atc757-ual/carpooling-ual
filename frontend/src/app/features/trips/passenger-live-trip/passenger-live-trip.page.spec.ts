@@ -129,6 +129,10 @@ describe('PassengerLiveTripPage', () => {
     expect(root.querySelectorAll('.ride__code-digits span')).toHaveLength(4);
     expect(root.textContent).toContain('Conduce');
     expect(root.textContent).toContain('Seat Ibiza');
+    // En curso, el nombre sin abrir el perfil (sería una ventana sobre la hoja)
+    // y, debajo, su correo
+    expect(root.querySelector('.ride__driver-name app-participant-link')).toBeNull();
+    expect(root.querySelector('app-participant-email')).not.toBeNull();
     expect(page.stages()[0].state).toBe('current');
 
     page.liveStatus.set({

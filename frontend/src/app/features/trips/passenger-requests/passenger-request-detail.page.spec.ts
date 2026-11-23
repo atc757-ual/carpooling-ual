@@ -216,6 +216,8 @@ describe('PassengerRequestDetailPage', () => {
     expect(status?.compareDocumentPosition(code as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     // La matrícula, como placa, en la fila del coche
     expect(root.querySelector('.passenger-route__vehicle app-license-plate')).not.toBeNull();
+    // El correo del conductor, en su fila de «Conductor y coche»
+    expect(root.querySelector('.passenger-route__contact app-participant-email')).not.toBeNull();
     // La seguridad, en su propia tarjeta con su título
     expect(root.querySelector('.passenger-detail__safety ion-card-title')?.textContent).toContain(
       'Viaje y seguridad',
@@ -227,6 +229,7 @@ describe('PassengerRequestDetailPage', () => {
 
     expect(root.querySelector('.passenger-detail__board-code')).toBeNull();
     expect(root.querySelector('app-license-plate')).toBeNull();
+    expect(root.querySelector('app-participant-email')).toBeNull();
     expect(root.querySelector('.passenger-detail__top .passenger-detail__status')).not.toBeNull();
   });
 

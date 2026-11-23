@@ -149,7 +149,23 @@ ion-card.passenger-route ion-card-content {
   font-size: var(--font-size-caption);
 }
 
-// El coche: su icono gris
+// El correo del conductor: una fila con su icono, como la del coche
+.passenger-route__contact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 0;
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  ion-icon {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: var(--icon-size-base);
+  }
+}
+
+// El coche: su icono gris, como el del correo
 .passenger-route__vehicle {
   display: flex;
   align-items: center;

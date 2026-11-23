@@ -24,6 +24,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
 import { getFirstName, getInitials } from '../../matching/trip-driver/trip-driver';
+import { ParticipantEmail } from '../../../shared/components/ui/participant-email/participant-email';
 import { formatTime } from '../../matching/trip-results';
 import { lazyLabels } from '../../../core/i18n/lazy-labels';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
@@ -49,6 +50,7 @@ const CHAT_STATUSES: ReadonlySet<TripStatus> = new Set(['confirmed', 'in_progres
 @Component({
   selector: 'app-driver-trip-passengers',
   imports: [
+    ParticipantEmail,
     ParticipantLink,
     LoadingState,
     IonButton,
@@ -121,6 +123,7 @@ export class DriverTripPassengers {
   protected readonly formatSeats = formatSeats;
   protected readonly callIcon = callOutline;
   protected readonly chatIcon = chatbubblesOutline;
+  protected readonly firstName = getFirstName;
   protected readonly locationIcon = locationOutline;
   protected readonly autoAcceptIcon = sparklesOutline;
 

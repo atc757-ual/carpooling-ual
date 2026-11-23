@@ -210,6 +210,9 @@ describe('DriverLiveTripPage', () => {
     expect(root.querySelector('.live-hero__title')?.textContent).toContain('Recoge a Carlos');
     expect(root.querySelector('.pickup-slide--active')?.textContent).toContain('Carlos');
     expect(root.querySelectorAll('.pickup-slide')).toHaveLength(3);
+    // Cada pasajero, con su correo y sin abrir su perfil (sería una ventana sobre la hoja)
+    expect(root.querySelectorAll('.pickup-slide app-participant-email')).toHaveLength(3);
+    expect(root.querySelector('.pickup-slide app-participant-link')).toBeNull();
     expect(root.querySelector('[aria-current="step"]')?.textContent).toContain('Recogidas');
   });
 

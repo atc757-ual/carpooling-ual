@@ -10,7 +10,14 @@ import {
   IonIcon,
   ModalController,
 } from '@ionic/angular';
-import { callOutline, carOutline, chatbubblesOutline, thumbsDown, thumbsUp } from 'ionicons/icons';
+import {
+  callOutline,
+  carOutline,
+  chatbubblesOutline,
+  mailOutline,
+  thumbsDown,
+  thumbsUp,
+} from 'ionicons/icons';
 import { ChatContact } from '../../../../core/models/chat.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../../core/models/seat-request.model';
@@ -18,6 +25,7 @@ import { TripDriver } from '../../../../core/models/trip-result.model';
 import { TravelPreferencesStore } from '../../../../core/services/catalogs/travel-preferences.store';
 import { VehicleColorsStore } from '../../../../core/services/catalogs/vehicle-colors.store';
 import { TripCallService } from '../../../../core/services/trips/trip-call.service';
+import { ParticipantEmail } from '../../../../shared/components/ui/participant-email/participant-email';
 import { LicensePlate } from '../../../../shared/components/ui/license-plate/license-plate';
 import { CoPassengers } from '../co-passengers/co-passengers';
 import { TripsService } from '../../../../core/services/trips/trips.service';
@@ -57,6 +65,7 @@ const RATING_FORMAT = () =>
   imports: [
     CoPassengers,
     LicensePlate,
+    ParticipantEmail,
     LoadingState,
     IonButton,
     IonCard,
@@ -247,6 +256,8 @@ export class PassengerRequestRoute {
   protected readonly carIcon = carOutline;
   protected readonly callIcon = callOutline;
   protected readonly chatIcon = chatbubblesOutline;
+  protected readonly mailIcon = mailOutline;
+  protected readonly driverFirstName = computed(() => getFirstName(this.trip().driver.name));
   protected readonly vehicleName = vehicleDisplayName;
   protected readonly vehicleColor = (color: string | null) => this.colors.label(color);
 
