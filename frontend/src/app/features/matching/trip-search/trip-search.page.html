@@ -8,7 +8,7 @@
     <div class="trip-search__main">
       <app-next-trip-card class="trip-search__next-trip" />
 
-      <!-- Todo el aviso lleva a la solicitud (o a Tus viajes, si hay varias). En
+      <!-- El aviso entero lleva a la solicitud (o a Tus viajes, si hay varias). En
            ámbar, como la etiqueta «Pendiente»: esperan respuesta -->
       @if (pendingRequests(); as pending) {
         <a class="trip-search__pending notice notice--warning" [routerLink]="pendingLink()">
