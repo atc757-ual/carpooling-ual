@@ -9,12 +9,12 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IonIcon, IonInput, ModalController } from '@ionic/angular';
 import { presentOverParent } from '../../../shared/utils/modal-stack.util';
 import { locateOutline, navigateCircleOutline } from 'ionicons/icons';
-import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
+import { EMPTY, fromEvent, map, Subject } from 'rxjs';
 import { Place, PlaceSuggestion } from '../../../core/models/place.model';
 import { SearchPlace } from '../../../core/models/trip-search.model';
 import { rethrowUnlessApiError } from '../../../core/models/api-error.model';
@@ -22,18 +22,16 @@ import { LocationError, LocationService } from '../../../core/services/location/
 import { PlacesService } from '../../../core/services/places/places.service';
 import { LocationModal, LocationModalResult } from '../location-modal/location-modal';
 import { Combobox, ComboboxState } from '../../../shared/components/ui/combobox/combobox';
-import { lazyLabels } from '../../../core/i18n/lazy-labels';
+import { PlaceSearchModal } from '../place-search-modal/place-search-modal';
+import { LOCATION_MESSAGES, streamSuggestions } from './place-suggestions.util';
 
-// Letras a partir de las que se sugieren direcciones, y la espera tras la
-// última tecla (para no pedir una búsqueda por letra)
-const MIN_LETTERS = 3;
-const DEBOUNCE_MS = 300;
 const UNAVAILABLE_KEY = 'screens.placeField.unavailable';
-const LOCATION_MESSAGES: Readonly<Record<LocationError['reason'], string>> = lazyLabels({
-  denied: 'screens.placeField.locationDenied',
-  unavailable: 'screens.placeField.locationUnavailable',
-  revoked: 'screens.placeField.locationRevoked',
-});
+// Escritorio: el campo con su lista debajo; por debajo, la búsqueda a
+// pantalla completa (el punto de corte md de theme/_breakpoints.scss)
+const DESKTOP_QUERY = '(min-width: 768px)';
+// Donde empieza el pin de «Elegir en el mapa» sin dirección: el centro de
+// Almería
+const ALMERIA_CENTER: [number, number] = [-2.4637, 36.8381];
 
 // Una dirección de la API como lugar elegido (también al añadir una parada en
 // el mapa)
@@ -94,6 +92,15 @@ export class PlaceField implements ControlValueAccessor {
   // …o un aviso: sin cobertura, sin permiso o el servicio caído
   readonly message = signal<string | null>(null);
   readonly isDisabled = signal(false);
+  private readonly desktopQuery = globalThis.matchMedia?.(DESKTOP_QUERY);
+  readonly isMobile = toSignal(
+    this.desktopQuery
+      ? fromEvent<MediaQueryListEvent>(this.desktopQuery, 'change').pipe(
+          map(({ matches }) => !matches),
+        )
+      : EMPTY,
+    { initialValue: this.desktopQuery ? !this.desktopQuery.matches : false },
+  );
   // En rojo solo si no hay ya un aviso (p. ej. el de cobertura: uno basta), ni
   // se está buscando algo (al pulsar la mira, el campo pierde el foco y se
   // marcaría en rojo un instante antes de rellenarse), ni hay sugerencias a la
@@ -110,23 +117,8 @@ export class PlaceField implements ControlValueAccessor {
   private onTouched: () => void = () => undefined;
 
   constructor() {
-    this.queries
-      .pipe(
-        debounceTime(DEBOUNCE_MS),
-        map((text) => text.trim()),
-        distinctUntilChanged(),
-        switchMap((text) =>
-          text.length < MIN_LETTERS
-            ? of([])
-            : this.places.suggest(text).pipe(
-                catchError(() => {
-                  this.message.set(translate(UNAVAILABLE_KEY));
-                  return of([]);
-                }),
-              ),
-        ),
-        takeUntilDestroyed(inject(DestroyRef)),
-      )
+    streamSuggestions(this.queries, this.places, () => this.message.set(translate(UNAVAILABLE_KEY)))
+      .pipe(takeUntilDestroyed(inject(DestroyRef)))
       .subscribe((suggestions) => this.suggestions.set(suggestions));
   }
 
@@ -199,10 +191,53 @@ export class PlaceField implements ControlValueAccessor {
   // «Ajustar en el mapa»: el pin en la dirección elegida, para moverlo
   async handleAdjust(): Promise<void> {
     const selected = this.selected();
-    if (!selected) {
+    if (selected) {
+      await this.pickOnMap(selected.coordinates);
+    }
+  }
+
+  // En el móvil, tocar el campo abre la búsqueda a pantalla completa
+  // (PlaceSearchModal); lo que se elige allí se resuelve aquí, como en el
+  // escritorio
+  async handleOpenSearch(): Promise<void> {
+    if (!this.isMobile() || this.isDisabled()) {
       return;
     }
-    const { data, role } = await this.openLocationModal({ adjustPoint: selected.coordinates });
+    // Hoja de media altura (se sube a pantalla completa arrastrándola)
+    const modal = await this.modalController.create({
+      component: PlaceSearchModal,
+      breakpoints: [0, 0.6, 1],
+      initialBreakpoint: 0.6,
+      handle: true,
+      componentProps: {
+        title: this.label(),
+        placeholder: this.placeholder(),
+        canLocate: this.canLocate(),
+        initialText: this.text(),
+      },
+    });
+    await presentOverParent(modal, this.host.nativeElement);
+    const { data, role } = await modal.onDidDismiss<PlaceSuggestion | Place | null>();
+    this.onTouched();
+    if (role === 'suggestion' && data) {
+      await this.handleSelect(data as PlaceSuggestion);
+    } else if (role === 'place' && data) {
+      // La ubicación del momento, ya confirmada en la ventana
+      this.message.set(null);
+      this.applyPlace(data as Place);
+      this.isFromLocation.set(this.selected() !== null);
+    } else if (role === 'clear') {
+      this.handleInput('');
+    } else if (role === 'locate') {
+      await this.handleUseLocation();
+    } else if (role === 'map') {
+      await this.pickOnMap(this.selected()?.coordinates ?? ALMERIA_CENTER);
+    }
+  }
+
+  // El pin en ese punto, para moverlo; «Usar esta dirección» la aplica
+  private async pickOnMap(point: [number, number]): Promise<void> {
+    const { data, role } = await this.openLocationModal({ adjustPoint: point });
     if (role === 'select' && data && !Array.isArray(data)) {
       this.message.set(null);
       this.applyPlace(data);

@@ -1553,6 +1553,11 @@
       "ahoraPodemosBuscarDireccion": "Ahora no podemos buscar la dirección. Inténtalo de nuevo en un momento.",
       "ubicacionArrastralaAjustarla": "Tu ubicación (arrástrala para ajustarla)"
     },
+    "placeSearch": {
+      "pickOnMap": "Elegir en el mapa",
+      "yourLocation": "Tu ubicación",
+      "clear": "Quitar la dirección"
+    },
     "placeField": {
       "comprobandoDireccion": "Comprobando la dirección…",
       "buscandoUbicacion": "Buscando tu ubicación…",

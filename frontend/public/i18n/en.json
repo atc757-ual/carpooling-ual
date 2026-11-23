@@ -1553,6 +1553,11 @@
       "ahoraPodemosBuscarDireccion": "We can't look up the address right now. Please try again in a moment.",
       "ubicacionArrastralaAjustarla": "Your location (drag it to adjust it)"
     },
+    "placeSearch": {
+      "pickOnMap": "Pick on the map",
+      "yourLocation": "Your location",
+      "clear": "Remove the address"
+    },
     "placeField": {
       "comprobandoDireccion": "Checking the address…",
       "buscandoUbicacion": "Finding your location…",

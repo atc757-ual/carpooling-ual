@@ -2,12 +2,17 @@
      ng-*: Ionic recalcula las ion-* a partir de ellas al perder el foco, y sin
      ellas quitaría el rojo -->
 <div class="place-field__control">
+  <!-- En el móvil, de solo lectura: tocarlo abre la búsqueda a pantalla
+       completa (handleOpenSearch) -->
   <ion-input
     fill="outline"
     [appCombobox]="combobox"
     [value]="text()"
     [placeholder]="placeholder()"
     [disabled]="isDisabled()"
+    [readonly]="isMobile()"
+    (click)="handleOpenSearch()"
+    (keydown.enter)="handleOpenSearch()"
     [label]="label()"
     labelPlacement="floating"
     autocomplete="off"
@@ -35,7 +40,7 @@
               | transloco
           "
           [disabled]="isDisabled()"
-          (click)="handleUseLocation()"
+          (click)="$event.stopPropagation(); handleUseLocation()"
         >
           <ion-icon [icon]="isFromLocation() ? locatedIcon : locateIcon" aria-hidden="true" />
         </button>
