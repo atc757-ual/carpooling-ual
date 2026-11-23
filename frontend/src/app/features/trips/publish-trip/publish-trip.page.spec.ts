@@ -169,33 +169,33 @@ describe('PublishTripPage', () => {
     await harness.fixture.whenStable();
   }
 
-  it('starts on Trayecto, with «Siguiente» waiting for the address and the parking', async () => {
-    await openPage();
-
-    expect(page.loadState()).toBe('ready');
-    expect(page.step()).toBe(1);
-    expect(page.isRouteComplete()).toBe(false);
-    expect(page.departureTooSoon()).toBe(false);
-
-    fillTrip();
-
-    expect(page.isRouteComplete()).toBe(true);
-  });
-
   it(
-    'goes back to the first step on reload and never jumps ahead by itself',
+    'starts on Trayecto, with «Siguiente» waiting for the address and the parking',
     async () => {
-      await openPage('/publish?step=3');
+      await openPage();
 
-      expect(router.url).toBe('/publish');
+      expect(page.loadState()).toBe('ready');
       expect(page.step()).toBe(1);
+      expect(page.isRouteComplete()).toBe(false);
+      expect(page.departureTooSoon()).toBe(false);
 
-      // El origen y el vehículo se rellenan solos: sigue en el paso 1
-      fillTrip({ withVehicle: true });
-      expect(page.step()).toBe(1);
+      fillTrip();
+
+      expect(page.isRouteComplete()).toBe(true);
     },
     COLD_START_TIMEOUT_MS,
   );
+
+  it('goes back to the first step on reload and never jumps ahead by itself', async () => {
+    await openPage('/publish?step=3');
+
+    expect(router.url).toBe('/publish');
+    expect(page.step()).toBe(1);
+
+    // El origen y el vehículo se rellenan solos: sigue en el paso 1
+    fillTrip({ withVehicle: true });
+    expect(page.step()).toBe(1);
+  });
 
   it('asks again for the next trip when coming back to the tab', async () => {
     await openPage();
