@@ -4,7 +4,7 @@
 // La gravedad, como en la lista: el borde izquierdo del informe con el color
 // de su rol (peligro: con el conductor o el pasajero; aviso: técnico)
 .incident-report {
-  border-left: 0.25rem solid var(--color-border); // 4px
+  border-left: var(--border-width-xl) solid var(--color-border);
 }
 
 .incident-report--danger {
@@ -50,7 +50,7 @@
     box-sizing: border-box;
     width: var(--moment-dot);
     height: var(--moment-dot);
-    border: 0.125rem solid var(--color-border); // 2px
+    border: var(--border-width-m) solid var(--color-border);
     border-radius: var(--radius-full);
     background: var(--color-surface);
   }

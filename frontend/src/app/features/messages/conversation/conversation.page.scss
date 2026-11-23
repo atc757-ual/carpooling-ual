@@ -91,7 +91,7 @@
   gap: var(--space-xxs);
   max-width: 80%;
   align-self: flex-start;
-  padding: var(--space-s) 0.75rem; // 8px 12px
+  padding: var(--space-s) var(--space-base);
   border-radius: var(--radius-base) var(--radius-base) var(--radius-base) var(--radius-xs);
   background: var(--color-surface);
   color: var(--color-text);

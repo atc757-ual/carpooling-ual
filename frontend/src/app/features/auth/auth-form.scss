@@ -38,7 +38,7 @@
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem; // 20px
+  gap: var(--space-l);
 
   ion-button {
     margin: 0;

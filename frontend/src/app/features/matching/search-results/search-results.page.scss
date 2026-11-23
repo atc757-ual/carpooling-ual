@@ -105,7 +105,7 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: var(--space-xs) 0.625rem;
+  padding: var(--space-xs) var(--space-s);
   border: 0;
   border-radius: var(--radius-s); // 8px, sin borde
   background: var(--color-primary-subtle);

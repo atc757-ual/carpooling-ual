@@ -60,7 +60,7 @@
 // «Gracias por compartir tu coche»: blanca como las demás, con un borde
 // inferior verde de 4px que la cierra
 .next-steps__card--community {
-  border-bottom: 0.25rem solid var(--color-eco); // 4px
+  border-bottom: var(--border-width-xl) solid var(--color-eco);
 }
 
 // El icono en un círculo verde claro y el título a su lado

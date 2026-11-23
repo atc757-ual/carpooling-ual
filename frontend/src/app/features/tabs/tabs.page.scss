@@ -18,7 +18,7 @@ ion-tabs {
 }
 
 .app-header ion-toolbar ion-buttons ion-button.back-button.button-has-icon-only.button-clear {
-  margin-block: -0.125rem;
+  margin-block: calc(-1 * var(--space-xxs));
 }
 
 // Barra inferior móvil
@@ -98,7 +98,7 @@ ion-tab-button {
   // Los 4px del borde inferior van transparentes en todas y solo los pinta la
   // activa: así todas miden lo mismo y el menú no se mueve al cambiar de una a
   // otra. Al pasar el ratón no cambia nada
-  border-bottom: 0.25rem solid transparent; // 4px
+  border-bottom: var(--border-width-xl) solid transparent;
 
   &:focus-visible {
     outline: var(--focus-ring);
@@ -215,7 +215,7 @@ ion-tab-button {
   &.help-button ion-icon {
     width: 1.625rem; // 26px para igualar el peso óptico con perfil y campana
     height: 1.625rem;
-    font-size: 1.625rem;
+    font-size: var(--tab-icon-size);
   }
 
   &::part(native) {
@@ -291,7 +291,7 @@ ion-tab-button {
     min-width: var(--icon-size-base); // La cifra de 12px, con aire dentro del borde
     width: auto;
     height: var(--icon-size-base);
-    padding-inline: 0.2rem;
+    padding-inline: var(--space-xxs);
     border: var(--border-width-s) solid var(--color-surface);
     border-radius: var(--radius-full);
     background: var(--color-danger);
@@ -387,7 +387,7 @@ ion-tab-button {
 // En escritorio, entre los destinos: el círculo pequeño y el texto
 .top-nav .live-tab {
   // La línea de abajo, transparente como en las demás (.live-tab la quita)
-  border-bottom: 0.25rem solid transparent; // 4px
+  border-bottom: var(--border-width-xl) solid transparent;
 
   .live-tab__circle {
     width: var(--box-size-s);

@@ -28,5 +28,5 @@
 // 20px de ancho para bandera clara y bien definida
 .language-switch__flag {
   width: var(--icon-size-base);
-  border-radius: 0.125rem; // 2px
+  border-radius: var(--radius-xs);
 }

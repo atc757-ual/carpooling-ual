@@ -34,6 +34,7 @@ $breakpoints: (
   --border-width-s: 1px;
   --border-width-m: 2px;
   --border-width-l: 3px; // foco
+  --border-width-xl: 4px; // acento: el borde de color a un lado (avisos, tarjetas, pestañas)
 
   // Anillo del foco con el teclado (:focus-visible): 2px del color de foco,
   // 2px por fuera del control o, en filas y campos que llegan al borde, por

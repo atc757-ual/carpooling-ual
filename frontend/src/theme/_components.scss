@@ -246,7 +246,7 @@ ion-select[class] {
   ion-input[class],
   ion-textarea[class],
   ion-searchbar[class] .searchbar-input {
-    font-size: max(1rem, 1em); // ≥ 16px
+    font-size: max(var(--font-size-body), 1em); // ≥ 16px
   }
 }
 
@@ -275,7 +275,7 @@ ion-input .input-bottom.input-bottom .helper-text.helper-text.helper-text,
 ion-textarea .textarea-bottom.textarea-bottom .helper-text.helper-text.helper-text,
 .field-hint {
   color: var(--color-text-muted);
-  font-size: 0.75rem; // 12px
+  font-size: var(--font-size-caption);
   line-height: 1.4;
 }
 
@@ -712,7 +712,7 @@ ion-item.option-card {
 
     ion-icon {
       margin-inline-end: var(--space-s); // 8px en lugar de los 32px por defecto de Ionic
-      font-size: 1.25rem;
+      font-size: var(--icon-size-base);
       color: var(--color-danger-text);
     }
   }
@@ -761,14 +761,14 @@ ion-card-header {
 ion-card-title {
   color: var(--color-text);
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
 
 @media (min-width: 768px) {
   ion-card-title {
-    font-size: 1.25rem; // 20px
+    font-size: var(--font-size-subtitle);
   }
 }
 
@@ -839,14 +839,14 @@ ion-card-header + ion-card-content[class] {
   white-space: nowrap;
 
   ion-icon {
-    font-size: 1.05rem;
+    font-size: var(--icon-size-s);
   }
 }
 
 // En el encabezado de un detalle (junto al título), más grande: 14px
 .status--heading {
   padding: var(--space-xs) var(--space-s); // 4px 8px
-  font-size: 0.875rem; // 14px
+  font-size: var(--font-size-label);
 }
 
 .status--pending {
@@ -895,7 +895,7 @@ ion-card-header + ion-card-content[class] {
   font-weight: var(--font-weight-semibold);
 
   ion-icon {
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
   }
 }
 
@@ -918,7 +918,7 @@ ion-card-header + ion-card-content[class] {
   font-weight: var(--font-weight-semibold);
 
   ion-icon {
-    font-size: 1rem; // 16px
+    font-size: var(--icon-size-s);
     color: var(--color-link);
   }
 }
@@ -1012,7 +1012,7 @@ ion-item.role-card {
   > ion-icon {
     flex: none;
     color: var(--color-link);
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 }
 
@@ -1080,12 +1080,12 @@ ion-item.role-card {
 .admin-heading__title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: 1.25rem; // 20px
+  font-size: var(--font-size-subtitle);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 
   @media (min-width: 768px) {
-    font-size: 1.5rem; // 24px
+    font-size: var(--font-size-title);
   }
 }
 
@@ -1143,7 +1143,7 @@ ion-searchbar.admin-heading__search {
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-family-heading);
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }
@@ -1267,7 +1267,7 @@ ion-searchbar.admin-heading__search {
 
     .admin-table__link-icon {
       display: block;
-      font-size: 1.25rem; // 20px
+      font-size: var(--icon-size-base);
     }
   }
 }
@@ -1290,7 +1290,7 @@ ion-searchbar.admin-heading__search {
     border-radius: var(--radius-full);
     background: var(--color-primary-subtle);
     color: var(--color-link);
-    font-size: 1.5rem; // 24px
+    font-size: var(--icon-size-l);
   }
 
   ion-button {
@@ -1371,7 +1371,7 @@ ion-toggle {
   transition: background-color var(--motion-duration-fast) ease;
 
   ion-icon {
-    font-size: 1.25rem; // 20px
+    font-size: var(--icon-size-base);
   }
 
   // Al pasar (ratón) o al pulsar (táctil): azul claro con el borde azul. El
@@ -1410,7 +1410,7 @@ ion-toggle {
     justify-content: center;
 
     ion-icon {
-      font-size: 1rem; // 16px
+      font-size: var(--icon-size-s);
     }
   }
 
@@ -1611,7 +1611,7 @@ ion-toggle {
   margin: 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-caption); // 12px
-  line-height: 1rem; // 16px
+  line-height: var(--line-height-caption);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -1641,14 +1641,14 @@ ion-toggle {
   margin: 0;
   font-family: var(--font-family-heading);
   // Como los títulos de tarjeta: 18px en el móvil y 20px en escritorio
-  font-size: 1.125rem; // 18px
+  font-size: var(--font-size-subtitle-s);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-subtitle);
 }
 
 @media (min-width: 768px) {
   .section-item__title.section-item__title {
-    font-size: 1.25rem; // 20px
+    font-size: var(--font-size-subtitle);
   }
 }
 
@@ -1659,7 +1659,7 @@ ion-toggle {
   margin: 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-caption); // 12px
-  line-height: 1rem; // 16px
+  line-height: var(--line-height-caption);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;

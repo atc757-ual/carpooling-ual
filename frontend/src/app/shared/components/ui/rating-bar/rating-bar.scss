@@ -6,7 +6,7 @@
 
 .rating-bar {
   display: inline-flex;
-  gap: 0.1875rem; // 3px
+  gap: var(--space-xxs);
 }
 
 .rating-bar__point {

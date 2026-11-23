@@ -39,7 +39,7 @@
   display: inline-block;
   width: var(--dot-size);
   height: var(--dot-size);
-  border: 0.125rem solid var(--color-admin); // 2px
+  border: var(--border-width-m) solid var(--color-admin);
   border-radius: var(--radius-full);
   background: var(--color-surface);
 }
@@ -52,7 +52,7 @@
   width: var(--icon-size-s);
   height: 0;
   border: 0;
-  border-top: 0.125rem dashed var(--color-text-muted); // 2px
+  border-top: var(--border-width-m) dashed var(--color-text-muted);
   border-radius: 0;
   background: none;
 }
