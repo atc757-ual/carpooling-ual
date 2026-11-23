@@ -23,7 +23,7 @@
     grid-template-columns: minmax(17rem, 1fr) minmax(0, 2fr);
     grid-template-areas: 'main detail';
     align-items: stretch;
-    min-height: min(70vh, 52rem);
+    min-height: min(70vh, 52rem); // 832px
   }
 }
 
@@ -37,7 +37,7 @@
 
   @media (min-width: 768px) {
     display: flex;
-    min-height: 32rem;
+    min-height: 32rem; // 512px
   }
 }
 
@@ -76,7 +76,7 @@
   .messages__detail {
     display: flex;
     min-width: 0;
-    min-height: 32rem;
+    min-height: 32rem; // 512px
   }
 
   .messages__main ion-card,
@@ -178,7 +178,7 @@
 // Lista vacía, error o carga (app-empty-state, app-loading-state): de 208px
 .messages__state {
   --empty-state-min-height: 13rem; // 208px
-  --loading-state-min-height: 13rem;
+  --loading-state-min-height: 13rem; // 208px
 }
 
 .messages__list {

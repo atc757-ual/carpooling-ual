@@ -171,7 +171,7 @@
   &::after {
     content: '';
     position: absolute;
-    top: calc(0.25rem + var(--timeline-dot) + var(--space-xs));
+    top: calc(0.25rem + var(--timeline-dot) + var(--space-xs)); // 4px
     bottom: var(--space-xs);
     left: calc(var(--timeline-time) + var(--timeline-rail) / 2 - 0.0625rem); // 1px
     width: 0.125rem; // 2px

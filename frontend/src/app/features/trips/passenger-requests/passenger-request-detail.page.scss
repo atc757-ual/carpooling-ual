@@ -115,7 +115,7 @@
 
 // No encontrado o error (app-empty-state), del alto de la tarjeta: 375px
 .passenger-detail__state {
-  --empty-state-min-height: 23.4375rem; // 375px
+  --empty-state-min-height: var(--state-min-height-l);
 }
 
 // «Viaje y seguridad»: una lista con el título de cada fila (14px), su

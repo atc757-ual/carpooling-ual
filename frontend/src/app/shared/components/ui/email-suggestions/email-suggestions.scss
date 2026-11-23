@@ -10,7 +10,7 @@
 .email-suggestions {
   position: absolute;
   // A 4px del campo: sube el hueco de 8px de .auth-field entre ambos
-  top: calc(0.25rem - var(--space-s));
+  top: calc(0.25rem - var(--space-s)); // 4px
   right: 0;
   left: 0;
   margin: 0;

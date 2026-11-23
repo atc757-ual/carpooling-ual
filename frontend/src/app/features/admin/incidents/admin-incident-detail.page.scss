@@ -45,7 +45,7 @@
   &::before {
     content: '';
     position: absolute;
-    top: 0.3rem;
+    top: 0.3rem; // 4.8px
     left: 0;
     box-sizing: border-box;
     width: var(--moment-dot);
@@ -59,7 +59,7 @@
   &::after {
     content: '';
     position: absolute;
-    top: calc(0.3rem + var(--moment-dot) + var(--space-xs));
+    top: calc(0.3rem + var(--moment-dot) + var(--space-xs)); // 4.8px
     bottom: var(--space-xs);
     left: calc(var(--moment-dot) / 2 - 0.0625rem); // 1px
     width: 0.125rem; // 2px

@@ -21,7 +21,7 @@
 
 // No encontrado o aún sin empezar (app-empty-state), del alto de la tarjeta
 .driver-live-trip__state {
-  --empty-state-min-height: 23.4375rem; // 375px
+  --empty-state-min-height: var(--state-min-height-l);
 }
 
 .driver-live-trip__layout,

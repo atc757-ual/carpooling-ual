@@ -213,8 +213,8 @@ ion-tab-button {
   }
 
   &.help-button ion-icon {
-    width: 1.625rem; // 26px para igualar el peso óptico con perfil y campana
-    height: 1.625rem;
+    width: var(--tab-icon-size); // para igualar el peso óptico con perfil y campana
+    height: var(--tab-icon-size);
     font-size: var(--tab-icon-size);
   }
 
@@ -380,7 +380,7 @@ ion-tab-button {
 
   .live-tab__circle {
     width: 3.25rem; // 52px
-    height: 3.25rem;
+    height: 3.25rem; // 52px
   }
 }
 

@@ -34,8 +34,8 @@
 }
 
 .conversation__skeleton-bubble {
-  width: min(78%, 22rem);
-  height: 3.25rem;
+  width: min(78%, 22rem); // 352px
+  height: 3.25rem; // 52px
   margin: 0;
   border-radius: var(--radius-base);
 }

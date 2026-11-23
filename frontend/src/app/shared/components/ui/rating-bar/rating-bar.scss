@@ -24,6 +24,6 @@
 }
 
 .rating-bar--small .rating-bar__point {
-  width: 0.625rem; // 10px
+  width: var(--dot-size);
   height: 0.3125rem; // 5px
 }
