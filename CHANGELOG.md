@@ -65,6 +65,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **Carga de Tus viajes:** «Cargando tus viajes…» sale centrado y la tarjeta tiene un alto mínimo de 240 px, el mismo que el estado vacío y el de error, como en Avisos: la tarjeta ya no salta al terminar de cargar (#388).
 - **Ventanas y cabecera (revisión del 22/11/2026):** una ventana abierta desde otra (la ubicación y el mapa desde «Editar búsqueda», al publicar o desde un parking del panel) oculta la de debajo mientras está abierta, para que se vea una sola (`presentOverParent`). En el móvil, el contenido de las hojas descuenta también la muesca: en los textos legales largos, el botón «Entendido» quedaba cortado. Con Ayuda abierta, la cabecera ya no marca también Mi perfil. El buscador de Ayuda es azul claro también en modo oscuro (roles `--color-search-field*`). La prueba de Cypress de Avisos ya no falla si cruza la medianoche (#378).
 
 ### Added

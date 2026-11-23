@@ -33,7 +33,11 @@
           />
 
           @if (isLoading()) {
-            <app-loading-state [label]="'myTrips.cargandoTusViajes' | transloco" />
+            <app-loading-state
+              class="my-trips__state"
+              [label]="'myTrips.cargandoTusViajes' | transloco"
+              [isCentered]="true"
+            />
           } @else if (hasError()) {
             <app-empty-state
               class="my-trips__state"

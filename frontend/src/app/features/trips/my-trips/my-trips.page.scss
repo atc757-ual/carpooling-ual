@@ -46,9 +46,12 @@
   }
 }
 
-// Vacío y error (app-empty-state): con 24px arriba y abajo
+// Carga, vacío y error: centrados y con el mismo alto mínimo (como en
+// Avisos), así la tarjeta no salta al terminar de cargar
 .my-trips__state {
   --empty-state-padding: var(--space-l) var(--space-base);
+  --empty-state-min-height: 15rem; // 240px
+  --loading-state-min-height: 15rem; // 240px
 }
 
 // La tarjeta de la columna de 8: las pastillas y, debajo, los viajes en
