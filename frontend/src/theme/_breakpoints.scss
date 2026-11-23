@@ -41,7 +41,7 @@ $breakpoints: (
 }
 
 @mixin container-down($container, $name) {
-  @container #{$container} (max-width: upper($name)) {
+  @container #{$container} (max-width: #{upper($name)}) {
     @content;
   }
 }
