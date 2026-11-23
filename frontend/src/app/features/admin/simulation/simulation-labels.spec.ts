@@ -17,6 +17,36 @@ describe('simulation labels', () => {
     expect(kpis[2].hint).toBe('personas por coche (S0: 1,2)');
   });
 
+  it('adds the other modes cards only when someone from them joined', () => {
+    const stat = (mean: number) => ({ mean, sd: 1, ciLow: mean - 1, ciHigh: mean + 1 });
+    const withOtherModes = (coveredTrips: number, addedVehicles: number) =>
+      resultKpis(
+        {
+          ...RESULTS,
+          summary: {
+            ...RESULTS.summary,
+            otherMode: {
+              coveredTrips: stat(coveredTrips),
+              coveredPct: stat(42.5),
+              addedVehicles: stat(addedVehicles),
+            },
+          },
+        },
+        'S0',
+      );
+
+    const kpis = withOtherModes(120, 3);
+    expect(kpis.slice(-2).map(({ label, value }) => [label, value])).toEqual([
+      ['Viajes ganados desde otros modos', '120 tramos'],
+      ['Coches de más', '3'],
+    ]);
+    expect(kpis.at(-2)?.hint).toContain('42,5 % de los que piden plaza');
+    expect(withOtherModes(0, 0)).toHaveLength(4);
+    expect(
+      resultKpis({ ...RESULTS, summary: { ...RESULTS.summary, otherMode: null } }, 'S0'),
+    ).toHaveLength(4);
+  });
+
   it('adds the recovery card only with incidents', () => {
     const withIncidents = {
       ...RESULTS,

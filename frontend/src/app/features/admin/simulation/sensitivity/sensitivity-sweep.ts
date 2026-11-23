@@ -52,10 +52,33 @@ export class SensitivitySweep {
   readonly started = output<void>();
 
   readonly parameter = signal<SweepParameter>('ownCarShare');
-  protected readonly parameters: readonly { value: SweepParameter; label: string }[] = [
-    { value: 'ownCarShare', label: 'En coche' },
-    { value: 'adoptionRate', label: 'Adopción' },
+  // Cada supuesto con lo que significa, que se ve al elegirlo
+  protected readonly parameters: readonly {
+    value: SweepParameter;
+    label: string;
+    description: string;
+  }[] = [
+    {
+      value: 'ownCarShare',
+      label: 'En coche',
+      description:
+        'Qué parte de los usuarios va al campus en su coche. Cambia también la base (S0): es la misma población.',
+    },
+    {
+      value: 'adoptionRate',
+      label: 'Adopción',
+      description: 'Qué parte de quienes van en coche se apunta al carpooling. La base no cambia.',
+    },
+    {
+      value: 'nonCarAdoptionRate',
+      label: 'Otros modos',
+      description:
+        'Qué parte de quienes van en bus o de otra forma se apunta, sobre todo como pasajeros. No evitan coches, pero ganan una opción de movilidad.',
+    },
   ];
+  readonly parameterDescription = computed(
+    () => this.parameters.find(({ value }) => value === this.parameter())?.description ?? '',
+  );
   readonly valuesText = linkedSignal(() => DEFAULT_VALUES[this.parameter()]);
   readonly values = computed(() => parseValues(this.valuesText()));
   readonly isStarting = signal(false);
@@ -101,8 +124,9 @@ export class SensitivitySweep {
   }
 
   handleParameter(value: unknown): void {
-    if (value === 'ownCarShare' || value === 'adoptionRate') {
-      this.parameter.set(value);
+    const option = this.parameters.find((parameter) => parameter.value === value);
+    if (option) {
+      this.parameter.set(option.value);
     }
   }
 

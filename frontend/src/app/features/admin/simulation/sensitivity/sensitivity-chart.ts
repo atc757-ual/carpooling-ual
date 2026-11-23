@@ -31,8 +31,14 @@ export function variantLabel(value: number): string {
   return `${formatNumber(value * 100, 0)} %`;
 }
 
+const PARAMETER_LABELS: Readonly<Record<SweepParameter, string>> = {
+  ownCarShare: 'en coche propio',
+  adoptionRate: 'de adopción',
+  nonCarAdoptionRate: 'desde otros modos',
+};
+
 export function parameterLabel(parameter: SweepParameter): string {
-  return parameter === 'ownCarShare' ? 'en coche propio' : 'de adopción';
+  return PARAMETER_LABELS[parameter];
 }
 
 function tooltipOf(variant: SweepVariant, parameter: SweepParameter): string {

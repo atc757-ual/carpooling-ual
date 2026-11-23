@@ -21,18 +21,35 @@
       [value]="scenario()"
       (ionChange)="handleScenario($event.detail.value)"
     >
+      <!-- Cada escenario con una línea de qué es, para elegir sin abrirlos -->
       @for (option of scenarios.value() ?? []; track option.code) {
         <ion-radio [value]="option.code" labelPlacement="end" justify="start">
-          {{ option.code }} · {{ option.name }}
+          <span class="simulation__scenario-name">{{ option.code }} · {{ option.name }}</span>
+          @if (summaryOf(option.code); as summary) {
+            <span class="text-caption simulation__scenario-summary">{{ summary }}</span>
+          }
         </ion-radio>
       }
     </ion-radio-group>
-    @if (selectedScenario(); as selected) {
-      <p class="text-body-s admin-page__subtitle">
-        {{ selected.users }} usuarios · adopción
-        {{ text.formatNumber(selected.adoptionRate * 100, 0) }} % · margen
-        {{ selected.timeWindowMin }} min
-      </p>
+    <!-- El elegido: qué representa, qué pregunta contesta y con qué cifras -->
+    @if (selectedGuide(); as selected) {
+      <section class="simulation__guide" aria-labelledby="simulation-guide">
+        <h3 id="simulation-guide" class="text-label simulation__guide-title">
+          {{ scenario() }}: qué simula
+        </h3>
+        @if (selected.guide; as guide) {
+          <p class="text-body-s simulation__guide-text">{{ guide.description }}</p>
+          <p class="text-body-s simulation__guide-text">
+            <strong>Responde a:</strong> {{ guide.question }}
+          </p>
+        }
+        <dl class="text-body-s simulation__settings">
+          @for (setting of selected.settings; track setting.label) {
+            <dt>{{ setting.label }}</dt>
+            <dd>{{ setting.value }}</dd>
+          }
+        </dl>
+      </section>
     }
     <div class="simulation__numbers">
       <ion-input

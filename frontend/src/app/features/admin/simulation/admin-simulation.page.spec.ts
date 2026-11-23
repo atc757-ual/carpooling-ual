@@ -58,6 +58,30 @@ describe('AdminSimulationPage', () => {
     simulations.results.mockResolvedValue(RESULTS);
   });
 
+  it('explains each scenario and the chosen one with its settings', async () => {
+    const root = await render();
+
+    const radios = root.querySelectorAll('.simulation__scenario-summary');
+    expect([...radios].map((summary) => summary.textContent?.trim())).toEqual([
+      'Sin carpooling: la referencia',
+      'Carpooling en condiciones normales',
+    ]);
+    const guide = root.querySelector('.simulation__guide');
+    expect(guide?.textContent).toContain('S1: qué simula');
+    expect(guide?.textContent).toContain(
+      '¿Cuántos coches evita el carpooling en condiciones normales?',
+    );
+    expect(guide?.querySelector('.simulation__settings')?.textContent).toContain(
+      '30 % de quienes van en coche',
+    );
+
+    fixture.componentInstance.handleScenario('S0');
+    fixture.detectChanges();
+    expect(root.querySelector('.simulation__guide')?.textContent).toContain(
+      'Nadie (sin carpooling)',
+    );
+  });
+
   it('starts S1 against S0 by default and opens the new run', async () => {
     const root = await render();
     expect(root.textContent).toContain('Aún no hay ejecuciones');

@@ -51,8 +51,21 @@ describe('SensitivitySweep', () => {
     expect(sweep.startLabel()).toBe('Analizar S1 con estos valores');
     sweep.handleParameter('adoptionRate');
     expect(sweep.valuesText()).toBe('10, 30, 50');
+    sweep.handleParameter('nonCarAdoptionRate');
+    expect(sweep.valuesText()).toBe('5, 10, 20');
     sweep.handleParameter('speed');
-    expect(sweep.parameter()).toBe('adoptionRate');
+    expect(sweep.parameter()).toBe('nonCarAdoptionRate');
+  });
+
+  it('explains the assumption chosen', async () => {
+    const root = await render();
+    const sweep = fixture.componentInstance;
+    const help = () => root.querySelector('.sweep__parameter-help')?.textContent ?? '';
+
+    expect(help()).toContain('va al campus en su coche');
+    sweep.handleParameter('nonCarAdoptionRate');
+    fixture.detectChanges();
+    expect(help()).toContain('van en bus o de otra forma');
   });
 
   it('switches the assumption with the segmented tabs', async () => {
