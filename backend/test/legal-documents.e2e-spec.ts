@@ -408,6 +408,15 @@ describe('Legal documents (e2e)', () => {
     await admin('get', '/terms/draft').expect(404);
   });
 
+  // También las que ya no están vigentes: la 1.0 la tradujo su migración
+  it('has every published version of the privacy policy in English', async () => {
+    const untranslated = await dataSource.query<{ version: string }[]>(
+      `SELECT version FROM legal_documents
+        WHERE type = 'privacy' AND status = 'published' AND content_en IS NULL`,
+    );
+    expect(untranslated).toEqual([]);
+  });
+
   it('publishes the privacy policy 1.1 with its migration, as a minor change', async () => {
     const current = await request(app.getHttpServer())
       .get('/api/legal-documents/privacy')
