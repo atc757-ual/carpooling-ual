@@ -17,39 +17,12 @@
   --padding-bottom: var(--space-s);
 }
 
-// El punto que late encima del coche, en azul como «Viaje en curso»
-.live-trip-banner__live {
-  position: relative;
-  display: flex;
+// El chevron: todo el aviso lleva al viaje en curso
+.live-trip-banner__chevron {
   flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--box-size-m);
-  height: var(--box-size-m);
   margin-inline-start: var(--space-s);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
   color: var(--color-link);
-}
-
-.live-trip-banner__car {
-  font-size: var(--icon-size-base);
-}
-
-// Sin animación si el sistema pide menos movimiento
-.live-trip-banner__dot {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: var(--dot-size-s);
-  height: var(--dot-size-s);
-  border-radius: var(--radius-full);
-  background: var(--color-link);
-  animation: live-trip-pulse 1.6s ease-in-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
+  font-size: var(--icon-size-s);
 }
 
 .live-trip-banner__text {
@@ -114,10 +87,4 @@
 .live-trip-banner__detail {
   color: var(--color-text-muted);
   font-size: var(--font-size-caption);
-}
-
-@keyframes live-trip-pulse {
-  50% {
-    opacity: 0.35;
-  }
 }

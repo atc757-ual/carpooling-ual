@@ -114,7 +114,6 @@
       "one": "You have 1 request waiting for an answer.",
       "other": "You have {{ count }} requests waiting for an answer."
     },
-    "pendingLink": "See in Your trips",
     "carTitle": "Got a car?",
     "carText": "Driving to campus? Offer a ride and share your car.",
     "impact": "Share this ride and save about <b>{{ km }} km</b> of driving and <b>{{ co2 }} kg of CO₂</b>.",

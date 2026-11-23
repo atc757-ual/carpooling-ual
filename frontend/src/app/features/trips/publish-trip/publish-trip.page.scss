@@ -22,6 +22,14 @@
   align-items: start;
 }
 
+// La columna de 8: los avisos y, debajo, los pasos
+.publish__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+}
+
 // Los pasos se colocan según su propio ancho
 .publish__form {
   // 375px, como las tarjetas de Buscar y de los resultados
@@ -31,8 +39,6 @@
 
 // Dentro de la tarjeta: los pasos y sus campos apilados a 16px
 .publish__suspended-notice {
-  margin-block: var(--space-s) var(--space-base);
-
   ion-icon {
     flex: none;
     font-size: var(--icon-size-base);
@@ -264,6 +270,7 @@
 }
 
 // El próximo viaje dentro de la tarjeta: 16px hasta los pasos, solo si hay
-.publish__next-trip:has(.next-trip, app-live-trip-banner) {
-  margin-bottom: var(--space-base);
+// Sin próximo viaje (aún cargando o sin viajes), no ocupa su hueco
+.publish__next-trip:not(:has(.next-trip, app-live-trip-banner)) {
+  display: none;
 }

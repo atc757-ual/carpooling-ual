@@ -25,7 +25,7 @@
     align-items: start;
   }
 
-  .trip-search__criteria {
+  .trip-search__main {
     grid-column: 1;
   }
 
@@ -33,7 +33,7 @@
   .trip-search__aside {
     position: sticky;
     top: var(--space-l);
-    grid-row: 1 / span 2;
+    grid-row: 1;
     grid-column: 2;
   }
 }
@@ -45,30 +45,47 @@
   }
 }
 
-// La invitación a publicar y las preguntas, una encima de la otra
+// La columna de 8 (los avisos y la búsqueda) y la de 4 (la invitación a
+// publicar y las preguntas), cada una en columna
+.trip-search__main,
 .trip-search__aside {
   display: flex;
   flex-direction: column;
   gap: var(--space-base);
 }
 
-// Aviso de solicitudes en espera: todo él lleva a Tus viajes
+// Aviso de solicitudes en espera: todo él se pulsa (lleva a la solicitud o a
+// Tus viajes); sin enlace dentro: el texto y el chevron al final, como las
+// filas que abren algo
 .trip-search__pending {
   display: flex;
   align-items: center;
   gap: var(--space-s);
+  color: var(--color-text);
   text-decoration: none;
+  transition: background-color var(--motion-duration-fast) ease;
 
+  // Al pasar el ratón, el fondo algo más intenso en su tono
+  &:hover {
+    background: color-mix(in srgb, var(--color-warning) 12%, var(--color-warning-subtle));
+  }
+
+  // El icono y el chevron en el ámbar del aviso (el de «Pendiente»)
   ion-icon {
     flex: none;
+    color: var(--color-warning-text);
     font-size: var(--icon-size-base);
   }
 }
 
-.trip-search__pending-link {
-  margin-inline-start: var(--space-xs);
-  font-weight: var(--font-weight-semibold);
-  text-decoration: underline;
+.trip-search__pending-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.trip-search__pending .trip-search__pending-chevron {
+  color: var(--color-warning-text);
+  font-size: var(--icon-size-s);
 }
 
 // «¿Tienes coche?»: una fila con su icono, el texto y la flecha de Ionic
@@ -101,8 +118,8 @@
   min-height: 23.4375rem; // 375px
 }
 
-// El próximo viaje dentro de la tarjeta: 8px hasta el aviso del ahorro (dos
-// tarjetas de color seguidas), solo si hay
-.trip-search__next-trip:has(.next-trip, app-live-trip-banner) {
-  margin-bottom: var(--space-s);
+// El próximo viaje, fuera de la tarjeta: sin él (aún cargando o sin viajes)
+// no ocupa su hueco en la columna
+.trip-search__next-trip:not(:has(.next-trip, app-live-trip-banner)) {
+  display: none;
 }

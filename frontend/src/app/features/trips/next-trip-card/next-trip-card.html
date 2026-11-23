@@ -4,53 +4,50 @@
     <app-live-trip-banner [trip]="live.trip" [detail]="liveDetail()" [link]="link()" />
   }
 } @else if (next(); as next) {
-  <section class="next-trip" [attr.aria-label]="'nextTrip.proximoViaje' | transloco">
+  <!-- Del color de su estado, como su etiqueta: ámbar si espera respuesta,
+       verde si está confirmado y azul si está publicado -->
+  <section
+    class="next-trip"
+    [class.next-trip--pending]="status()?.kind === 'pending'"
+    [class.next-trip--accepted]="status()?.kind === 'accepted'"
+    [attr.aria-label]="'nextTrip.proximoViaje' | transloco"
+  >
     <!-- Toda la tarjeta lleva al viaje (conductor) o a la plaza (pasajero):
          arriba el día y la hora, con el papel debajo, y el estado en la
-         esquina derecha; después, el recorrido. El chat, si lo hay, va aparte -->
+         esquina derecha; después, el recorrido -->
     <a class="next-trip__link" [routerLink]="link()">
-      <span class="next-trip__head">
-        <span class="next-trip__when">
-          <span class="text-body next-trip__time">{{ when() }}</span>
-          @if (next.role === 'driver') {
-            <span class="role-tag role-tag--driver">
-              <ion-icon [icon]="driverIcon" aria-hidden="true" />{{
-                'nextTrip.driving' | transloco
-              }}
-            </span>
-          } @else {
-            <span class="role-tag role-tag--passenger">
-              <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{
-                'nextTrip.riding' | transloco
-              }}
+      <span class="next-trip__body">
+        <span class="next-trip__head">
+          <span class="next-trip__when">
+            <span class="text-body next-trip__time">{{ when() }}</span>
+            @if (next.role === 'driver') {
+              <span class="role-tag role-tag--driver">
+                <ion-icon [icon]="driverIcon" aria-hidden="true" />{{
+                  'nextTrip.driving' | transloco
+                }}
+              </span>
+            } @else {
+              <span class="role-tag role-tag--passenger">
+                <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{
+                  'nextTrip.riding' | transloco
+                }}
+              </span>
+            }
+          </span>
+          @if (status(); as status) {
+            <span
+              class="status"
+              [class.status--pending]="status.kind === 'pending'"
+              [class.status--accepted]="status.kind === 'accepted'"
+              [class.status--info-strong]="status.kind === 'info'"
+            >
+              {{ status.label }}
             </span>
           }
         </span>
-        @if (status(); as status) {
-          <span
-            class="status"
-            [class.status--pending]="status.kind === 'pending'"
-            [class.status--accepted]="status.kind === 'accepted'"
-            [class.status--info-strong]="status.kind === 'info'"
-          >
-            {{ status.label }}
-          </span>
-        }
+        <span class="text-body-s next-trip__route">{{ route() }}</span>
       </span>
-      <span class="text-body-s next-trip__route">{{ route() }}</span>
+      <ion-icon class="next-trip__chevron" [icon]="chevronIcon" aria-hidden="true" />
     </a>
-    @if (chatLink(); as chat) {
-      <a
-        class="icon-btn icon-btn--reveal"
-        appRevealOnTouch
-        [attr.aria-label]="'nextTrip.chatConConductor' | transloco"
-        [routerLink]="chat"
-      >
-        <ion-icon [icon]="chatIcon" aria-hidden="true" />
-        <span class="icon-btn__label" aria-hidden="true">{{
-          'nextTrip.chatConConductor' | transloco
-        }}</span>
-      </a>
-    }
   </section>
 }

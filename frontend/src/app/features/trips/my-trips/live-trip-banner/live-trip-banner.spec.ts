@@ -39,6 +39,9 @@ describe('LiveTripBanner', () => {
     expect(root.querySelector('ion-item.live-trip-banner')?.getAttribute('href')).toBe(
       '/tabs/trips/drive/t1',
     );
+    // El aviso entero es el enlace: el chevron al final, sin otro botón ni el coche
+    expect(root.querySelector('.live-trip-banner__chevron')).not.toBeNull();
+    expect(root.querySelector('.live-trip-banner__live')).toBeNull();
   });
 
   it('names the ends of a trip without saved places and leaves out a missing detail', () => {

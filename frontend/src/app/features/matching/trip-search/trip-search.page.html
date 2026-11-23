@@ -2,31 +2,36 @@
   <!-- Móvil: el título, dentro del contenido para que se desplace con él -->
   <app-section-heading />
   <div class="trip-search">
-    <!-- Solicitudes que esperan respuesta: aviso encima de la búsqueda. El
-         saludo con el nombre va en la cabecera del layout -->
-    @if (pendingRequests(); as pending) {
-      <a class="trip-search__pending notice notice--info" routerLink="/tabs/trips">
-        <ion-icon [icon]="pendingIcon" aria-hidden="true" />
-        <span>
-          {{
-            (pending === 1 ? 'search.pending.one' : 'search.pending.other')
-              | transloco: { count: pending }
-          }}
-          <span class="trip-search__pending-link">{{ 'search.pendingLink' | transloco }}</span>
-        </span>
-      </a>
-    }
+    <!-- La columna de 8: arriba, fuera de la tarjeta, los avisos de la
+         pantalla (el viaje en curso o el próximo y las solicitudes que esperan
+         respuesta); debajo, la búsqueda -->
+    <div class="trip-search__main">
+      <app-next-trip-card class="trip-search__next-trip" />
 
-    <!-- La búsqueda, en una tarjeta siempre desplegada (rellena con la última,
-         que se cambia ahí mismo). El título de la pantalla va en la franja fija -->
-    <ion-card class="trip-search__criteria">
-      <ion-card-content>
-        <!-- El próximo viaje (o el que está en curso), dentro de la tarjeta y
-             encima de la búsqueda -->
-        <div class="trip-search__next-trip"><app-next-trip-card /></div>
-        <app-trip-search-form [showNewSearch]="true" />
-      </ion-card-content>
-    </ion-card>
+      <!-- El aviso entero lleva a la solicitud (o a Tus viajes, si hay varias). En
+           ámbar, como la etiqueta «Pendiente»: esperan respuesta -->
+      @if (pendingRequests(); as pending) {
+        <a class="trip-search__pending notice notice--warning" [routerLink]="pendingLink()">
+          <ion-icon [icon]="pendingIcon" aria-hidden="true" />
+          <span class="trip-search__pending-text">
+            {{
+              (pending === 1 ? 'search.pending.one' : 'search.pending.other')
+                | transloco: { count: pending }
+            }}
+          </span>
+          <ion-icon class="trip-search__pending-chevron" [icon]="chevronIcon" aria-hidden="true" />
+        </a>
+      }
+
+      <!-- La búsqueda, en una tarjeta siempre desplegada (rellena con la
+           última, que se cambia ahí mismo). El título de la pantalla va en la
+           franja fija -->
+      <ion-card class="trip-search__criteria">
+        <ion-card-content>
+          <app-trip-search-form [showNewSearch]="true" />
+        </ion-card-content>
+      </ion-card>
+    </div>
 
     <!-- Al lado de la búsqueda en escritorio, al final en el móvil: la
          invitación a publicar (solo sin coche registrado) y las preguntas

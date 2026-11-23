@@ -18,260 +18,263 @@
         <!-- Escritorio: los pasos en la columna de 8 y, en la de 4, «Tu
                las preguntas (pasos 1 y 2) o qué pasa después (3 y 4) -->
         <div class="publish__layout">
-          <!-- En una tarjeta de Ionic, como la búsqueda de Buscar: mismo título,
+          <!-- La columna de 8: arriba, fuera de la tarjeta, los avisos de la
+               pantalla (el viaje en curso o el próximo y la suspensión por
+               cancelaciones tardías); debajo, los pasos -->
+          <div class="publish__main">
+            <app-next-trip-card class="publish__next-trip" />
+            @if (publishingSuspendedUntil(); as until) {
+              <div
+                class="notice notice--danger notice--icon publish__suspended-notice"
+                role="alert"
+              >
+                <ion-icon [icon]="icons.suspended" aria-hidden="true" />
+                <p>
+                  {{ 'publish.suspended' | transloco: { date: publishingSuspendedUntilLabel() } }}
+                </p>
+              </div>
+            }
+            <!-- En una tarjeta de Ionic, como la búsqueda de Buscar: mismo título,
                márgenes y tamaño de texto. El título de la pantalla va en la
                franja fija -->
-          <ion-card class="publish__form">
-            <ion-card-content>
-              <!-- El próximo viaje (o el que está en curso), dentro de la tarjeta
-                   y encima de los pasos -->
-              <div class="publish__next-trip"><app-next-trip-card /></div>
-              @if (publishingSuspendedUntil(); as until) {
-                <div
-                  class="notice notice--danger notice--icon publish__suspended-notice"
-                  role="alert"
+            <ion-card class="publish__form">
+              <ion-card-content>
+                <form
+                  class="publish__steps"
+                  [formGroup]="tripForm"
+                  (ngSubmit)="handleSubmit()"
+                  novalidate
                 >
-                  <ion-icon [icon]="icons.suspended" aria-hidden="true" />
-                  <p>
-                    {{ 'publish.suspended' | transloco: { date: publishingSuspendedUntilLabel() } }}
-                  </p>
-                </div>
-              }
-              <form
-                class="publish__steps"
-                [formGroup]="tripForm"
-                (ngSubmit)="handleSubmit()"
-                novalidate
-              >
-                <app-step-indicator
-                  [steps]="steps"
-                  [current]="step()"
-                  (selected)="goToStep($event)"
-                  [isComplete]="published() !== null"
-                />
-                <!-- Volver al paso anterior, por su nombre, junto al botón de
+                  <app-step-indicator
+                    [steps]="steps"
+                    [current]="step()"
+                    (selected)="goToStep($event)"
+                    [isComplete]="published() !== null"
+                  />
+                  <!-- Volver al paso anterior, por su nombre, junto al botón de
                    seguir (también se puede desde los pasos hechos o con
                    «Atrás» del navegador) -->
-                <ng-template #back>
-                  @if (previousStep(); as previous) {
-                    <button
-                      class="publish__secondary"
-                      type="button"
-                      (click)="goToStep(previous.number)"
-                    >
-                      {{ 'publish.backTo' | transloco: { step: previous.name } }}
-                    </button>
-                  }
-                </ng-template>
-
-                @switch (step()) {
-                  @case (1) {
-                    <!-- Ruta: trayecto, fecha y hora y, a la derecha del desvío,
-                       «Siguiente» -->
-                    <app-route-fields [controls]="tripForm.controls" [showLabel]="false" />
-                    <div class="publish__grid">
-                      <app-datetime-field
-                        formControlName="date"
-                        [label]="'publish.fecha' | transloco"
-                        [min]="minDate"
-                      />
-                      <app-datetime-field
-                        formControlName="time"
-                        presentation="time"
-                        [label]="
-                          (isArrivalTime() ? 'publish.arrivalTime' : 'publish.departureTime')
-                            | transloco
-                        "
-                      />
-                    </div>
-                    @if (departureTooSoon()) {
-                      <p class="text-caption text-color-danger" role="alert">
-                        @if (isArrivalTime()) {
-                          {{ 'publish.paraLlegarEsaHora' | transloco }}
-                        } @else {
-                          {{ 'publish.viajeDebeSalirMenos' | transloco }}
-                        }
-                      </p>
-                    } @else if (estimatedDepartureTime(); as departure) {
-                      <!-- Hacia el campus: cuándo salir para llegar a tiempo aunque
-                           recoja a alguien (la exacta, con la ruta, al publicar) -->
-                      <p
-                        class="text-caption text-color-muted"
-                        [innerHTML]="'publish.departureHint' | transloco: { time: departure }"
-                      ></p>
-                    }
-                    <!-- Hacia el campus, la vuelta (otro viaje, el mismo día) y
-                         cómo recoge (desde él, cada pasajero sube en el parking) -->
-                    @if (isArrivalTime()) {
-                      <app-pickup-mode-field
-                        [controls]="pickupControls"
-                        [mapCenter]="tripValueStart()"
-                      />
-                      <app-return-trip-field
-                        [controls]="returnControls"
-                        [arrivalTime]="arrivalTime()"
-                      />
-                    }
-                    <!-- El margen para recoger lo calcula el sistema (con las
-                         plazas y los metros, o con las paradas): sin campo -->
-                    <div class="publish__actions">
-                      <ion-button
-                        class="publish__next"
-                        type="submit"
-                        [disabled]="
-                          isSuspended() ||
-                          !isRouteComplete() ||
-                          departureTooSoon() ||
-                          isMissingStops() ||
-                          isReturnTooEarly()
-                        "
-                      >
-                        {{ 'publish.next' | transloco }}
-                      </ion-button>
-                    </div>
-                  }
-                  @case (2) {
-                    <!-- Vehículo y plazas; a la derecha de las plazas, seguir.
-                         La lista se pide al llegar aquí: mientras viene, el
-                         cargando; si falla, el aviso con «Reintentar» -->
-                    @switch (vehiclesState()) {
-                      @case ('loading') {
-                        <output class="publish__status">
-                          <ion-spinner name="crescent" aria-hidden="true" />
-                          <span class="text-color-muted">{{
-                            'publish.cargandoTusVehiculos' | transloco
-                          }}</span>
-                        </output>
-                      }
-                      @case ('error') {
-                        <div class="notice notice--danger" role="alert">
-                          <p>
-                            {{ 'publish.hemosPodidoCargarTus' | transloco }}
-                          </p>
-                        </div>
-                        <form (submit)="$event.preventDefault(); loadVehicles()">
-                          <ion-button type="submit" fill="outline">{{
-                            'publish.reintentar' | transloco
-                          }}</ion-button>
-                        </form>
-                      }
-                      @default {
-                        <!-- Con la vuelta, las plazas de la ida y la vuelta -->
-                        <app-vehicle-picker
-                          [(vehicles)]="vehicles"
-                          [controls]="tripForm.controls"
-                          [returnSeats]="hasReturnTrip() ? tripForm.controls.returnSeats : null"
-                        >
-                          <div class="publish__actions">
-                            <ng-container [ngTemplateOutlet]="back" />
-                            <ion-button
-                              class="publish__next"
-                              type="submit"
-                              [disabled]="isSuspended() || !selectedVehicle()"
-                              >{{ 'publish.revisarDetalle' | transloco }}</ion-button
-                            >
-                          </div>
-                        </app-vehicle-picker>
-                      }
-                    }
-                  }
-                  @case (3) {
-                    <!-- Lo que se ahorra si se llenan las plazas -->
-                    @if (impact(); as impact) {
-                      <div class="notice notice--success publish__impact">
-                        <ion-icon [icon]="icons.impact" aria-hidden="true" />
-                        <p
-                          [innerHTML]="
-                            (impact.seats === 1 ? 'publish.impact.one' : 'publish.impact.other')
-                              | transloco
-                                : {
-                                    count: impact.seats,
-                                    km: impact.km,
-                                    co2: formatDecimal(impact.co2Kg),
-                                  }
-                          "
-                        ></p>
-                      </div>
-                    }
-
-                    <ng-container [ngTemplateOutlet]="summary" />
-
-                    <app-auto-accept-field [control]="tripForm.controls.autoAccept" />
-
-                    @if (!hasDeclared()) {
-                      <app-declaration-field [control]="tripForm.controls.declaration" />
-                    } @else {
-                      <!-- Ya aceptada: un aviso verde, como el de lo que se
-                           ahorra, con lo que declaró en palabras claras -->
-                      <div class="notice notice--success publish__declared">
-                        <ion-icon [icon]="icons.declared" aria-hidden="true" />
-                        <div>
-                          <p class="text-body-s text-body--strong">
-                            {{ 'publish.declaracionDelConductorAceptada' | transloco }}
-                          </p>
-                          <p class="text-caption">
-                            {{ 'publish.tienesPermisoConducirVigor' | transloco }}
-                          </p>
-                        </div>
-                      </div>
-                    }
-
-                    <div class="publish__actions">
-                      <ng-container [ngTemplateOutlet]="back" />
-                      <ion-button
-                        class="publish__next"
-                        type="submit"
-                        [disabled]="isSuspended() || isSaving() || needsDeclaration()"
-                      >
-                        @if (isSaving()) {
-                          <ion-spinner slot="start" name="crescent" aria-hidden="true" />
-                        }
-                        {{ 'publish.publicarViaje' | transloco }}
-                      </ion-button>
-                    </div>
-                  }
-                  @case (4) {
-                    <!-- Publicado: la enhorabuena, el detalle y qué hacer ahora -->
-                    @if (published(); as trip) {
-                      <output class="notice notice--success publish__impact">
-                        <ion-icon [icon]="icons.published" aria-hidden="true" />
-                        <span>
-                          <b>{{ 'publish.enhorabuenaHasPublicadoViaje' | transloco }}</b>
-                          {{
-                            (trip.offeredSeats === 1
-                              ? 'publish.offered.one'
-                              : 'publish.offered.other'
-                            ) | transloco: { count: trip.offeredSeats, margin: trip.maxDetourMin }
-                          }}
-                          @if (trip.autoAccept) {
-                            {{ 'publish.aceptaremosSolasLasSolicitudes' | transloco }}
-                          } @else {
-                            {{ 'publish.avisaremosCadaSolicitudPara' | transloco }}
-                          }
-                          @if (trip.returnTrip) {
-                            {{ 'publish.tambienHasPublicadoVuelta' | transloco }}
-                          }
-                        </span>
-                      </output>
-                    }
-                    <ng-container [ngTemplateOutlet]="summary" />
-                    <div class="publish__actions">
+                  <ng-template #back>
+                    @if (previousStep(); as previous) {
                       <button
                         class="publish__secondary"
                         type="button"
-                        (click)="handlePublishAnother()"
+                        (click)="goToStep(previous.number)"
                       >
-                        {{ 'publish.publicarOtroViaje' | transloco }}
+                        {{ 'publish.backTo' | transloco: { step: previous.name } }}
                       </button>
-                      <ion-button class="publish__next" routerLink="/tabs/trips">
-                        {{ 'publish.verTusViajes' | transloco }}
-                      </ion-button>
-                    </div>
+                    }
+                  </ng-template>
+
+                  @switch (step()) {
+                    @case (1) {
+                      <!-- Ruta: trayecto, fecha y hora y, a la derecha del desvío,
+                       «Siguiente» -->
+                      <app-route-fields [controls]="tripForm.controls" [showLabel]="false" />
+                      <div class="publish__grid">
+                        <app-datetime-field
+                          formControlName="date"
+                          [label]="'publish.fecha' | transloco"
+                          [min]="minDate"
+                        />
+                        <app-datetime-field
+                          formControlName="time"
+                          presentation="time"
+                          [label]="
+                            (isArrivalTime() ? 'publish.arrivalTime' : 'publish.departureTime')
+                              | transloco
+                          "
+                        />
+                      </div>
+                      @if (departureTooSoon()) {
+                        <p class="text-caption text-color-danger" role="alert">
+                          @if (isArrivalTime()) {
+                            {{ 'publish.paraLlegarEsaHora' | transloco }}
+                          } @else {
+                            {{ 'publish.viajeDebeSalirMenos' | transloco }}
+                          }
+                        </p>
+                      } @else if (estimatedDepartureTime(); as departure) {
+                        <!-- Hacia el campus: cuándo salir para llegar a tiempo aunque
+                           recoja a alguien (la exacta, con la ruta, al publicar) -->
+                        <p
+                          class="text-caption text-color-muted"
+                          [innerHTML]="'publish.departureHint' | transloco: { time: departure }"
+                        ></p>
+                      }
+                      <!-- Hacia el campus, la vuelta (otro viaje, el mismo día) y
+                         cómo recoge (desde él, cada pasajero sube en el parking) -->
+                      @if (isArrivalTime()) {
+                        <app-pickup-mode-field
+                          [controls]="pickupControls"
+                          [mapCenter]="tripValueStart()"
+                        />
+                        <app-return-trip-field
+                          [controls]="returnControls"
+                          [arrivalTime]="arrivalTime()"
+                        />
+                      }
+                      <!-- El margen para recoger lo calcula el sistema (con las
+                         plazas y los metros, o con las paradas): sin campo -->
+                      <div class="publish__actions">
+                        <ion-button
+                          class="publish__next"
+                          type="submit"
+                          [disabled]="
+                            isSuspended() ||
+                            !isRouteComplete() ||
+                            departureTooSoon() ||
+                            isMissingStops() ||
+                            isReturnTooEarly()
+                          "
+                        >
+                          {{ 'publish.next' | transloco }}
+                        </ion-button>
+                      </div>
+                    }
+                    @case (2) {
+                      <!-- Vehículo y plazas; a la derecha de las plazas, seguir.
+                         La lista se pide al llegar aquí: mientras viene, el
+                         cargando; si falla, el aviso con «Reintentar» -->
+                      @switch (vehiclesState()) {
+                        @case ('loading') {
+                          <output class="publish__status">
+                            <ion-spinner name="crescent" aria-hidden="true" />
+                            <span class="text-color-muted">{{
+                              'publish.cargandoTusVehiculos' | transloco
+                            }}</span>
+                          </output>
+                        }
+                        @case ('error') {
+                          <div class="notice notice--danger" role="alert">
+                            <p>
+                              {{ 'publish.hemosPodidoCargarTus' | transloco }}
+                            </p>
+                          </div>
+                          <form (submit)="$event.preventDefault(); loadVehicles()">
+                            <ion-button type="submit" fill="outline">{{
+                              'publish.reintentar' | transloco
+                            }}</ion-button>
+                          </form>
+                        }
+                        @default {
+                          <!-- Con la vuelta, las plazas de la ida y la vuelta -->
+                          <app-vehicle-picker
+                            [(vehicles)]="vehicles"
+                            [controls]="tripForm.controls"
+                            [returnSeats]="hasReturnTrip() ? tripForm.controls.returnSeats : null"
+                          >
+                            <div class="publish__actions">
+                              <ng-container [ngTemplateOutlet]="back" />
+                              <ion-button
+                                class="publish__next"
+                                type="submit"
+                                [disabled]="isSuspended() || !selectedVehicle()"
+                                >{{ 'publish.revisarDetalle' | transloco }}</ion-button
+                              >
+                            </div>
+                          </app-vehicle-picker>
+                        }
+                      }
+                    }
+                    @case (3) {
+                      <!-- Lo que se ahorra si se llenan las plazas -->
+                      @if (impact(); as impact) {
+                        <div class="notice notice--success publish__impact">
+                          <ion-icon [icon]="icons.impact" aria-hidden="true" />
+                          <p
+                            [innerHTML]="
+                              (impact.seats === 1 ? 'publish.impact.one' : 'publish.impact.other')
+                                | transloco
+                                  : {
+                                      count: impact.seats,
+                                      km: impact.km,
+                                      co2: formatDecimal(impact.co2Kg),
+                                    }
+                            "
+                          ></p>
+                        </div>
+                      }
+
+                      <ng-container [ngTemplateOutlet]="summary" />
+
+                      <app-auto-accept-field [control]="tripForm.controls.autoAccept" />
+
+                      @if (!hasDeclared()) {
+                        <app-declaration-field [control]="tripForm.controls.declaration" />
+                      } @else {
+                        <!-- Ya aceptada: un aviso verde, como el de lo que se
+                           ahorra, con lo que declaró en palabras claras -->
+                        <div class="notice notice--success publish__declared">
+                          <ion-icon [icon]="icons.declared" aria-hidden="true" />
+                          <div>
+                            <p class="text-body-s text-body--strong">
+                              {{ 'publish.declaracionDelConductorAceptada' | transloco }}
+                            </p>
+                            <p class="text-caption">
+                              {{ 'publish.tienesPermisoConducirVigor' | transloco }}
+                            </p>
+                          </div>
+                        </div>
+                      }
+
+                      <div class="publish__actions">
+                        <ng-container [ngTemplateOutlet]="back" />
+                        <ion-button
+                          class="publish__next"
+                          type="submit"
+                          [disabled]="isSuspended() || isSaving() || needsDeclaration()"
+                        >
+                          @if (isSaving()) {
+                            <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+                          }
+                          {{ 'publish.publicarViaje' | transloco }}
+                        </ion-button>
+                      </div>
+                    }
+                    @case (4) {
+                      <!-- Publicado: la enhorabuena, el detalle y qué hacer ahora -->
+                      @if (published(); as trip) {
+                        <output class="notice notice--success publish__impact">
+                          <ion-icon [icon]="icons.published" aria-hidden="true" />
+                          <span>
+                            <b>{{ 'publish.enhorabuenaHasPublicadoViaje' | transloco }}</b>
+                            {{
+                              (trip.offeredSeats === 1
+                                ? 'publish.offered.one'
+                                : 'publish.offered.other'
+                              ) | transloco: { count: trip.offeredSeats, margin: trip.maxDetourMin }
+                            }}
+                            @if (trip.autoAccept) {
+                              {{ 'publish.aceptaremosSolasLasSolicitudes' | transloco }}
+                            } @else {
+                              {{ 'publish.avisaremosCadaSolicitudPara' | transloco }}
+                            }
+                            @if (trip.returnTrip) {
+                              {{ 'publish.tambienHasPublicadoVuelta' | transloco }}
+                            }
+                          </span>
+                        </output>
+                      }
+                      <ng-container [ngTemplateOutlet]="summary" />
+                      <div class="publish__actions">
+                        <button
+                          class="publish__secondary"
+                          type="button"
+                          (click)="handlePublishAnother()"
+                        >
+                          {{ 'publish.publicarOtroViaje' | transloco }}
+                        </button>
+                        <ion-button class="publish__next" routerLink="/tabs/trips">
+                          {{ 'publish.verTusViajes' | transloco }}
+                        </ion-button>
+                      </div>
+                    }
                   }
-                }
-              </form>
-            </ion-card-content>
-          </ion-card>
+                </form>
+              </ion-card-content>
+            </ion-card>
+          </div>
 
           @if (step() < 3) {
             <!-- Las dudas de quien conduce (en el móvil, al final) -->

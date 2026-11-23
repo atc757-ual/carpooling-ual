@@ -11,7 +11,7 @@ import {
   IonLabel,
   IonRouterLink,
 } from '@ionic/angular';
-import { carOutline, timeOutline } from 'ionicons/icons';
+import { carOutline, chevronForward, timeOutline } from 'ionicons/icons';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
@@ -63,13 +63,20 @@ export class TripSearchPage {
   private readonly myRequests = resource({
     loader: () => this.seatRequests.listMine().catch(fallbackOnApiError([])),
   });
-  readonly pendingRequests = computed(() =>
+  private readonly pendingList = computed(() =>
     this.myRequests.hasValue()
-      ? this.myRequests.value().filter(({ status }) => status === 'pending').length
-      : 0,
+      ? this.myRequests.value().filter(({ status }) => status === 'pending')
+      : [],
   );
+  readonly pendingRequests = computed(() => this.pendingList().length);
+  // Con una sola, el aviso lleva a ella; con varias, a Tus viajes
+  readonly pendingLink = computed(() => {
+    const pending = this.pendingList();
+    return pending.length === 1 ? ['/tabs/trips/requests', pending[0].id] : ['/tabs/trips'];
+  });
 
   protected readonly pendingIcon = timeOutline;
+  protected readonly chevronIcon = chevronForward;
   protected readonly carIcon = carOutline;
 
   // Ionic guarda la pantalla: al volver a la pestaña, el próximo viaje y el
