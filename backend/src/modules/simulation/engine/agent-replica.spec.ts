@@ -168,4 +168,49 @@ describe('agentReplica', () => {
       matchingP95Ms: 0,
     });
   });
+
+  it('gives the same as always, with nobody from other modes, without their assumption', () => {
+    const metrics = agentReplica(job(), 0);
+
+    expect(metrics.otherMode).toEqual({
+      passengerTrips: 0,
+      coveredTrips: 0,
+      coveredPct: 0,
+      addedVehicles: 0,
+    });
+  });
+
+  // Quien iba en bus y consigue plaza no deja ningún coche; quien se queda
+  // sin ella sigue en su modo (no suma coche). Solo los que conducen suman
+  it('counts who comes by another mode as passengers, with no car of their own', () => {
+    const passengersOnly = agentReplica(
+      job({ parameters: { nonCarAdoptionRate: 0.3 } }),
+      0,
+    );
+    const carOnly = agentReplica(job(), 0);
+
+    expect(passengersOnly.otherMode?.passengerTrips).toBeGreaterThan(0);
+    expect(passengersOnly.otherMode?.coveredTrips).toBeGreaterThan(0);
+    expect(passengersOnly.otherMode?.addedVehicles).toBe(0);
+    expect(passengersOnly.baselineVehiclesUsed).toBe(
+      carOnly.baselineVehiclesUsed,
+    );
+    // Ocupan plazas de coches que van igualmente: sube la ocupación
+    expect(passengersOnly.averageOccupancy).toBeGreaterThan(
+      carOnly.averageOccupancy,
+    );
+  });
+
+  it('adds the cars of who comes by another mode and drives with passengers', () => {
+    const metrics = agentReplica(
+      job({
+        parameters: { nonCarAdoptionRate: 0.3, nonCarDriverShare: 1 },
+      }),
+      0,
+    );
+
+    // Todos conducen: nadie de otro modo pide plaza
+    expect(metrics.otherMode?.passengerTrips).toBe(0);
+    expect(metrics.otherMode?.addedVehicles).toBeGreaterThan(0);
+  });
 });

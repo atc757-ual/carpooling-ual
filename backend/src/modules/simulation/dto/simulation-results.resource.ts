@@ -115,6 +115,28 @@ class TripStateStatsResource {
   cancelled: MetricStatResource;
 }
 
+class OtherModeStatsResource {
+  @ApiProperty({
+    type: MetricStatResource,
+    description:
+      'Trips (to and from campus) in which people who came by public transport or another mode got a seat, per replica',
+  })
+  coveredTrips: MetricStatResource;
+
+  @ApiProperty({
+    type: MetricStatResource,
+    description: 'Share of their requested trips that got a seat, in %',
+  })
+  coveredPct: MetricStatResource;
+
+  @ApiProperty({
+    type: MetricStatResource,
+    description:
+      'Extra cars: those of people from another mode who drive because they got passengers, per replica',
+  })
+  addedVehicles: MetricStatResource;
+}
+
 class SimulationSummaryResource {
   @ApiProperty({
     type: ComparedStatResource,
@@ -159,6 +181,14 @@ class SimulationSummaryResource {
       'How the driver trips end; null in runs saved before it was recorded',
   })
   tripStates: TripStateStatsResource | null;
+
+  @ApiProperty({
+    type: OtherModeStatsResource,
+    nullable: true,
+    description:
+      'People who came by public transport or another mode and joined carpooling (nonCarAdoptionRate and nonCarDriverShare of the scenario); null in runs saved before it was measured',
+  })
+  otherMode: OtherModeStatsResource | null;
 
   @ApiProperty({
     type: PairedTestResource,
@@ -216,6 +246,7 @@ function withOptionalStats(
     ...(summary as SimulationSummaryResource),
     legs: summary.legs ?? null,
     tripStates: summary.tripStates ?? null,
+    otherMode: summary.otherMode ?? null,
     vehiclesReduction: summary.vehiclesReduction ?? null,
   };
 }

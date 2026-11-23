@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import type { ReplicaMetrics, TripStates } from '../simulation-metrics';
+import type { OtherModeMetrics } from '../other-mode-metrics';
 import { numericTransformer } from '../../../shared/database/numeric.transformer';
 
 // Resultado de una réplica (RESULTADO del modelo de datos): el escenario con
@@ -90,6 +91,10 @@ export class SimulationResult {
   @Column({ name: 'trip_states', type: 'jsonb', nullable: true })
   tripStates: TripStates | null;
 
+  // Lo de quienes iban en otro modo (accesibilidad); NULL en las de antes
+  @Column({ name: 'other_mode', type: 'jsonb', nullable: true })
+  otherMode: OtherModeMetrics | null;
+
   @Column({ name: 'vehicles_by_slot', type: 'jsonb' })
   vehiclesBySlot: number[];
 
@@ -126,6 +131,7 @@ export function toResultRow(
     returnVehicleCount: metrics.returnVehiclesUsed,
     returnBaselineVehicleCount: metrics.returnBaselineVehiclesUsed,
     tripStates: metrics.trips,
+    otherMode: metrics.otherMode,
     averageOccupancy: metrics.averageOccupancy,
     baselineAverageOccupancy: metrics.baselineAverageOccupancy,
     coveredRequestsRate: toRate(metrics.requestsCoveredPct),
@@ -162,6 +168,7 @@ export function toReplicaMetrics(row: SimulationResult): ReplicaMetrics {
     matchingP95Ms: row.matchingP95Ms,
     recoveryPct: row.recoveryRate === null ? null : toPct(row.recoveryRate),
     trips: row.tripStates,
+    otherMode: row.otherMode,
     vehiclesBySlot: row.vehiclesBySlot,
     baselineVehiclesBySlot: row.baselineVehiclesBySlot,
   };

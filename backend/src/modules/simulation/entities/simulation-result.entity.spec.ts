@@ -30,6 +30,12 @@ const METRICS: ReplicaMetrics = {
   trips: { finished: 12, expired: 5, cancelled: 1 },
   vehiclesBySlot: [40, 45],
   baselineVehiclesBySlot: [50, 50],
+  otherMode: {
+    passengerTrips: 20,
+    coveredTrips: 12,
+    coveredPct: 60,
+    addedVehicles: 2,
+  },
 };
 
 describe('simulation result rows', () => {
@@ -75,18 +81,20 @@ describe('simulation result rows', () => {
     expect(toReplicaMetrics(row)).toEqual({ ...METRICS, matchingP95Ms: 1 });
   });
 
-  it('reads the replicas saved before the return trip with those fields empty', () => {
+  it('reads the replicas saved before the return trip or the other modes with those fields empty', () => {
     const row = {
       ...toResultRow('run-1', 'scenario-1', METRICS),
       returnVehicleCount: null,
       returnBaselineVehicleCount: null,
       tripStates: null,
+      otherMode: null,
     } as SimulationResult;
 
     expect(toReplicaMetrics(row)).toMatchObject({
       returnVehiclesUsed: null,
       returnBaselineVehiclesUsed: null,
       trips: null,
+      otherMode: null,
     });
   });
 });

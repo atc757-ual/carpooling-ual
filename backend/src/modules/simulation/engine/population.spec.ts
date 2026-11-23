@@ -88,4 +88,39 @@ describe('generatePopulation', () => {
 
     expect(population.soloCommuters).toHaveLength(0);
   });
+
+  it('adds who comes by another mode and joins, without changing the car users', () => {
+    const withOthers = generatePopulation(
+      config({
+        parameters: { nonCarAdoptionRate: 0.2, nonCarDriverShare: 0.1 },
+      }),
+      createRandom(6),
+    );
+    const carOnly = generatePopulation(config(), createRandom(6));
+    const isOther = (commuter: { isOtherMode?: boolean }): boolean =>
+      commuter.isOtherMode === true;
+
+    // Los de coche, los mismos (se generan antes)
+    expect(withOthers.soloCommuters).toEqual(carOnly.soloCommuters);
+    expect(withOthers.drivers.filter((d) => !isOther(d))).toEqual(
+      carOnly.drivers,
+    );
+    // De los 700 de otros modos, se apunta en torno al 20 %, casi todos como
+    // pasajeros; quien no se apunta no cuenta (sigue en su modo)
+    const otherPassengers = withOthers.passengers.filter(isOther);
+    const otherDrivers = withOthers.drivers.filter(isOther);
+    expect(otherPassengers.length + otherDrivers.length).toBeGreaterThan(100);
+    expect(otherPassengers.length + otherDrivers.length).toBeLessThan(180);
+    expect(otherDrivers.length).toBeLessThan(otherPassengers.length / 4);
+    expect(withOthers.soloCommuters.some(isOther)).toBe(false);
+  });
+
+  it('keeps the population of always without the other modes assumption', () => {
+    const population = generatePopulation(
+      config({ parameters: { nonCarDriverShare: 0.5 } }),
+      createRandom(7),
+    );
+
+    expect(population).toEqual(generatePopulation(config(), createRandom(7)));
+  });
 });

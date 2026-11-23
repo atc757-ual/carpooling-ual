@@ -62,6 +62,26 @@ describe('applyVariant', () => {
     expect(baseline).toBe(CONFIGS.baseline);
     expect(scenario.modalSplit).toEqual(BASE.modalSplit);
   });
+
+  it('changes who joins from other modes in the scenario only, keeping its other parameters', () => {
+    const { scenario, baseline } = applyVariant(
+      {
+        ...CONFIGS,
+        scenario: {
+          ...CONFIGS.scenario,
+          parameters: { nonCarDriverShare: 0.1 },
+        },
+      },
+      { parameter: 'nonCarAdoptionRate', value: 0.2 },
+    );
+
+    expect(scenario.parameters).toEqual({
+      nonCarDriverShare: 0.1,
+      nonCarAdoptionRate: 0.2,
+    });
+    expect(scenario.adoptionRate).toBe(0.3);
+    expect(baseline).toBe(CONFIGS.baseline);
+  });
 });
 
 describe('nextVariant', () => {
