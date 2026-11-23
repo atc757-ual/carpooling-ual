@@ -156,8 +156,8 @@ describe('LoginPage', () => {
     const toggle = root.querySelector<HTMLElement>('.auth-password-toggle');
     expect(password?.type).toBe('password');
     expect(toggle?.getAttribute('aria-label')).toBe('Mostrar contraseña');
-    // Fuera del orden de tabulación: del campo se pasa al control siguiente
-    expect(toggle?.getAttribute('tabindex')).toBe('-1');
+    // Con el teclado se llega a él tras el campo (WCAG 2.1.1)
+    expect(toggle?.hasAttribute('tabindex')).toBe(false);
 
     toggle?.click();
     await fixture.whenStable();

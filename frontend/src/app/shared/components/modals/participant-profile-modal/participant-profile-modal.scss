@@ -21,7 +21,7 @@
   }
 
   p,
-  h3 {
+  h2 {
     margin: 0;
   }
 }
@@ -48,7 +48,7 @@
   height: 100%;
 }
 
-// ion-label da su propio tamaño y color a h3 y p: se fijan los del tema
+// ion-label da su propio tamaño y color a h2 y p: se fijan los del tema
 .participant-profile__name {
   color: var(--color-text);
 }

@@ -17,9 +17,9 @@
     @if (requirementKeys().length > 0) {
       <section class="identity-check__requirements" aria-labelledby="identity-requirements-title">
         @if (requirementsTitleKey(); as titleKey) {
-          <h3 id="identity-requirements-title" class="text-label text-label--strong">
+          <h2 id="identity-requirements-title" class="text-label text-label--strong">
             {{ titleKey | transloco }}
-          </h3>
+          </h2>
         }
         <ul class="text-body-s">
           @for (key of requirementKeys(); track key) {

@@ -31,7 +31,12 @@
         </div>
         <ul class="driver-reviews__bars">
           @for (bar of bars(); track bar.rating) {
-            <li class="driver-reviews__bar" [attr.aria-label]="bar.rating + ' de 5: ' + bar.count">
+            <li
+              class="driver-reviews__bar"
+              [attr.aria-label]="
+                ('tripReview.ofFive' | transloco: { rating: bar.rating }) + ': ' + bar.count
+              "
+            >
               <span class="driver-reviews__bar-label text-caption" aria-hidden="true">{{
                 barLabel(bar.rating)
               }}</span>
