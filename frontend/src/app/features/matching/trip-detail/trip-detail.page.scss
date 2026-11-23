@@ -156,7 +156,7 @@ ion-card.trip-detail__actions ion-card-content {
 
 // No encontrado o error (app-empty-state), del alto de la tarjeta: 375px
 .trip-detail__state {
-  --empty-state-min-height: 23.4375rem; // 375px
+  --empty-state-min-height: var(--state-min-height-l);
 }
 
 @media (min-width: 768px) {

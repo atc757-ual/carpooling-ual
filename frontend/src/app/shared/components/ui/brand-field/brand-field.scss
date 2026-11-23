@@ -12,7 +12,7 @@
   top: calc(100% + var(--space-xs));
   right: 0;
   left: 0;
-  max-height: min(14rem, 38vh);
+  max-height: min(14rem, 38vh); // 224px
   overflow-y: auto;
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);

@@ -26,7 +26,7 @@ ion-content {
   min-width: 0;
   flex-direction: column;
   gap: var(--space-base);
-  min-height: 25rem;
+  min-height: 25rem; // 400px
 }
 
 .notifications__panel {
@@ -63,7 +63,7 @@ ion-content {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 2.125rem;
+    height: 2.125rem; // 34px
     padding: var(--space-xs) var(--space-base);
     margin: 0;
     border-radius: var(--radius-full);
@@ -322,9 +322,9 @@ ion-content {
 .notifications__load-more {
   display: none;
   align-self: center;
-  height: 2rem;
-  min-height: 2rem;
-  --min-height: 2rem;
+  height: var(--box-size-s);
+  min-height: var(--box-size-s);
+  --min-height: var(--box-size-s);
   margin: 0;
   font-size: var(--font-size-label);
   --border-color: var(--color-primary);
@@ -386,8 +386,8 @@ ion-content {
 }
 
 .notifications__state {
-  --empty-state-min-height: 15rem;
-  --loading-state-min-height: 15rem;
+  --empty-state-min-height: var(--state-min-height-s);
+  --loading-state-min-height: var(--state-min-height-s);
 }
 
 // Sidebar de escritorio
@@ -411,7 +411,7 @@ ion-content {
   --background: transparent;
   --background-hover: var(--color-surface-subtle);
   --color: var(--color-text);
-  --min-height: 2.75rem;
+  --min-height: var(--control-height-s);
   --padding-start: var(--space-s);
   --padding-end: var(--space-s);
   --inner-padding-end: 0;
@@ -527,9 +527,9 @@ ion-content {
   }
   .notifications__load-more {
     display: inline-flex;
-    height: 2rem;
-    min-height: 2rem;
-    --min-height: 2rem;
+    height: var(--box-size-s);
+    min-height: var(--box-size-s);
+    --min-height: var(--box-size-s);
   }
   .notifications__page-range--desktop,
   .notifications__page-controls {

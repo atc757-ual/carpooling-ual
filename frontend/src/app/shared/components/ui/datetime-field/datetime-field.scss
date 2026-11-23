@@ -69,7 +69,7 @@
 
 .datetime-field__native {
   // El hueco del icono: 16px de margen, 20px de icono y 8px hasta el valor
-  padding-left: calc(var(--space-base) + 1.25rem + var(--space-s));
+  padding-left: calc(var(--space-base) + 1.25rem + var(--space-s)); // 20px
   cursor: text;
 
   &::-webkit-calendar-picker-indicator {

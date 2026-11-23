@@ -70,17 +70,17 @@ ion-toolbar ion-buttons ion-button.back-button.button-has-icon-only.button-clear
   --color: var(--color-text);
 
   align-self: flex-start;
-  width: 3.25rem; // 52px
-  min-width: 3.25rem;
-  max-width: 3.25rem;
-  height: 3.25rem;
+  width: var(--back-button-size);
+  min-width: var(--back-button-size);
+  max-width: var(--back-button-size);
+  height: var(--back-button-size);
   margin: 0;
   margin-inline-start: -0.75rem; // 12px: (52 − 28) / 2
 
   ion-icon {
     width: 1.75rem; // 28px
-    height: 1.75rem;
-    font-size: 1.75rem;
+    height: 1.75rem; // 28px
+    font-size: 1.75rem; // 28px
   }
 }
 
@@ -92,12 +92,12 @@ ion-back-button.back-button {
   --icon-margin-start: 0;
   --icon-margin-end: 0;
   --icon-font-size: 1.75rem; // 28px
-  --min-width: 3.25rem;
-  --min-height: 3.25rem;
+  --min-width: var(--back-button-size);
+  --min-height: var(--back-button-size);
 
   align-self: flex-start;
-  width: 3.25rem; // 52px
-  height: 3.25rem;
+  width: var(--back-button-size);
+  height: var(--back-button-size);
   margin-inline-start: -0.75rem; // 12px
 
   &::part(native) {
@@ -115,7 +115,7 @@ ion-back-button.back-button {
 // del ancho de la flecha, mantiene el título en el centro
 .top-bar {
   display: grid;
-  grid-template-columns: 3.25rem 1fr 3.25rem; // 52px: la flecha
+  grid-template-columns: var(--back-button-size) 1fr var(--back-button-size); // la flecha
   align-items: center;
   // Sale 12px por cada lado (lo que se desplaza la flecha): el icono empieza
   // en el margen y el título queda en el centro del contenido
@@ -148,9 +148,9 @@ ion-button {
 
   &[size='small'],
   &.button-small {
-    min-height: 2rem;
-    --min-height: 2rem;
-    height: 2rem;
+    min-height: var(--box-size-s);
+    --min-height: var(--box-size-s);
+    height: var(--box-size-s);
     font-size: var(--font-size-label);
   }
 }
@@ -365,7 +365,7 @@ ion-modal.legal-dialog {
     --max-height: min(90%, 48rem); // 768px
 
     .modal-body {
-      max-height: calc(min(90vh, 48rem) - 3.5rem);
+      max-height: calc(min(90vh, 48rem) - 3.5rem); // 768px 56px
     }
   }
 }
@@ -374,7 +374,7 @@ ion-modal.legal-dialog {
 // 56px): el alto que queda hasta el 92 %, con su propio scroll y sitio abajo
 // para la barra del sistema
 .modal-body {
-  max-height: calc(92vh - 3.5rem);
+  max-height: calc(92vh - 3.5rem); // 56px
   overflow-y: auto;
   padding: var(--space-base);
   padding-bottom: max(var(--space-l), calc(var(--space-base) + env(safe-area-inset-bottom, 0px)));
@@ -442,12 +442,12 @@ ion-modal.legal-dialog {
   ion-modal.location-dialog,
   ion-modal.info-dialog {
     .modal-body {
-      max-height: calc(92vh - 3.5rem - 0.25rem - var(--space-s));
+      max-height: calc(92vh - 3.5rem - 0.25rem - var(--space-s)); // 56px 4px
     }
   }
 
   ion-modal.legal-dialog .modal-body {
-    max-height: calc(70vh - 3.5rem - 0.25rem - var(--space-s));
+    max-height: calc(70vh - 3.5rem - 0.25rem - var(--space-s)); // 56px 4px
   }
 
   ion-modal.datetime-modal {
@@ -477,8 +477,8 @@ ion-toolbar ion-buttons ion-button.modal-back-button {
   --border-radius: var(--radius-full);
   --color: var(--color-text);
 
-  width: 3rem; // 48px
-  height: 3rem;
+  width: var(--control-height-base);
+  height: var(--control-height-base);
   margin: 0;
 
   ion-icon[slot='icon-only'] {
@@ -550,7 +550,7 @@ ion-toast.toast--floating {
 // desplegable fuera de la pantalla que lo abre
 .phone-prefix-popover {
   --width: 8.5rem; // ~136px
-  --max-height: 18rem;
+  --max-height: 18rem; // 288px
   --box-shadow: var(--shadow-base);
   --border-radius: var(--radius-s); // 8px
 }
@@ -705,7 +705,7 @@ ion-item.option-card {
     --background-focused-opacity: 1;
     --padding-start: var(--space-base);
     --inner-padding-end: var(--space-base);
-    --min-height: 2.75rem; // 44px
+    --min-height: var(--control-height-s);
     font-size: var(--font-size-body-s);
     color: var(--color-danger-text);
     cursor: pointer;
@@ -1454,8 +1454,8 @@ ion-toggle {
     padding 160ms ease;
 
   ion-spinner {
-    width: 1.25rem; // 20px
-    height: 1.25rem;
+    width: var(--icon-size-base);
+    height: var(--icon-size-base);
   }
 
   @media (any-hover: hover) {
@@ -1492,7 +1492,7 @@ ion-toggle {
   .icon-btn--revealed &,
   .icon-btn--busy &,
   .icon-btns-open & {
-    max-width: 10rem;
+    max-width: 10rem; // 160px
   }
 }
 

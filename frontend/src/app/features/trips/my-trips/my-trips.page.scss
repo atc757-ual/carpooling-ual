@@ -50,8 +50,8 @@
 // Avisos), así la tarjeta no salta al terminar de cargar
 .my-trips__state {
   --empty-state-padding: var(--space-l) var(--space-base);
-  --empty-state-min-height: 15rem; // 240px
-  --loading-state-min-height: 15rem; // 240px
+  --empty-state-min-height: var(--state-min-height-s);
+  --loading-state-min-height: var(--state-min-height-s);
 }
 
 // La tarjeta de la columna de 8: las pastillas y, debajo, los viajes en

@@ -142,7 +142,7 @@
 
 .admin-users__skeleton-row {
   display: grid;
-  grid-template-columns: 2.5rem 2fr 1fr;
+  grid-template-columns: 2.5rem 2fr 1fr; // 40px
   align-items: center;
   gap: var(--space-base);
   padding: var(--space-base);

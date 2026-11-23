@@ -145,7 +145,7 @@
   flex: 1;
   min-width: 0;
   min-height: var(--control-height-base); // De alto
-  --min-height: 3rem;
+  --min-height: var(--control-height-base);
   height: var(--control-height-base);
   font-size: var(--font-size-body-s);
 
@@ -237,8 +237,8 @@
 // Buscando, error, sin viajes y sin búsqueda (app-loading-state y
 // app-empty-state), del alto de la tarjeta
 .search-results__state {
-  --empty-state-min-height: 23.4375rem; // 375px
-  --loading-state-min-height: 23.4375rem;
+  --empty-state-min-height: var(--state-min-height-l);
+  --loading-state-min-height: var(--state-min-height-l);
 }
 
 .search-results__summary {
