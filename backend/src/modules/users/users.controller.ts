@@ -100,7 +100,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Accept the driver responsible declaration',
     description:
-      'Accepts the current version of the driver responsible declaration (RF-21): a valid driving licence and vehicles with valid compulsory insurance and roadworthiness test (ITV), sharing trips without profit. It is recorded with its version and the hash of its text. After a major change of the declaration the driver must accept it again to publish. Idempotent: the date of the first declaration is kept.',
+      'Accepts the current version of the driver responsible declaration (RF-21): a valid driving licence and sharing trips without profit (compulsory insurance and the roadworthiness test, ITV, are declared with each vehicle). It is recorded with its version and the hash of its text. After a major change of the declaration the driver must accept it again to publish. Idempotent: the date of the first declaration is kept.',
   })
   @ApiOkResponse({ type: DriverStatusResource })
   @ApiErrorResponses({
