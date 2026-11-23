@@ -61,11 +61,11 @@
     },
     "request_rejected": {
       "title": "No han aceptado tu solicitud",
-      "body": "Busca otro viaje: tu próxima solicitud tendrá prioridad."
+      "body": "Puedes buscar otro viaje en la app."
     },
     "trip_cancelled": {
       "title": "Han cancelado el viaje",
-      "body": "Busca otro viaje: tu próxima solicitud tendrá prioridad."
+      "body": "Puedes buscar otro viaje en la app."
     },
     "trip_started": {
       "title": "Tu conductor va de camino",
