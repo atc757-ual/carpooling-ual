@@ -2,7 +2,7 @@ import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
-import { carOutline, chatbubblesOutline, personOutline } from 'ionicons/icons';
+import { carOutline, chevronForward, personOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { TripEntryResponse } from '../../../core/models/my-trips.model';
 import { TripsService } from '../../../core/services/trips/trips.service';
@@ -10,18 +10,17 @@ import { formatDateLabel } from '../../../shared/components/ui/datetime-field/da
 import { formatTime } from '../../matching/trip-results';
 import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
 import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
-import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } from './next-trip';
 
 // «Próximo viaje», arriba de Buscar y de Publicar: el viaje más cercano del
 // usuario en cualquiera de sus papeles (el que está en curso, con la misma
-// tarjeta que arriba de Tus viajes), con la hora, el trayecto, el estado, el papel y el acceso. El
-// pasajero con plaza tiene además el chat con el conductor. Sin viaje no se
-// ve. Ionic guarda las pantallas: quien la usa llama a reload() al volver a
+// tarjeta que arriba de Tus viajes), con la hora, el trayecto, el estado y el
+// papel; toda ella lleva al viaje (sin botones dentro, 23/11/2026). Sin viaje
+// no se ve. Ionic guarda las pantallas: quien la usa llama a reload() al volver a
 // la pestaña (ionViewWillEnter)
 @Component({
   selector: 'app-next-trip-card',
-  imports: [RouterLink, IonIcon, LiveTripBanner, RevealOnTouch, TranslocoPipe],
+  imports: [RouterLink, IonIcon, LiveTripBanner, TranslocoPipe],
   templateUrl: './next-trip-card.html',
   styleUrl: './next-trip-card.scss',
 })
@@ -70,13 +69,6 @@ export class NextTripCard {
     const next = this.next();
     return next ? formatRoute(next.trip) : '';
   });
-  // El chat con el conductor: solo el pasajero con la plaza aceptada
-  readonly chatLink = computed(() => {
-    const next = this.next();
-    return next?.role === 'passenger' && next.request.status === 'accepted'
-      ? `/tabs/messages/${next.trip.id}`
-      : null;
-  });
   // En curso: cuántos van (conductor) o quién conduce (pasajero), como en la
   // tarjeta de Tus viajes
   readonly liveDetail = computed(() => {
@@ -115,6 +107,6 @@ export class NextTripCard {
   }
 
   protected readonly driverIcon = carOutline;
+  protected readonly chevronIcon = chevronForward;
   protected readonly passengerIcon = personOutline;
-  protected readonly chatIcon = chatbubblesOutline;
 }

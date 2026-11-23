@@ -1,6 +1,6 @@
 <!-- El aviso entero es el enlace (ion-item, sin flecha): «Viaje en curso», el
      trayecto y el detalle, que son también el nombre del enlace; a la derecha
-     el coche con el punto que late -->
+     el chevron azul, como los demás avisos que se pulsan -->
 <ion-item class="live-trip-banner" lines="none" [routerLink]="link()" [detail]="false">
   <ion-label class="live-trip-banner__text">
     <span class="text-eyebrow live-trip-banner__eyebrow">{{ 'live.viajeCurso' | transloco }}</span>
@@ -21,8 +21,5 @@
       <span class="text-body-s live-trip-banner__detail">{{ detail() }}</span>
     }
   </ion-label>
-  <span slot="end" class="live-trip-banner__live" aria-hidden="true">
-    <span class="live-trip-banner__dot"></span>
-    <ion-icon class="live-trip-banner__car" [icon]="liveIcon" />
-  </span>
+  <ion-icon slot="end" class="live-trip-banner__chevron" [icon]="chevronIcon" aria-hidden="true" />
 </ion-item>

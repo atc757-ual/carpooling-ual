@@ -1,5 +1,6 @@
-// «Próximo viaje»: una tarjeta azul claro con el borde de la marca, entera
-// clicable (lleva al viaje o a la plaza) y, si lo hay, el chat a la derecha.
+// «Próximo viaje»: una tarjeta del color de su estado (como su etiqueta:
+// azul si está publicado, ámbar si espera respuesta, verde si está
+// confirmado), entera clicable (lleva al viaje o a la plaza), con su hover.
 // En curso va la tarjeta de «Viaje en curso» (app-live-trip-banner). El
 // espacio con lo de debajo lo pone el gap de la pantalla; sin viaje, el
 // elemento no ocupa sitio (si no, el gap dejaría un hueco vacío)
@@ -8,23 +9,44 @@
 }
 
 .next-trip {
+  --next-trip-tone: var(--color-primary);
+  --next-trip-background: var(--color-primary-subtle);
+  --next-trip-icon: var(--color-link);
+
   display: flex;
   align-items: center;
-  gap: var(--space-s);
   width: 100%;
   box-sizing: border-box;
   padding: var(--space-s); // 8px, como los avisos
-  border: var(--border-width-s) solid var(--color-primary);
+  border: var(--border-width-s) solid var(--next-trip-tone);
   border-radius: var(--radius-s); // 8px, como las tarjetas
-  background: var(--color-primary-subtle);
+  background: var(--next-trip-background);
+  transition: background-color var(--motion-duration-fast) ease;
+
+  // Al pasar el ratón, el fondo algo más intenso en su tono
+  &:has(.next-trip__link:hover) {
+    background: color-mix(in srgb, var(--next-trip-tone) 10%, var(--next-trip-background));
+  }
 }
 
-// El enlace ocupa todo menos el chat; el texto, con su color (no el del enlace)
+.next-trip--pending {
+  --next-trip-tone: var(--color-warning);
+  --next-trip-background: var(--color-warning-subtle);
+  --next-trip-icon: var(--color-warning-text);
+}
+
+.next-trip--accepted {
+  --next-trip-tone: var(--color-success);
+  --next-trip-background: var(--color-success-subtle);
+  --next-trip-icon: var(--color-success);
+}
+
+// El enlace ocupa toda la tarjeta; el texto, con su color (no el del enlace)
 .next-trip__link {
   display: flex;
   flex: 1;
-  flex-direction: column;
-  gap: var(--space-xs);
+  align-items: center;
+  gap: var(--space-s);
   min-width: 0;
   border-radius: var(--radius-xs);
   color: inherit;
@@ -34,6 +56,15 @@
     outline: var(--focus-ring);
     outline-offset: var(--space-xs);
   }
+}
+
+// Lo escrito: la cabecera y, debajo, el recorrido
+.next-trip__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
 }
 
 // El día y la hora, con el papel debajo, a la izquierda; el estado en la
@@ -60,4 +91,12 @@
 
 .next-trip__route {
   overflow-wrap: anywhere;
+}
+
+// El chevron azul: toda la tarjeta lleva al viaje, como los demás avisos que
+// se pulsan
+.next-trip__chevron {
+  flex: none;
+  color: var(--next-trip-icon);
+  font-size: var(--icon-size-s);
 }

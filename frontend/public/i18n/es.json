@@ -114,7 +114,6 @@
       "one": "Tienes 1 solicitud esperando respuesta.",
       "other": "Tienes {{ count }} solicitudes esperando respuesta."
     },
-    "pendingLink": "Ver en Tus viajes",
     "carTitle": "¿Tienes coche?",
     "carText": "Publica tu trayecto y comparte tu coche.",
     "impact": "Compartiendo este trayecto ahorras aproximadamente <b>{{ km }} km</b> al volante y <b>{{ co2 }} kg de CO₂</b>.",

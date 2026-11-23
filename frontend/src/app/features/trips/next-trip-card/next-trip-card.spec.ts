@@ -57,7 +57,7 @@ describe('NextTripCard', () => {
       requests: [],
     }) as unknown as DriverTrip;
 
-  it('links the whole card to the passenger seat and offers the chat apart', async () => {
+  it('links the whole card to the passenger seat, with no buttons inside', async () => {
     const { root, listMyTripEntries } = await render({
       profiles: ['passenger'],
       requestStatus: 'accepted',
@@ -70,16 +70,18 @@ describe('NextTripCard', () => {
     );
     expect(root.querySelector('.next-trip__when')?.textContent).toContain('Viajas');
     expect(root.querySelector('.next-trip__head > .status')?.textContent).toContain('Confirmada');
-    const chat = root.querySelector<HTMLAnchorElement>('a.icon-btn--reveal');
-    expect(chat?.getAttribute('aria-label')).toBe('Chat con el conductor');
-    expect(chat?.getAttribute('href')).toBe('/tabs/messages/t1');
+    expect(root.querySelector('.icon-btn')).toBeNull();
+    // Verde, como su etiqueta «Confirmada», y el chevron dentro del enlace
+    expect(root.querySelector('.next-trip')?.classList).toContain('next-trip--accepted');
+    expect(root.querySelector('.next-trip__link .next-trip__chevron')).not.toBeNull();
   });
 
-  it('gives no chat while the seat is pending', async () => {
+  it('turns amber while the seat waits for an answer', async () => {
     const { root } = await render({ profiles: ['passenger'], requestStatus: 'pending' });
 
     expect(root.textContent).toContain('Pendiente');
-    expect(root.querySelector('a[aria-label="Chat con el conductor"]')).toBeNull();
+    expect(root.querySelector('.next-trip')?.classList).toContain('next-trip--pending');
+    expect(root.querySelector('.next-trip')?.classList).not.toContain('next-trip--accepted');
   });
 
   it('shows the driver trip, and reloads on demand', async () => {

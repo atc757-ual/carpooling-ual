@@ -2,7 +2,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonIcon, IonItem, IonLabel } from '@ionic/angular';
-import { carOutline, ellipseOutline, locationOutline } from 'ionicons/icons';
+import { chevronForward, ellipseOutline, locationOutline } from 'ionicons/icons';
 import { formatRoute, routeEnds, TripEnds } from '../my-trips-summary';
 
 // El viaje en curso, destacado arriba de Tus viajes, del detalle del viaje y
@@ -26,7 +26,7 @@ export class LiveTripBanner {
 
   // El coche, como la pestaña «En curso»; el origen y el destino, como en el
   // título de la conversación
-  protected readonly liveIcon = carOutline;
+  protected readonly chevronIcon = chevronForward;
   protected readonly originIcon = ellipseOutline;
   protected readonly destinationIcon = locationOutline;
 }

@@ -95,10 +95,24 @@ describe('TripSearchPage', () => {
     COLD_START_TIMEOUT_MS,
   );
 
-  it('tells how many requests wait for an answer', async () => {
+  it('tells how many requests wait for an answer, in amber and outside the search card', async () => {
     const root = (await setUp(null, { pending: 2 })).nativeElement as HTMLElement;
 
-    expect(root.textContent).toContain('Tienes 2 solicitudes esperando respuesta.');
+    const alert = root.querySelector<HTMLAnchorElement>('a.trip-search__pending');
+    expect(alert?.textContent).toContain('Tienes 2 solicitudes esperando respuesta.');
+    expect(alert?.classList).toContain('notice--warning');
+    // Con varias, a Tus viajes; el aviso entero es el enlace, sin otro dentro
+    expect(alert?.getAttribute('href')).toBe('/tabs/trips');
+    expect(alert?.querySelector('a')).toBeNull();
+    expect(root.querySelector('.trip-search__criteria a.trip-search__pending')).toBeNull();
+  });
+
+  it('takes the only waiting request straight to its detail', async () => {
+    const root = (await setUp(null, { pending: 1 })).nativeElement as HTMLElement;
+
+    const alert = root.querySelector('a.trip-search__pending');
+    expect(alert?.textContent).toContain('Tienes 1 solicitud esperando respuesta.');
+    expect(alert?.getAttribute('href')).toBe('/tabs/trips/requests/r0');
   });
 
   it('asks again for the requests and the next trip when coming back to the tab', async () => {
