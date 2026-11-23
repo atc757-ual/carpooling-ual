@@ -100,7 +100,7 @@
       "aria": "Route"
     },
     "licensePlate": {
-      "aria": "License plate {{ plate }}"
+      "aria": "Number plate {{ plate }}"
     },
     "chatReceipt": {
       "sent": "Sent",
@@ -354,7 +354,7 @@
     "refreshError": "We couldn't refresh your messages.",
     "retry": "Try again",
     "empty": "No conversations yet",
-    "emptyHint": "When you're accepted on a trip or accept someone on yours, you can chat here to arrange the pickup.",
+    "emptyHint": "When you're accepted on a trip or accept someone on yours, you can chat here to arrange the pick-up.",
     "emptyUnread": "No unread messages",
     "emptyUnreadHint": "All your conversations are up to date.",
     "unreadSuffix": "unread",
@@ -531,7 +531,7 @@
     "deleteModal": {
       "title": "Delete account",
       "requirementsTitle": "Before you delete your account",
-      "requirementDriver": "You can't have any published or ongoing trips as a driver.",
+      "requirementDriver": "You can't have any published trips or trips in progress as a driver.",
       "requirementPassenger": "You can't have accepted seats on trips that haven't finished yet.",
       "requirementPending": "If you have seat requests still awaiting a reply, they'll be cancelled.",
       "confirmTitle": "When you delete your account",
@@ -657,12 +657,12 @@
       "other": "Sharing your trip with <b>{{ count }} passengers</b> saves about <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip."
     },
     "offered": {
-      "one": "You offer 1 seat, with {{ margin }} min of margin for pickups.",
-      "other": "You offer {{ count }} seats, with {{ margin }} min of margin for pickups."
+      "one": "You offer 1 seat, with {{ margin }} min of margin for pick-ups.",
+      "other": "You offer {{ count }} seats, with {{ margin }} min of margin for pick-ups."
     },
     "meta": {
-      "one": "1 seat · {{ margin }} min of margin for pickups",
-      "other": "{{ count }} seats · {{ margin }} min of margin for pickups"
+      "one": "1 seat · {{ margin }} min of margin for pick-ups",
+      "other": "{{ count }} seats · {{ margin }} min of margin for pick-ups"
     },
     "vehicleDeclaration": "vehicle declaration",
     "vehicleDeclarationTail": ": it has valid compulsory insurance and an up-to-date MOT.",
@@ -793,10 +793,10 @@
     "estaVezPodidoSer2": "Not this time: the request expired.",
     "conductorRespondioTiempoLas": "The driver didn't answer in time: requests close 10 minutes before departure.",
     "canceladaPresentasteTiempo": "Cancelled: you didn't show up in time.",
-    "conductorMarcoQuePresentaste": "The driver marked that you didn't show up at the pickup point after waiting 5 minutes.",
+    "conductorMarcoQuePresentaste": "The driver marked that you didn't show up at the pick-up point after waiting 5 minutes.",
     "solicitudEstaCancelada": "The request is cancelled.",
     "puedesBuscarOtroViaje2": "You can look for another ride if you still need a seat.",
-    "codigoRecogida": "Pickup code",
+    "codigoRecogida": "Pick-up code",
     "subidaConfirmada": "Boarding confirmed!",
     "estasBordoDelVehiculo": "You're now on board the vehicle.",
     "viajeAcciones": "Your trip and actions",
@@ -834,7 +834,7 @@
     "motivoPrincipal": "Main reason",
     "queOcurrido": "What happened?",
     "ahora": "Not now",
-    "boardCodeHint": "Give this 4-digit code to {{ driver }} when you get in the car to confirm your pickup.",
+    "boardCodeHint": "Give this 4-digit code to {{ driver }} when you get in the car to confirm your pick-up.",
     "driverCancelled": "{{ driver }} has cancelled this trip.",
     "pendingTitle": "Your request is in {{ driver }}'s hands.",
     "acceptedTitle": "You have a seat in {{ driver }}'s car.",
@@ -1615,8 +1615,8 @@
       "mantenerSolicitud": "Keep request",
       "plazasLibres2": "{{ seats }} free seats",
       "ultimaPlaza": "Last seat",
-      "salidaRecogidaBuscabas": "Departure and pickup · you searched for {{ searchedParking }}",
-      "recogida": "Pickup"
+      "salidaRecogidaBuscabas": "Departure and pick-up · you searched for {{ searchedParking }}",
+      "recogida": "Pick-up"
     },
     "tripResultCard": {
       "desvioMin": "{{ pickupDetourMinutes }} min detour",
@@ -1716,8 +1716,8 @@
     "driverTripPassengers": {
       "plazasOcupadas": "{{ value1 }} of {{ offeredSeats }} seats taken",
       "salida": "At your starting point",
-      "pickup": "Pickup: {{ place }}",
-      "pickupAt": "Pickup: {{ place }} · {{ time }}",
+      "pickup": "Pick-up: {{ place }}",
+      "pickupAt": "Pick-up: {{ place }} · {{ time }}",
       "status": {
         "pending": "Pending",
         "accepted": "Accepted",
@@ -1852,7 +1852,7 @@
       "recogida": "{{ route }}; pick-up at {{ value2 }}",
       "legend": {
         "start": "Start",
-        "pickup": "Pickup",
+        "pickup": "Pick-up",
         "destination": "Destination",
         "car": "Car: where it is now",
         "approximate": "Approximate area"
@@ -1938,7 +1938,7 @@
     },
     "autoAccept": {
       "label": "Accept requests automatically",
-      "hint": "Anyone who fits in your car and your pickup margin gets the seat right away, and we'll let you know. If not, the request waits for you to decide."
+      "hint": "Anyone who fits in your car and your pick-up margin gets the seat right away, and we'll let you know. If not, the request waits for you to decide."
     },
     "pushOpen": {
       "opening": "Opening the notification"
@@ -2004,7 +2004,7 @@
     "PROFILE_DEACTIVATED_BY_ADMIN": "This profile was deactivated by an administrator. Contact support if you believe this is an error.",
     "AVATAR_NOT_FOUND": "Selected avatar is not available. Please choose another one.",
     "PHONE_REQUIRED": "Add and save a phone number before verifying it.",
-    "VEHICLE_ALREADY_REGISTERED": "You already have a vehicle registered with this license plate.",
+    "VEHICLE_ALREADY_REGISTERED": "You already have a vehicle registered with this number plate.",
     "DRIVER_NOT_READY": "Register a vehicle and accept the declaration before publishing.",
     "PUBLISHING_SUSPENDED": "Publishing is temporarily suspended due to late cancellations. Check the notice in Publish.",
     "DEPARTURE_TOO_SOON": "The trip must depart at least one hour from now.",
@@ -2030,9 +2030,9 @@
     "TRIP_NOT_IN_PROGRESS": "This trip is no longer in progress.",
     "INVALID_BOARD_CODE": "The code does not match. Ask the passenger for their 4 digits again.",
     "ALREADY_BOARDED": "This passenger is already checked in as on board.",
-    "PASSENGER_NOT_BOARDED": "The passenger has not boarded yet: validate their pickup code first.",
+    "PASSENGER_NOT_BOARDED": "The passenger has not boarded yet: validate their pick-up code first.",
     "REPORT_WINDOW_CLOSED": "You can only report a trip in the 7 days after it finishes.",
-    "PICKUP_GRACE_PERIOD_ACTIVE": "Wait at least 5 minutes after the pickup time to mark them as a no-show.",
+    "PICKUP_GRACE_PERIOD_ACTIVE": "Wait at least 5 minutes after the pick-up time to mark them as a no-show.",
     "ACCOUNT_HAS_ACTIVE_TRIPS": "You cannot delete your account with upcoming trips or bookings. Cancel them first.",
     "LAST_ADMIN": "This is the last administrator. Appoint another one first.",
     "CANNOT_CHANGE_OWN_ADMIN": "You cannot remove your own administrator role.",
@@ -2046,15 +2046,15 @@
     "CATALOG_ITEM_EXISTS": "An item with this name already exists (even if inactive).",
     "CATALOG_ITEM_NOT_FOUND": "That item no longer exists. Please refresh the list.",
     "INVALID_AVATAR_IMAGE": "The image must be a square PNG or WebP between 128 and 512 px, up to 100 KB.",
-    "VEHICLE_COLOR_NOT_OFFERED": "This color is no longer available. Please choose another one.",
+    "VEHICLE_COLOR_NOT_OFFERED": "This colour is no longer available. Please choose another one.",
     "TRAVEL_PREFERENCE_NOT_OFFERED": "This preference is no longer available. Please choose another one.",
-    "CAMPUS_PARKING_NOT_FOUND": "This parking area doesn't exist or is currently closed.",
+    "CAMPUS_PARKING_NOT_FOUND": "This car park doesn't exist or is currently closed.",
     "PARKING_OUTSIDE_SERVICE_AREA": "This location is outside the service area.",
-    "PARKING_IN_USE": "This parking has active or scheduled trips and cannot be modified until they finish.",
+    "PARKING_IN_USE": "This car park has active or scheduled trips and cannot be modified until they finish.",
     "LEGAL_DOCUMENT_NOT_FOUND": "No published version found for this document.",
     "LEGAL_DRAFT_NOT_FOUND": "There is no draft available to publish.",
     "VEHICLE_DECLARATION_REQUIRED": "Before using this vehicle, please accept its declaration again (insurance and inspection).",
-    "DRIVER_DECLARATION_REQUIRED": "Before starting the trip, please accept your driver declaration again (driver's license).",
+    "DRIVER_DECLARATION_REQUIRED": "Before starting the trip, please accept your driver declaration again (driving licence).",
     "LEGAL_DOCUMENT_OUTDATED": "A new version was published while you were reading. Please review the latest one.",
     "LEGAL_SUMMARY_REQUIRED": "Provide a summary of changes before publishing this version.",
     "BAD_REQUEST": "Please check the details and try again.",

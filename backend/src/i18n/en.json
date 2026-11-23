@@ -57,7 +57,7 @@
     },
     "request_accepted": {
       "title": "Your request was accepted",
-      "body": "You have a seat: check the time and the pickup point."
+      "body": "You have a seat: check the time and the pick-up point."
     },
     "request_rejected": {
       "title": "Your request wasn't accepted",
