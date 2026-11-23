@@ -70,6 +70,7 @@ describe('Driver declaration (e2e)', () => {
       .send(body);
   }
 
+  // La 1.1, publicada por su migración: el seguro y la ITV van con cada vehículo
   it('serves the declaration as a versioned document', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/legal-documents/driver_declaration')
@@ -77,11 +78,20 @@ describe('Driver declaration (e2e)', () => {
 
     expect(response.body).toMatchObject({
       type: 'driver_declaration',
-      version: '1.0',
-      changeType: 'major',
+      version: '1.1',
+      changeType: 'minor',
     });
-    expect((response.body as { content: string }).content).toContain(
-      'permiso de conducir en vigor',
+    const { content } = response.body as { content: string };
+    expect(content).toContain('permiso de conducir en vigor');
+    expect(content).toContain('se declaran con cada vehículo');
+    expect(content).not.toContain('seguro obligatorio');
+
+    const english = await request(app.getHttpServer())
+      .get('/api/legal-documents/driver_declaration?lang=en')
+      .expect(200);
+    expect(english.body).toMatchObject({ version: '1.1', lang: 'en' });
+    expect((english.body as { content: string }).content).toContain(
+      'declared with each vehicle',
     );
   });
 
@@ -93,11 +103,11 @@ describe('Driver declaration (e2e)', () => {
       .expect(200);
     expect(before.body).toMatchObject({ hasLicenseDeclared: false });
 
-    const outdated = await declare(dan.token, { version: '0.9' }).expect(409);
+    const outdated = await declare(dan.token, { version: '1.0' }).expect(409);
     expect((outdated.body as { code: string }).code).toBe(
       'LEGAL_DOCUMENT_OUTDATED',
     );
-    const accepted = await declare(dan.token, { version: '1.0' }).expect(200);
+    const accepted = await declare(dan.token, { version: '1.1' }).expect(200);
     expect(accepted.body).toMatchObject({ hasLicenseDeclared: true });
     // Repetirla no añade otra aceptación; sin versión, se acepta la vigente
     await declare(dan.token).expect(200);
@@ -113,13 +123,13 @@ describe('Driver declaration (e2e)', () => {
     expect(rows).toHaveLength(1);
     const [row] = rows;
     expect(row).toMatchObject({
-      document_version: '1.0',
+      document_version: '1.1',
       source: 'driver_setup',
       content_hash: row.hash,
       fingerprint: computeConsentFingerprint({
         userId: dan.id,
         type: 'driver_declaration',
-        documentVersion: '1.0',
+        documentVersion: '1.1',
         action: 'granted',
         recordedAt: new Date(row.recorded_at),
       }),
@@ -139,7 +149,7 @@ describe('Driver declaration (e2e)', () => {
       .expect(200);
     expect(consents.body).toMatchObject({
       current: {
-        driverDeclaration: { documentVersion: '1.0', source: 'driver_setup' },
+        driverDeclaration: { documentVersion: '1.1', source: 'driver_setup' },
       },
     });
   });
