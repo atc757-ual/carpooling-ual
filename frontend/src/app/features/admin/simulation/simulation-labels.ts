@@ -121,5 +121,28 @@ export function resultKpis(results: SimulationResults, baselineCode: string): Kp
       interval: interval(summary.recoveryPct, ' %'),
     });
   }
-  return kpis;
+  return [...kpis, ...otherModeKpis(results)];
+}
+
+// Quienes iban en bus o de otra forma (accesibilidad): solo si el escenario
+// los tiene en cuenta y alguno se ha apuntado
+function otherModeKpis({ summary }: SimulationResults): Kpi[] {
+  const otherMode = summary.otherMode;
+  if (!otherMode || (otherMode.coveredTrips.mean === 0 && otherMode.addedVehicles.mean === 0)) {
+    return [];
+  }
+  return [
+    {
+      label: 'Viajes ganados desde otros modos',
+      value: `${formatNumber(otherMode.coveredTrips.mean, 0)} tramos`,
+      hint: `De bus u otro modo a coche compartido: ${formatNumber(otherMode.coveredPct.mean)} % de los que piden plaza`,
+      interval: interval(otherMode.coveredTrips),
+    },
+    {
+      label: 'Coches de más',
+      value: formatNumber(otherMode.addedVehicles.mean, 0),
+      hint: 'De quien iba en otro modo y conduce porque lleva a alguien',
+      interval: interval(otherMode.addedVehicles),
+    },
+  ];
 }

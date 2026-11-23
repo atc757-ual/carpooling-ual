@@ -9,7 +9,8 @@
     <!-- El supuesto que se varía: pestañas segmentadas del tema -->
     <fieldset class="segmented-tabs sweep__parameter">
       <legend class="visually-hidden">
-        Supuesto que se varía: % de usuarios en coche propio o % de adopción
+        Supuesto que se varía: % de usuarios en coche propio, % de adopción o % que se apunta desde
+        otros modos
       </legend>
       @for (option of parameters; track option.value) {
         <button
@@ -23,6 +24,7 @@
         </button>
       }
     </fieldset>
+    <p class="text-body-s text-color-muted sweep__parameter-help">{{ parameterDescription() }}</p>
     <ion-input
       class="sweep__values"
       label="Valores (%)"

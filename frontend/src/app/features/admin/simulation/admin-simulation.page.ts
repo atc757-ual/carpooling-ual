@@ -27,6 +27,7 @@ import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { HeadingContent } from '../../../shared/directives/heading-content.directive';
 import { SensitivitySweep } from './sensitivity/sensitivity-sweep';
 import { SimulationResultsView } from './simulation-results/simulation-results';
+import { scenarioGuide, scenarioSettings } from './scenario-guide';
 import {
   comparisonLabel,
   formatDateTime,
@@ -106,6 +107,14 @@ export class AdminSimulationPage {
   readonly selectedScenario = computed(() =>
     this.scenarios.value()?.find(({ code }) => code === this.scenario()),
   );
+  // Qué representa el escenario elegido y su configuración, contada en claro
+  readonly selectedGuide = computed(() => {
+    const selected = this.selectedScenario();
+    return selected
+      ? { guide: scenarioGuide(selected.code), settings: scenarioSettings(selected) }
+      : null;
+  });
+  protected readonly summaryOf = (code: string): string => scenarioGuide(code)?.summary ?? '';
   readonly replicas = linkedSignal(() => this.selectedScenario()?.replicas ?? 30);
   readonly seed = signal(DEFAULT_SEED);
   readonly isReplicasValid = computed(() => isWholeNumber(this.replicas(), MAX_REPLICAS, 1));

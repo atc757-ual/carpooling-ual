@@ -13,10 +13,12 @@ const MIN_PERCENT = 5;
 const MAX_PERCENT = 100;
 
 // Los valores de la memoria (capítulo 11): reparto modal 20/30/50 % y, para
-// la adopción, alrededor del 30 % de referencia
+// la adopción, alrededor del 30 % de referencia; quienes se apuntan desde
+// otros modos, valores bajos (supuesto por decidir con la dirección)
 export const DEFAULT_VALUES: Readonly<Record<SweepParameter, string>> = {
   ownCarShare: '20, 30, 50',
   adoptionRate: '10, 30, 50',
+  nonCarAdoptionRate: '5, 10, 20',
 };
 
 // «20, 30, 50» → [0.2, 0.3, 0.5]; null si no son de 2 a 5 porcentajes

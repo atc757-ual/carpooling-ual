@@ -77,6 +77,13 @@ export interface SimulationResults {
     // Viajes de los conductores por réplica: hechos, caducados sin pasajeros
     // y cancelados; null en las de antes
     tripStates: { finished: MetricStat; expired: MetricStat; cancelled: MetricStat } | null;
+    // Quienes iban en bus o de otra forma y se apuntan: tramos con plaza, %
+    // cubierto y coches de más; null en las ejecuciones de antes
+    otherMode?: {
+      coveredTrips: MetricStat;
+      coveredPct: MetricStat;
+      addedVehicles: MetricStat;
+    } | null;
   };
   series: SlotSeries[];
 }
@@ -90,7 +97,7 @@ export interface StartSimulation {
 
 // Análisis de sensibilidad (API /api/admin/simulation-sweeps, capítulo 11):
 // el mismo escenario con varios valores de un supuesto
-export type SweepParameter = 'ownCarShare' | 'adoptionRate';
+export type SweepParameter = 'ownCarShare' | 'adoptionRate' | 'nonCarAdoptionRate';
 export type SweepStatus = 'running' | 'finished' | 'stopped';
 
 export interface SweepVariant {

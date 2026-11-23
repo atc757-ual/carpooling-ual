@@ -33,6 +33,12 @@
   }
 }
 
+// Qué significa el supuesto elegido: en su propia línea, bajo las pestañas
+.sweep__parameter-help {
+  flex-basis: 100%;
+  margin: 0;
+}
+
 .sweep__values {
   flex: 1 1 12rem; // 192px
 }
