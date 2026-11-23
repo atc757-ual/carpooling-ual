@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 import { Trip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
 import { ChatService } from '../../../core/services/chat/chat.service';
+import { PlacesService } from '../../../core/services/places/places.service';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -235,7 +236,9 @@ describe('PassengerRequestDetailPage', () => {
     expect(card?.textContent).toContain('Buscar otro viaje ahora');
     // Antes que «Tu recorrido», y sin el botón de abajo
     expect(card?.nextElementSibling?.tagName.toLowerCase()).toBe('app-passenger-request-route');
-    expect(root.textContent).not.toContain('Buscar con prioridad');
+    expect(root.querySelector('app-passenger-request-actions')?.textContent ?? '').not.toContain(
+      'Buscar otro viaje',
+    );
   });
 
   it('no longer offers the card 30 min after the driver cancelled', async () => {
@@ -248,18 +251,20 @@ describe('PassengerRequestDetailPage', () => {
     );
 
     expect(root.querySelector('app-relocation-card')).toBeNull();
-    expect(root.textContent).toContain('Buscar con prioridad');
+    expect(root.textContent).toContain('Buscar otro viaje');
+    expect(root.textContent).not.toContain('prioridad');
   });
 
-  it('offers a priority search after a rejection, keeping the route and the time', async () => {
+  it('offers to search another trip after a rejection, keeping the route and the time', async () => {
     const root = await render(seatRequest('rejected', { answeredAt: '2099-01-14T21:30:00.000Z' }));
 
     expect(root.textContent).toContain('Lucía no pudo aceptar tu solicitud.');
-    expect(root.textContent).toContain('Buscar con prioridad');
+    expect(root.textContent).toContain('Buscar otro viaje');
+    vi.spyOn(TestBed.inject(PlacesService), 'loadParkings').mockResolvedValue(undefined);
     const setSpy = vi.spyOn(TestBed.inject(TripSearchStateService), 'set');
     const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
-    actions().handlePrioritySearch();
+    await actions().handleSearchAnother();
 
     expect(setSpy).toHaveBeenCalledWith(
       expect.objectContaining({ direction: 'to-campus', seats: 1 }),

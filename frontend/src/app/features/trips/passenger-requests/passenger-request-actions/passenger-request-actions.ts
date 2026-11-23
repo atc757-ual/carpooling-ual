@@ -21,10 +21,10 @@ import {
 import { ApiError } from '../../../../core/models/api-error.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
+import { PlacesService } from '../../../../core/services/places/places.service';
 import { SeatRequestsService } from '../../../../core/services/requests/seat-requests.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
-import { toIsoDate } from '../../../../shared/utils/date.util';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { RevealOnTouch } from '../../../../shared/directives/reveal-on-touch.directive';
 import { getFirstName } from '../../../matching/trip-driver/trip-driver';
@@ -32,7 +32,11 @@ import { formatTime } from '../../../matching/trip-results';
 import { TripSearchStateService } from '../../../matching/trip-search-state.service';
 import { AfterTripReport, isAfterTripReportOpen } from '../../after-trip-report/after-trip-report';
 import { PassengerIncidentModal } from '../passenger-incident-modal/passenger-incident-modal';
-import { isRelocatable } from '../relocation-card/relocation-card';
+import {
+  isRelocatable,
+  nearestParking,
+  toSearchFromRequest,
+} from '../relocation-card/relocation-card';
 import {
   freeCancellationUntil,
   isWithinLeadMinutes,
@@ -41,7 +45,7 @@ import {
 
 // Columna de 4 en el detalle de la solicitud del pasajero: «Acciones de tu
 // solicitud» (chat, cancelar con lo que cuesta cancelar, desactivadas con su
-// motivo cuando ya está cerrada y buscar otro viaje con prioridad). Las horas
+// motivo cuando ya está cerrada y buscar otro viaje). Las horas
 // de la solicitud van en su progreso (PassengerProgress)
 @Component({
   selector: 'app-passenger-request-actions',
@@ -67,6 +71,7 @@ export class PassengerRequestActions {
   private readonly modalController = inject(ModalController);
   private readonly router = inject(Router);
   private readonly searchState = inject(TripSearchStateService);
+  private readonly places = inject(PlacesService);
 
   readonly request = input.required<SeatRequest>();
   readonly trip = input.required<Trip>();
@@ -79,6 +84,7 @@ export class PassengerRequestActions {
   readonly incidentRequested = output<void>();
 
   readonly isCancelling = signal(false);
+  readonly isOpeningSearch = signal(false);
   private readonly now = signal(Date.now());
 
   constructor() {
@@ -281,31 +287,29 @@ export class PassengerRequestActions {
     }
   }
 
-  handlePrioritySearch(): void {
-    const trip = this.trip();
-    const request = this.request();
-    const direction = request.direction ?? 'to-campus';
-    const coordinates = request.pickupLocation?.coordinates ?? trip.origin.coordinates;
-    const fallbackAddress =
-      direction === 'from-campus' ? (trip.destinationName ?? '') : (trip.originName ?? '');
-    const address = request.pickupName ?? fallbackAddress;
-    const departureDate = new Date(trip.departureAt);
-    const targetDate = departureDate.getTime() < Date.now() ? new Date() : departureDate;
-
-    this.searchState.set({
-      direction,
-      place: {
-        id: 'priority-place',
-        name: address || 'Almería',
-        locality: 'Almería',
-        coordinates,
-      },
-      parking: { id: 'p1', name: 'Parking Central' },
-      date: toIsoDate(targetDate),
-      time: formatTime(trip.departureAt),
-      margin: 20,
-      seats: request.seats,
-    });
-    void this.router.navigateByUrl('/tabs/search');
+  // Buscar con la ruta, la hora y las plazas de esta solicitud y el parking
+  // real del viaje (el más cercano a su punto del campus), para cambiarla en
+  // Buscar si hace falta. Sin prioridad: esa solo la da RF-24 y la aplica la API
+  async handleSearchAnother(): Promise<void> {
+    this.isOpeningSearch.set(true);
+    try {
+      await this.places.loadParkings();
+      const trip = this.trip();
+      const request = this.request();
+      const isToCampus = (request.direction ?? 'to-campus') === 'to-campus';
+      const campus = isToCampus ? trip.destination : trip.origin;
+      this.searchState.set(
+        toSearchFromRequest(
+          request,
+          trip,
+          nearestParking(this.places.parkings(), campus.coordinates),
+        ),
+      );
+      await this.router.navigateByUrl('/tabs/search');
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+    } finally {
+      this.isOpeningSearch.set(false);
+    }
   }
 }

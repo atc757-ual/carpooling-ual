@@ -61,11 +61,11 @@
     },
     "request_rejected": {
       "title": "Your request wasn't accepted",
-      "body": "Look for another ride: your next request will have priority."
+      "body": "You can look for another ride in the app."
     },
     "trip_cancelled": {
       "title": "The ride was cancelled",
-      "body": "Look for another ride: your next request will have priority."
+      "body": "You can look for another ride in the app."
     },
     "trip_started": {
       "title": "Your driver is on the way",

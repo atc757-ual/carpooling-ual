@@ -5,7 +5,9 @@ import { vi } from 'vitest';
 import { provideAppTransloco } from '../../../../core/i18n/testing-transloco';
 import { ApiError, NETWORK_ERROR } from '../../../../core/models/api-error.model';
 import { Trip } from '../../../../core/models/driver.model';
+import { CampusParking } from '../../../../core/models/place.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
+import { PlacesService } from '../../../../core/services/places/places.service';
 import { SeatRequestsService } from '../../../../core/services/requests/seat-requests.service';
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
@@ -13,6 +15,17 @@ import { TripSearchStateService } from '../../../matching/trip-search-state.serv
 import { PassengerRequestActions } from './passenger-request-actions';
 
 const HOUR_MS = 60 * 60 * 1000;
+const CAMPUS: [number, number] = [-2.4051, 36.8301];
+const NEAR: CampusParking = {
+  id: 'p-near',
+  name: 'Parking Norte',
+  location: { type: 'Point', coordinates: [-2.405, 36.83] },
+};
+const FAR: CampusParking = {
+  id: 'p-far',
+  name: 'Parking Sur',
+  location: { type: 'Point', coordinates: [-2.42, 36.81] },
+};
 
 function trip(status: Trip['status'], changes: Partial<Trip> = {}): Trip {
   return {
@@ -21,6 +34,7 @@ function trip(status: Trip['status'], changes: Partial<Trip> = {}): Trip {
     departureAt: new Date(Date.now() + 2 * HOUR_MS).toISOString(),
     driver: { name: 'Lucía Martín' },
     origin: { type: 'Point', coordinates: [-2.46, 36.84] },
+    destination: { type: 'Point', coordinates: CAMPUS },
     originName: 'Calle Lachambre, 4',
     destinationName: 'Parking P1',
     ...changes,
@@ -47,6 +61,7 @@ describe('PassengerRequestActions', () => {
   const showSuccess = vi.fn().mockResolvedValue(undefined);
   const showError = vi.fn().mockResolvedValue(undefined);
   const setSearch = vi.fn();
+  const loadParkings = vi.fn().mockResolvedValue(undefined);
 
   function create(seatRequest: SeatRequest, seatTrip: Trip): PassengerRequestActions {
     TestBed.configureTestingModule({
@@ -59,6 +74,7 @@ describe('PassengerRequestActions', () => {
         { provide: ToastService, useValue: { showSuccess, showError } },
         { provide: ModalController, useValue: { create: vi.fn() } },
         { provide: TripSearchStateService, useValue: { set: setSearch } },
+        { provide: PlacesService, useValue: { loadParkings, parkings: () => [FAR, NEAR] } },
       ],
     });
     fixture = TestBed.createComponent(PassengerRequestActions);
@@ -134,7 +150,7 @@ describe('PassengerRequestActions', () => {
     },
   );
 
-  it('offers a priority search with the same route when the request did not go ahead', async () => {
+  it('searches another trip with the same route and the real parking, without priority', async () => {
     const actions = create(
       request('rejected', { pickupName: 'Avenida del Mediterráneo, 120', seats: 2 }),
       trip('published'),
@@ -142,16 +158,34 @@ describe('PassengerRequestActions', () => {
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
     expect(actions.canSearchAnother()).toBe(true);
-    actions.handlePrioritySearch();
+    await actions.handleSearchAnother();
 
-    expect(setSearch).toHaveBeenCalledWith(
+    expect(loadParkings).toHaveBeenCalled();
+    const search = setSearch.mock.calls[0][0];
+    expect(search).toEqual(
       expect.objectContaining({
         direction: 'to-campus',
         place: expect.objectContaining({ name: 'Avenida del Mediterráneo, 120' }),
+        parking: { id: 'p-near', name: 'Parking Norte' },
         seats: 2,
       }),
     );
+    expect(search).not.toHaveProperty('relocationRequestId');
     expect(navigate).toHaveBeenCalledWith('/tabs/search');
+    expect(actions.isOpeningSearch()).toBe(false);
+  });
+
+  it('says why when the parkings cannot be loaded and stays on the request', async () => {
+    const actions = create(request('expired'), trip('published'));
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+    loadParkings.mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
+
+    await actions.handleSearchAnother();
+
+    expect(showError).toHaveBeenCalled();
+    expect(setSearch).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(actions.isOpeningSearch()).toBe(false);
   });
 
   it('cancels after confirming it and tells who is listening', async () => {

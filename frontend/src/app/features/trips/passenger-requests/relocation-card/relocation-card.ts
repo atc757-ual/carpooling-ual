@@ -50,10 +50,9 @@ export function nearestParking(
   return nearest;
 }
 
-// La búsqueda equivalente al viaje cancelado (su punto, su parking, su hora y
-// sus plazas), marcada con la solicitud: Buscar enseña sus opciones con el
-// viaje que encaja al 100 % arriba
-export function toRelocationSearch(
+// La búsqueda equivalente al viaje de una solicitud (su punto, su parking, su
+// hora y sus plazas). Con el parking real del viaje: el que dé nearestParking
+export function toSearchFromRequest(
   request: SeatRequest,
   trip: Trip,
   parking: CampusParking | null,
@@ -78,8 +77,17 @@ export function toRelocationSearch(
     time: formatTime(trip.departureAt),
     margin: RELOCATION_MARGIN_MIN,
     seats: request.seats,
-    relocationRequestId: request.id,
   };
+}
+
+// La misma búsqueda, marcada con la solicitud cuando el conductor canceló:
+// Buscar enseña sus opciones con el viaje que encaja al 100 % arriba
+export function toRelocationSearch(
+  request: SeatRequest,
+  trip: Trip,
+  parking: CampusParking | null,
+): TripSearch {
+  return { ...toSearchFromRequest(request, trip, parking), relocationRequestId: request.id };
 }
 
 // Tarjeta de arriba del detalle cuando el conductor cancela (30 min): lleva
