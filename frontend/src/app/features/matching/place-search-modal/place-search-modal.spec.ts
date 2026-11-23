@@ -51,18 +51,21 @@ describe('PlaceSearchModal', () => {
 
   afterEach(() => vi.useRealTimers());
 
-  it('opens with the address it had and, once cleared, offers the shortcuts and removing it', () => {
+  it('opens with the address it had and offers removing it without clearing the text first', () => {
     const root = create({ canLocate: true, initialText: 'Calle Real, 3' });
 
     expect(modal().text()).toBe('Calle Real, 3');
     expect(root.textContent).not.toContain('Elegir en el mapa');
+    expect(root.querySelector('.place-search__clear')?.textContent).toContain(
+      'Quitar la dirección',
+    );
 
     modal().handleInput('');
     fixture.detectChanges();
 
     expect(root.textContent).toContain('Usar mi ubicación');
     expect(root.textContent).toContain('Elegir en el mapa');
-    expect(root.textContent).toContain('Quitar la dirección');
+    expect(root.querySelectorAll('.place-search__clear')).toHaveLength(1);
   });
 
   it('has no location on the destination and nothing to remove when empty', () => {

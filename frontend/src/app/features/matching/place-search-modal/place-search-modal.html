@@ -12,6 +12,17 @@
       (ionInput)="handleInput($event.detail.value ?? '')"
     />
 
+    <!-- Con una dirección ya puesta en el campo: dejarlo vacío. Siempre a la
+         vista, también al escribir, sin tener que borrar antes el texto -->
+    @if (initialText) {
+      <ion-list class="place-search__clear" lines="full">
+        <ion-item button [detail]="false" (click)="handleClear()">
+          <ion-icon slot="start" [icon]="clearIcon" aria-hidden="true" />
+          <ion-label>{{ 'screens.placeSearch.clear' | transloco }}</ion-label>
+        </ion-item>
+      </ion-list>
+    }
+
     <!-- Antes de escribir: los atajos. Al escribir, la lista ocupa su sitio -->
     @if (text().trim().length === 0) {
       <ion-list class="place-search__shortcuts" lines="full">
@@ -42,13 +53,6 @@
           <ion-icon slot="start" [icon]="mapIcon" aria-hidden="true" />
           <ion-label>{{ 'screens.placeSearch.pickOnMap' | transloco }}</ion-label>
         </ion-item>
-        <!-- Con una dirección ya puesta: dejar el campo vacío -->
-        @if (initialText) {
-          <ion-item button [detail]="false" (click)="handleClear()">
-            <ion-icon slot="start" [icon]="clearIcon" aria-hidden="true" />
-            <ion-label>{{ 'screens.placeSearch.clear' | transloco }}</ion-label>
-          </ion-item>
-        }
       </ion-list>
     }
 
