@@ -24,7 +24,7 @@ export class StartSweepDto extends StartSimulationDto {
     enum: SWEEP_PARAMETERS,
     example: 'ownCarShare',
     description:
-      'ownCarShare: share of users who drive their own car (scenario and baseline); adoptionRate: share of car users who carpool (scenario only)',
+      'ownCarShare: share of users who drive their own car (scenario and baseline); adoptionRate: share of car users who carpool (scenario only); nonCarAdoptionRate: share of people who come by public transport or another mode and join carpooling (scenario only)',
   })
   @IsIn(SWEEP_PARAMETERS)
   parameter!: SweepParameter;

@@ -2,6 +2,8 @@
 // puras: las usa el servicio con lo que devuelva cualquier SimulationRunner
 import { pairedTest } from './paired-test';
 import type { PairedTest } from './paired-test';
+import { describeOtherMode, OTHER_MODE_COLUMNS } from './other-mode-metrics';
+import type { OtherModeMetrics, OtherModeStats } from './other-mode-metrics';
 
 // Criterio de éxito experimental (sección 11 de la memoria)
 export const MIN_VEHICLES_AVOIDED_PCT = 15;
@@ -30,6 +32,9 @@ export interface ReplicaMetrics {
   trips: TripStates | null;
   vehiclesBySlot: number[];
   baselineVehiclesBySlot: number[];
+  // Quienes iban en otro modo y se apuntan (accesibilidad); null en las
+  // ejecuciones de antes de medirlo
+  otherMode: OtherModeMetrics | null;
 }
 
 // Viajes terminados (con pasajeros), caducados (sin ninguno) y cancelados
@@ -70,6 +75,8 @@ export interface SimulationSummary {
   legs: LegStats | null;
   // Viajes de cada estado por réplica (null si alguna réplica es de antes)
   tripStates: TripStateStats | null;
+  // Quienes iban en otro modo (null si alguna réplica es de antes)
+  otherMode: OtherModeStats | null;
   // Contraste de HE1 frente a HE0 sobre los vehículos (réplicas emparejadas)
   vehiclesReduction: PairedTest;
 }
@@ -234,6 +241,7 @@ export function aggregate(output: SimulationOutput): AggregatedResults {
     recoveryPct: describeRecovery(replicas),
     legs: describeLegs(replicas),
     tripStates: describeTripStates(replicas),
+    otherMode: describeOtherMode(replicas, describeValues),
     vehiclesReduction: pairedTest(
       replicas.map((r) => r.baselineVehiclesUsed - r.vehiclesUsed),
     ),
@@ -248,7 +256,7 @@ export function aggregate(output: SimulationOutput): AggregatedResults {
 // Las cifras sueltas de una réplica (sin las franjas ni los estados)
 type ScalarMetric = Exclude<
   keyof ReplicaMetrics,
-  'trips' | 'vehiclesBySlot' | 'baselineVehiclesBySlot'
+  'trips' | 'vehiclesBySlot' | 'baselineVehiclesBySlot' | 'otherMode'
 >;
 
 const CSV_COLUMNS: readonly ScalarMetric[] = [
@@ -273,16 +281,21 @@ const TRIP_COLUMNS: readonly (keyof TripStates)[] = [
   'cancelled',
 ];
 
-// Métricas por réplica en CSV (RF-20), una fila por réplica
+// Métricas por réplica en CSV (RF-20), una fila por réplica; al final, los
+// estados de los viajes y lo de quienes iban en otro modo
 export function toCsv(replicas: ReplicaMetrics[]): string {
   const header = [
     ...CSV_COLUMNS,
     ...TRIP_COLUMNS.map((state) => `trips_${state}`),
+    ...OTHER_MODE_COLUMNS.map((column) => `otherMode_${column}`),
   ];
   const rows = replicas.map((replica) =>
     [
       ...CSV_COLUMNS.map((column) => String(replica[column] ?? '')),
       ...TRIP_COLUMNS.map((state) => String(replica.trips?.[state] ?? '')),
+      ...OTHER_MODE_COLUMNS.map((column) =>
+        String(replica.otherMode?.[column] ?? ''),
+      ),
     ].join(','),
   );
   return [header.join(','), ...rows].join('\n') + '\n';

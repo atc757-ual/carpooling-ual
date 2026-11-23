@@ -21454,7 +21454,7 @@
                 6
               ]
             },
-            "description": "Other parameters (capacities, cancellation rate...)"
+            "description": "Other parameters (capacities, cancellation rate, nonCarAdoptionRate and nonCarDriverShare for people who come by another mode...)"
           },
           "@type": {
             "type": "string",
@@ -21565,7 +21565,7 @@
                 6
               ]
             },
-            "description": "Other parameters (capacities, cancellation rate...)"
+            "description": "Other parameters (capacities, cancellation rate, nonCarAdoptionRate and nonCarDriverShare for people who come by another mode...)"
           }
         },
         "required": [
@@ -21809,6 +21809,40 @@
           "cancelled"
         ]
       },
+      "OtherModeStatsResource": {
+        "type": "object",
+        "properties": {
+          "coveredTrips": {
+            "description": "Trips (to and from campus) in which people who came by public transport or another mode got a seat, per replica",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          },
+          "coveredPct": {
+            "description": "Share of their requested trips that got a seat, in %",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          },
+          "addedVehicles": {
+            "description": "Extra cars: those of people from another mode who drive because they got passengers, per replica",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MetricStatResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "coveredTrips",
+          "coveredPct",
+          "addedVehicles"
+        ]
+      },
       "WilcoxonResource": {
         "type": "object",
         "properties": {
@@ -21948,6 +21982,16 @@
               }
             ]
           },
+          "otherMode": {
+            "nullable": true,
+            "description": "People who came by public transport or another mode and joined carpooling (nonCarAdoptionRate and nonCarDriverShare of the scenario); null in runs saved before it was measured",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OtherModeStatsResource"
+              }
+            ]
+          },
           "vehiclesReduction": {
             "nullable": true,
             "description": "Hypothesis test; null in runs saved before it existed",
@@ -21968,6 +22012,7 @@
           "recoveryPct",
           "legs",
           "tripStates",
+          "otherMode",
           "vehiclesReduction"
         ]
       },
@@ -22065,10 +22110,11 @@
             "type": "string",
             "enum": [
               "ownCarShare",
-              "adoptionRate"
+              "adoptionRate",
+              "nonCarAdoptionRate"
             ],
             "example": "ownCarShare",
-            "description": "ownCarShare: share of users who drive their own car (scenario and baseline); adoptionRate: share of car users who carpool (scenario only)"
+            "description": "ownCarShare: share of users who drive their own car (scenario and baseline); adoptionRate: share of car users who carpool (scenario only); nonCarAdoptionRate: share of people who come by public transport or another mode and join carpooling (scenario only)"
           },
           "values": {
             "example": [
@@ -22203,7 +22249,8 @@
             "type": "string",
             "enum": [
               "ownCarShare",
-              "adoptionRate"
+              "adoptionRate",
+              "nonCarAdoptionRate"
             ]
           },
           "replicas": {

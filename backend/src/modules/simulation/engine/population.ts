@@ -36,6 +36,9 @@ export interface Commuter {
   // Hora a la que quiere salir del campus para volver, en minutos del día
   desiredDepartureMin: number;
   windowMin: number;
+  // Iba en transporte público o de otra forma (no en su coche): si se queda
+  // sin compartir, sigue en su modo y no suma ningún coche
+  isOtherMode?: boolean;
 }
 
 export interface Driver extends Commuter {
@@ -118,40 +121,99 @@ function capacityOf(config: ScenarioConfig, random: Random): number {
   return Number(capacities[Math.floor(random() * capacities.length)]);
 }
 
-// Los usuarios que van en coche propio y su papel. Cada usuario consume
-// siempre los mismos números aleatorios en el mismo orden: con la misma
-// semilla, el escenario y S0 tienen la misma población (semillas emparejadas)
+// Un supuesto del escenario entre 0 y 1 (parameters); 0 si no lo trae
+function shareOf(config: ScenarioConfig, name: string): number {
+  const value = Number(config.parameters[name]);
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
+}
+
+// Quienes van en transporte público o de otra forma y se apuntan al
+// carpooling (supuestos de DP-06, 0 por defecto): nonCarAdoptionRate, la parte
+// que se apunta, y nonCarDriverShare, la de esos que tiene coche y lo sacaría
+// si lo comparte
+export function otherModeSharesOf(config: ScenarioConfig): {
+  adoptionRate: number;
+  driverShare: number;
+} {
+  return {
+    adoptionRate: shareOf(config, 'nonCarAdoptionRate'),
+    driverShare: shareOf(config, 'nonCarDriverShare'),
+  };
+}
+
+interface Role {
+  adoptionRate: number;
+  driverShare: number;
+  isOtherMode: boolean;
+}
+
+// Un usuario y su papel. Consume siempre los mismos números aleatorios en el
+// mismo orden: con la misma semilla, el escenario y S0 tienen la misma
+// población (semillas emparejadas)
+function addCommuter(
+  population: Population,
+  id: string,
+  context: { config: ScenarioConfig; random: Random; role: Role },
+): void {
+  const { config, random, role } = context;
+  const commuter: Commuter = {
+    id,
+    origin: randomOrigin(random),
+    desiredArrivalMin: normalBetween(random, ARRIVALS),
+    windowMin: windowOf(config, random),
+    desiredDepartureMin: 0,
+  };
+  const capacity = capacityOf(config, random);
+  const isAdopter = random() < role.adoptionRate;
+  const isDriver = random() < role.driverShare;
+  // La hora de vuelta también se sortea siempre, adopte o no: el escenario
+  // y S0 siguen consumiendo los mismos números (semillas emparejadas)
+  commuter.desiredDepartureMin = normalBetween(random, DEPARTURES);
+  if (role.isOtherMode) {
+    commuter.isOtherMode = true;
+  }
+  if (!isAdopter) {
+    // Quien no va en coche y no se apunta no cuenta: sigue en su modo
+    if (!role.isOtherMode) {
+      population.soloCommuters.push(commuter);
+    }
+  } else if (isDriver) {
+    population.drivers.push({ ...commuter, seats: capacity - 1 });
+  } else {
+    population.passengers.push(commuter);
+  }
+}
+
+// Los usuarios que van en coche propio y su papel y, después (para no cambiar
+// los números de los primeros), los de otros modos que se apuntan. Sin esos
+// supuestos, ni se generan: la población es la de siempre
 export function generatePopulation(
   config: ScenarioConfig,
   random: Random,
 ): Population {
-  const carUsers = Math.round(config.users * (config.modalSplit.own_car ?? 0));
+  const ownCarShare = config.modalSplit.own_car ?? 0;
+  const carUsers = Math.round(config.users * ownCarShare);
   const population: Population = {
     drivers: [],
     passengers: [],
     soloCommuters: [],
   };
+  const carRole: Role = {
+    adoptionRate: config.adoptionRate,
+    driverShare: DRIVER_SHARE,
+    isOtherMode: false,
+  };
   for (let index = 0; index < carUsers; index += 1) {
-    const commuter: Commuter = {
-      id: `u-${index}`,
-      origin: randomOrigin(random),
-      desiredArrivalMin: normalBetween(random, ARRIVALS),
-      windowMin: windowOf(config, random),
-      desiredDepartureMin: 0,
-    };
-    const capacity = capacityOf(config, random);
-    const isAdopter = random() < config.adoptionRate;
-    const isDriver = random() < DRIVER_SHARE;
-    // La hora de vuelta también se sortea siempre, adopte o no: el escenario
-    // y S0 siguen consumiendo los mismos números (semillas emparejadas)
-    commuter.desiredDepartureMin = normalBetween(random, DEPARTURES);
-    if (!isAdopter) {
-      population.soloCommuters.push(commuter);
-    } else if (isDriver) {
-      population.drivers.push({ ...commuter, seats: capacity - 1 });
-    } else {
-      population.passengers.push(commuter);
-    }
+    addCommuter(population, `u-${index}`, { config, random, role: carRole });
+  }
+  const otherMode = otherModeSharesOf(config);
+  if (otherMode.adoptionRate === 0) {
+    return population;
+  }
+  const otherUsers = config.users - carUsers;
+  const otherRole: Role = { ...otherMode, isOtherMode: true };
+  for (let index = 0; index < otherUsers; index += 1) {
+    addCommuter(population, `o-${index}`, { config, random, role: otherRole });
   }
   return population;
 }

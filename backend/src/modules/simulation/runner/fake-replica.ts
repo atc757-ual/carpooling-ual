@@ -123,5 +123,12 @@ export function fakeReplica(job: SimulationJob, index: number): ReplicaMetrics {
     trips: fakeTrips(carUsers * config.adoptionRate, covered, incidents),
     vehiclesBySlot: distribute(vehicles, FAKE_SLOTS.length),
     baselineVehiclesBySlot: distribute(baselineVehicles, FAKE_SLOTS.length),
+    // El motor ficticio no modela a quienes van en otro modo
+    otherMode: {
+      passengerTrips: 0,
+      coveredTrips: 0,
+      coveredPct: 0,
+      addedVehicles: 0,
+    },
   };
 }

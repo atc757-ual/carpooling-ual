@@ -8,7 +8,13 @@ import type { ScenarioConfig } from './scenario-config';
 //   el resto de modos se reparte lo que queda en la misma proporción.
 // - adoptionRate: parte de los usuarios en coche que comparten. Solo cambia
 //   el escenario: la base (S0) no comparte.
-export const SWEEP_PARAMETERS = ['ownCarShare', 'adoptionRate'] as const;
+// - nonCarAdoptionRate: parte de quienes van en transporte público o de otra
+//   forma que se apuntan (parameters del escenario). Solo cambia el escenario.
+export const SWEEP_PARAMETERS = [
+  'ownCarShare',
+  'adoptionRate',
+  'nonCarAdoptionRate',
+] as const;
 export type SweepParameter = (typeof SWEEP_PARAMETERS)[number];
 
 export const MIN_SWEEP_VALUES = 2;
@@ -58,6 +64,18 @@ export function applyVariant(
     return {
       scenario: withOwnCarShare(configs.scenario, variant.value),
       baseline: withOwnCarShare(configs.baseline, variant.value),
+    };
+  }
+  if (variant.parameter === 'nonCarAdoptionRate') {
+    return {
+      scenario: {
+        ...configs.scenario,
+        parameters: {
+          ...configs.scenario.parameters,
+          nonCarAdoptionRate: variant.value,
+        },
+      },
+      baseline: configs.baseline,
     };
   }
   return {

@@ -34,7 +34,8 @@ export class ScenarioConfigResource {
     type: 'object',
     additionalProperties: true,
     example: { vehicleCapacities: [2, 3, 4, 6] },
-    description: 'Other parameters (capacities, cancellation rate...)',
+    description:
+      'Other parameters (capacities, cancellation rate, nonCarAdoptionRate and nonCarDriverShare for people who come by another mode...)',
   })
   parameters: Record<string, unknown>;
 }

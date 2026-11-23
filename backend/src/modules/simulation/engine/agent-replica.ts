@@ -4,7 +4,6 @@ import type { SimulationJob } from '../runner/simulation-runner';
 import type { ScenarioConfig } from '../scenario-config';
 import { DEFAULT_MAX_DETOUR_M } from '../../trips/trip-timing';
 import {
-  BASELINE_OCCUPANCY,
   Commuter,
   createRandom,
   Driver,
@@ -21,12 +20,10 @@ import {
   RideOffer,
   stopsOf,
 } from './ride-matcher';
-import { slotOf, SLOT_COUNT } from './day-slots';
+import { LegTally, tallyLeg } from './leg-tally';
 import { TwinFeed } from './twin-feed';
 
-interface LegResult {
-  vehicles: number;
-  vehiclesBySlot: number[];
+interface LegResult extends LegTally {
   passengers: number;
   coveredPassengers: number;
   affectedPassengers: number;
@@ -35,6 +32,7 @@ interface LegResult {
 }
 
 export interface DayResult {
+  // Quienes iban en coche (los de otros modos van aparte)
   people: number;
   // Vehículos de los dos tramos (ida y vuelta)
   vehicles: number;
@@ -47,6 +45,11 @@ export interface DayResult {
   affectedPassengers: number;
   recoveredPassengers: number;
   trips: TripStates;
+  // Tramos de quienes iban en otro modo: los que piden plaza, los que la
+  // consiguen y los coches que salen de más
+  otherModePassengers: number;
+  otherModeCovered: number;
+  addedVehicles: number;
 }
 
 // Percentil 95 por el método del rango más cercano
@@ -262,26 +265,8 @@ function simulateLeg(
 
   const unmatched = [...firstUnmatched, ...stillUnmatched];
   const { states, sharedIds } = readTrips(feed);
-  // Quien no comparte coche (no adopta, se queda sin plaza o conduce sin
-  // pasajeros) viaja como hoy: a 1,2 personas por coche. Un viaje compartido
-  // es un coche entero
-  const alone = [
-    ...population.soloCommuters,
-    ...unmatched,
-    ...population.drivers.filter((driver) => !sharedIds.has(driver.id)),
-  ];
-  const vehiclesBySlot = new Array<number>(SLOT_COUNT).fill(0);
-  for (const commuter of alone) {
-    vehiclesBySlot[slotOf(commuter, leg)] += 1 / BASELINE_OCCUPANCY;
-  }
-  for (const driver of population.drivers) {
-    if (sharedIds.has(driver.id)) {
-      vehiclesBySlot[slotOf(driver, leg)] += 1;
-    }
-  }
   return {
-    vehicles: alone.length / BASELINE_OCCUPANCY + sharedIds.size,
-    vehiclesBySlot,
+    ...tallyLeg(leg, population, { unmatched, sharedIds }),
     passengers: population.passengers.length,
     coveredPassengers: population.passengers.length - unmatched.length,
     affectedPassengers: affected.length,
@@ -292,7 +277,7 @@ function simulateLeg(
 
 // Un día: la ida al campus por la mañana y la vuelta por la tarde, cada tramo
 // emparejado por separado (quien se queda sin plaza en uno va en su coche en
-// ese tramo)
+// ese tramo, o en su modo si no iba en coche)
 export function simulateDay(config: ScenarioConfig, random: Random): DayResult {
   const population = generatePopulation(config, random);
   const context = { random, searchMs: [] as number[] };
@@ -301,11 +286,13 @@ export function simulateDay(config: ScenarioConfig, random: Random): DayResult {
   const legs = [toCampus, fromCampus];
   const sum = (pick: (leg: LegResult) => number): number =>
     legs.reduce((total, leg) => total + pick(leg), 0);
+  const carPeople = [
+    ...population.soloCommuters,
+    ...population.drivers,
+    ...population.passengers,
+  ].filter((commuter) => commuter.isOtherMode !== true);
   return {
-    people:
-      population.soloCommuters.length +
-      population.drivers.length +
-      population.passengers.length,
+    people: carPeople.length,
     vehicles: sum((leg) => leg.vehicles),
     returnVehicles: fromCampus.vehicles,
     vehiclesBySlot: toCampus.vehiclesBySlot.map(
@@ -321,6 +308,9 @@ export function simulateDay(config: ScenarioConfig, random: Random): DayResult {
       expired: sum((leg) => leg.trips.expired),
       cancelled: sum((leg) => leg.trips.cancelled),
     },
+    otherModePassengers: sum((leg) => leg.otherModePassengers),
+    otherModeCovered: sum((leg) => leg.otherModeCovered),
+    addedVehicles: sum((leg) => leg.addedVehicles),
   };
 }
 
@@ -339,7 +329,8 @@ function avoidedPct(base: number, scenario: number): number {
 
 // Una réplica: el escenario y la base (S0) con la misma semilla, es decir,
 // con la misma población (semillas emparejadas). Los vehículos y la ocupación
-// son los del día entero (ida y vuelta); cada persona hace dos viajes
+// son los del día entero (ida y vuelta); cada persona que iba en coche hace
+// dos viajes en coche, y quien iba en otro modo, los tramos en que comparte
 export function agentReplica(
   job: SimulationJob,
   index: number,
@@ -348,7 +339,8 @@ export function agentReplica(
   const day = simulateDay(job.scenario, createRandom(seed));
   const base = simulateDay(job.baseline, createRandom(seed));
   const hasIncidents = Number(job.scenario.parameters.cancellationRate) > 0;
-  const personTrips = (result: DayResult): number => result.people * 2;
+  const personTrips = (result: DayResult): number =>
+    result.people * 2 + result.otherModeCovered + result.addedVehicles;
   return {
     replica: index + 1,
     seed,
@@ -370,5 +362,14 @@ export function agentReplica(
     trips: day.trips,
     vehiclesBySlot: day.vehiclesBySlot.map(Math.round),
     baselineVehiclesBySlot: base.vehiclesBySlot.map(Math.round),
+    otherMode: {
+      passengerTrips: day.otherModePassengers,
+      coveredTrips: day.otherModeCovered,
+      coveredPct:
+        day.otherModePassengers > 0
+          ? round((day.otherModeCovered / day.otherModePassengers) * 100)
+          : 0,
+      addedVehicles: day.addedVehicles,
+    },
   };
 }

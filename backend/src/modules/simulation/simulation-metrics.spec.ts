@@ -23,6 +23,12 @@ function replica(overrides: Partial<ReplicaMetrics> = {}): ReplicaMetrics {
     trips: { finished: 10, expired: 4, cancelled: 0 },
     vehiclesBySlot: [40, 45],
     baselineVehiclesBySlot: [50, 50],
+    otherMode: {
+      passengerTrips: 20,
+      coveredTrips: 12,
+      coveredPct: 60,
+      addedVehicles: 2,
+    },
     ...overrides,
   };
 }
@@ -128,17 +134,20 @@ describe('simulation metrics', () => {
         returnVehiclesUsed: null,
         returnBaselineVehiclesUsed: null,
         trips: null,
+        otherMode: null,
       }),
     ]);
     const lines = csv.trimEnd().split('\n');
     expect(lines[0]).toBe(
-      'replica,seed,vehiclesUsed,baselineVehiclesUsed,vehiclesAvoidedPct,returnVehiclesUsed,returnBaselineVehiclesUsed,requestsCoveredPct,averageOccupancy,baselineAverageOccupancy,matchingP95Ms,recoveryPct,trips_finished,trips_expired,trips_cancelled',
+      'replica,seed,vehiclesUsed,baselineVehiclesUsed,vehiclesAvoidedPct,returnVehiclesUsed,returnBaselineVehiclesUsed,requestsCoveredPct,averageOccupancy,baselineAverageOccupancy,matchingP95Ms,recoveryPct,trips_finished,trips_expired,trips_cancelled,otherMode_passengerTrips,otherMode_coveredTrips,otherMode_coveredPct,otherMode_addedVehicles',
     );
-    expect(lines[1]).toBe('1,7,85,100,15,40,50,70,1.4,1.2,250,,10,4,0');
-    expect(lines[2]).toBe('2,7,85,100,15,,,70,1.4,1.2,250,75,,,');
+    expect(lines[1]).toBe(
+      '1,7,85,100,15,40,50,70,1.4,1.2,250,,10,4,0,20,12,60,2',
+    );
+    expect(lines[2]).toBe('2,7,85,100,15,,,70,1.4,1.2,250,75,,,,,,,');
   });
 
-  it('gives the vehicles avoided on each leg and how the trips end', () => {
+  it('gives the vehicles avoided on each leg, how the trips end and the other modes', () => {
     const { summary } = aggregate({
       slots: ['08:00', '08:30'],
       replicas: [
@@ -155,9 +164,15 @@ describe('simulation metrics', () => {
       expired: { mean: 4 },
       cancelled: { mean: 0 },
     });
+    // Quienes iban en otro modo: la media de las réplicas
+    expect(summary.otherMode).toMatchObject({
+      coveredTrips: { mean: 12 },
+      coveredPct: { mean: 60 },
+      addedVehicles: { mean: 2 },
+    });
   });
 
-  it('leaves the legs and the trip states out of runs saved before them', () => {
+  it('leaves the legs, the trip states and the other modes out of runs saved before them', () => {
     const { summary } = aggregate({
       slots: ['08:00', '08:30'],
       replicas: [
@@ -166,10 +181,12 @@ describe('simulation metrics', () => {
           returnVehiclesUsed: null,
           returnBaselineVehiclesUsed: null,
           trips: null,
+          otherMode: null,
         }),
       ],
     });
     expect(summary.legs).toBeNull();
     expect(summary.tripStates).toBeNull();
+    expect(summary.otherMode).toBeNull();
   });
 });
