@@ -356,14 +356,16 @@
                       >
                         <div class="pickup-slide__main">
                           <div class="pickup-slide__who">
-                            <app-participant-link
-                              class="text-body text-body--strong"
-                              participantRole="passenger"
+                            <!-- En curso, el nombre sin abrir su perfil (sería una ventana
+                                 sobre la hoja): su correo, debajo -->
+                            <span class="text-body text-body--strong">{{
+                              firstName(request.passenger.name)
+                            }}</span>
+                            <app-participant-email
                               [tripId]="trip.id"
                               [userId]="request.passenger.id"
-                              [name]="request.passenger.name"
-                              >{{ firstName(request.passenger.name) }}</app-participant-link
-                            >
+                              [name]="firstName(request.passenger.name)"
+                            />
                             <span class="text-caption text-color-muted">
                               @if (request.status === 'completed') {
                                 {{ 'live.bajado2' | transloco }}

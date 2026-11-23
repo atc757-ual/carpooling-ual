@@ -17,9 +17,20 @@
   text-align: start;
   cursor: pointer;
 
+  &:hover {
+    text-decoration: underline;
+  }
+
   &:focus-visible {
     border-radius: var(--radius-s);
     outline: var(--border-width-m) solid var(--color-primary);
     outline-offset: var(--space-xxs);
   }
+}
+
+// Pegado al nombre, pequeño: dice que el nombre abre su perfil
+.participant-link__chevron {
+  flex: 0 0 auto;
+  margin-inline-start: calc(var(--space-xs) - var(--space-s));
+  font-size: var(--icon-size-xs);
 }

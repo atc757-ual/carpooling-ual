@@ -1,6 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { ModalController } from '@ionic/angular';
+import { IonIcon, ModalController } from '@ionic/angular';
+import { chevronForward } from 'ionicons/icons';
 import { getFirstName } from '../../../utils/person-name.util';
 import {
   openParticipantProfile,
@@ -9,10 +10,10 @@ import {
 
 // El nombre de la otra persona del viaje como botón que abre su perfil
 // («Ver el perfil de Lucía»). Lo que se proyecta es lo que se ve (el nombre,
-// el nombre completo o el avatar)
+// el nombre completo), con un chevron detrás para que se vea que abre algo
 @Component({
   selector: 'app-participant-link',
-  imports: [TranslocoPipe],
+  imports: [IonIcon, TranslocoPipe],
   template: `<button
     class="participant-link"
     type="button"
@@ -20,6 +21,7 @@ import {
     (click)="open()"
   >
     <ng-content />
+    <ion-icon class="participant-link__chevron" [icon]="chevronIcon" aria-hidden="true" />
   </button>`,
   styleUrl: './participant-link.scss',
 })
@@ -33,6 +35,7 @@ export class ParticipantLink {
   readonly participantRole = input.required<ParticipantRole>();
 
   readonly firstName = computed(() => getFirstName(this.name()));
+  protected readonly chevronIcon = chevronForward;
 
   open(): Promise<void> {
     return openParticipantProfile(this.modalController, {

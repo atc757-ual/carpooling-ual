@@ -45,7 +45,7 @@
                         {{ passengerInitials(request.passenger.name) }}
                       </span>
                       <div class="driver-trip__user-info">
-                        @if (request.status === 'accepted') {
+                        @if (request.status === 'accepted' || request.status === 'completed') {
                           <app-participant-link
                             class="driver-trip__name"
                             participantRole="passenger"
@@ -61,6 +61,16 @@
                           <span class="text-caption text-color-muted">{{
                             formatSeats(request.seats)
                           }}</span>
+                          @if (request.status === 'accepted' || request.status === 'completed') {
+                            <app-participant-email
+                              class="text-caption"
+                              [isInline]="true"
+                              [showIcon]="false"
+                              [tripId]="trip().id"
+                              [userId]="request.passenger.id"
+                              [name]="firstName(request.passenger.name)"
+                            />
+                          }
                           @if (request.isPriority) {
                             <span class="status status--pending">{{
                               'myTrips.prioridad' | transloco

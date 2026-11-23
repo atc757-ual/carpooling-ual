@@ -132,6 +132,9 @@ describe('DriverTripPassengers', () => {
     const [pending, accepted] = [...root.querySelectorAll('.driver-trip__request')];
 
     expect(pending.querySelector('app-participant-link')).toBeNull();
+    // Su correo solo con la plaza aceptada (o ya viajada), junto a las plazas
+    expect(pending.querySelector('app-participant-email')).toBeNull();
+    expect(accepted.querySelector('.driver-trip__sub app-participant-email')).not.toBeNull();
     expect(pending.querySelector('.driver-trip__preference-tag')?.textContent).toBe('Charlar');
     expect(accepted.querySelector('app-participant-link button')?.getAttribute('aria-label')).toBe(
       'Ver el perfil de Mario',

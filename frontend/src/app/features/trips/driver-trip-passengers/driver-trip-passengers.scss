@@ -105,6 +105,7 @@ ion-card.driver-trip ion-card-content {
 }
 
 .driver-trip__name {
+  flex: 0 0 auto;
   font-size: var(--font-size-body); // 16px
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-body-s);

@@ -107,6 +107,7 @@
       "read": "Leído"
     },
     "writeTo": "Escribir a {{ name }}",
+    "emailTo": "Enviar un correo a {{ name }}",
     "tripCode": "Viaje {{ code }}"
   },
   "search": {

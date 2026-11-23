@@ -114,8 +114,22 @@
         </section>
       }
 
+      <!-- Con plaza (también después), su correo UAL en una fila propia, como
+           la del coche -->
+      @if (hadSeat()) {
+        <div class="passenger-route__contact">
+          <ion-icon [icon]="mailIcon" aria-hidden="true" />
+          <app-participant-email
+            [showIcon]="false"
+            [tripId]="trip().id"
+            [userId]="trip().driver.id"
+            [name]="driverFirstName()"
+          />
+        </div>
+      }
+
       @if (trip().vehicle; as vehicle) {
-        <!-- El coche: su icono, el modelo y el color y, con
+        <!-- El coche: su icono (como el del correo), el modelo y el color y, con
              la plaza aceptada, la matrícula como una placa -->
         <div class="passenger-route__vehicle">
           <ion-icon [icon]="carIcon" aria-hidden="true" />

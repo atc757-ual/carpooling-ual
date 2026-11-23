@@ -256,16 +256,15 @@
                         <p class="ride__driver-name text-body">
                           <ion-icon [icon]="personIcon" aria-hidden="true" />
                           <span class="visually-hidden">{{ 'live.conduce' | transloco }}</span>
-                          <app-participant-link
-                            participantRole="driver"
-                            [tripId]="trip.id"
-                            [userId]="trip.driver.id"
-                            [name]="trip.driver.name"
-                            ><b class="ride__driver-text">{{
-                              trip.driver.name
-                            }}</b></app-participant-link
-                          >
+                          <b class="ride__driver-text">{{ trip.driver.name }}</b>
                         </p>
+                        <!-- En curso, el nombre sin abrir su perfil (sería una ventana
+                             sobre la hoja): su correo, debajo -->
+                        <app-participant-email
+                          [tripId]="trip.id"
+                          [userId]="trip.driver.id"
+                          [name]="driverName()"
+                        />
                         <div class="ride__driver-car">
                           @if (request.vehiclePlate; as plate) {
                             <app-license-plate [plate]="plate" />
