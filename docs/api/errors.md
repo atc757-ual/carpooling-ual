@@ -12,7 +12,7 @@ Todas las APIs responden a los errores con el objeto `Error` de **TMF630** (TM F
 }
 ```
 
-- **`code`:** identificador estable del error. El frontend decide qué hacer a partir de él, nunca a partir del texto.
+- **`code`:** identificador estable del error. El frontend decide qué hacer a partir de él, nunca a partir del texto. Cada código de este catálogo tiene su mensaje para el usuario en `errors.<código>` de `frontend/public/i18n/es.json` y `en.json`: un código nuevo se añade aquí y allí en el mismo PR (lo comprueba `error-messages.spec.ts`).
 - **`reason`:** explicación breve del código.
 - **`message`:** detalle del caso concreto.
 - **`status`:** código HTTP, como texto.
