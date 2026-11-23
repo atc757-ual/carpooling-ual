@@ -54,7 +54,7 @@ describe('LicensePlate', () => {
     TestBed.configureTestingModule({
       providers: [
         provideTranslocoTestingSupport({
-          en: { common: { licensePlate: { aria: 'License plate {{plate}}' } } },
+          en: { common: { licensePlate: { aria: 'Number plate {{plate}}' } } },
         }),
       ],
     });
@@ -65,7 +65,7 @@ describe('LicensePlate', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.visually-hidden')?.textContent?.trim()).toBe(
-      'License plate 1234 BCD',
+      'Number plate 1234 BCD',
     );
   });
 });
