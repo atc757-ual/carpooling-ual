@@ -7,7 +7,7 @@ import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { registerUser } from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
-import { withPlatformSettings } from './support/platform-settings-lock';
+import { lockPlatformSettings } from './support/platform-settings-lock';
 
 // Ajustes de la plataforma, de punta a punta: la app los lee y el
 // administrador los cambia, con su auditoría. Los usuarios llevan el prefijo
@@ -37,14 +37,17 @@ describe('Platform settings (e2e)', () => {
     dataSource = app.get(DataSource);
   });
 
-  afterEach(async () => {
-    await deleteTestUsers(dataSource, EMAIL_PREFIX);
+  // Cada test, con los ajustes en exclusiva; al acabar, como la migración
+  let releaseSettings: () => Promise<void>;
+
+  beforeEach(async () => {
+    releaseSettings = await lockPlatformSettings(dataSource);
   });
 
-  // Cada test, con los ajustes en exclusiva y dejándolos como la migración
-  function itWithSettings(name: string, run: () => Promise<void>): void {
-    it(name, () => withPlatformSettings(dataSource, run));
-  }
+  afterEach(async () => {
+    await releaseSettings();
+    await deleteTestUsers(dataSource, EMAIL_PREFIX);
+  });
 
   afterAll(async () => {
     await app.close();
@@ -87,72 +90,63 @@ describe('Platform settings (e2e)', () => {
       .set('Authorization', `Bearer ${token}`);
   }
 
-  itWithSettings(
-    'starts with multi-day publishing off, never changed',
-    async () => {
-      const admin = await login('ana', true);
+  it('starts with multi-day publishing off, never changed', async () => {
+    const admin = await login('ana', true);
 
-      const read = await api('get', '/admin/settings', admin.token).expect(200);
+    const read = await api('get', '/admin/settings', admin.token).expect(200);
 
-      expect(read.body).toEqual({
-        '@type': 'PlatformSettings',
-        href: '/api/admin/settings',
-        multiDayPublishing: false,
-        updatedAt: null,
-        updatedBy: null,
-      });
-    },
-  );
+    expect(read.body).toEqual({
+      '@type': 'PlatformSettings',
+      href: '/api/admin/settings',
+      multiDayPublishing: false,
+      updatedAt: null,
+      updatedBy: null,
+    });
+  });
 
-  itWithSettings(
-    'lets the admin turn it on, tells the app and records it once',
-    async () => {
-      const admin = await login('ana', true);
-      const pia = await login('pia', false);
+  it('lets the admin turn it on, tells the app and records it once', async () => {
+    const admin = await login('ana', true);
+    const pia = await login('pia', false);
 
-      const changed = await api('patch', '/admin/settings', admin.token)
-        .send({ multiDayPublishing: true })
-        .expect(200);
-      const body = changed.body as AdminSettingsBody;
-      expect(body.multiDayPublishing).toBe(true);
-      expect(body.updatedBy).toEqual({ id: admin.id, name: 'ana Prueba' });
-      expect(body.updatedAt).not.toBeNull();
-      // Lo mismo otra vez no es un cambio
-      await api('patch', '/admin/settings', admin.token)
-        .send({ multiDayPublishing: true })
-        .expect(200);
+    const changed = await api('patch', '/admin/settings', admin.token)
+      .send({ multiDayPublishing: true })
+      .expect(200);
+    const body = changed.body as AdminSettingsBody;
+    expect(body.multiDayPublishing).toBe(true);
+    expect(body.updatedBy).toEqual({ id: admin.id, name: 'ana Prueba' });
+    expect(body.updatedAt).not.toBeNull();
+    // Lo mismo otra vez no es un cambio
+    await api('patch', '/admin/settings', admin.token)
+      .send({ multiDayPublishing: true })
+      .expect(200);
 
-      const read = await api('get', '/settings', pia.token).expect(200);
-      expect(read.body).toEqual({
-        '@type': 'PlatformSettings',
-        href: '/api/settings',
-        multiDayPublishing: true,
-      });
-      const audited = await dataSource.query<{ details: object }[]>(
-        `SELECT details FROM admin_actions
+    const read = await api('get', '/settings', pia.token).expect(200);
+    expect(read.body).toEqual({
+      '@type': 'PlatformSettings',
+      href: '/api/settings',
+      multiDayPublishing: true,
+    });
+    const audited = await dataSource.query<{ details: object }[]>(
+      `SELECT details FROM admin_actions
        WHERE admin_id = $1 AND action = 'setting.changed'`,
-        [admin.id],
-      );
-      expect(audited.map(({ details }) => details)).toEqual([
-        { setting: 'multiDayPublishing', previous: false, value: true },
-      ]);
-    },
-  );
+      [admin.id],
+    );
+    expect(audited.map(({ details }) => details)).toEqual([
+      { setting: 'multiDayPublishing', previous: false, value: true },
+    ]);
+  });
 
-  itWithSettings(
-    'leaves the settings that are not sent and checks their type',
-    async () => {
-      const admin = await login('ana', true);
+  it('leaves the settings that are not sent and checks their type', async () => {
+    const admin = await login('ana', true);
 
-      const same = await api('patch', '/admin/settings', admin.token)
-        .send({})
-        .expect(200);
-      expect((same.body as AdminSettingsBody).updatedAt).toBeNull();
-      await api('patch', '/admin/settings', admin.token)
-        .send({ multiDayPublishing: 'yes' })
-        .expect(400);
-    },
-  );
+    const same = await api('patch', '/admin/settings', admin.token)
+      .send({})
+      .expect(200);
+    expect((same.body as AdminSettingsBody).updatedAt).toBeNull();
+    await api('patch', '/admin/settings', admin.token)
+      .send({ multiDayPublishing: 'yes' })
+      .expect(400);
+  });
 
   it('is read by anyone with a session and changed only by an admin', async () => {
     const pia = await login('pia', false);

@@ -28,7 +28,13 @@ export class ApiError extends Error {
   constructor(
     readonly code: string,
     readonly status: number,
-    readonly details: { fields?: ApiFieldError[]; requestId?: string } = {},
+    readonly details: {
+      fields?: ApiFieldError[];
+      requestId?: string;
+      // El texto de la API (en inglés, para depurar; algunos códigos llevan
+      // un dato que la app usa, p. ej. el día en REPEAT_DATE_REJECTED)
+      message?: string;
+    } = {},
   ) {
     super(code);
     this.name = 'ApiError';
@@ -59,6 +65,7 @@ export class ApiError extends Error {
       return new ApiError(error.error.code, error.status, {
         fields: error.error.fields,
         requestId,
+        message: error.error.message,
       });
     }
     return new ApiError(UNKNOWN_ERROR, error.status, { requestId });

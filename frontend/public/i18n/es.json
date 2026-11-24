@@ -695,6 +695,36 @@
     "stopsCount": "{{ count }} de {{ max }} paradas",
     "stopsMax": "Ya tienes {{ max }} paradas, el máximo.",
     "returnAfterArrival": "La vuelta tiene que salir después de que llegues al campus ({{ time }}).",
+    "repeat": {
+      "label": "Repetir otros días",
+      "hint": "Se publica el mismo viaje, a la misma hora, los días que elijas. Cada uno es un viaje aparte: lo puedes cambiar o cancelar solo.",
+      "weekdays": "Qué días",
+      "until": "Hasta",
+      "noDays": "Elige al menos un día de la semana.",
+      "summary": "Se publicarán {{ count }} viajes, uno cada día.",
+      "summaryWithReturn": "Se publicarán {{ count }} viajes: la ida y la vuelta de {{ days }} días.",
+      "reviewDates": "También: {{ dates }}",
+      "published": "Hemos publicado {{ count }} viajes.",
+      "dateRejected": "No se ha publicado ninguno: el {{ date }} no se puede (ya tienes 4 viajes ese día o se cruza con otro). Quítalo e inténtalo de nuevo.",
+      "short": {
+        "1": "L",
+        "2": "M",
+        "3": "X",
+        "4": "J",
+        "5": "V",
+        "6": "S",
+        "7": "D"
+      },
+      "long": {
+        "1": "lunes",
+        "2": "martes",
+        "3": "miércoles",
+        "4": "jueves",
+        "5": "viernes",
+        "6": "sábado",
+        "7": "domingo"
+      }
+    },
     "version": "Versión {{ version }}",
     "next": "Siguiente",
     "back": "Volver",

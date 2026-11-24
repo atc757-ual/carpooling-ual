@@ -114,6 +114,14 @@
                           [arrivalTime]="arrivalTime()"
                         />
                       }
+                      <!-- Los otros días (solo si el administrador lo tiene encendido) -->
+                      @if (canRepeat()) {
+                        <app-repeat-days-field
+                          [controls]="repeatControls"
+                          [firstDate]="tripValueDate()"
+                          [hasReturn]="hasReturnTrip()"
+                        />
+                      }
                       <!-- El margen para recoger lo calcula el sistema (con las
                          plazas y los metros, o con las paradas): sin campo -->
                       <div class="publish__actions">
@@ -125,7 +133,8 @@
                             !isRouteComplete() ||
                             departureTooSoon() ||
                             isMissingStops() ||
-                            isReturnTooEarly()
+                            isReturnTooEarly() ||
+                            isRepeatEmpty()
                           "
                         >
                           {{ 'publish.next' | transloco }}
@@ -337,6 +346,9 @@
             }
             @if (returnSummary(); as back) {
               <p class="publish__meta text-body-s">{{ back }}</p>
+            }
+            @if (repeatSummary(); as repeat) {
+              <p class="publish__meta text-body-s">{{ repeat }}</p>
             }
             @if (selectedVehicle(); as vehicle) {
               <p class="publish__vehicle text-body-s text-color-muted">

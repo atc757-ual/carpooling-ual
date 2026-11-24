@@ -81,6 +81,8 @@ export interface PublishTripRequest {
   stops?: { name: string; location: GeoPoint }[];
   // Ida y vuelta: la vuelta (desde el campus), a su hora y con sus plazas
   returnTrip?: { departureAt: string; offeredSeats: number };
+  // Los otros días en que se publica igual («AAAA-MM-DD»; viajes recurrentes)
+  repeatDates?: string[];
   // Aceptar solas las solicitudes que caben (la vuelta lleva lo mismo)
   autoAccept?: boolean;
   // Cómo se muestran después (Mis viajes, avisos): la dirección elegida y el
@@ -103,6 +105,12 @@ export interface PublishedTrip {
   stops: TripStop[];
   // Solo al publicar: la vuelta publicada a la vez, o null
   returnTrip?: { id: string; href: string } | null;
+  // Solo al publicar: los otros días publicados a la vez (vacío si ninguno)
+  repeatedTrips?: {
+    date: string;
+    trip: { id: string; href: string };
+    returnTrip: { id: string; href: string } | null;
+  }[];
 }
 
 // expired: llegó el corte (10 min antes de la salida) sin pasajeros
