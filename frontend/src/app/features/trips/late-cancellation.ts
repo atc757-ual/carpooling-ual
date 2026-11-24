@@ -12,7 +12,7 @@ export function isWithinLeadMinutes(departureAt: string, leadMin: number, now: n
   return new Date(departureAt).getTime() - now < leadMin * MINUTE_MS;
 }
 
-// Hasta qué momento se cancela sin coste (ISO)
+// Hasta qué momento se cancela sin penalización (ISO)
 export function freeCancellationUntil(departureAt: string, leadMin: number): string {
   return new Date(new Date(departureAt).getTime() - leadMin * MINUTE_MS).toISOString();
 }

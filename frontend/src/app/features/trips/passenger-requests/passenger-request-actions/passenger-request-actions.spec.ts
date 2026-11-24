@@ -85,14 +85,14 @@ describe('PassengerRequestActions', () => {
 
   beforeEach(() => vi.clearAllMocks());
 
-  it('lets a pending request be cancelled at no cost', () => {
+  it('lets a pending request be cancelled without penalty', () => {
     const actions = create(request('pending'), trip('published'));
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
 
     expect(actions.canCancel()).toBe(true);
     expect(actions.cancelLabel()).toBe('Cancelar solicitud');
-    expect(actions.cancelCost()).toBe('Puedes cancelarla sin coste.');
+    expect(actions.cancelCost()).toBe('Puedes cancelarla sin penalización.');
     expect(actions.closedReason()).toBeNull();
     expect(root.querySelector('ion-button[type="submit"]')?.textContent).toContain(
       'Cancelar solicitud',
@@ -103,7 +103,7 @@ describe('PassengerRequestActions', () => {
     const early = create(request('accepted'), trip('confirmed'));
     expect(early.cancelLabel()).toBe('Cancelar mi plaza');
     expect(early.cancellationIsLate()).toBe(false);
-    expect(early.cancelCost()).toContain('Sin coste hasta las');
+    expect(early.cancelCost()).toContain('Sin penalización hasta las');
     expect(early.hasChat()).toBe(true);
 
     TestBed.resetTestingModule();

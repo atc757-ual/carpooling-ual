@@ -1754,7 +1754,7 @@
       "podrasIniciarlo10Min": "You'll be able to start it at {{ value1 }}, 10 min before leaving.",
       "esteViajeCancelo": "This trip was cancelled.",
       "esteViajeYaTermino": "This trip has already finished.",
-      "sinCosteHastaMin": "Free until {{ freeUntil }} ({{ DRIVER_LATE_CANCELLATION_LEAD_MIN }} min before departure). After that it counts as a late cancellation: 3 in 30 days means 7 days without publishing.",
+      "sinCosteHastaMin": "No penalty until {{ freeUntil }} ({{ DRIVER_LATE_CANCELLATION_LEAD_MIN }} min before departure). After that it counts as a late cancellation: 3 in 30 days means 7 days without publishing.",
       "viajeIniciadoPasajerosYa": "Trip started. Your passengers can now see where you are.",
       "iniciarViaje": "Start the trip?",
       "compartirasUbicacion": "You'll share your location",
@@ -1769,7 +1769,7 @@
       "shareMessage": "To start the trip you need to share your location: your passengers will see where you are while it lasts, and you'll stop sharing it when you finish. It's part of the service (explained in the Privacy policy): we only ask for the device permission.",
       "shareMessageNative": "To start the trip you need to share your location: your passengers will see where you are while it lasts, and you'll stop sharing it when you finish. It's part of the service (explained in the Privacy policy): we only ask for the device permission. It will keep being shared even if you lock the screen or use another app; you'll see it in a notification.",
       "declarationMessage": "By starting, you confirm that you still meet your declaration and your vehicle's (licence, insurance and MOT).",
-      "sinPasajerosSinCoste": "No one's booked yet, so you can cancel at no cost.",
+      "sinPasajerosSinCoste": "No one's booked yet, so you can cancel without penalty.",
       "cancelledToast": "Trip cancelled. We've let your passengers know."
     },
     "driverTripDetail": {
@@ -1837,8 +1837,8 @@
     "passengerRequestActions": {
       "cancelarPlaza": "Cancel my seat",
       "cancelarSolicitud": "Cancel request",
-      "puedesCancelarlaSinCoste": "You can cancel it free of charge.",
-      "sinCosteHastaMin": "Free until {{ freeUntil }} ({{ PASSENGER_LATE_CANCELLATION_LEAD_MIN }} min before departure). After that it counts as a late cancellation: 3 in 30 days means 7 days without requesting seats.",
+      "puedesCancelarlaSinCoste": "You can cancel it without penalty.",
+      "sinCosteHastaMin": "No penalty until {{ freeUntil }} ({{ PASSENGER_LATE_CANCELLATION_LEAD_MIN }} min before departure). After that it counts as a late cancellation: 3 in 30 days means 7 days without requesting seats.",
       "conductorCanceloEsteViaje": "The driver cancelled this trip.",
       "esteViajeYaTermino": "This trip has already finished.",
       "viajeCompletoTodasSus": "The trip filled all its seats.",

@@ -179,7 +179,7 @@ describe('PassengerRequestDetailPage', () => {
     expect(root.textContent).not.toContain('1234BCD');
     // Sin hora de recogida hasta decidir el cálculo con varios pasajeros
     expect(root.textContent).not.toContain('Hora de recogida');
-    expect(root.textContent).toContain('Puedes cancelarla sin coste.');
+    expect(root.textContent).toContain('Puedes cancelarla sin penalización.');
     expect(root.textContent).toContain('Cancelar solicitud');
     expect(root.querySelector('.passenger-route__chat-btn')).toBeNull();
   });

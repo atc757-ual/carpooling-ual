@@ -1754,7 +1754,7 @@
       "podrasIniciarlo10Min": "Podrás iniciarlo a las {{ value1 }}, 10 min antes de salir.",
       "esteViajeCancelo": "Este viaje se canceló.",
       "esteViajeYaTermino": "Este viaje ya terminó.",
-      "sinCosteHastaMin": "Sin coste hasta las {{ freeUntil }} ({{ DRIVER_LATE_CANCELLATION_LEAD_MIN }} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder publicar.",
+      "sinCosteHastaMin": "Sin penalización hasta las {{ freeUntil }} ({{ DRIVER_LATE_CANCELLATION_LEAD_MIN }} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder publicar.",
       "viajeIniciadoPasajerosYa": "Viaje iniciado. Tus pasajeros ya ven dónde estás.",
       "iniciarViaje": "¿Iniciar el viaje?",
       "compartirasUbicacion": "Compartirás tu ubicación",
@@ -1769,7 +1769,7 @@
       "shareMessage": "Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo.",
       "shareMessageNative": "Para iniciar el viaje hay que compartir tu ubicación: tus pasajeros verán dónde estás mientras dura y dejarás de compartirla al terminarlo. Es parte del servicio (lo explica la Política de privacidad): solo te pedimos el permiso del dispositivo. Seguirá compartiéndose aunque bloquees la pantalla o uses otra app; lo verás en una notificación.",
       "declarationMessage": "Al iniciar, confirmas que sigues cumpliendo tu declaración y la de tu vehículo (permiso, seguro e ITV).",
-      "sinPasajerosSinCoste": "Sin pasajeros aceptados, puedes cancelarlo sin coste.",
+      "sinPasajerosSinCoste": "Sin pasajeros aceptados, puedes cancelarlo sin penalización.",
       "cancelledToast": "Viaje cancelado. Hemos avisado a los pasajeros."
     },
     "driverTripDetail": {
@@ -1837,8 +1837,8 @@
     "passengerRequestActions": {
       "cancelarPlaza": "Cancelar mi plaza",
       "cancelarSolicitud": "Cancelar solicitud",
-      "puedesCancelarlaSinCoste": "Puedes cancelarla sin coste.",
-      "sinCosteHastaMin": "Sin coste hasta las {{ freeUntil }} ({{ PASSENGER_LATE_CANCELLATION_LEAD_MIN }} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder pedir plaza.",
+      "puedesCancelarlaSinCoste": "Puedes cancelarla sin penalización.",
+      "sinCosteHastaMin": "Sin penalización hasta las {{ freeUntil }} ({{ PASSENGER_LATE_CANCELLATION_LEAD_MIN }} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder pedir plaza.",
       "conductorCanceloEsteViaje": "El conductor canceló este viaje.",
       "esteViajeYaTermino": "Este viaje ya terminó.",
       "viajeCompletoTodasSus": "El viaje completó todas sus plazas.",
