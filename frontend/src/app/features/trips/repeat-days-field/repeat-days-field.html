@@ -11,21 +11,11 @@
   </ion-checkbox>
   @if (isRepeating()) {
     <p class="text-caption text-color-muted">{{ 'publish.repeat.hint' | transloco }}</p>
-    <fieldset class="repeat-days__weekdays">
-      <legend class="text-label">{{ 'publish.repeat.weekdays' | transloco }}</legend>
-      @for (day of weekdays; track day) {
-        <ion-checkbox
-          class="repeat-days__day"
-          labelPlacement="stacked"
-          alignment="center"
-          [checked]="isChosen(day)"
-          (ionChange)="handleDay(day, $event.detail.checked)"
-        >
-          <span aria-hidden="true">{{ 'publish.repeat.short.' + day | transloco }}</span>
-          <span class="visually-hidden">{{ 'publish.repeat.long.' + day | transloco }}</span>
-        </ion-checkbox>
-      }
-    </fieldset>
+    <app-weekday-picker
+      [legend]="'publish.repeat.weekdays' | transloco"
+      [value]="chosen()"
+      (valueChange)="controls().weekdays.setValue($event)"
+    />
     <app-datetime-field
       [formControl]="controls().until"
       [label]="'publish.repeat.until' | transloco"

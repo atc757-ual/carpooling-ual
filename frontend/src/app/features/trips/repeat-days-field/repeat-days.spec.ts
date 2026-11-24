@@ -1,26 +1,15 @@
 import { initAppTranslations } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
-  addDays,
   defaultRepeatUntil,
   latestRepeatDate,
-  localDate,
   publishErrorMessage,
   rejectedRepeatDate,
   repeatDatesFor,
-  weekdayOf,
 } from './repeat-days';
 
 describe('repeat days', () => {
   beforeEach(() => initAppTranslations());
-
-  it('counts days and weekdays on the calendar', () => {
-    expect(addDays('2026-11-30', 1)).toBe('2026-12-01');
-    expect(addDays('2026-03-28', 2)).toBe('2026-03-30');
-    expect(weekdayOf('2026-11-23')).toBe(1);
-    expect(weekdayOf('2026-11-29')).toBe(7);
-    expect(localDate(new Date(2026, 10, 5, 23, 30))).toBe('2026-11-05');
-  });
 
   it('gives the chosen weekdays after the first day, up to «until»', () => {
     // Lunes 23/11: lunes y miércoles hasta el 2/12

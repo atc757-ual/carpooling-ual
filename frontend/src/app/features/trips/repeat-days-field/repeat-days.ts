@@ -2,6 +2,7 @@ import { translate } from '@jsverse/transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatDateLabel } from '../publish-trip/publish-trip.utils';
+import { addDays, weekdayOf } from '../../../shared/utils/weekdays.util';
 
 // Publicar el mismo viaje otros días (viajes recurrentes): los días que salen
 // de los días de la semana elegidos y la fecha «hasta». Las fechas son
@@ -12,26 +13,6 @@ export const MAX_REPEAT_DATES = 30;
 export const MAX_DAYS_AHEAD = 31;
 // Por defecto, hasta 4 semanas después del primero
 const DEFAULT_WEEKS = 4;
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-// Lunes (1) a domingo (7), en ese orden
-export const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
-
-export function addDays(date: string, days: number): string {
-  return new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
-}
-
-// 1 (lunes) a 7 (domingo)
-export function weekdayOf(date: string): number {
-  return new Date(`${date}T00:00:00Z`).getUTCDay() || 7;
-}
-
-// El día de hoy (en el dispositivo), como el de los campos de fecha
-export function localDate(now: Date): string {
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
-}
 
 // El último día que se puede elegir en «Hasta»
 export function latestRepeatDate(today: string): string {

@@ -22,7 +22,7 @@ import { stubIntersectionObserver } from '../../matching/trip-search.testing';
 import { PublishTripPage } from './publish-trip.page';
 import { toIsoDateTime } from './publish-trip.utils';
 import { PlatformSettingsService } from '../../../core/services/settings/platform-settings.service';
-import { weekdayOf } from '../repeat-days-field/repeat-days';
+import { weekdayOf } from '../../../shared/utils/weekdays.util';
 
 const P1: CampusParking = {
   id: 'p1',
