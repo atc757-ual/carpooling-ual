@@ -19,6 +19,7 @@ import { TripNotInProgressError } from '../src/modules/trips/errors/trip-not-in-
 import { TripNotStartableYetError } from '../src/modules/trips/errors/trip-not-startable-yet.error';
 import { VehicleInUseError } from '../src/modules/users/errors/vehicle-in-use.error';
 import { TripNotFoundError } from '../src/modules/trips/errors/trip-not-found.error';
+import { VehicleHasUpcomingTripsError } from '../src/modules/trips/errors/vehicle-has-upcoming-trips.error';
 import { TripNotOpenError } from '../src/modules/trips/errors/trip-not-open.error';
 import { Trip } from '../src/modules/trips/entities/trip.entity';
 import { TripStatusService } from '../src/modules/trips/trip-status.service';
@@ -618,7 +619,15 @@ describe('TripsService (e2e)', () => {
 
     it('does not start a trip whose vehicle was deactivated meanwhile', async () => {
       const { driverId, vehicleId, tripId } = await confirmedTrip(10);
-      await vehiclesService.deactivate(driverId, vehicleId);
+      // Con un viaje programado, la baja ya no se deja hacer; si aun así el
+      // coche quedara inactivo, el viaje no se inicia con él
+      await expect(
+        vehiclesService.deactivate(driverId, vehicleId),
+      ).rejects.toBeInstanceOf(VehicleHasUpcomingTripsError);
+      await dataSource.query(
+        `UPDATE vehicles SET status = 'inactive' WHERE id = $1`,
+        [vehicleId],
+      );
 
       await expect(tripsService.start(driverId, tripId)).rejects.toBeInstanceOf(
         VehicleNotFoundError,

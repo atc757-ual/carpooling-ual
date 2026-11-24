@@ -97,6 +97,7 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `VEHICLE_LIMIT_REACHED`      | 409  | El conductor ya tiene 3 vehículos activos: para registrar otro, debe dar de baja uno                                                                    |
 | `VEHICLE_NOT_FOUND`          | 404  | El vehículo no existe, está dado de baja o es de otro conductor (no se distingue, para no revelar qué ids existen)                                      |
 | `VEHICLE_IN_USE`             | 409  | El vehículo está en un viaje en curso: no se puede dar de baja ni iniciar otro viaje con él hasta que termine                                           |
+| `VEHICLE_HAS_UPCOMING_TRIPS` | 409  | El vehículo tiene viajes publicados o confirmados: antes de darlo de baja hay que pasarlos a otro coche (`POST /api/trips/vehicle-changes`) o cancelarlos. Se listan con `GET /api/vehicles/{vehicleId}/upcoming-trips` |
 
 ## Viajes (`trips`)
 

@@ -2348,7 +2348,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: VEHICLE_IN_USE",
+            "description": "TMF630 error: VEHICLE_IN_USE, VEHICLE_HAS_UPCOMING_TRIPS",
             "content": {
               "application/json": {
                 "schema": {
@@ -2379,7 +2379,7 @@
         ]
       },
       "delete": {
-        "description": "The vehicle can no longer be used in new trips, but past trips keep it.",
+        "description": "The vehicle can no longer be used in new trips, but past trips keep it. Its upcoming trips must move to another vehicle or be cancelled first.",
         "operationId": "VehiclesController_deactivate",
         "parameters": [
           {
@@ -2437,7 +2437,7 @@
             }
           },
           "409": {
-            "description": "TMF630 error: VEHICLE_IN_USE",
+            "description": "TMF630 error: VEHICLE_IN_USE, VEHICLE_HAS_UPCOMING_TRIPS",
             "content": {
               "application/json": {
                 "schema": {
@@ -6634,6 +6634,242 @@
           }
         ],
         "summary": "Finish a trip in progress",
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/api/vehicles/{id}/upcoming-trips": {
+      "get": {
+        "description": "Its published and confirmed trips, the soonest first: the ones that would block giving the vehicle up (VEHICLE_HAS_UPCOMING_TRIPS).",
+        "operationId": "TripVehiclesController_listUpcoming",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "X-Total-Count": {
+                "description": "Total number of items",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Result-Count": {
+                "description": "Number of items in this response",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TripResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: VEHICLE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the upcoming trips of one of my vehicles",
+        "tags": [
+          "trips"
+        ]
+      }
+    },
+    "/api/trips/vehicle-changes": {
+      "post": {
+        "description": "All or none. Only published or confirmed trips of the driver; the vehicle must be active, with its declaration up to date and room for the seats each trip offers. Accepted passengers are notified of the new vehicle.",
+        "operationId": "TripVehiclesController_changeVehicle",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeTripsVehicleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TripResource"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED, SEATS_EXCEED_CAPACITY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TmfValidationError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TmfError"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED, NOT_TRIP_DRIVER",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "TMF630 error: TRIP_NOT_FOUND, VEHICLE_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "TMF630 error: TRIP_NOT_EDITABLE, VEHICLE_DECLARATION_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Move some of my trips to another vehicle",
         "tags": [
           "trips"
         ]
@@ -17386,10 +17622,11 @@
               "trip_start_reminder",
               "trip_expired",
               "trip_auto_finished",
+              "trip_vehicle_changed",
               "terms_updated",
               "privacy_updated"
             ],
-            "description": "request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver when a trip with passengers finishes), trip_completed (to the passenger when their seat is closed: they got off or the trip finished), trip_auto_finished (to the driver when the system closes a trip in progress that nobody finished), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
+            "description": "request_received (to the driver), passenger_joined (to the driver, when the trip accepts requests automatically), request_accepted, request_rejected, request_conflict_cancelled and trip_cancelled (to the passenger), request_cancelled and passenger_left (to the driver), trip_started (to the accepted passengers), review_requested (to the driver when a trip with passengers finishes), trip_completed (to the passenger when their seat is closed: they got off or the trip finished), trip_auto_finished (to the driver when the system closes a trip in progress that nobody finished), trip_vehicle_changed (to the accepted passengers when the driver moves the trip to another vehicle), incident_reported (to the administrators), terms_updated and privacy_updated (to every active user after a minor change of a legal document)"
           },
           "trip": {
             "nullable": true,
@@ -18451,6 +18688,30 @@
             ]
           }
         }
+      },
+      "ChangeTripsVehicleDto": {
+        "type": "object",
+        "properties": {
+          "tripIds": {
+            "minItems": 1,
+            "maxItems": 124,
+            "description": "Trips of the driver, published or confirmed, that move to the vehicle",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "vehicleId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Active vehicle of the driver, with its declaration up to date"
+          }
+        },
+        "required": [
+          "tripIds",
+          "vehicleId"
+        ]
       },
       "CampusParkingResource": {
         "type": "object",

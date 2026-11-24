@@ -2070,6 +2070,7 @@
     "VEHICLE_LIMIT_REACHED": "Ya tienes 3 vehículos. Da de baja uno para añadir otro.",
     "VEHICLE_NOT_FOUND": "No encontramos este vehículo. Puede que ya no esté en tu perfil.",
     "VEHICLE_IN_USE": "Este vehículo está en un viaje en curso. Espera a que termine.",
+    "VEHICLE_HAS_UPCOMING_TRIPS": "Este coche tiene viajes programados. Pásalos a otro coche o cancélalos antes de eliminarlo.",
     "TRIP_NOT_FOUND": "No encontramos este viaje. Puede que ya no exista.",
     "NOT_TRIP_DRIVER": "Solo quien conduce este viaje puede cambiarlo.",
     "TRIP_NOT_EDITABLE": "Este viaje ya no se puede modificar. Si no puedes hacerlo, cancélalo.",

@@ -16,6 +16,7 @@ const PUSH_TYPES: ReadonlySet<NotificationType> = new Set([
   'trip_started',
   'trip_completed',
   'trip_auto_finished',
+  'trip_vehicle_changed',
   'pending_requests_reminder',
   'trip_expired',
   'trip_start_reminder',

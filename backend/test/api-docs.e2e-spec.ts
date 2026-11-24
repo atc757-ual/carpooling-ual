@@ -142,6 +142,7 @@ describe('API docs (e2e)', () => {
       '/api/trips',
       '/api/trips/plan',
       '/api/trips/search',
+      '/api/trips/vehicle-changes',
       '/api/trips/{id}',
       '/api/trips/{id}/cancel',
       '/api/trips/{id}/chat/report',
@@ -196,6 +197,7 @@ describe('API docs (e2e)', () => {
       '/api/vehicles',
       '/api/vehicles/{id}',
       '/api/vehicles/{id}/declaration',
+      '/api/vehicles/{id}/upcoming-trips',
     ]);
   });
 

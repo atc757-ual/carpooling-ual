@@ -2070,6 +2070,7 @@
     "VEHICLE_LIMIT_REACHED": "You already have 3 vehicles. Remove one to add another.",
     "VEHICLE_NOT_FOUND": "We couldn't find this vehicle. It may no longer be in your profile.",
     "VEHICLE_IN_USE": "This vehicle is on a trip in progress. Wait until it ends.",
+    "VEHICLE_HAS_UPCOMING_TRIPS": "This car has upcoming trips. Move them to another car or cancel them before removing it.",
     "TRIP_NOT_FOUND": "We couldn't find this trip. It may no longer exist.",
     "NOT_TRIP_DRIVER": "Only the driver of this trip can change it.",
     "TRIP_NOT_EDITABLE": "This trip can no longer be edited. If you can't make it, cancel it.",

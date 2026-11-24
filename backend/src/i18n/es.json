@@ -79,6 +79,10 @@
       "title": "Hemos cerrado tu viaje",
       "body": "Había pasado una hora de la llegada: valora a tus pasajeros."
     },
+    "trip_vehicle_changed": {
+      "title": "Tu conductor ha cambiado de coche",
+      "body": "Mira el coche nuevo para reconocerlo en la recogida."
+    },
     "pending_requests_reminder": {
       "title": "Tienes solicitudes por responder",
       "body": "Respóndelas antes de 10 min de la salida o caducarán."

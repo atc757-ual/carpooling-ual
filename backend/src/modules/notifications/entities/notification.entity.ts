@@ -35,6 +35,9 @@ export const NOTIFICATION_TYPES = [
   // Nadie terminó el viaje en curso: lo cerró el sistema 1 h después de la
   // llegada estimada (al conductor)
   'trip_auto_finished',
+  // El conductor ha pasado el viaje a otro coche (a los pasajeros aceptados:
+  // es como lo reconocen al recogerlos)
+  'trip_vehicle_changed',
   'terms_updated',
   'privacy_updated',
 ] as const;

@@ -51,10 +51,19 @@ const PLATE_UNIQUE_CONSTRAINT = 'vehicles_plate_country_plate_key';
 // Vehículos activos que puede tener a la vez un conductor
 export const MAX_VEHICLES_PER_DRIVER = 3;
 
+// Una comprobación antes de dar de baja un vehículo, dentro de su transacción
+// y con la fila ya bloqueada: lanza un error de negocio si no se puede
+export type VehicleDeactivationCheck = (
+  manager: EntityManager,
+  vehicleId: string,
+) => Promise<void>;
+
 // Vehículos de los conductores (RF-21). Siempre trabaja con los vehículos de UN
 // conductor: nunca devuelve ni modifica los de otro
 @Injectable()
 export class VehiclesService {
+  private readonly deactivationChecks: VehicleDeactivationCheck[] = [];
+
   constructor(
     @InjectRepository(Vehicle)
     private readonly vehiclesRepository: Repository<Vehicle>,
@@ -62,6 +71,12 @@ export class VehiclesService {
     private readonly consents: ConsentsService,
     private readonly legalDocuments: LegalDocumentsService,
   ) {}
+
+  // Patrón observador: otro módulo (trips: sin viajes programados con él)
+  // puede impedir la baja sin que users lo conozca
+  onDeactivationCheck(check: VehicleDeactivationCheck): void {
+    this.deactivationChecks.push(check);
+  }
 
   // Registra un vehículo con su declaración (seguro e ITV), que queda unida a
   // él. Si el mismo conductor lo había dado de baja, se reactiva con la nueva
@@ -339,6 +354,10 @@ export class VehiclesService {
       if (!canChangeVehicleStatus(vehicle.status, 'inactive')) {
         throw new VehicleInUseError(vehicleId);
       }
+      await this.deactivationChecks.reduce<Promise<void>>(
+        (chain, check) => chain.then(() => check(manager, vehicle.id)),
+        Promise.resolve(),
+      );
       await manager.update(Vehicle, vehicle.id, { status: 'inactive' });
     });
   }
