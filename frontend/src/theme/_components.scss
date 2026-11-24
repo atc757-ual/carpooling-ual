@@ -625,6 +625,12 @@ ion-item.option-card {
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s);
 
+  // En una rejilla, la tarjeta se estira a la altura de la más alta: el fondo
+  // (que Ionic pinta dentro) la sigue, para que no quede un hueco abajo
+  &::part(native) {
+    height: 100%;
+  }
+
   ion-radio {
     width: 100%;
 
