@@ -1,0 +1,112 @@
+<!-- Registrar otro coche es un paso de esta ventana (no otra encima): su
+     título, una flecha para volver a los viajes y la ✕ para cerrarla.
+     Leyendo la declaración, se sale con sus botones -->
+@if (isRegistering()) {
+  <app-modal-header
+    [title]="'profile.vehicles.register' | transloco"
+    [hasBack]="!form()?.isReadingDeclaration()"
+    [hasClose]="!form()?.isReadingDeclaration()"
+    (back)="handleBack()"
+    (closed)="close()"
+  />
+  <div class="modal-body">
+    <app-vehicle-form
+      [submitLabel]="'profile.vehicles.register' | transloco"
+      (saved)="handleRegistered($event)"
+    />
+  </div>
+} @else {
+  <app-modal-header [title]="title()" (closed)="close()" />
+
+  <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+  <div class="modal-body vehicle-trips">
+    <p class="text-body-s text-color-muted vehicle-trips__intro">{{ intro() }}</p>
+
+    <!-- Al dar de baja: cada viaje, marcado si se mantiene con el otro coche
+       (sin otro coche, desmarcados: se cancelan). Al cambiar el coche de un
+       viaje: solo ese viaje, sin casilla -->
+    @if (mode === 'remove') {
+      <fieldset class="vehicle-trips__trips">
+        <legend class="visually-hidden">
+          {{ 'profile.vehicleTrips.tripsLegend' | transloco }}
+        </legend>
+        @for (row of rows(); track row.trip.id) {
+          <ion-checkbox
+            class="vehicle-trips__trip"
+            labelPlacement="end"
+            justify="start"
+            [checked]="targetId() !== null && keptIds().has(row.trip.id)"
+            [disabled]="targetId() === null"
+            (ionChange)="handleToggle(row.trip.id, $event.detail.checked)"
+          >
+            <span class="vehicle-trips__when">{{ row.when }}</span>
+            <span class="text-body-s text-color-muted">{{ row.where }} · {{ row.seats }}</span>
+          </ion-checkbox>
+        }
+      </fieldset>
+    } @else {
+      @for (row of rows(); track row.trip.id) {
+        <p class="vehicle-trips__single">
+          <span class="vehicle-trips__when">{{ row.when }}</span>
+          <span class="text-body-s text-color-muted">{{ row.where }} · {{ row.seats }}</span>
+        </p>
+      }
+    }
+
+    <!-- El coche al que pasan: los otros suyos, o registrar uno -->
+    @if (vehicles.isLoading() && !vehicles.hasValue()) {
+      <ion-spinner name="crescent" aria-hidden="true" />
+    } @else {
+      @if (otherVehicles().length > 0) {
+        <h3 class="text-label vehicle-trips__subtitle">
+          {{
+            (mode === 'remove'
+              ? 'profile.vehicleTrips.moveTo'
+              : 'profile.vehicleTrips.changeAction'
+            ) | transloco
+          }}
+        </h3>
+        <ul class="vehicle-trips__vehicles">
+          @for (other of otherVehicles(); track other.id) {
+            <li>
+              <app-vehicle-card
+                [vehicle]="other"
+                groupName="vehicle-trips-target"
+                [isSelected]="other.id === targetId()"
+                [hasIcon]="false"
+                (selected)="handleTarget($event)"
+              />
+            </li>
+          }
+        </ul>
+      }
+      @if (canRegister()) {
+        <form (submit)="$event.preventDefault(); handleRegister()">
+          <ion-button class="vehicle-trips__register" type="submit" fill="clear" size="small">
+            <ion-icon slot="start" [icon]="addIcon" aria-hidden="true" />
+            {{ 'profile.vehicleTrips.registerOther' | transloco }}
+          </ion-button>
+        </form>
+      }
+    }
+
+    <!-- La acción, primero y en azul; volver, debajo con borde (como la
+       ventana de confirmar) -->
+    <div class="vehicle-trips__actions">
+      <form (submit)="$event.preventDefault(); handleConfirm()">
+        <ion-button type="submit" expand="block" [disabled]="!canConfirm()">
+          @if (isSaving()) {
+            <ion-spinner name="crescent" aria-hidden="true" />
+          } @else {
+            {{ confirmText() }}
+          }
+        </ion-button>
+      </form>
+      <form (submit)="$event.preventDefault(); close()">
+        <ion-button type="submit" expand="block" fill="outline">
+          {{ 'profile.vehicleTrips.back' | transloco }}
+        </ion-button>
+      </form>
+    </div>
+  </div>
+}

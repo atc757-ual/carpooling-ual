@@ -1,0 +1,77 @@
+@use 'breakpoints' as bp;
+
+.vehicle-trips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.vehicle-trips__intro,
+.vehicle-trips__subtitle,
+.vehicle-trips__single {
+  margin: 0;
+}
+
+// Cada viaje en una fila con su casilla, separados por una línea
+.vehicle-trips__trips {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.vehicle-trips__trip {
+  padding: var(--space-s) 0;
+  border-bottom: var(--border-width-s) solid var(--color-border);
+
+  &::part(label) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xxs);
+    white-space: normal;
+  }
+}
+
+.vehicle-trips__single {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.vehicle-trips__when {
+  font-weight: var(--font-weight-semibold);
+}
+
+.vehicle-trips__vehicles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vehicle-trips__register {
+  margin: 0;
+}
+
+// En móvil: un botón encima del otro. En escritorio: uno al lado del otro
+// con el azul a la izquierda
+.vehicle-trips__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  ion-button {
+    margin: 0;
+  }
+
+  @include bp.up(md) {
+    flex-direction: row;
+
+    form {
+      flex: 1;
+    }
+  }
+}
