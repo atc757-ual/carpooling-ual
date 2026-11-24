@@ -97,7 +97,7 @@ export class TripsController {
   @ApiOperation({
     summary: 'Publish a trip',
     description:
-      'RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days. The trip cannot overlap another active trip of the driver (departure to arrival plus the maximum detour), and a driver can have at most 4 trips that are not cancelled on the same day. With returnTrip, the return trip is published in the same transaction, with the same rules (it cannot overlap the outbound trip either): both or none.',
+      'RF-04. The driver must be ready (RF-21): responsible declaration accepted and at least one active vehicle. The departure must be at least one hour away, and publishing is suspended for 7 days after 3 late cancellations in 30 days. The trip cannot overlap another active trip of the driver (departure to arrival plus the maximum detour), and a driver can have at most 4 trips that are not cancelled on the same day. With returnTrip, the return trip is published in the same transaction, with the same rules (it cannot overlap the outbound trip either): both or none. With repeatDates (only when multi-day publishing is on), the same trip and its return are also published on those days, at the same local time, with the rules of each day: all or none.',
   })
   @ApiCreatedResponse({
     type: PublishedTripResource,
@@ -105,7 +105,12 @@ export class TripsController {
   })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
-    [HttpStatus.BAD_REQUEST]: [...TRIP_RULE_ERRORS, 'RETURN_TRIP_REJECTED'],
+    [HttpStatus.BAD_REQUEST]: [
+      ...TRIP_RULE_ERRORS,
+      'RETURN_TRIP_REJECTED',
+      'INVALID_REPEAT_DATES',
+      'REPEAT_DATE_REJECTED',
+    ],
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED', 'DRIVER_NOT_READY'],
     [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
     [HttpStatus.CONFLICT]: [
@@ -113,6 +118,8 @@ export class TripsController {
       'VEHICLE_DECLARATION_REQUIRED',
       ...SCHEDULE_ERRORS,
       'RETURN_TRIP_REJECTED',
+      'MULTI_DAY_PUBLISHING_DISABLED',
+      'REPEAT_DATE_REJECTED',
     ],
   })
   async publish(

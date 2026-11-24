@@ -40,6 +40,13 @@ import type {
 } from './trip-stops.service';
 import { asReturnLeg, toReturnTripInput } from './return-trip';
 import type { ReturnTripInput } from './return-trip';
+import { SettingsService } from '../settings/settings.service';
+import { MultiDayPublishingDisabledError } from './errors/multi-day-publishing-disabled.error';
+import {
+  asRepeatDate,
+  assertRepeatDates,
+  moveToSeriesDate,
+} from './trip-series';
 import {
   DEFAULT_MAX_DETOUR_M,
   detourBudgetMin,
@@ -82,7 +89,16 @@ export type PublishTripInput = Omit<TripInput, 'departureAt'> & {
   arrivalAt?: Date;
   // Ida y vuelta en un solo flujo: la vuelta, con su hora y sus plazas
   returnTrip?: ReturnTripInput;
+  // Los otros días en que se publica igual (AAAA-MM-DD, en España)
+  repeatDates?: string[];
 };
+
+// Un día más de una serie: su viaje y, si la hay, su vuelta
+export interface RepeatedTrip {
+  date: string;
+  tripId: string;
+  returnTripId: string | null;
+}
 
 // Modificación parcial: solo los campos que cambian
 export type TripChanges = Partial<TripInput>;
@@ -101,6 +117,8 @@ export interface TripView {
   isLocationApproximate?: boolean;
   // Al publicar la ida y la vuelta a la vez, la vuelta
   returnTripId?: string | null;
+  // Al publicar varios días a la vez, los demás
+  repeatedTrips?: RepeatedTrip[];
   // Recogida en puntos: sus paradas (lugares públicos, siempre exactas)
   stops: TripStopView[];
 }
@@ -131,6 +149,7 @@ export class TripsService {
     private readonly publishingLimits: PublishingLimitsService,
     private readonly tripStops: TripStopsService,
     private readonly tripPickups: TripPickupsService,
+    private readonly settings: SettingsService,
   ) {}
 
   // RF-04: publicar un viaje. Antes, RF-21: el conductor debe estar listo y
@@ -149,8 +168,14 @@ export class TripsService {
     // RF-12: la ruta se calcula antes de la transacción (sin bloquear filas
     // mientras se espera a OSRM) y se guarda con el viaje. Va antes de validar
     // la salida porque, con la llegada, depende de ella
-    const { arrivalAt, departureAt, stops, returnTrip, ...fields } =
-      publishInput;
+    const {
+      arrivalAt,
+      departureAt,
+      stops,
+      returnTrip,
+      repeatDates = [],
+      ...fields
+    } = publishInput;
     const published = await this.tripStops.planRoute({ ...fields, stops });
     // El desvío máximo lo calcula el sistema (plazas y metros, o paradas)
     const maxDetourMin = budgetOf(fields, published);
@@ -165,6 +190,7 @@ export class TripsService {
     };
     await this.assertValidTrip(driverId, input);
     assertDepartureLead(input.departureAt);
+    await this.assertCanRepeat(input.departureAt, repeatDates);
     // La vuelta, si se publica a la vez: sus reglas se comprueban igual y lo
     // que falle se dice como de la vuelta (RETURN_TRIP_REJECTED)
     const returnLeg = returnTrip
@@ -173,8 +199,9 @@ export class TripsService {
         )
       : null;
 
-    // Las dos en la misma transacción: o se publican las dos o ninguna
-    const [trip, returned] = await this.dataSource.transaction(
+    // Todos en la misma transacción (la ida, la vuelta y los demás días): o
+    // se publican todos o ninguno
+    const [trip, returned, repeatedTrips] = await this.dataSource.transaction(
       async (manager) => {
         const saved = await this.saveNew(manager, driverId, input, published);
         const savedReturn = returnLeg
@@ -182,10 +209,85 @@ export class TripsService {
               this.saveNew(manager, driverId, returnLeg.input, returnLeg.route),
             )
           : null;
-        return [saved, savedReturn] as const;
+        const repeated = await repeatDates.reduce<Promise<RepeatedTrip[]>>(
+          (chain, date) =>
+            chain.then(async (done) => [
+              ...done,
+              await asRepeatDate(date, () =>
+                this.saveRepeat(manager, driverId, {
+                  date,
+                  first: { input, route: published },
+                  returnLeg,
+                }),
+              ),
+            ]),
+          Promise.resolve([]),
+        );
+        return [saved, savedReturn, repeated] as const;
       },
     );
-    return { ...(await this.toView(trip)), returnTripId: returned?.id ?? null };
+    return {
+      ...(await this.toView(trip)),
+      returnTripId: returned?.id ?? null,
+      repeatedTrips,
+    };
+  }
+
+  // Publicar varios días a la vez: solo con el ajuste encendido y con días
+  // válidos (después del primero y hasta un mes desde hoy)
+  private async assertCanRepeat(
+    departureAt: Date,
+    dates: readonly string[],
+  ): Promise<void> {
+    if (dates.length === 0) {
+      return;
+    }
+    if (!(await this.settings.get()).multiDayPublishing) {
+      throw new MultiDayPublishingDisabledError();
+    }
+    assertRepeatDates(departureAt, dates, new Date());
+  }
+
+  // El mismo viaje (y su vuelta) otro día de la serie, a la misma hora y con
+  // la misma ruta; con las reglas de cada día (máximo diario y sin cruzarse)
+  private async saveRepeat(
+    manager: EntityManager,
+    driverId: string,
+    repeat: {
+      date: string;
+      first: { input: TripInput; route: PublishedRoute };
+      returnLeg: { input: TripInput; route: PublishedRoute } | null;
+    },
+  ): Promise<RepeatedTrip> {
+    const { date, first, returnLeg } = repeat;
+    const firstDeparture = first.input.departureAt;
+    const trip = await this.saveNew(
+      manager,
+      driverId,
+      {
+        ...first.input,
+        departureAt: moveToSeriesDate(firstDeparture, firstDeparture, date),
+      },
+      first.route,
+    );
+    const returned = returnLeg
+      ? await asReturnLeg(() =>
+          this.saveNew(
+            manager,
+            driverId,
+            {
+              ...returnLeg.input,
+              departureAt: moveToSeriesDate(
+                returnLeg.input.departureAt,
+                firstDeparture,
+                date,
+              ),
+            },
+            returnLeg.route,
+          ),
+        )
+      : null;
+    return { date, tripId: trip.id, returnTripId: returned?.id ?? null };
   }
 
   private async planReturnLeg(

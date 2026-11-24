@@ -6,6 +6,7 @@ import { LateCancellationsService } from './late-cancellations.service';
 import { PublishingLimitsService } from './publishing-limits.service';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
+import type { SettingsService } from '../settings/settings.service';
 import { TripsService } from './trips.service';
 import { UsersService } from '../users/users.service';
 import { VehiclesService } from '../users/vehicles.service';
@@ -56,6 +57,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as PublishingLimitsService,
       {} as TripStopsService,
       {} as TripPickupsService,
+      {} as SettingsService,
     );
   });
 
@@ -100,6 +102,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as PublishingLimitsService,
       {} as TripStopsService,
       {} as TripPickupsService,
+      {} as SettingsService,
     );
 
     // Current time: 09:16:00Z (16 min after departure -> > 15 min)
@@ -159,6 +162,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as PublishingLimitsService,
       {} as TripStopsService,
       {} as TripPickupsService,
+      {} as SettingsService,
     );
 
     const now = new Date('2026-11-03T09:20:00Z');
@@ -187,6 +191,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as PublishingLimitsService,
       {} as TripStopsService,
       {} as TripPickupsService,
+      {} as SettingsService,
     );
     const origin: Point = { type: 'Point', coordinates: [-2.5, 36.8] };
     const destination: Point = { type: 'Point', coordinates: [-2.4, 36.83] };
@@ -222,6 +227,7 @@ describe('TripsService cancelUnstartedTrips', () => {
       {} as PublishingLimitsService,
       {} as TripStopsService,
       {} as TripPickupsService,
+      {} as SettingsService,
     );
 
     const result = await tripsService.planRoute(origin, destination, [
