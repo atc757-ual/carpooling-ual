@@ -12,8 +12,8 @@ import {
 import { registerUser } from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
 import {
-  turnOnMultiDayPublishing,
-  withPlatformSettings,
+  lockPlatformSettings,
+  setMultiDayPublishing,
 } from './support/platform-settings-lock';
 import { publishableDeparture } from './support/trips';
 
@@ -54,29 +54,23 @@ describe('Trip series (e2e)', () => {
     dataSource = app.get(DataSource);
   });
 
+  // Cada test, con los ajustes en exclusiva y publicar varios días encendido;
+  // al acabar, como la migración
+  let releaseSettings: () => Promise<void>;
+
+  beforeEach(async () => {
+    releaseSettings = await lockPlatformSettings(dataSource);
+    await setMultiDayPublishing(dataSource, true);
+  });
+
   afterEach(async () => {
+    await releaseSettings();
     await deleteTestUsers(dataSource, EMAIL_PREFIX);
   });
 
   afterAll(async () => {
     await app.close();
   });
-
-  // Cada test, con los ajustes en exclusiva; encendido salvo que se diga
-  function itWithSettings(
-    name: string,
-    run: () => Promise<void>,
-    isOn = true,
-  ): void {
-    it(name, () =>
-      withPlatformSettings(dataSource, async () => {
-        if (isOn) {
-          await turnOnMultiDayPublishing(dataSource);
-        }
-        await run();
-      }),
-    );
-  }
 
   async function readyDriver(): Promise<{ token: string; vehicleId: string }> {
     const email = `${EMAIL_PREFIX}dan@ual.es`;
@@ -148,78 +142,65 @@ describe('Trip series (e2e)', () => {
     return Number(count);
   }
 
-  itWithSettings(
-    'refuses other days while multi-day publishing is off',
-    async () => {
-      const driver = await readyDriver();
-      const first = publishableDeparture();
+  it('refuses other days while multi-day publishing is off', async () => {
+    await setMultiDayPublishing(dataSource, false);
+    const driver = await readyDriver();
+    const first = publishableDeparture();
 
-      const refused = await publish(driver, first, {
-        repeatDates: [dayAfter(first, 2)],
-      }).expect(409);
+    const refused = await publish(driver, first, {
+      repeatDates: [dayAfter(first, 2)],
+    }).expect(409);
 
-      expect((refused.body as { code: string }).code).toBe(
-        'MULTI_DAY_PUBLISHING_DISABLED',
-      );
-      expect(await tripCount()).toBe(0);
-    },
-    false,
-  );
+    expect((refused.body as { code: string }).code).toBe(
+      'MULTI_DAY_PUBLISHING_DISABLED',
+    );
+    expect(await tripCount()).toBe(0);
+  });
 
-  itWithSettings(
-    'publishes the trip and its return on every day, at the same time',
-    async () => {
-      const driver = await readyDriver();
-      const first = publishableDeparture();
-      const returnAt = new Date(first.getTime() + 4 * HOUR_MS);
-      const days = [dayAfter(first, 2), dayAfter(first, 3)];
+  it('publishes the trip and its return on every day, at the same time', async () => {
+    const driver = await readyDriver();
+    const first = publishableDeparture();
+    const returnAt = new Date(first.getTime() + 4 * HOUR_MS);
+    const days = [dayAfter(first, 2), dayAfter(first, 3)];
 
-      const published = await publish(driver, first, {
-        returnTrip: { departureAt: returnAt.toISOString(), offeredSeats: 3 },
-        repeatDates: days,
-      }).expect(201);
+    const published = await publish(driver, first, {
+      returnTrip: { departureAt: returnAt.toISOString(), offeredSeats: 3 },
+      repeatDates: days,
+    }).expect(201);
 
-      const body = published.body as PublishedBody;
-      expect(body.repeatedTrips.map(({ date }) => date)).toEqual(days);
-      expect(body.repeatedTrips.every(({ returnTrip }) => returnTrip)).toBe(
-        true,
-      );
-      expect(await tripCount()).toBe(6);
-      const second = await api(
-        'get',
-        `/trips/${body.repeatedTrips[0].trip.id}`,
-        driver.token,
-      ).expect(200);
-      expect((second.body as { departureAt: string }).departureAt).toBe(
-        moveToSeriesDate(first, first, days[0]).toISOString(),
-      );
-    },
-  );
+    const body = published.body as PublishedBody;
+    expect(body.repeatedTrips.map(({ date }) => date)).toEqual(days);
+    expect(body.repeatedTrips.every(({ returnTrip }) => returnTrip)).toBe(true);
+    expect(await tripCount()).toBe(6);
+    const second = await api(
+      'get',
+      `/trips/${body.repeatedTrips[0].trip.id}`,
+      driver.token,
+    ).expect(200);
+    expect((second.body as { departureAt: string }).departureAt).toBe(
+      moveToSeriesDate(first, first, days[0]).toISOString(),
+    );
+  });
 
-  itWithSettings(
-    'publishes none and says which day breaks a rule',
-    async () => {
-      const driver = await readyDriver();
-      const first = publishableDeparture();
-      const busyDay = dayAfter(first, 3);
-      await publish(driver, moveToSeriesDate(first, first, busyDay)).expect(
-        201,
-      );
+  it('publishes none and says which day breaks a rule', async () => {
+    const driver = await readyDriver();
+    const first = publishableDeparture();
+    const busyDay = dayAfter(first, 3);
+    await publish(driver, moveToSeriesDate(first, first, busyDay)).expect(201);
 
-      const refused = await publish(driver, first, {
-        repeatDates: [dayAfter(first, 2), busyDay],
-      }).expect(409);
+    const refused = await publish(driver, first, {
+      repeatDates: [dayAfter(first, 2), busyDay],
+    }).expect(409);
 
-      const error = refused.body as { code: string; message: string };
-      expect(error.code).toBe('REPEAT_DATE_REJECTED');
-      expect(error.message).toMatch(
-        new RegExp(String.raw`^Repeat date ${busyDay} \(TRIP_OVERLAPS\)`),
-      );
-      expect(await tripCount()).toBe(1);
-    },
-  );
+    const error = refused.body as { code: string; message: string };
+    expect(error.code).toBe('REPEAT_DATE_REJECTED');
+    expect(error.message).toMatch(
+      new RegExp(String.raw`^Repeat date ${busyDay} \(TRIP_OVERLAPS\)`),
+    );
+    expect(await tripCount()).toBe(1);
+  });
 
-  itWithSettings('refuses days that are not valid', async () => {
+  it('refuses days that are not valid', async () => {
     const driver = await readyDriver();
     const first = publishableDeparture();
 
