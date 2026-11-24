@@ -3,10 +3,22 @@
   [class.vehicle-card--selected]="isSelected()"
   [style.--swatch-color]="swatch()"
 >
-  <!-- Solo para ver (sin elegir): sin radio ni círculo -->
+  <!-- Solo para ver (sin elegir): sin radio ni círculo. El texto va dentro de
+       cada caja (no en una plantilla común) para que la etiqueta del radio
+       tenga su texto a la vista de las herramientas de accesibilidad -->
   @if (isReadOnly()) {
     <div class="vehicle-card__choice vehicle-card__choice--static">
-      <ng-container [ngTemplateOutlet]="details" />
+      @if (hasIcon()) {
+        <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
+      }
+      <span class="vehicle-card__body">
+        <span class="vehicle-card__name">{{ name() }}</span>
+        <app-license-plate class="vehicle-card__plate" [plate]="plate()" [country]="plateSign()" />
+        <span class="vehicle-card__specs text-body-s text-color-muted">
+          <span class="vehicle-card__swatch" aria-hidden="true"></span>
+          {{ specs() }}
+        </span>
+      </span>
     </div>
   } @else {
     <label class="vehicle-card__choice">
@@ -17,7 +29,17 @@
         [checked]="isSelected()"
         (change)="selected.emit(vehicle())"
       />
-      <ng-container [ngTemplateOutlet]="details" />
+      @if (hasIcon()) {
+        <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
+      }
+      <span class="vehicle-card__body">
+        <span class="vehicle-card__name">{{ name() }}</span>
+        <app-license-plate class="vehicle-card__plate" [plate]="plate()" [country]="plateSign()" />
+        <span class="vehicle-card__specs text-body-s text-color-muted">
+          <span class="vehicle-card__swatch" aria-hidden="true"></span>
+          {{ specs() }}
+        </span>
+      </span>
       <ion-icon
         class="vehicle-card__check"
         [icon]="isSelected() ? icons.checked : icons.unchecked"
@@ -25,19 +47,6 @@
       />
     </label>
   }
-  <ng-template #details>
-    @if (hasIcon()) {
-      <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
-    }
-    <span class="vehicle-card__body">
-      <span class="vehicle-card__name">{{ name() }}</span>
-      <app-license-plate class="vehicle-card__plate" [plate]="plate()" [country]="plateSign()" />
-      <span class="vehicle-card__specs text-body-s text-color-muted">
-        <span class="vehicle-card__swatch" aria-hidden="true"></span>
-        {{ specs() }}
-      </span>
-    </span>
-  </ng-template>
   @if (hasActions()) {
     <button
       class="vehicle-card__action"
