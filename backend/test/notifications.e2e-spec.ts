@@ -125,6 +125,7 @@ describe('Notifications API (e2e)', () => {
       request: { id: piaRequestId, href: `/api/requests/${piaRequestId}` },
       incident: null,
       legalDocument: null,
+      reviewerName: null,
       isRead: false,
       readAt: null,
       createdAt: expect.any(String) as string,

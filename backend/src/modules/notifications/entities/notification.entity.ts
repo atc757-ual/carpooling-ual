@@ -38,10 +38,28 @@ export const NOTIFICATION_TYPES = [
   // El conductor ha pasado el viaje a otro coche (a los pasajeros aceptados:
   // es como lo reconocen al recogerlos)
   'trip_vehicle_changed',
+  // El curso de una incidencia, a quien la registró: registrada, alguien la
+  // está revisando y atendida (con la resolución)
+  'incident_received',
+  'incident_in_review',
+  'incident_reviewed',
+  // A los administradores: una incidencia registrada que nadie ha cogido en
+  // 24 h (una sola vez)
+  'incident_reminder',
   'terms_updated',
   'privacy_updated',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
+// Los avisos de una incidencia: llevan el viaje y la incidencia, sin
+// solicitud (migración AddIncidentProgressNotifications)
+export const INCIDENT_NOTIFICATION_TYPES: readonly NotificationType[] = [
+  'incident_reported',
+  'incident_received',
+  'incident_in_review',
+  'incident_reviewed',
+  'incident_reminder',
+];
 
 // Un cambio menor en las condiciones o la política (no hay que aceptarlo):
 // no es de un viaje, sino de una versión de un documento legal
@@ -86,9 +104,15 @@ export class Notification {
   @Column({ name: 'request_id', type: 'uuid', nullable: true })
   requestId: string | null;
 
-  // La incidencia: solo en incident_reported
+  // La incidencia: solo en los avisos de una incidencia
   @Column({ name: 'incident_id', type: 'uuid', nullable: true })
   incidentId: string | null;
+
+  // En el incident_reported de un administrador, el nombre de pila de otro
+  // que la está revisando («Lo está revisando Ana»). Va copiado: este módulo
+  // no puede usar users (users depende de él)
+  @Column({ name: 'reviewer_name', type: 'text', nullable: true })
+  reviewerName: string | null;
 
   // Cuándo se leyó; null mientras no se ha leído
   @Column({ name: 'read_at', type: 'timestamptz', nullable: true })

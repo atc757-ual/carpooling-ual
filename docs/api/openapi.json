@@ -17875,6 +17875,10 @@
               "trip_expired",
               "trip_auto_finished",
               "trip_vehicle_changed",
+              "incident_received",
+              "incident_in_review",
+              "incident_reviewed",
+              "incident_reminder",
               "terms_updated",
               "privacy_updated"
             ],
@@ -17902,7 +17906,7 @@
           },
           "request": {
             "nullable": true,
-            "description": "The seat request; null in incident_reported and in review_requested for the driver",
+            "description": "The seat request; null in the incident notifications and in review_requested for the driver",
             "type": "object",
             "allOf": [
               {
@@ -17912,13 +17916,19 @@
           },
           "incident": {
             "nullable": true,
-            "description": "The incident; only in incident_reported",
+            "description": "The incident; only in incident_reported, incident_received, incident_in_review, incident_reviewed and incident_reminder",
             "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/NotificationLinkResource"
               }
             ]
+          },
+          "reviewerName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ana",
+            "description": "In incident_reported: the given name of the administrator who is reviewing the incident, once another one takes it; null otherwise"
           },
           "isRead": {
             "type": "boolean"
@@ -17941,6 +17951,7 @@
           "legalDocument",
           "request",
           "incident",
+          "reviewerName",
           "isRead",
           "readAt",
           "createdAt"

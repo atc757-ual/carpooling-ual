@@ -7,13 +7,15 @@ import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { Incident } from './entities/incident.entity';
 import { IncidentsController } from './incidents.controller';
+import { IncidentNoticesService } from './incident-notices.service';
 import { IncidentReviewService } from './incident-review.service';
 import { IncidentsService } from './incidents.service';
 import { ConversationReportsService } from './conversation-reports.service';
 
 // Incidencias (RF-23, CU-12). Usa trips (cancelar un viaje en curso) y
 // requests (el pasajero abandona el viaje); ninguno de los dos depende de este
-// módulo. Avisa de cada incidencia nueva a los administradores (RF-19)
+// módulo. Avisa de cada incidencia nueva a los administradores y de su curso
+// a quien la registró (RF-19)
 @Module({
   imports: [
     TypeOrmModule.forFeature([Incident]),
@@ -27,6 +29,7 @@ import { ConversationReportsService } from './conversation-reports.service';
   providers: [
     IncidentsService,
     IncidentReviewService,
+    IncidentNoticesService,
     ConversationReportsService,
   ],
   // Lo usa el panel de administración (incidencias abiertas por usuario)

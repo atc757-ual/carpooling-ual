@@ -194,17 +194,19 @@ describe('Notification rules (e2e)', () => {
       ]);
     });
 
-    it('an incident notifies the active administrators (not its reporter) and the driver that the passenger left', async () => {
+    it('an incident notifies the active administrators not involved, its reporter and the driver that the passenger left', async () => {
       const { driverId, tripId } = await publishTrip();
       const pia = await requestSeat('pia', tripId);
+      // bea pidió plaza en el viaje: está implicada y no se le avisa
+      const bea = await requestSeat('bea', tripId);
       await requestsService.accept(driverId, pia.requestId);
       await setDepartureIn(dataSource, tripId, 5);
       await tripsService.start(driverId, tripId);
       const ada = await createUser('ada', ['admin']);
-      // pia también es administradora: no se avisa a sí misma
+      // pia también es administradora: no se avisa a sí misma como tal
       await dataSource.query(
-        'INSERT INTO admin_profiles (user_id) VALUES ($1)',
-        [pia.passengerId],
+        'INSERT INTO admin_profiles (user_id) VALUES ($1), ($2)',
+        [pia.passengerId, bea.passengerId],
       );
 
       const { incident } = await app
@@ -222,12 +224,18 @@ describe('Notification rules (e2e)', () => {
           incidentId: incident.id,
         },
       ]);
+      // Quien la registró: «Hemos recibido tu reporte»
       expect(await noticesOf(pia.passengerId)).toMatchObject([
+        { type: 'incident_received', incidentId: incident.id },
         { type: 'trip_started', requestId: pia.requestId },
         { type: 'request_accepted' },
       ]);
+      expect(
+        (await noticesOf(bea.passengerId)).map(({ type }) => type),
+      ).not.toContain('incident_reported');
       expect(await noticesOf(driverId)).toMatchObject([
         { type: 'passenger_left', requestId: pia.requestId },
+        { type: 'request_received' },
         { type: 'request_received' },
       ]);
     });

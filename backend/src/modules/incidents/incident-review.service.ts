@@ -12,19 +12,27 @@ import { IncidentNotFoundError } from './errors/incident-not-found.error';
 import { IncidentReviewTakenError } from './errors/incident-review-taken.error';
 import { recordIncidentEvent } from './incident-events';
 import { assertTransition } from './incident-status';
+import { IncidentNoticesService } from './incident-notices.service';
 import { IncidentsService, type IncidentView } from './incidents.service';
 
 interface ReviewChange {
   to: IncidentStatus;
   event: DomainEventType;
   apply: (incident: Incident, adminId: string) => void;
+  // Los avisos del cambio (a quien la registró y a los demás administradores)
+  notify: (
+    manager: EntityManager,
+    incident: Incident,
+    adminId: string,
+  ) => Promise<void>;
 }
 
 // La revisión de una incidencia por el administrador (CU-12): registrada →
 // en revisión (la coge un administrador) → atendida, con la resolución. Quien
 // la revisa es el único que puede dejarla o atenderla, y un administrador
 // implicado en el viaje no puede gestionarla. Cada cambio bloquea la fila (dos
-// administradores a la vez) y registra su evento
+// administradores a la vez), registra su evento y da sus avisos
+// (IncidentNoticesService)
 @Injectable()
 export class IncidentReviewService {
   constructor(
@@ -33,6 +41,7 @@ export class IncidentReviewService {
     private readonly tripsService: TripsService,
     private readonly requestsService: RequestsService,
     private readonly eventsService: EventsService,
+    private readonly notices: IncidentNoticesService,
   ) {}
 
   async start(adminId: string, incidentId: string): Promise<IncidentView> {
@@ -43,6 +52,8 @@ export class IncidentReviewService {
         incident.reviewStartedBy = admin;
         incident.reviewStartedAt = new Date();
       },
+      notify: (manager, incident, admin) =>
+        this.notices.reviewStarted(manager, incident, admin),
     });
   }
 
@@ -54,6 +65,8 @@ export class IncidentReviewService {
         incident.reviewStartedBy = null;
         incident.reviewStartedAt = null;
       },
+      notify: (manager, incident, admin) =>
+        this.notices.reviewReleased(manager, incident, admin),
     });
   }
 
@@ -71,6 +84,7 @@ export class IncidentReviewService {
         incident.reviewedAt = new Date();
         incident.resolution = resolution;
       },
+      notify: (manager, incident) => this.notices.reviewed(manager, incident),
     });
   }
 
@@ -96,6 +110,7 @@ export class IncidentReviewService {
         incident: saved,
         driverId: trip?.driverId,
       });
+      await change.notify(manager, saved, adminId);
       return saved;
     });
     return this.incidentsService.toView(incident, adminId);

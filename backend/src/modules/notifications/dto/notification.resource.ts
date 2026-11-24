@@ -54,16 +54,26 @@ export class NotificationResource {
     type: NotificationLinkResource,
     nullable: true,
     description:
-      'The seat request; null in incident_reported and in review_requested for the driver',
+      'The seat request; null in the incident notifications and in review_requested for the driver',
   })
   request: NotificationLinkResource | null;
 
   @ApiProperty({
     type: NotificationLinkResource,
     nullable: true,
-    description: 'The incident; only in incident_reported',
+    description:
+      'The incident; only in incident_reported, incident_received, incident_in_review, incident_reviewed and incident_reminder',
   })
   incident: NotificationLinkResource | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    example: 'Ana',
+    description:
+      'In incident_reported: the given name of the administrator who is reviewing the incident, once another one takes it; null otherwise',
+  })
+  reviewerName: string | null;
 
   @ApiProperty()
   isRead: boolean;
@@ -105,6 +115,7 @@ export function toNotificationResource(
       incidentId === null
         ? null
         : { id: incidentId, href: incidentHref(incidentId) },
+    reviewerName: notification.reviewerName,
     isRead: readAt !== null,
     readAt: readAt === null ? null : readAt.toISOString(),
     createdAt: notification.createdAt.toISOString(),
