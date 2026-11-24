@@ -6,26 +6,16 @@ import { UserNotFoundError } from '../users/errors/user-not-found.error';
 import { UsersService } from '../users/users.service';
 import { Review } from './entities/review.entity';
 import { ReputationService } from './reputation.service';
+import {
+  RoleRatingsService,
+  type RoleRatingView,
+} from './role-ratings.service';
 
 export interface DriverReviewView {
   review: Review;
   authorName: string;
   authorAvatarKey: string | null;
 }
-
-export interface RatingCount {
-  rating: number;
-  count: number;
-}
-
-export interface DriverRatingView {
-  driverId: string;
-  average: number | null;
-  count: number;
-  distribution: RatingCount[];
-}
-
-const RATINGS = [5, 4, 3, 2, 1] as const;
 
 // Reseñas que ha recibido un conductor, para quien busca viaje (RF-22): solo
 // las publicadas y solo las de su papel de conductor
@@ -36,6 +26,7 @@ export class DriverReviewsService {
     private readonly reviewsRepository: Repository<Review>,
     private readonly reputationService: ReputationService,
     private readonly usersService: UsersService,
+    private readonly roleRatings: RoleRatingsService,
   ) {}
 
   async list(
@@ -68,18 +59,9 @@ export class DriverReviewsService {
   }
 
   // Media, número de reseñas y reparto por estrellas
-  async getRating(driverId: string): Promise<DriverRatingView> {
+  async getRating(driverId: string): Promise<RoleRatingView> {
     await this.prepare(driverId);
-    const rows = await this.reviewsRepository.query<RatingCount[]>(
-      `SELECT rating, COUNT(*)::int AS count
-         FROM reviews
-        WHERE target_id = $1
-          AND target_role = 'driver'
-          AND published_at IS NOT NULL
-        GROUP BY rating`,
-      [driverId],
-    );
-    return toRatingView(driverId, rows);
+    return this.roleRatings.count(driverId, 'driver');
   }
 
   // Comprueba que existe y publica antes las reseñas cuyo plazo ha vencido
@@ -90,21 +72,4 @@ export class DriverReviewsService {
     }
     await this.reputationService.publishExpiredForUser(driverId);
   }
-}
-
-export function toRatingView(
-  driverId: string,
-  rows: readonly RatingCount[],
-): DriverRatingView {
-  const distribution = RATINGS.map((rating) => ({
-    rating,
-    count: rows.find((row) => row.rating === rating)?.count ?? 0,
-  }));
-  const count = distribution.reduce((total, row) => total + row.count, 0);
-  const sum = distribution.reduce(
-    (total, row) => total + row.rating * row.count,
-    0,
-  );
-  const average = count > 0 ? Math.round((sum / count) * 100) / 100 : null;
-  return { driverId, average, count, distribution };
 }

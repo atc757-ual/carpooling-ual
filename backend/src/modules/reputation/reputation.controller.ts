@@ -32,7 +32,10 @@ import {
   toPendingReviewTripResource,
 } from './dto/pending-review.resource';
 import { ReviewResource, toReviewResource } from './dto/review.resource';
+import { RoleRatingQueryDto } from './dto/role-rating-query.dto';
+import { MyRatingResource, toMyRatingResource } from './dto/my-rating.resource';
 import { ReputationService } from './reputation.service';
+import { RoleRatingsService } from './role-ratings.service';
 
 const AUTH_ERRORS = {
   [HttpStatus.UNAUTHORIZED]: ['INVALID_ACCESS_TOKEN', 'ACCESS_TOKEN_EXPIRED'],
@@ -43,7 +46,10 @@ const AUTH_ERRORS = {
 @ApiBearerAuth()
 @Controller()
 export class ReputationController {
-  constructor(private readonly reputationService: ReputationService) {}
+  constructor(
+    private readonly reputationService: ReputationService,
+    private readonly roleRatings: RoleRatingsService,
+  ) {}
 
   @Post('trips/:tripId/reviews')
   @ApiOperation({
@@ -96,6 +102,25 @@ export class ReputationController {
     );
     setPaginationHeaders(response, page);
     return page.items.map(toReviewResource);
+  }
+
+  @Get('users/me/rating')
+  @ApiOperation({
+    summary: 'Get my rating in a role',
+    description:
+      'RF-22: average, number of published reviews I received in the role (driver or passenger) and how many there are per star. Expired unpublished reviews are published before counting.',
+  })
+  @ApiOkResponse({ type: MyRatingResource })
+  @ApiErrorResponses({
+    ...AUTH_ERRORS,
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+  })
+  async getMyRating(
+    @CurrentUser() user: AccessTokenPayload,
+    @Query() query: RoleRatingQueryDto,
+  ): Promise<MyRatingResource> {
+    const view = await this.roleRatings.getMine(user.sub, query.role);
+    return toMyRatingResource(view);
   }
 
   @Get('users/me/pending-reviews')

@@ -187,6 +187,7 @@ describe('API docs (e2e)', () => {
       '/api/users/me/profiles/{profile}',
       '/api/users/me/publishing-status',
       '/api/users/me/push-tokens',
+      '/api/users/me/rating',
       '/api/users/me/requesting-status',
       '/api/users/me/requests',
       '/api/users/me/reviews',

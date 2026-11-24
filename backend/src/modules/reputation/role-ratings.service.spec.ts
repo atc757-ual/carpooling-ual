@@ -1,14 +1,15 @@
-import { toRatingView } from './driver-reviews.service';
+import { toRoleRatingView } from './role-ratings.service';
 
-describe('toRatingView', () => {
+describe('toRoleRatingView', () => {
   it('fills every star from 5 to 1 and rounds the average to 2 decimals', () => {
-    const view = toRatingView('driver-1', [
+    const view = toRoleRatingView('driver-1', 'driver', [
       { rating: 5, count: 2 },
       { rating: 3, count: 1 },
     ]);
 
     expect(view).toEqual({
-      driverId: 'driver-1',
+      userId: 'driver-1',
+      role: 'driver',
       average: 4.33,
       count: 3,
       distribution: [
@@ -22,7 +23,8 @@ describe('toRatingView', () => {
   });
 
   it('has no average without reviews', () => {
-    expect(toRatingView('driver-1', [])).toMatchObject({
+    expect(toRoleRatingView('user-1', 'passenger', [])).toMatchObject({
+      role: 'passenger',
       average: null,
       count: 0,
     });
