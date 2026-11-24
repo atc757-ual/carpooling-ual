@@ -389,16 +389,16 @@ describe('DriverTripActions', () => {
     const freeUntil = formatTime(new Date(departureAt.getTime() - 20 * 60 * 1000).toISOString());
 
     expect(root.querySelector('.driver-actions__cancel-cost')?.textContent).toContain(
-      `Sin coste hasta las ${freeUntil} (20 min antes de la salida)`,
+      `Sin penalización hasta las ${freeUntil} (20 min antes de la salida)`,
     );
     expect(root.querySelector('.notice--warning')).toBeNull();
   });
 
-  it('says a trip without passengers is cancelled at no cost', async () => {
+  it('says a trip without passengers is cancelled without penalty', async () => {
     const root = await render(TRIP);
 
     expect(root.querySelector('.driver-actions__cancel-cost')?.textContent).toContain(
-      'Sin pasajeros aceptados, puedes cancelarlo sin coste.',
+      'Sin pasajeros aceptados, puedes cancelarlo sin penalización.',
     );
   });
 

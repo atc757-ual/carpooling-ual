@@ -205,7 +205,7 @@ export class DriverTripActions {
     );
   });
 
-  // Hasta cuándo se cancela sin coste, antes del botón (como al pasajero): con
+  // Hasta cuándo se cancela sin penalización, antes del botón (como al pasajero): con
   // pasajeros, nada hasta 20 min antes de la salida; sin ellos, nunca cuenta
   readonly cancelCost = computed(() => {
     const trip = this.trip();
