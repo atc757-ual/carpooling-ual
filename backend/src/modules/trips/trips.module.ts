@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditModule } from '../../audit/audit.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { SettingsModule } from '../settings/settings.module';
 import { EventsModule } from '../../events/events.module';
 import { PlacesModule } from '../places/places.module';
 import { UsersModule } from '../users/users.module';
@@ -49,6 +50,7 @@ import { TripAutoFinishService } from './trip-auto-finish.service';
     EventsModule,
     AuditModule,
     NotificationsModule,
+    SettingsModule,
   ],
   controllers: [TripsController, TripVehiclesController],
   providers: [

@@ -125,6 +125,9 @@ Todas las respuestas llevan la cabecera **`X-Request-Id`**. Si el cliente la env
 | `INVALID_STOPS`                | 400       | Las paradas no encajan con el modo de recogida: en puntos (`pickupMode: stops`), de 1 a 5 paradas, solo hacia el campus y sin `maxDetourM`; en ruta, sin paradas. Tampoco se puede mover (origen o destino) ni poner metros a un viaje con paradas: se cancela y se vuelve a publicar                                         |
 | `STOPS_EXCEED_DETOUR`          | 400       | Al publicar, pasar por las paradas alarga la ruta más de 10 min (`MAX_STOPS_ROUTE_DETOUR_MIN`)                                                                                                                                                                                                                                |
 | `RETURN_TRIP_REJECTED`         | 400 o 409 | Al publicar la ida y la vuelta a la vez (`returnTrip`), la vuelta no cumple una regla: se cruza con otro viaje (también con la ida), sale demasiado pronto, pasa de las plazas del vehículo… No se publica ninguna. El HTTP es el de la regla que falla y el mensaje lleva su código, p. ej. `Return trip (TRIP_OVERLAPS): …` |
+| `MULTI_DAY_PUBLISHING_DISABLED` | 409 | Se ha pedido publicar varios días a la vez (`repeatDates`), pero el administrador tiene apagado ese ajuste. |
+| `INVALID_REPEAT_DATES`        | 400 | Los días que se repiten (`repeatDates`) no valen: alguno no existe, no es posterior al primero o pasa de un mes desde hoy, o hay repetidos. |
+| `REPEAT_DATE_REJECTED`        | 400 o 409 | Al publicar varios días a la vez, uno no cumple una regla (ya hay 4 viajes ese día, se cruza con otro viaje, falla su vuelta…). No se publica ninguno. El HTTP es el de la regla que falla y el mensaje empieza por el día y su código, p. ej. `Repeat date 2026-12-03 (TRIP_OVERLAPS): …` |
 
 ## Solicitudes de plaza (`requests`)
 

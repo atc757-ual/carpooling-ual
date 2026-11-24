@@ -213,7 +213,20 @@ export class TripLinkResource {
   href: string;
 }
 
-// La respuesta al publicar: el viaje y, si se publicó a la vez, la vuelta
+// Otro día de la serie publicada a la vez: su viaje y, si la hay, su vuelta
+export class RepeatedTripResource {
+  @ApiProperty({ format: 'date', example: '2026-12-02' })
+  date: string;
+
+  @ApiProperty({ type: TripLinkResource })
+  trip: TripLinkResource;
+
+  @ApiProperty({ type: TripLinkResource, nullable: true })
+  returnTrip: TripLinkResource | null;
+}
+
+// La respuesta al publicar: el viaje y, si se publicaron a la vez, la vuelta
+// y los otros días
 export class PublishedTripResource extends TripResource {
   @ApiProperty({
     type: TripLinkResource,
@@ -221,15 +234,28 @@ export class PublishedTripResource extends TripResource {
     description: 'The return trip published with it, or null',
   })
   returnTrip: TripLinkResource | null;
+
+  @ApiProperty({
+    type: [RepeatedTripResource],
+    description:
+      'The same trip on the other days published with it (repeatDates), in order; empty if none',
+  })
+  repeatedTrips: RepeatedTripResource[];
+}
+
+function tripLink(id: string | null): TripLinkResource | null {
+  return id ? { id, href: tripHref(id) } : null;
 }
 
 export function toPublishedTripResource(view: TripView): PublishedTripResource {
-  const returnTripId = view.returnTripId ?? null;
   return {
     ...toTripResource(view),
-    returnTrip: returnTripId
-      ? { id: returnTripId, href: tripHref(returnTripId) }
-      : null,
+    returnTrip: tripLink(view.returnTripId ?? null),
+    repeatedTrips: (view.repeatedTrips ?? []).map((repeated) => ({
+      date: repeated.date,
+      trip: { id: repeated.tripId, href: tripHref(repeated.tripId) },
+      returnTrip: tripLink(repeated.returnTripId),
+    })),
   };
 }
 

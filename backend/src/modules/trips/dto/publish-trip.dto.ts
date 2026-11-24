@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   ArrayMinSize,
+  ArrayUnique,
   IsArray,
   IsDate,
   IsBoolean,
@@ -13,6 +14,7 @@ import {
   IsString,
   IsUUID,
   Length,
+  Matches,
   Max,
   Min,
   ValidateBy,
@@ -27,6 +29,7 @@ import {
   DEFAULT_MAX_DETOUR_M,
   MAX_TRIP_STOPS,
 } from '../trip-timing';
+import { MAX_REPEAT_DATES } from '../trip-series';
 
 // Una parada (recogida en puntos): un lugar público que elige el conductor
 export class TripStopInputDto {
@@ -186,6 +189,21 @@ export class PublishTripDto {
   @ValidateNested()
   @Type(() => ReturnTripDto)
   returnTrip?: ReturnTripDto;
+
+  @ApiPropertyOptional({
+    type: [String],
+    format: 'date',
+    maxItems: MAX_REPEAT_DATES,
+    example: ['2026-12-02', '2026-12-04'],
+    description:
+      'Also publish the same trip (and its return) on these other days, at the same local time in Spain: after the first day and at most a month from today. Only when the admin turned multi-day publishing on (MULTI_DAY_PUBLISHING_DISABLED). All trips are published or none: REPEAT_DATE_REJECTED says which day breaks a rule',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(MAX_REPEAT_DATES)
+  @ArrayUnique()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { each: true })
+  repeatDates?: string[];
 
   // Obligatorio: sin él, el viaje no se puede reconocer en las listas
   @ApiProperty({
