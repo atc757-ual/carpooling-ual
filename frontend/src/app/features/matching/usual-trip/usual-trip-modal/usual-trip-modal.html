@@ -1,0 +1,56 @@
+<app-modal-header
+  [title]="(isNew ? 'usualTrip.saveTitle' : 'usualTrip.editTitle') | transloco"
+  (closed)="close()"
+/>
+
+<!-- Sin ion-content: así la ventana toma el alto de su contenido -->
+<div class="modal-body usual-trip-modal">
+  <p class="text-body usual-trip-modal__route">{{ trip.place.name }} → {{ trip.parking.name }}</p>
+  <p class="text-body-s text-color-muted">{{ 'usualTrip.deviceOnly' | transloco }}</p>
+
+  <form class="usual-trip-modal__form" [formGroup]="form" (ngSubmit)="handleSave()">
+    <app-weekday-picker
+      [legend]="'usualTrip.weekdays' | transloco"
+      [value]="weekdays()"
+      (valueChange)="weekdays.set($event)"
+    />
+    @if (weekdays().length === 0) {
+      <p class="text-caption text-color-danger" role="alert">
+        {{ 'usualTrip.noDays' | transloco }}
+      </p>
+    }
+    <app-datetime-field
+      formControlName="arrivalTime"
+      presentation="time"
+      [label]="'usualTrip.arrival' | transloco"
+    />
+    <ion-checkbox formControlName="hasReturn" labelPlacement="end" justify="start">
+      {{ 'usualTrip.hasReturn' | transloco }}
+    </ion-checkbox>
+    @if (hasReturn()) {
+      <app-datetime-field
+        formControlName="returnTime"
+        presentation="time"
+        [label]="'usualTrip.returnTime' | transloco"
+      />
+      @if (isReturnTooEarly()) {
+        <p class="text-caption text-color-danger" role="alert">
+          {{ 'publish.returnAfterArrival' | transloco: { time: form.controls.arrivalTime.value } }}
+        </p>
+      }
+    }
+
+    <ion-button type="submit" expand="block" [disabled]="!canSave()">
+      {{ 'usualTrip.saveAction' | transloco }}
+    </ion-button>
+  </form>
+  <!-- Al editar, borrarlo: debajo y con borde (sin click en ion-button: su
+       propio formulario) -->
+  @if (!isNew) {
+    <form (submit)="$event.preventDefault(); handleRemove()">
+      <ion-button type="submit" expand="block" fill="outline">
+        {{ 'usualTrip.remove' | transloco }}
+      </ion-button>
+    </form>
+  }
+</div>

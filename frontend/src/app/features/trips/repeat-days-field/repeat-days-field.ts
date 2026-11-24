@@ -4,15 +4,10 @@ import { IonCheckbox } from '@ionic/angular';
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { merge } from 'rxjs';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
-import {
-  addDays,
-  defaultRepeatUntil,
-  latestRepeatDate,
-  localDate,
-  repeatDatesFor,
-  weekdayOf,
-  WEEKDAYS,
-} from './repeat-days';
+import { WeekdayPicker } from '../../../shared/components/ui/weekday-picker/weekday-picker';
+import { toIsoDate } from '../../../shared/utils/date.util';
+import { addDays, weekdayOf } from '../../../shared/utils/weekdays.util';
+import { defaultRepeatUntil, latestRepeatDate, repeatDatesFor } from './repeat-days';
 
 export interface RepeatDaysControls {
   isRepeating: FormControl<boolean>;
@@ -35,7 +30,7 @@ export function repeatSummary(dateCount: number, hasReturn: boolean): string {
 // hora; el resumen dice cuántos se publicarán
 @Component({
   selector: 'app-repeat-days-field',
-  imports: [ReactiveFormsModule, IonCheckbox, DatetimeField, TranslocoPipe],
+  imports: [ReactiveFormsModule, IonCheckbox, DatetimeField, TranslocoPipe, WeekdayPicker],
   templateUrl: './repeat-days-field.html',
   styleUrl: './repeat-days-field.scss',
 })
@@ -45,12 +40,11 @@ export class RepeatDaysField {
   readonly firstDate = input.required<string>();
   readonly hasReturn = input(false);
 
-  protected readonly weekdays = WEEKDAYS;
   readonly isRepeating = signal(false);
   readonly chosen = signal<readonly number[]>([]);
   readonly until = signal('');
   readonly minUntil = computed(() => addDays(this.firstDate(), 1));
-  readonly maxUntil = latestRepeatDate(localDate(new Date()));
+  readonly maxUntil = latestRepeatDate(toIsoDate(new Date()));
   readonly dates = computed(() => repeatDatesFor(this.firstDate(), this.chosen(), this.until()));
   readonly summary = computed(() =>
     this.dates().length > 0 ? repeatSummary(this.dates().length, this.hasReturn()) : null,
@@ -84,16 +78,7 @@ export class RepeatDaysField {
       weekdays.setValue([weekdayOf(this.firstDate())]);
     }
     if (until.value === '') {
-      until.setValue(defaultRepeatUntil(this.firstDate(), localDate(new Date())));
+      until.setValue(defaultRepeatUntil(this.firstDate(), toIsoDate(new Date())));
     }
-  }
-
-  isChosen(day: number): boolean {
-    return this.chosen().includes(day);
-  }
-
-  handleDay(day: number, isChecked: boolean): void {
-    const others = this.chosen().filter((chosen) => chosen !== day);
-    this.controls().weekdays.setValue(isChecked ? [...others, day].sort((a, b) => a - b) : others);
   }
 }

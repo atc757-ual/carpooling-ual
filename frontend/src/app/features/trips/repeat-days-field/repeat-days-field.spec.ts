@@ -51,7 +51,7 @@ describe('RepeatDaysField', () => {
     expect(controls.weekdays.value).toEqual([1]);
     expect(controls.until.value).not.toBe('');
     expect(root.querySelector('legend')?.textContent).toContain('Qué días');
-    const days = root.querySelectorAll('.repeat-days__day');
+    const days = root.querySelectorAll('.weekday-picker__day');
     expect(days).toHaveLength(7);
     expect(days[2].querySelector('.visually-hidden')?.textContent).toBe('miércoles');
     expect(days[2].querySelector('[aria-hidden="true"]')?.textContent).toBe('X');
@@ -63,14 +63,13 @@ describe('RepeatDaysField', () => {
     controls.isRepeating.setValue(true);
     fixture.componentInstance.handleRepeat(true);
 
-    fixture.componentInstance.handleDay(3, true);
+    controls.weekdays.setValue([1, 3]);
     fixture.detectChanges();
     expect(controls.weekdays.value).toEqual([1, 3]);
     expect(fixture.componentInstance.dates()).toEqual(['2026-11-25', '2026-11-30', '2026-12-02']);
     expect(root.querySelector('[aria-live="polite"]')?.textContent).toContain('8 viajes');
 
-    fixture.componentInstance.handleDay(1, false);
-    fixture.componentInstance.handleDay(3, false);
+    controls.weekdays.setValue([]);
     fixture.detectChanges();
     expect(root.querySelector('[aria-live="polite"]')?.textContent).toContain(
       'Elige al menos un día',

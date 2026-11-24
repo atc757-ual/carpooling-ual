@@ -19,6 +19,7 @@ import {
 } from '../trip-search.testing';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripSearchPage } from './trip-search.page';
+import { UsualTripService } from '../usual-trip/usual-trip.service';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -55,6 +56,10 @@ describe('TripSearchPage', () => {
         provideIonicAngular(),
         provideRouter([]),
         { provide: PlacesService, useValue: PLACES_SERVICE_STUB },
+        {
+          provide: UsualTripService,
+          useValue: { trip: signal(null), isLoaded: signal(true) },
+        },
         {
           provide: AuthService,
           useValue: {

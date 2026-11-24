@@ -108,7 +108,27 @@
     },
     "writeTo": "Message {{ name }}",
     "emailTo": "Email {{ name }}",
-    "tripCode": "Trip {{ code }}"
+    "tripCode": "Trip {{ code }}",
+    "weekdays": {
+      "short": {
+        "1": "M",
+        "2": "T",
+        "3": "W",
+        "4": "T",
+        "5": "F",
+        "6": "S",
+        "7": "S"
+      },
+      "long": {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday"
+      }
+    }
   },
   "search": {
     "pending": {
@@ -705,25 +725,7 @@
       "summaryWithReturn": "{{ count }} trips will be published: there and back on {{ days }} days.",
       "reviewDates": "Also: {{ dates }}",
       "published": "We have published {{ count }} trips.",
-      "dateRejected": "No trip was published: {{ date }} is not possible (you already have 4 trips that day or it overlaps another one). Remove it and try again.",
-      "short": {
-        "1": "M",
-        "2": "T",
-        "3": "W",
-        "4": "T",
-        "5": "F",
-        "6": "S",
-        "7": "S"
-      },
-      "long": {
-        "1": "Monday",
-        "2": "Tuesday",
-        "3": "Wednesday",
-        "4": "Thursday",
-        "5": "Friday",
-        "6": "Saturday",
-        "7": "Sunday"
-      }
+      "dateRejected": "No trip was published: {{ date }} is not possible (you already have 4 trips that day or it overlaps another one). Remove it and try again."
     },
     "version": "Version {{ version }}",
     "next": "Next",
@@ -2169,5 +2171,27 @@
     "INVALID_FAQ_TRANSITION": "The question has changed in the meantime. Refresh the screen.",
     "FAQ_TRANSLATION_MISSING": "The English version of the question, the answer or a point is missing. Complete it before publishing.",
     "FAQ_PUBLISHED_NOT_DELETABLE": "Move the question back to draft before deleting it."
+  },
+  "usualTrip": {
+    "title": "My route",
+    "savePrompt": "Do you often make this trip? Save it and search it in one tap.",
+    "save": "Save as my usual route",
+    "searchTo": "Search there",
+    "searchFrom": "Search back",
+    "edit": "Edit",
+    "when": "{{ days }} · arrive at {{ time }}",
+    "whenWithReturn": "{{ days }} · arrive at {{ time }} and leave at {{ returnTime }}",
+    "saveTitle": "My usual route",
+    "editTitle": "Edit my route",
+    "deviceOnly": "It is saved only on this device and deleted when you log out.",
+    "weekdays": "Which days you go",
+    "noDays": "Choose at least one day.",
+    "arrival": "Arrival at the campus",
+    "hasReturn": "Also the way back",
+    "returnTime": "Way back departure",
+    "saveAction": "Save",
+    "remove": "Delete my route",
+    "saved": "We have saved your route.",
+    "removed": "We have deleted your route."
   }
 }

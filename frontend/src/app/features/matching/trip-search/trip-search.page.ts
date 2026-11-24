@@ -12,6 +12,7 @@ import {
   IonRouterLink,
 } from '@ionic/angular';
 import { carOutline, chevronForward, timeOutline } from 'ionicons/icons';
+import { UsualTripCard } from '../usual-trip/usual-trip-card/usual-trip-card';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
@@ -41,6 +42,7 @@ import { fallbackOnApiError } from '../../../core/models/api-error.model';
     IonContent,
     IonIcon,
     TripSearchForm,
+    UsualTripCard,
     NextTripCard,
     TranslocoPipe,
   ],
