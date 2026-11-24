@@ -17,6 +17,11 @@ const NEW_TYPES = [
   'incident_reviewed',
   'incident_reminder',
 ];
+const NEW_TYPES_SQL = NEW_TYPES.map((type) => `'${type}'`).join(', ');
+// Todos los valores nuevos en una sola consulta (sin await dentro de un bucle)
+const ADD_NEW_TYPES = NEW_TYPES.map(
+  (type) => `ALTER TYPE notification_type ADD VALUE IF NOT EXISTS '${type}';`,
+).join('\n');
 const TRIP_ONLY_TYPES = `'review_requested', 'pending_requests_reminder', 'trip_start_reminder', 'trip_expired', 'trip_auto_finished'`;
 
 function refsCheck(incidentTypes: string): string {
@@ -41,11 +46,7 @@ export class AddIncidentProgressNotifications1801900000000 implements MigrationI
   name = 'AddIncidentProgressNotifications1801900000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    for (const type of NEW_TYPES) {
-      await queryRunner.query(
-        `ALTER TYPE notification_type ADD VALUE IF NOT EXISTS '${type}'`,
-      );
-    }
+    await queryRunner.query(ADD_NEW_TYPES);
     await queryRunner.query(
       `ALTER TABLE notifications ADD COLUMN reviewer_name text`,
     );
@@ -55,7 +56,7 @@ export class AddIncidentProgressNotifications1801900000000 implements MigrationI
   // Los valores nuevos del tipo se quedan (PostgreSQL no permite quitarlos)
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `DELETE FROM notifications WHERE type::text IN (${NEW_TYPES.map((type) => `'${type}'`).join(', ')})`,
+      `DELETE FROM notifications WHERE type::text IN (${NEW_TYPES_SQL})`,
     );
     await queryRunner.query(refsCheck(PREVIOUS_INCIDENT_TYPES));
     await queryRunner.query(
