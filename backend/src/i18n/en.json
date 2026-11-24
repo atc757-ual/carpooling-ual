@@ -79,6 +79,10 @@
       "title": "We closed your ride",
       "body": "An hour had passed since the arrival: rate your passengers."
     },
+    "trip_vehicle_changed": {
+      "title": "Your driver is using a different car",
+      "body": "Check the new car so you can spot it at pickup."
+    },
     "pending_requests_reminder": {
       "title": "You have requests to answer",
       "body": "Answer them up to 10 min before departure or they will expire."

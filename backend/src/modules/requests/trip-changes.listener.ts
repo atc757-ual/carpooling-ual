@@ -4,6 +4,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import type { Trip } from '../trips/entities/trip.entity';
 import { TripLookupService } from '../trips/trip-lookup.service';
 import { TripStatusService } from '../trips/trip-status.service';
+import { TripVehiclesService } from '../trips/trip-vehicles.service';
 import { AccountHasActiveTripsError } from '../users/errors/account-has-active-trips.error';
 import { UsersService } from '../users/users.service';
 import { SeatRequest } from './entities/seat-request.entity';
@@ -41,6 +42,7 @@ export class TripChangesListener implements OnModuleInit {
     private readonly overlaps: RequestOverlapService,
     private readonly tripLookup: TripLookupService,
     private readonly dropOffs: RequestDropOffService,
+    private readonly tripVehicles: TripVehiclesService,
   ) {}
 
   onModuleInit(): void {
@@ -63,12 +65,17 @@ export class TripChangesListener implements OnModuleInit {
       }
       if (to === 'in_progress') {
         await this.closeRequestsOfTrip(manager, trip, ['pending'], 'rejected');
-        await this.notifyDriverOnTheWay(manager, trip);
+        await this.notifyAcceptedPassengers(manager, trip, 'trip_started');
       }
       if (to === 'finished') {
         await this.closeSeatsAndRequestReviews(manager, trip);
       }
     });
+
+    // El conductor pasa el viaje a otro coche: sus pasajeros deben saberlo
+    this.tripVehicles.onTripVehicleChanged((manager, { trip }) =>
+      this.notifyAcceptedPassengers(manager, trip, 'trip_vehicle_changed'),
+    );
 
     this.usersService.onUserDeactivating((manager, userId) =>
       this.handleUserDeactivating(manager, userId),
@@ -153,10 +160,12 @@ export class TripChangesListener implements OnModuleInit {
     }
   }
 
-  // Un aviso por pasajero aceptado, con su solicitud (para abrirla desde Avisos)
-  private async notifyDriverOnTheWay(
+  // Un aviso del viaje a cada pasajero aceptado, con su solicitud (el
+  // conductor va de camino o ha cambiado de coche)
+  private async notifyAcceptedPassengers(
     manager: EntityManager,
     trip: Trip,
+    type: 'trip_started' | 'trip_vehicle_changed',
   ): Promise<void> {
     const accepted = await manager.find(SeatRequest, {
       where: { tripId: trip.id, status: 'accepted' },
@@ -164,7 +173,7 @@ export class TripChangesListener implements OnModuleInit {
     await Promise.all(
       accepted.map((request) =>
         this.notificationsService.notify(manager, [request.passengerId], {
-          type: 'trip_started',
+          type,
           tripId: trip.id,
           requestId: request.id,
         }),

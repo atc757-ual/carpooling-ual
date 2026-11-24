@@ -179,7 +179,7 @@ export class VehiclesController {
     ...AUTH_ERRORS,
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['VEHICLE_IN_USE'],
+    [HttpStatus.CONFLICT]: ['VEHICLE_IN_USE', 'VEHICLE_HAS_UPCOMING_TRIPS'],
   })
   async update(
     @CurrentUser() driver: AccessTokenPayload,
@@ -198,7 +198,7 @@ export class VehiclesController {
   @ApiOperation({
     summary: 'Deactivate one of my vehicles',
     description:
-      'The vehicle can no longer be used in new trips, but past trips keep it.',
+      'The vehicle can no longer be used in new trips, but past trips keep it. Its upcoming trips must move to another vehicle or be cancelled first.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiNoContentResponse({ description: 'Vehicle deactivated' })
@@ -206,7 +206,7 @@ export class VehiclesController {
     ...AUTH_ERRORS,
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.NOT_FOUND]: ['VEHICLE_NOT_FOUND'],
-    [HttpStatus.CONFLICT]: ['VEHICLE_IN_USE'],
+    [HttpStatus.CONFLICT]: ['VEHICLE_IN_USE', 'VEHICLE_HAS_UPCOMING_TRIPS'],
   })
   async deactivate(
     @CurrentUser() driver: AccessTokenPayload,

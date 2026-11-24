@@ -22,6 +22,7 @@ describe('VehiclesService', () => {
     countBy: jest.fn(),
     create: jest.fn((values: Partial<Vehicle>) => values),
     save: jest.fn(),
+    manager: { transaction: jest.fn() },
   };
   const isOffered = jest.fn();
   const consents = {
@@ -256,5 +257,39 @@ describe('VehiclesService', () => {
     await expect(
       vehiclesService.update('d1', 'v1', { color: 'pink' }),
     ).rejects.toMatchObject({ code: 'VEHICLE_COLOR_NOT_OFFERED' });
+  });
+
+  // Otro módulo (trips) puede impedir la baja sin que users lo conozca
+  describe('deactivate', () => {
+    const manager = { findOne: jest.fn(), update: jest.fn() };
+
+    beforeEach(() => {
+      vehiclesRepository.manager.transaction.mockImplementation(
+        (work: (current: typeof manager) => Promise<void>) => work(manager),
+      );
+      manager.findOne.mockResolvedValue({ id: 'v1', status: 'available' });
+    });
+
+    it('runs every check with the locked vehicle before giving it up', async () => {
+      const check = jest.fn().mockResolvedValue(undefined);
+      vehiclesService.onDeactivationCheck(check);
+
+      await vehiclesService.deactivate('d1', 'v1');
+
+      expect(check).toHaveBeenCalledWith(manager, 'v1');
+      expect(manager.update).toHaveBeenCalledWith(Vehicle, 'v1', {
+        status: 'inactive',
+      });
+    });
+
+    it('keeps the vehicle when a check refuses', async () => {
+      const refusal = new Error('upcoming trips');
+      vehiclesService.onDeactivationCheck(() => Promise.reject(refusal));
+
+      await expect(vehiclesService.deactivate('d1', 'v1')).rejects.toBe(
+        refusal,
+      );
+      expect(manager.update).not.toHaveBeenCalled();
+    });
   });
 });

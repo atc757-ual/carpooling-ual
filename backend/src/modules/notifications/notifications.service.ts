@@ -127,6 +127,7 @@ export class NotificationsService {
         'passenger_no_show',
         'trip_completed',
         'trip_auto_finished',
+        'trip_vehicle_changed',
       ]);
     }
     if (isRead !== undefined) {

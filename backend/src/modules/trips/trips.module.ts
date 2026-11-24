@@ -16,6 +16,8 @@ import { TripCandidatesService } from './trip-candidates.service';
 import { TripRoutesService } from './trip-routes.service';
 import { TripStatusService } from './trip-status.service';
 import { TripsController } from './trips.controller';
+import { TripVehiclesController } from './trip-vehicles.controller';
+import { TripVehiclesService } from './trip-vehicles.service';
 import { TripStatsService } from './trip-stats.service';
 import { TripViewerAccessService } from './trip-viewer-access.service';
 import { TripLookupService } from './trip-lookup.service';
@@ -48,8 +50,9 @@ import { TripAutoFinishService } from './trip-auto-finish.service';
     AuditModule,
     NotificationsModule,
   ],
-  controllers: [TripsController],
+  controllers: [TripsController, TripVehiclesController],
   providers: [
+    TripVehiclesService,
     TripsService,
     TripStatusService,
     TripRoutesService,
@@ -71,6 +74,7 @@ import { TripAutoFinishService } from './trip-auto-finish.service';
   // lo que queda hasta el destino) y el matching (los candidatos); las
   // solicitudes también, las cancelaciones tardías del pasajero
   exports: [
+    TripVehiclesService,
     TripsService,
     TripStatusService,
     TripRoutesService,
