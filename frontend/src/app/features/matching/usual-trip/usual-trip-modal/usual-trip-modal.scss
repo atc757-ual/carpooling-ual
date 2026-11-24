@@ -1,0 +1,18 @@
+.usual-trip-modal,
+.usual-trip-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.usual-trip-modal__route {
+  font-weight: var(--font-weight-semibold);
+}

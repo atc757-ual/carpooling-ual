@@ -2171,5 +2171,27 @@
     "INVALID_FAQ_TRANSITION": "La pregunta ha cambiado mientras tanto. Actualiza la pantalla.",
     "FAQ_TRANSLATION_MISSING": "Falta el inglés de la pregunta, la respuesta o algún punto. Complétalo antes de publicarla.",
     "FAQ_PUBLISHED_NOT_DELETABLE": "Pasa la pregunta a borrador antes de borrarla."
+  },
+  "usualTrip": {
+    "title": "Mi trayecto",
+    "savePrompt": "¿Haces este trayecto a menudo? Guárdalo y búscalo de un toque.",
+    "save": "Guardar como mi trayecto habitual",
+    "searchTo": "Buscar ida",
+    "searchFrom": "Buscar vuelta",
+    "edit": "Editar",
+    "when": "{{ days }} · llegar a las {{ time }}",
+    "whenWithReturn": "{{ days }} · llegar a las {{ time }} y volver a las {{ returnTime }}",
+    "saveTitle": "Mi trayecto habitual",
+    "editTitle": "Editar mi trayecto",
+    "deviceOnly": "Se guarda solo en este dispositivo y se borra al cerrar sesión.",
+    "weekdays": "Qué días vas",
+    "noDays": "Elige al menos un día.",
+    "arrival": "Llegada al campus",
+    "hasReturn": "También la vuelta",
+    "returnTime": "Salida de la vuelta",
+    "saveAction": "Guardar",
+    "remove": "Borrar mi trayecto",
+    "saved": "Hemos guardado tu trayecto.",
+    "removed": "Hemos borrado tu trayecto."
   }
 }

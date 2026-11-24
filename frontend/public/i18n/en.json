@@ -2171,5 +2171,27 @@
     "INVALID_FAQ_TRANSITION": "The question has changed in the meantime. Refresh the screen.",
     "FAQ_TRANSLATION_MISSING": "The English version of the question, the answer or a point is missing. Complete it before publishing.",
     "FAQ_PUBLISHED_NOT_DELETABLE": "Move the question back to draft before deleting it."
+  },
+  "usualTrip": {
+    "title": "My route",
+    "savePrompt": "Do you often make this trip? Save it and search it in one tap.",
+    "save": "Save as my usual route",
+    "searchTo": "Search there",
+    "searchFrom": "Search back",
+    "edit": "Edit",
+    "when": "{{ days }} · arrive at {{ time }}",
+    "whenWithReturn": "{{ days }} · arrive at {{ time }} and leave at {{ returnTime }}",
+    "saveTitle": "My usual route",
+    "editTitle": "Edit my route",
+    "deviceOnly": "It is saved only on this device and deleted when you log out.",
+    "weekdays": "Which days you go",
+    "noDays": "Choose at least one day.",
+    "arrival": "Arrival at the campus",
+    "hasReturn": "Also the way back",
+    "returnTime": "Way back departure",
+    "saveAction": "Save",
+    "remove": "Delete my route",
+    "saved": "We have saved your route.",
+    "removed": "We have deleted your route."
   }
 }

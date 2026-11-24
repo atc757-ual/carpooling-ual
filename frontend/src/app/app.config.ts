@@ -27,6 +27,7 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { SplashScreenPlugin } from './core/plugins/splash-screen-plugin';
 import { AuthService } from './core/services/auth/auth.service';
+import { UsualTripService } from './features/matching/usual-trip/usual-trip.service';
 import { LanguageSyncService } from './core/services/users/language-sync.service';
 import { preventIosFocusZoom } from './shared/utils/ios-viewport.util';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
@@ -89,6 +90,11 @@ export const appConfig: ApplicationConfig = {
     // push: lo manda a la API cuando no coincide (LanguageSyncService)
     provideAppInitializer(() => {
       inject(LanguageSyncService);
+    }),
+    // «Mi trayecto habitual» se borra al cerrar sesión: el servicio tiene que
+    // existir desde el principio (UsualTripService)
+    provideAppInitializer(() => {
+      inject(UsualTripService);
     }),
     // En iPhone, sin el zoom automático al enfocar un campo
     provideAppInitializer(() => {

@@ -1,0 +1,39 @@
+<!-- Con el trayecto guardado: cuál es, cuándo y buscar la ida o la vuelta
+     del próximo día. Sin él, tras buscar: guardarlo. Sin ninguno, nada -->
+@if (trip(); as trip) {
+  <ion-card class="usual-trip">
+    <ion-card-content class="usual-trip__content">
+      <h2 class="usual-trip__title">{{ 'usualTrip.title' | transloco }}</h2>
+      <p class="text-body usual-trip__route">{{ trip.place.name }} → {{ trip.parking.name }}</p>
+      <p class="text-body-s text-color-muted">{{ when() }}</p>
+      <div class="usual-trip__actions">
+        <form (submit)="$event.preventDefault(); handleSearch('to-campus')">
+          <ion-button type="submit" size="small">{{ 'usualTrip.searchTo' | transloco }}</ion-button>
+        </form>
+        @if (trip.returnTime) {
+          <form (submit)="$event.preventDefault(); handleSearch('from-campus')">
+            <ion-button type="submit" size="small" fill="outline">
+              {{ 'usualTrip.searchFrom' | transloco }}
+            </ion-button>
+          </form>
+        }
+        <form (submit)="$event.preventDefault(); handleEdit()">
+          <ion-button type="submit" size="small" fill="clear">
+            {{ 'usualTrip.edit' | transloco }}
+          </ion-button>
+        </form>
+      </div>
+    </ion-card-content>
+  </ion-card>
+} @else if (isLoaded() && search()) {
+  <ion-card class="usual-trip">
+    <ion-card-content class="usual-trip__content">
+      <p class="text-body-s">{{ 'usualTrip.savePrompt' | transloco }}</p>
+      <form (submit)="$event.preventDefault(); handleSave()">
+        <ion-button type="submit" size="small" fill="outline">
+          {{ 'usualTrip.save' | transloco }}
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+}
