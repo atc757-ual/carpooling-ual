@@ -316,6 +316,12 @@ ion-modal ion-title {
   text-align: start;
 }
 
+// Con la flecha de volver (app-modal-header): el título empieza después de
+// ella (el título va encima de la barra, en absoluto, y la taparía)
+ion-modal .modal-header--with-back ion-title {
+  padding-inline-start: calc(var(--control-height-base) + var(--space-base));
+}
+
 // Todas las ventanas tienen el mismo marco: en escritorio, centradas y de 720px
 // de ancho; en el móvil, una hoja pegada abajo. Las de formularios, avisos y
 // confirmaciones (info-dialog) y la de la ubicación (location-dialog) son tan

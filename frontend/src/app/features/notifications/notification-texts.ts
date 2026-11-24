@@ -27,6 +27,7 @@ const MODES: Record<NotificationType, TravelMode | null> = {
   passenger_no_show: 'driver',
   trip_completed: 'passenger',
   trip_auto_finished: 'driver',
+  trip_vehicle_changed: 'passenger',
   pending_requests_reminder: 'driver',
   trip_start_reminder: 'driver',
   trip_expired: 'driver',

@@ -17,6 +17,7 @@ export type NotificationType =
   | 'passenger_no_show'
   | 'trip_completed'
   | 'trip_auto_finished'
+  | 'trip_vehicle_changed'
   // Recordatorios al conductor: solicitudes por responder y empezar el viaje
   | 'pending_requests_reminder'
   | 'trip_start_reminder'

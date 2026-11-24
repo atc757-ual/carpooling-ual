@@ -20,6 +20,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { VehicleCard } from '../../../shared/components/ui/vehicle-card/vehicle-card';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { VehicleModal } from '../../trips/vehicle-modal/vehicle-modal';
+import { openVehicleTripsModal } from '../../trips/vehicle-trips-modal/vehicle-trips-modal';
 import { DEFAULT_VEHICLE_KEY, MAX_VEHICLES } from '../../trips/vehicle-picker/vehicle-picker';
 import { CONFIRM_ICONS, ConfirmService } from '../../../core/services/ui/confirm.service';
 
@@ -89,8 +90,30 @@ export class ProfileVehicles implements OnInit {
     void this.preferences.set(DEFAULT_VEHICLE_KEY, vehicle.id).catch(() => undefined);
   }
 
-  // Eliminar (darlo de baja), tras confirmarlo
+  // Eliminar (darlo de baja). Con viajes programados, antes se decide cuáles
+  // pasan a otro coche y cuáles se cancelan; sin ellos, basta confirmarlo
   async handleRemove(vehicle: Vehicle): Promise<void> {
+    try {
+      const trips = await this.driver.listVehicleUpcomingTrips(vehicle.id);
+      if (trips.length > 0) {
+        const role = await openVehicleTripsModal(this.modalController, {
+          mode: 'remove',
+          vehicleId: vehicle.id,
+          trips,
+        });
+        if (role === 'removed') {
+          this.vehicles.reload();
+        }
+        return;
+      }
+    } catch (error) {
+      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      return;
+    }
+    await this.confirmRemove(vehicle);
+  }
+
+  private async confirmRemove(vehicle: Vehicle): Promise<void> {
     const isConfirmed = await this.confirm.ask({
       header: translate('profile.vehicles.deleteTitle', { plate: vehicle.plate }),
       message: translate('screens.profileVehicles.dejaraSalirVehiculosPodras'),

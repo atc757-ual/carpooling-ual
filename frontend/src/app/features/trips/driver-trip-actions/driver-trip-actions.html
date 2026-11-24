@@ -58,6 +58,15 @@
         </ion-button>
       }
 
+      <!-- Cambiar de coche, para una avería puntual: el resto de viajes y el
+           coche siguen igual; sus pasajeros reciben el aviso -->
+      <form (submit)="$event.preventDefault(); handleChangeVehicle()">
+        <ion-button type="submit" expand="block" fill="outline" [disabled]="isChangingStatus()">
+          <ion-icon slot="start" [icon]="changeVehicleIcon" aria-hidden="true" />
+          {{ 'profile.vehicleTrips.changeAction' | transloco }}
+        </ion-button>
+      </form>
+
       <!-- Cancelar: con borde azul y fondo blanco (la guía: lo destructivo, sin
            rojo). Antes, hasta cuándo es sin coste o, ya tardía, el aviso -->
       <div class="driver-actions__block">
