@@ -1,3 +1,10 @@
+// Sin caja propia: en la columna de Buscar cuenta solo la tarjeta. Sin
+// trayecto ni búsqueda no pinta nada y, así, tampoco deja el hueco doble
+// entre «Tu próximo viaje» y la búsqueda
+:host {
+  display: contents;
+}
+
 // Encima de la búsqueda: el título, el trayecto, cuándo y los botones en una
 // fila (se parten si no caben)
 .usual-trip {
