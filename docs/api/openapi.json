@@ -13049,6 +13049,186 @@
         ]
       }
     },
+    "/api/settings": {
+      "get": {
+        "operationId": "SettingsController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformSettingsResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Read the platform settings the app needs",
+        "tags": [
+          "settings"
+        ]
+      }
+    },
+    "/api/admin/settings": {
+      "get": {
+        "operationId": "AdminSettingsController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPlatformSettingsResource"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Read the platform settings and their last change",
+        "tags": [
+          "admin settings"
+        ]
+      },
+      "patch": {
+        "description": "Only the settings sent change. Each real change is recorded in the admin audit log.",
+        "operationId": "AdminSettingsController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePlatformSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPlatformSettingsResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "TMF630 error: PROFILE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change some platform settings",
+        "tags": [
+          "admin settings"
+        ]
+      }
+    },
     "/api/admin/digital-twin": {
       "get": {
         "description": "Trips, vehicles and users by status, the passengers on board, the last event applied and the lag between an event and the twin (RNF-07).",
@@ -21239,6 +21419,97 @@
           "matches",
           "sameDayMatches"
         ]
+      },
+      "PlatformSettingsResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "PlatformSettings"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/settings"
+          },
+          "multiDayPublishing": {
+            "type": "boolean",
+            "description": "Drivers can publish the same trip on several days at once",
+            "example": false
+          }
+        },
+        "required": [
+          "@type",
+          "href",
+          "multiDayPublishing"
+        ]
+      },
+      "SettingsEditorResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Ana García"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "AdminPlatformSettingsResource": {
+        "type": "object",
+        "properties": {
+          "@type": {
+            "type": "string",
+            "example": "PlatformSettings"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/settings"
+          },
+          "multiDayPublishing": {
+            "type": "boolean",
+            "description": "Drivers can publish the same trip on several days at once",
+            "example": false
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Last change; null if never changed since installation"
+          },
+          "updatedBy": {
+            "nullable": true,
+            "description": "Who made the last change; null if unknown or deleted",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SettingsEditorResource"
+              }
+            ]
+          }
+        },
+        "required": [
+          "@type",
+          "href",
+          "multiDayPublishing",
+          "updatedAt",
+          "updatedBy"
+        ]
+      },
+      "UpdatePlatformSettingsDto": {
+        "type": "object",
+        "properties": {
+          "multiDayPublishing": {
+            "type": "boolean",
+            "description": "Drivers can publish the same trip on several days at once",
+            "example": true
+          }
+        }
       },
       "TripTwinCountsResource": {
         "type": "object",

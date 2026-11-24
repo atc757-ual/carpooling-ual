@@ -23,6 +23,7 @@ import { SupportModule } from './modules/support/support.module';
 import { TrackingModule } from './modules/tracking/tracking.module';
 import { TripsModule } from './modules/trips/trips.module';
 import { UsersModule } from './modules/users/users.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { UsersModule } from './modules/users/users.module';
     CatalogsModule,
     HelpModule,
     MatchingModule,
+    SettingsModule,
     DigitalTwinModule,
     SimulationModule,
     AdminModule,
