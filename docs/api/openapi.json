@@ -9723,6 +9723,78 @@
         ]
       }
     },
+    "/api/users/me/rating": {
+      "get": {
+        "description": "RF-22: average, number of published reviews I received in the role (driver or passenger) and how many there are per star. Expired unpublished reviews are published before counting.",
+        "operationId": "ReputationController_getMyRating",
+        "parameters": [
+          {
+            "name": "role",
+            "required": true,
+            "in": "query",
+            "description": "The role of the reviews (driver or passenger)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "driver",
+                "passenger"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyRatingResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "TMF630 error: VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "TMF630 error: INVALID_ACCESS_TOKEN, ACCESS_TOKEN_EXPIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "TMF630 error: INTERNAL_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get my rating in a role",
+        "tags": [
+          "reputation"
+        ]
+      }
+    },
     "/api/users/me/pending-reviews": {
       "get": {
         "description": "RF-22: finished trips within the 7-day window where I participated as driver or accepted passenger and still have at least one participant left to review.",
@@ -20061,6 +20133,77 @@
           "publishedAt"
         ]
       },
+      "RatingCountResource": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "count": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "rating",
+          "count"
+        ]
+      },
+      "MyRatingResource": {
+        "type": "object",
+        "properties": {
+          "average": {
+            "type": "number",
+            "nullable": true,
+            "example": 4.8
+          },
+          "count": {
+            "type": "number",
+            "example": 15
+          },
+          "distribution": {
+            "description": "Published reviews per star, from 5 to 1",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RatingCountResource"
+            }
+          },
+          "@type": {
+            "type": "string",
+            "enum": [
+              "MyRating"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "My user id"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/users/me/rating?role=driver"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "driver",
+              "passenger"
+            ]
+          }
+        },
+        "required": [
+          "average",
+          "count",
+          "distribution",
+          "@type",
+          "id",
+          "href",
+          "role"
+        ]
+      },
       "PendingReviewTripSummaryResource": {
         "type": "object",
         "properties": {
@@ -20234,43 +20377,9 @@
           "publishedAt"
         ]
       },
-      "RatingCountResource": {
-        "type": "object",
-        "properties": {
-          "rating": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 5,
-            "example": 5
-          },
-          "count": {
-            "type": "number",
-            "example": 12
-          }
-        },
-        "required": [
-          "rating",
-          "count"
-        ]
-      },
       "DriverRatingResource": {
         "type": "object",
         "properties": {
-          "@type": {
-            "type": "string",
-            "enum": [
-              "DriverRating"
-            ]
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The driver id"
-          },
-          "href": {
-            "type": "string",
-            "example": "/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/driver-rating"
-          },
           "average": {
             "type": "number",
             "nullable": true,
@@ -20286,15 +20395,30 @@
             "items": {
               "$ref": "#/components/schemas/RatingCountResource"
             }
+          },
+          "@type": {
+            "type": "string",
+            "enum": [
+              "DriverRating"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The driver id"
+          },
+          "href": {
+            "type": "string",
+            "example": "/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/driver-rating"
           }
         },
         "required": [
-          "@type",
-          "id",
-          "href",
           "average",
           "count",
-          "distribution"
+          "distribution",
+          "@type",
+          "id",
+          "href"
         ]
       },
       "ConversationTripResource": {

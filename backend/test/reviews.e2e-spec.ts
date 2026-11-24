@@ -456,4 +456,54 @@ describe('Reputation & Reviews API (e2e)', () => {
     ).expect(404);
     expect(unknown.body).toMatchObject({ code: 'USER_NOT_FOUND' });
   });
+
+  it('gives my rating in each role, with how many reviews per star', async () => {
+    const dan = await sessionFor('dan', ['driver']);
+    const pia = await sessionFor('pia', ['passenger']);
+    const tripId = await createFinishedTrip(dan, [pia]);
+    await api('post', `/trips/${tripId}/reviews`, pia.accessToken)
+      .send({ targetId: dan.id, rating: 5 })
+      .expect(201);
+    await api('post', `/trips/${tripId}/reviews`, dan.accessToken)
+      .send({ targetId: pia.id, rating: 2 })
+      .expect(201);
+
+    const [asDriver, asPassenger, empty] = await Promise.all([
+      api('get', '/users/me/rating?role=driver', dan.accessToken).expect(200),
+      api('get', '/users/me/rating?role=passenger', pia.accessToken).expect(
+        200,
+      ),
+      api('get', '/users/me/rating?role=passenger', dan.accessToken).expect(
+        200,
+      ),
+    ]);
+
+    expect(asDriver.body).toMatchObject({
+      '@type': 'MyRating',
+      id: dan.id,
+      href: '/api/users/me/rating?role=driver',
+      role: 'driver',
+      average: 5,
+      count: 1,
+    });
+    expect(asPassenger.body).toMatchObject({
+      average: 2,
+      count: 1,
+      distribution: [
+        { rating: 5, count: 0 },
+        { rating: 4, count: 0 },
+        { rating: 3, count: 0 },
+        { rating: 2, count: 1 },
+        { rating: 1, count: 0 },
+      ],
+    });
+    expect(empty.body).toMatchObject({ average: null, count: 0 });
+
+    const invalid = await api(
+      'get',
+      '/users/me/rating',
+      dan.accessToken,
+    ).expect(400);
+    expect(invalid.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+  });
 });

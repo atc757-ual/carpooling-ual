@@ -9,6 +9,7 @@ import { DriverReviewsController } from './driver-reviews.controller';
 import { DriverReviewsService } from './driver-reviews.service';
 import { ReputationController } from './reputation.controller';
 import { ReputationService } from './reputation.service';
+import { RoleRatingsService } from './role-ratings.service';
 
 // Reputación y reseñas por rol (RF-22, doble ciego). Usa trips (estado y
 // ventana del viaje), requests (pasajeros aceptados) y users (perfiles y
@@ -22,7 +23,7 @@ import { ReputationService } from './reputation.service';
     EventsModule,
   ],
   controllers: [ReputationController, DriverReviewsController],
-  providers: [ReputationService, DriverReviewsService],
+  providers: [ReputationService, DriverReviewsService, RoleRatingsService],
   exports: [ReputationService],
 })
 export class ReputationModule {}

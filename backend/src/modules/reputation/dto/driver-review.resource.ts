@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MAX_REVIEW_COMMENT_LENGTH } from '../entities/review.entity';
-import type {
-  DriverRatingView,
-  DriverReviewView,
-} from '../driver-reviews.service';
+import type { DriverReviewView } from '../driver-reviews.service';
+import type { RoleRatingView } from '../role-ratings.service';
 
 export class DriverReviewAuthorResource {
   @ApiProperty({
@@ -51,19 +49,9 @@ export class RatingCountResource {
   count: number;
 }
 
-// Recurso TMF630 DriverRating: media, número y reparto por estrellas
-export class DriverRatingResource {
-  @ApiProperty({ enum: ['DriverRating'] })
-  '@type': 'DriverRating';
-
-  @ApiProperty({ format: 'uuid', description: 'The driver id' })
-  id: string;
-
-  @ApiProperty({
-    example: '/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/driver-rating',
-  })
-  href: string;
-
+// Media, número y reparto por estrellas (común a la nota del conductor para
+// quien busca viaje y a la mía por papel)
+export abstract class RatingSummaryResource {
   @ApiProperty({ type: Number, nullable: true, example: 4.8 })
   average: number | null;
 
@@ -75,6 +63,20 @@ export class DriverRatingResource {
     description: 'Published reviews per star, from 5 to 1',
   })
   distribution: RatingCountResource[];
+}
+
+// Recurso TMF630 DriverRating: media, número y reparto por estrellas
+export class DriverRatingResource extends RatingSummaryResource {
+  @ApiProperty({ enum: ['DriverRating'] })
+  '@type': 'DriverRating';
+
+  @ApiProperty({ format: 'uuid', description: 'The driver id' })
+  id: string;
+
+  @ApiProperty({
+    example: '/api/users/0b6f8a52-3c1e-4f7a-9d2b-5e8c1a4f7b90/driver-rating',
+  })
+  href: string;
 }
 
 export function toDriverReviewResource({
@@ -93,12 +95,12 @@ export function toDriverReviewResource({
 }
 
 export function toDriverRatingResource(
-  view: DriverRatingView,
+  view: RoleRatingView,
 ): DriverRatingResource {
   return {
     '@type': 'DriverRating',
-    id: view.driverId,
-    href: `/api/users/${view.driverId}/driver-rating`,
+    id: view.userId,
+    href: `/api/users/${view.userId}/driver-rating`,
     average: view.average,
     count: view.count,
     distribution: view.distribution,
