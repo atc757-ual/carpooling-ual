@@ -92,9 +92,10 @@ export const appConfig: ApplicationConfig = {
       inject(LanguageSyncService);
     }),
     // «Mi trayecto habitual» se borra al cerrar sesión: el servicio tiene que
-    // existir desde el principio (UsualTripService)
+    // existir desde el principio (UsualTripService). Se carga sin esperar: no
+    // retrasa el arranque
     provideAppInitializer(() => {
-      inject(UsualTripService);
+      void inject(UsualTripService).load();
     }),
     // En iPhone, sin el zoom automático al enfocar un campo
     provideAppInitializer(() => {

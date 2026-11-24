@@ -42,7 +42,9 @@ describe('UsualTripService', () => {
       ],
     });
     const service = TestBed.inject(UsualTripService);
-    await vi.waitFor(() => expect(service.isLoaded()).toBe(true));
+    expect(service.isLoaded()).toBe(false);
+    await service.load();
+    expect(service.isLoaded()).toBe(true);
     return service;
   }
 

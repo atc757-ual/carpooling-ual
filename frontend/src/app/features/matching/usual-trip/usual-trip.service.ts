@@ -8,9 +8,9 @@ const USUAL_TRIP_KEY = 'matching.usual-trip';
 
 // «Mi trayecto habitual» del pasajero, guardado solo en este dispositivo
 // (Capacitor Preferences): no se envía al servidor. Se borra al cerrar la
-// sesión, por si el dispositivo es compartido. Se crea al arrancar la app
-// (app.config.ts) para que el borrado al cerrar sesión no dependa de que se
-// haya abierto Buscar
+// sesión, por si el dispositivo es compartido. Se crea y se carga al arrancar
+// la app (app.config.ts) para que el borrado al cerrar sesión no dependa de
+// que se haya abierto Buscar
 @Injectable({ providedIn: 'root' })
 export class UsualTripService {
   private readonly preferences = inject(PreferencesPlugin);
@@ -22,7 +22,6 @@ export class UsualTripService {
 
   constructor() {
     inject(AuthService).onBeforeLogout(() => this.remove());
-    void this.load();
   }
 
   async save(trip: UsualTrip): Promise<void> {
@@ -35,8 +34,9 @@ export class UsualTripService {
     await this.preferences.remove(USUAL_TRIP_KEY);
   }
 
-  // Lo guardado, si vale; si está roto (otra versión), se olvida
-  private async load(): Promise<void> {
+  // Lo guardado, si vale; si está roto (otra versión), se olvida. Lo lanza el
+  // arranque de la app (app.config.ts)
+  async load(): Promise<void> {
     const stored = await this.preferences.get(USUAL_TRIP_KEY);
     this.saved.set(stored ? parseUsualTrip(parseJson(stored)) : null);
     this.loaded.set(true);
