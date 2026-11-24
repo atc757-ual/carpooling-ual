@@ -6,9 +6,12 @@ import { AdminAction } from './entities/admin-action.entity';
 export interface RecordAdminActionInput {
   adminId: string;
   action: AdminActionType;
-  targetUserId: string;
+  // null en lo que no va contra una persona (p. ej. un ajuste de la
+  // plataforma)
+  targetUserId: string | null;
   details?: Record<string, unknown>;
-  reason: string;
+  // Sin motivo en lo que no lo pide (un ajuste: el detalle ya dice qué cambió)
+  reason?: string;
 }
 
 // Registra una acción de un administrador con el manager de la MISMA
@@ -19,6 +22,8 @@ export class AuditService {
     manager: EntityManager,
     input: RecordAdminActionInput,
   ): Promise<void> {
-    await manager.save(manager.create(AdminAction, { details: {}, ...input }));
+    await manager.save(
+      manager.create(AdminAction, { details: {}, reason: '', ...input }),
+    );
   }
 }
