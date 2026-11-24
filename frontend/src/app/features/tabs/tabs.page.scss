@@ -145,12 +145,12 @@ ion-tab-button {
   }
 }
 
-// El título de la pantalla: como el de una tarjeta, un poco mayor (20px en
-// el móvil y 22px en escritorio: más grande se come la cabecera)
+// El título de la pantalla: como el de una tarjeta (18px en el móvil y 20px en
+// escritorio, --font-size-header-title): más grande se come la cabecera
 .greeting-bar__title {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-subtitle);
+  font-size: var(--font-size-header-title);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-title);
 }

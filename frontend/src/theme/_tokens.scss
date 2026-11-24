@@ -117,6 +117,11 @@
   --font-size-subtitle-s: 1.125rem; // 18px
   --font-size-subtitle-m: 1.25rem; // 20px
   --font-size-title-s: 1.5rem; // 24px
+  // Título de las cabeceras (la franja fija de cada pantalla, Ayuda, el de
+  // Buscar o Tus viajes, la barra del móvil y las ventanas): 18px en el móvil
+  // y 20px en escritorio (abajo), como un título de tarjeta: más grande se
+  // come la cabecera
+  --font-size-header-title: var(--font-size-subtitle-s);
   --font-size-body: 1rem; // 16px
   --font-size-body-s: 0.875rem; // 14px
   --font-size-label: 0.875rem; // 14px
@@ -146,10 +151,12 @@
   --motion-easing: cubic-bezier(0.2, 0, 0, 1);
 }
 
-// En escritorio, más margen lateral en el área con sesión
+// En escritorio, más margen lateral en el área con sesión y el título de las
+// cabeceras a 20px
 @include bp.up(md) {
   :root {
     --page-gutter-min: var(--space-l);
+    --font-size-header-title: var(--font-size-subtitle-m);
   }
 }
 
