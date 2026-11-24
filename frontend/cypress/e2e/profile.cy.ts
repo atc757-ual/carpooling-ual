@@ -113,6 +113,8 @@ for (const viewport of VIEWPORTS) {
     });
 
     it('removes a vehicle after confirming it', () => {
+      // Sin viajes programados: basta confirmarlo
+      cy.intercept('GET', '/api/vehicles/v1/upcoming-trips*', { body: [] });
       cy.intercept('DELETE', '/api/vehicles/v1', { statusCode: 204 }).as('remove');
       openProfile(['driver']);
 

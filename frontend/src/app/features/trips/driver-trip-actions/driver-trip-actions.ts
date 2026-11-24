@@ -22,6 +22,7 @@ import {
 } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
 import {
+  carOutline,
   checkmarkCircleOutline,
   closeCircleOutline,
   locationOutline,
@@ -49,6 +50,7 @@ import {
 import { Translate } from '../../../core/i18n/translate';
 import { buildSeatsShareText } from '../trip-share-text';
 import { withDeclarations } from '../with-declarations';
+import { openVehicleTripsModal } from '../vehicle-trips-modal/vehicle-trips-modal';
 
 // Solo en estos se puede cancelar
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
@@ -168,6 +170,7 @@ export class DriverTripActions {
   });
   protected readonly locationIcon = locationOutline;
   protected readonly shareIcon = shareSocialOutline;
+  protected readonly changeVehicleIcon = carOutline;
   protected readonly warningIcon = warningOutline;
 
   async handleShareSeats(): Promise<void> {
@@ -293,6 +296,19 @@ export class DriverTripActions {
           : getErrorMessage(ApiError.fromHttpError(error));
       void this.toast.showError(message);
       return false;
+    }
+  }
+
+  // Cambiar el coche de este viaje (una avería puntual): sus pasajeros
+  // reciben el aviso con el coche nuevo
+  async handleChangeVehicle(): Promise<void> {
+    const role = await openVehicleTripsModal(this.modalController, {
+      mode: 'change',
+      vehicleId: this.trip().vehicleId,
+      trips: [this.trip()],
+    });
+    if (role === 'changed') {
+      this.changed.emit();
     }
   }
 

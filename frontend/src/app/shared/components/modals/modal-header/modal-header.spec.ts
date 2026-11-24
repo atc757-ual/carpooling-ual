@@ -42,6 +42,7 @@ describe('ModalHeader', () => {
     const fixture = render();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.modal-back-button')).toBeNull();
+    expect(root.querySelector('ion-header')?.classList).not.toContain('modal-header--with-back');
 
     const back = vi.fn();
     fixture.componentInstance.back.subscribe(back);
@@ -50,6 +51,8 @@ describe('ModalHeader', () => {
     fixture.detectChanges();
 
     expect(root.querySelector('.modal-close-button')).toBeNull();
+    // El título deja sitio a la flecha
+    expect(root.querySelector('ion-header')?.classList).toContain('modal-header--with-back');
     const button = root.querySelector('.modal-back-button') as HTMLElement;
     expect(button.getAttribute('aria-label')).toBe('Volver');
     button.closest('form')?.dispatchEvent(new Event('submit'));

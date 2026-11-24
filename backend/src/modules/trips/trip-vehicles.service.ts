@@ -13,7 +13,10 @@ import type { TripStatus } from './trip-status';
 
 // Los viajes que aún no han salido y van con un coche concreto: los que se
 // quedarían sin poder iniciarse si ese coche se da de baja
-const UPCOMING_STATUSES: readonly TripStatus[] = ['published', 'confirmed'];
+const UPCOMING_STATUSES: ReadonlySet<TripStatus> = new Set([
+  'published',
+  'confirmed',
+]);
 
 // Un viaje que ha cambiado de coche: el de antes y el de ahora
 export interface TripVehicleChange {
@@ -138,7 +141,7 @@ export class TripVehiclesService implements OnModuleInit {
 // no, un viaje que se retrasa impediría dar de baja el coche) y con sitio en
 // el coche nuevo para las plazas que ofrece (también las ya ocupadas)
 function assertCanChangeVehicle(trip: Trip, capacity: number): void {
-  if (!UPCOMING_STATUSES.includes(trip.status)) {
+  if (!UPCOMING_STATUSES.has(trip.status)) {
     throw new TripNotEditableError(trip.id, trip.status);
   }
   if (trip.offeredSeats > capacity) {

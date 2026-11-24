@@ -14,6 +14,7 @@ describe('notification texts', () => {
     expect(notificationMode('request_conflict_cancelled')).toBe('passenger');
     expect(notificationMode('trip_cancelled')).toBe('passenger');
     expect(notificationMode('trip_started')).toBe('passenger');
+    expect(notificationMode('trip_vehicle_changed')).toBe('passenger');
     expect(notificationMode('incident_reported')).toBeNull();
   });
 

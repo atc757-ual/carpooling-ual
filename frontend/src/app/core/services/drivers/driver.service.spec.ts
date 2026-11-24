@@ -65,6 +65,21 @@ describe('DriverService', () => {
     await expect(deactivated).resolves.toBeUndefined();
   });
 
+  it('lists the upcoming trips of a vehicle and moves trips to another one', async () => {
+    const listed = driver.listVehicleUpcomingTrips('v1');
+    const listRequest = http.expectOne((req) => req.url === '/api/vehicles/v1/upcoming-trips');
+    expect(listRequest.request.params.get('limit')).toBe('100');
+    listRequest.flush([{ id: 't1' }]);
+    await expect(listed).resolves.toEqual([{ id: 't1' }]);
+
+    const changed = driver.changeTripsVehicle(['t1'], 'v2');
+    const changeRequest = http.expectOne('/api/trips/vehicle-changes');
+    expect(changeRequest.request.method).toBe('POST');
+    expect(changeRequest.request.body).toEqual({ tripIds: ['t1'], vehicleId: 'v2' });
+    changeRequest.flush([{ id: 't1', vehicleId: 'v2' }]);
+    await expect(changed).resolves.toEqual([{ id: 't1', vehicleId: 'v2' }]);
+  });
+
   it('starts and finishes a trip', async () => {
     const started = driver.startTrip('t1');
     const startRequest = http.expectOne('/api/trips/t1/start');

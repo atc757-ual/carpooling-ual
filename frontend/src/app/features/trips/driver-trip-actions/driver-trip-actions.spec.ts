@@ -402,6 +402,27 @@ describe('DriverTripActions', () => {
     );
   });
 
+  it('changes the car of the trip and refreshes it only when changed', async () => {
+    const root = await render(TRIP);
+    expect(root.textContent).toContain('Cambiar de coche');
+    const dismissWith = (role: string): ReturnType<typeof vi.spyOn> =>
+      vi.spyOn(TestBed.inject(ModalController), 'create').mockResolvedValue({
+        present: vi.fn().mockResolvedValue(undefined),
+        onDidDismiss: () => Promise.resolve({ role }),
+      } as unknown as HTMLIonModalElement);
+
+    const create = dismissWith('backdrop');
+    await fixture.componentInstance.handleChangeVehicle();
+    expect(create.mock.calls[0][0]).toMatchObject({
+      componentProps: { mode: 'change', vehicleId: 'v1', trips: [TRIP] },
+    });
+    expect(changed).toBe(0);
+
+    dismissWith('changed');
+    await fixture.componentInstance.handleChangeVehicle();
+    expect(changed).toBe(1);
+  });
+
   it('shows only why a cancelled trip has no actions', async () => {
     const root = await render({ ...TRIP, status: 'cancelled' });
 

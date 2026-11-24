@@ -30,9 +30,12 @@ describe('ProfileVehicles', () => {
   let fixture: ComponentFixture<ProfileVehicles>;
   let listVehicles: ReturnType<typeof vi.fn>;
   const deactivateVehicle = vi.fn().mockResolvedValue(undefined);
+  const listVehicleUpcomingTrips = vi.fn().mockResolvedValue([]);
   const showError = vi.fn().mockResolvedValue(undefined);
 
   async function render(list: () => Promise<Vehicle[]>): Promise<HTMLElement> {
+    vi.clearAllMocks();
+    listVehicleUpcomingTrips.mockResolvedValue([]);
     listVehicles = vi.fn().mockImplementation(list);
     TestBed.configureTestingModule({
       imports: [ProfileVehicles],
@@ -54,7 +57,10 @@ describe('ProfileVehicles', () => {
             },
           },
         }),
-        { provide: DriverService, useValue: { listVehicles, deactivateVehicle } },
+        {
+          provide: DriverService,
+          useValue: { listVehicles, deactivateVehicle, listVehicleUpcomingTrips },
+        },
         { provide: AuthService, useValue: { hasProfile: () => true } },
         { provide: ToastService, useValue: { showError } },
       ],
@@ -146,6 +152,40 @@ describe('ProfileVehicles', () => {
     confirm('destructive');
     await fixture.componentInstance.handleRemove(item);
     expect(showError).toHaveBeenCalled();
+  });
+
+  it('with upcoming trips, decides first what happens to them and reloads if removed', async () => {
+    await render(() => Promise.resolve([vehicle('1234', 'available', null)]));
+    const [item] = fixture.componentInstance.activeVehicles();
+    const trips = [{ id: 't1' }];
+    listVehicleUpcomingTrips.mockResolvedValue(trips);
+    const ask = vi.spyOn(TestBed.inject(ConfirmService), 'ask');
+
+    const closed = dismissWith('backdrop');
+    await fixture.componentInstance.handleRemove(item);
+    expect(closed.mock.calls[0][0]).toMatchObject({
+      componentProps: { mode: 'remove', vehicleId: '1234', trips },
+    });
+    expect(listVehicles).toHaveBeenCalledTimes(1);
+
+    dismissWith('removed');
+    await fixture.componentInstance.handleRemove(item);
+    await fixture.whenStable();
+    expect(listVehicles).toHaveBeenCalledTimes(2);
+    expect(ask).not.toHaveBeenCalled();
+    expect(deactivateVehicle).not.toHaveBeenCalled();
+  });
+
+  it('does not remove it when its trips cannot be checked', async () => {
+    await render(() => Promise.resolve([vehicle('1234', 'available', null)]));
+    const [item] = fixture.componentInstance.activeVehicles();
+    listVehicleUpcomingTrips.mockRejectedValueOnce(new Error('down'));
+    const ask = vi.spyOn(TestBed.inject(ConfirmService), 'ask');
+
+    await fixture.componentInstance.handleRemove(item);
+
+    expect(showError).toHaveBeenCalled();
+    expect(ask).not.toHaveBeenCalled();
   });
 
   it('offers to retry when they cannot be loaded', async () => {

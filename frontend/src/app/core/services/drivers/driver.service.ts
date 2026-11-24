@@ -58,9 +58,30 @@ export class DriverService {
   }
 
   // Dar de baja (deja de salir; registrar otra vez la matrícula la recupera).
-  // Con un viaje pendiente o en curso, VEHICLE_IN_USE
+  // Con un viaje en curso, VEHICLE_IN_USE; con viajes programados,
+  // VEHICLE_HAS_UPCOMING_TRIPS (antes se pasan a otro coche o se cancelan)
   async deactivateVehicle(vehicleId: string): Promise<void> {
     await this.request(this.http.delete<void>(`${this.apiUrl}/vehicles/${vehicleId}`));
+  }
+
+  // Los viajes publicados o confirmados de un coche, del más próximo al último
+  listVehicleUpcomingTrips(vehicleId: string): Promise<DriverTrip[]> {
+    return this.request(
+      this.http.get<DriverTrip[]>(`${this.apiUrl}/vehicles/${vehicleId}/upcoming-trips`, {
+        params: { limit: 100 },
+      }),
+    );
+  }
+
+  // Pasa esos viajes a otro coche suyo, todos o ninguno; sus pasajeros
+  // aceptados reciben el aviso
+  changeTripsVehicle(tripIds: readonly string[], vehicleId: string): Promise<DriverTrip[]> {
+    return this.request(
+      this.http.post<DriverTrip[]>(`${this.apiUrl}/trips/vehicle-changes`, {
+        tripIds,
+        vehicleId,
+      }),
+    );
   }
 
   // Declaración responsable (RF-21); se puede repetir sin efecto
