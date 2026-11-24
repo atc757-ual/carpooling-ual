@@ -1,6 +1,15 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  resource,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
@@ -26,7 +35,11 @@ import {
   leafOutline,
 } from 'ionicons/icons';
 import { map } from 'rxjs';
-import { ApiError, rethrowUnlessApiError } from '../../../core/models/api-error.model';
+import {
+  ApiError,
+  fallbackOnApiError,
+  rethrowUnlessApiError,
+} from '../../../core/models/api-error.model';
 import {
   PickupMode,
   PublishedTrip,
@@ -45,7 +58,6 @@ import { DatetimeField } from '../../../shared/components/ui/datetime-field/date
 import { RouteTimeline } from '../../../shared/components/ui/route-timeline/route-timeline';
 import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
 import { StepIndicator } from '../../../shared/components/ui/step-indicator/step-indicator';
-import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { RouteFields } from '../../matching/route-fields/route-fields';
 import { estimateDurationMin } from '../../matching/trip-impact';
 import {
@@ -64,6 +76,9 @@ import { NextTripCard } from '../next-trip-card/next-trip-card';
 import { PublishNextSteps } from '../publish-next-steps/publish-next-steps';
 import { VehiclePicker } from '../vehicle-picker/vehicle-picker';
 import { ReturnTripControls, ReturnTripField } from '../return-trip-field/return-trip-field';
+import { RepeatDaysControls, RepeatDaysField } from '../repeat-days-field/repeat-days-field';
+import { publishErrorMessage, repeatDatesFor } from '../repeat-days-field/repeat-days';
+import { PlatformSettingsService } from '../../../core/services/settings/platform-settings.service';
 import { AutoAcceptField } from '../auto-accept-field/auto-accept-field';
 import {
   defaultReturnTime,
@@ -153,6 +168,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
     DeclarationField,
     PickupModeField,
     ReturnTripField,
+    RepeatDaysField,
     AutoAcceptField,
     QuickFaqs,
     RouteFields,
@@ -171,6 +187,7 @@ export class PublishTripPage implements OnInit {
   private readonly vehicleColors = inject(VehicleColorsStore);
   private readonly travelPreferences = inject(TravelPreferencesStore);
   private readonly driver = inject(DriverService);
+  private readonly platformSettings = inject(PlatformSettingsService);
   private readonly modalController = inject(ModalController);
   private readonly auth = inject(AuthService);
   private readonly places = inject(PlacesService);
@@ -213,6 +230,10 @@ export class PublishTripPage implements OnInit {
     hasReturn: [false],
     returnTime: [defaultReturnTime(this.initialDeparture.time)],
     returnSeats: [1, [Validators.required, Validators.min(1)]],
+    // Los otros días (viajes recurrentes): días de la semana y hasta cuándo
+    isRepeating: [false],
+    repeatWeekdays: new FormControl<number[]>([], { nonNullable: true }),
+    repeatUntil: [''],
     // Aceptar solas las solicitudes que caben (en Revisión)
     autoAccept: [false],
     declaration: [false],
@@ -221,6 +242,12 @@ export class PublishTripPage implements OnInit {
   protected readonly returnControls: ReturnTripControls = {
     hasReturn: this.tripForm.controls.hasReturn,
     returnTime: this.tripForm.controls.returnTime,
+  };
+
+  protected readonly repeatControls: RepeatDaysControls = {
+    isRepeating: this.tripForm.controls.isRepeating,
+    weekdays: this.tripForm.controls.repeatWeekdays,
+    until: this.tripForm.controls.repeatUntil,
   };
 
   protected readonly pickupControls: PickupModeControls = {
@@ -306,6 +333,30 @@ export class PublishTripPage implements OnInit {
         : 'screens.publishTrip.returnSummary.other',
       { time: returnTime, count: returnSeats },
     );
+  });
+  // Publicar varios días a la vez: solo si el administrador lo tiene
+  // encendido (si no se puede saber, no se ofrece)
+  private readonly settings = resource({
+    loader: () => this.platformSettings.get().catch(fallbackOnApiError(null)),
+  });
+  readonly canRepeat = computed(() => this.settings.value()?.multiDayPublishing === true);
+  readonly tripValueDate = computed(() => this.tripValue().date ?? '');
+  readonly repeatDates = computed(() => {
+    const { isRepeating = false, repeatWeekdays = [], repeatUntil = '' } = this.tripValue();
+    return this.canRepeat() && isRepeating
+      ? repeatDatesFor(this.tripValueDate(), repeatWeekdays, repeatUntil)
+      : [];
+  });
+  // Marcada «Repetir otros días» sin ningún día que salga
+  readonly isRepeatEmpty = computed(
+    () =>
+      this.canRepeat() && Boolean(this.tripValue().isRepeating) && this.repeatDates().length === 0,
+  );
+  readonly repeatSummary = computed(() => {
+    const dates = this.repeatDates();
+    return dates.length > 0
+      ? translate('publish.repeat.reviewDates', { dates: dates.map(formatDateLabel).join(', ') })
+      : null;
   });
   // Cómo recoge, en una línea del resumen (desde el campus todos suben allí)
   readonly pickupSummary = computed(() => {
@@ -733,7 +784,8 @@ export class PublishTripPage implements OnInit {
       this.needsDeclaration() ||
       this.isDepartureTooSoon() ||
       this.isMissingStops() ||
-      this.isReturnTooEarly()
+      this.isReturnTooEarly() ||
+      this.isRepeatEmpty()
     ) {
       this.tripForm.markAllAsTouched();
       return;
@@ -748,6 +800,7 @@ export class PublishTripPage implements OnInit {
         ...(this.hasReturnTrip() && {
           returnTrip: toReturnTripRequest(offer.date, offer.returnTime, offer.returnSeats),
         }),
+        ...(this.repeatDates().length > 0 && { repeatDates: this.repeatDates() }),
       };
       const trip = await withDeclarations(
         { driver: this.driver, modalController: this.modalController },
@@ -758,7 +811,12 @@ export class PublishTripPage implements OnInit {
       // El confeti y la oferta de avisos no paran nada: si fallan, el error
       // llega al registro global (provideBrowserGlobalErrorListeners)
       void this.celebration.celebrate();
-      void this.toast.showSuccess(translate('screens.publishTrip.viajePublicado'));
+      const count = 1 + (trip.repeatedTrips?.length ?? 0);
+      void this.toast.showSuccess(
+        count > 1
+          ? translate('publish.repeat.published', { count })
+          : translate('screens.publishTrip.viajePublicado'),
+      );
       void this.permissionPrompts.offerPush('publish');
     });
   }
@@ -776,7 +834,7 @@ export class PublishTripPage implements OnInit {
     try {
       await action();
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      void this.toast.showError(publishErrorMessage(ApiError.fromHttpError(error)));
     } finally {
       this.isSaving.set(false);
     }

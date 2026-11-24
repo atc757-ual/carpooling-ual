@@ -1,0 +1,32 @@
+// Como «Publicar también la vuelta»: la casilla y, debajo, lo demás apilado a
+// 8px
+.repeat-days {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+
+  p {
+    margin: 0;
+  }
+}
+
+// Los siete días en una fila (se parte si no caben), cada uno con su letra
+// encima de la casilla
+.repeat-days__weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    width: 100%;
+    margin-bottom: var(--space-xs);
+    padding: 0;
+  }
+}
+
+.repeat-days__day {
+  min-width: var(--control-height-base); // 48px, el mínimo para tocar
+}

@@ -695,6 +695,36 @@
     "stopsCount": "{{ count }} of {{ max }} stops",
     "stopsMax": "You already have {{ max }} stops, the maximum.",
     "returnAfterArrival": "The return trip must leave after you reach the campus ({{ time }}).",
+    "repeat": {
+      "label": "Repeat on other days",
+      "hint": "The same trip is published at the same time on the days you choose. Each one is a separate trip: you can change or cancel it on its own.",
+      "weekdays": "Which days",
+      "until": "Until",
+      "noDays": "Choose at least one day of the week.",
+      "summary": "{{ count }} trips will be published, one each day.",
+      "summaryWithReturn": "{{ count }} trips will be published: there and back on {{ days }} days.",
+      "reviewDates": "Also: {{ dates }}",
+      "published": "We have published {{ count }} trips.",
+      "dateRejected": "No trip was published: {{ date }} is not possible (you already have 4 trips that day or it overlaps another one). Remove it and try again.",
+      "short": {
+        "1": "M",
+        "2": "T",
+        "3": "W",
+        "4": "T",
+        "5": "F",
+        "6": "S",
+        "7": "S"
+      },
+      "long": {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday"
+      }
+    },
     "version": "Version {{ version }}",
     "next": "Next",
     "back": "Back",

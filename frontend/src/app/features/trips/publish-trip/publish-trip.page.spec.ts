@@ -21,6 +21,8 @@ import { ToastService } from '../../../core/services/ui/toast.service';
 import { stubIntersectionObserver } from '../../matching/trip-search.testing';
 import { PublishTripPage } from './publish-trip.page';
 import { toIsoDateTime } from './publish-trip.utils';
+import { PlatformSettingsService } from '../../../core/services/settings/platform-settings.service';
+import { weekdayOf } from '../repeat-days-field/repeat-days';
 
 const P1: CampusParking = {
   id: 'p1',
@@ -68,10 +70,12 @@ describe('PublishTripPage', () => {
       vehicles = [VEHICLE],
       hasLicenseDeclared = true,
       publishingSuspendedUntil = null,
+      multiDayPublishing = false,
     }: {
       vehicles?: Vehicle[];
       hasLicenseDeclared?: boolean;
       publishingSuspendedUntil?: string | null;
+      multiDayPublishing?: boolean;
     } = {},
   ): Promise<void> {
     stubIntersectionObserver();
@@ -102,6 +106,10 @@ describe('PublishTripPage', () => {
           },
         ]),
         { provide: DriverService, useValue: driver },
+        {
+          provide: PlatformSettingsService,
+          useValue: { get: vi.fn().mockResolvedValue({ multiDayPublishing }) },
+        },
         { provide: TravelPreferencesStore, useValue: { format: () => ['Charlar'] } },
         {
           provide: AuthService,
@@ -365,6 +373,68 @@ describe('PublishTripPage', () => {
         returnTrip: { departureAt: toIsoDateTime('2099-01-15', '15:00'), offeredSeats: 2 },
       }),
     );
+  });
+
+  it('publishes the same trip on other days when the admin allows it', async () => {
+    await openPage('/publish', { multiDayPublishing: true });
+    await harness.fixture.whenStable();
+    fillTrip({ withVehicle: true });
+    expect(page.canRepeat()).toBe(true);
+    const weekday = weekdayOf('2099-01-15');
+    page.tripForm.patchValue({
+      isRepeating: true,
+      repeatWeekdays: [weekday],
+      repeatUntil: '2099-01-29',
+    });
+
+    expect(page.repeatDates()).toEqual(['2099-01-22', '2099-01-29']);
+    expect(page.repeatSummary()).toContain('También:');
+    driver['publishTrip'].mockResolvedValue({
+      id: 't1',
+      offeredSeats: 2,
+      maxDetourMin: 10,
+      repeatedTrips: [{}, {}],
+    });
+    await page.goToStep(2);
+    await page.goToStep(3);
+    await submit();
+
+    expect(driver['publishTrip']).toHaveBeenCalledWith(
+      expect.objectContaining({ repeatDates: ['2099-01-22', '2099-01-29'] }),
+    );
+    expect(TestBed.inject(ToastService).showSuccess).toHaveBeenCalledWith(
+      'Hemos publicado 3 viajes.',
+    );
+  });
+
+  it('does not repeat while the admin keeps it off, nor without any day', async () => {
+    await openPage('/publish');
+    fillTrip({ withVehicle: true });
+    page.tripForm.patchValue({ isRepeating: true, repeatWeekdays: [1], repeatUntil: '2099-01-29' });
+    expect(page.canRepeat()).toBe(false);
+    expect(page.repeatDates()).toEqual([]);
+    expect(page.isRepeatEmpty()).toBe(false);
+  });
+
+  it('says which day could not be published', async () => {
+    await openPage('/publish', { multiDayPublishing: true });
+    await harness.fixture.whenStable();
+    driver['publishTrip'].mockRejectedValue(
+      new ApiError('REPEAT_DATE_REJECTED', 409, {
+        message: 'Repeat date 2099-01-22 (TRIP_OVERLAPS): overlaps',
+      }),
+    );
+    fillTrip({ withVehicle: true });
+    page.tripForm.patchValue({
+      isRepeating: true,
+      repeatWeekdays: [weekdayOf('2099-01-15')],
+      repeatUntil: '2099-01-22',
+    });
+    await page.goToStep(2);
+    await page.goToStep(3);
+    await submit();
+
+    expect(showError).toHaveBeenCalledWith(expect.stringContaining('22 ene'));
   });
 
   it('publishes no return trip from the campus', async () => {
