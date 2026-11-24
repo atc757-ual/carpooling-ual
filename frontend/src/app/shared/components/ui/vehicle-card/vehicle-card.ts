@@ -31,6 +31,8 @@ export class VehicleCard {
   readonly hasActions = input(false);
   // El coche a la izquierda (en Publicar; en Mi perfil, sin él)
   readonly hasIcon = input(true);
+  // Solo para ver, sin elegirlo (el coche actual al cambiar el de un viaje)
+  readonly isReadOnly = input(false);
 
   readonly selected = output<Vehicle>();
   readonly edit = output<Vehicle>();

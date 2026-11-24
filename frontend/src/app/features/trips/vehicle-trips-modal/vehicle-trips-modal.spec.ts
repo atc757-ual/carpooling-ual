@@ -168,6 +168,13 @@ describe('VehicleTripsModal', () => {
 
     modal = await render('change', [vehicle('old'), vehicle('new')], one);
     expect(modal.confirmText()).toBe('Cambiar de coche');
+    // El coche de ahora, solo para ver, y debajo a cuál se cambia
+    fixture.detectChanges();
+    expect(modal.currentVehicle()?.id).toBe('old');
+    const current = root().querySelector('.vehicle-trips__current');
+    expect(current?.textContent).toContain('Ahora vas en');
+    expect(current?.querySelector('input[type="radio"]')).toBeNull();
+    expect(root().textContent).toContain('Cambiar a');
     await modal.handleConfirm();
 
     expect(driver.changeTripsVehicle).toHaveBeenCalledWith(['t1'], 'new');

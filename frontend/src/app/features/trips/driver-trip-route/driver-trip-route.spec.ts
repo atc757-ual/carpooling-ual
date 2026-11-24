@@ -114,4 +114,18 @@ describe('DriverTripRoute', () => {
     ]);
     expect(root.textContent).toContain('No pudimos cargar el mapa de la ruta');
   });
+
+  it('loads the trip again when its car changes, not on every reload', async () => {
+    await render(() => Promise.resolve(ROUTE));
+    const getTrip = vi.mocked(TestBed.inject(TripsService).getTrip);
+    expect(getTrip).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('trip', { ...TRIP, availableSeats: 1 });
+    await fixture.whenStable();
+    expect(getTrip).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('trip', { ...TRIP, vehicleId: 'v2' });
+    await fixture.whenStable();
+    expect(getTrip).toHaveBeenCalledTimes(2);
+  });
 });

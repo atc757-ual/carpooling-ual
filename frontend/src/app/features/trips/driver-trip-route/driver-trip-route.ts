@@ -54,10 +54,17 @@ export class DriverTripRoute {
 
   readonly trip = input.required<DriverTrip>();
 
+  // El viaje y su coche: se vuelven a pedir los datos al cambiar cualquiera de
+  // los dos (p. ej. al cambiar el coche del viaje), no con cada recarga
+  private readonly detailsKey = computed(
+    () => ({ tripId: this.trip().id, vehicleId: this.trip().vehicleId }),
+    { equal: (a, b) => a.tripId === b.tripId && a.vehicleId === b.vehicleId },
+  );
+
   // La ruta y el viaje completo (con el vehículo)
   readonly details = resource({
-    params: () => this.trip().id,
-    loader: async ({ params: tripId }) => {
+    params: () => this.detailsKey(),
+    loader: async ({ params: { tripId } }) => {
       const [trip, route] = await Promise.all([
         this.tripsService.getTrip(tripId),
         this.tripsService.getRoute(tripId),

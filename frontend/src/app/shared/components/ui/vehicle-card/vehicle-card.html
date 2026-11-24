@@ -3,31 +3,50 @@
   [class.vehicle-card--selected]="isSelected()"
   [style.--swatch-color]="swatch()"
 >
-  <label class="vehicle-card__choice">
-    <input
-      class="visually-hidden"
-      type="radio"
-      [name]="groupName()"
-      [checked]="isSelected()"
-      (change)="selected.emit(vehicle())"
-    />
-    @if (hasIcon()) {
-      <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
-    }
-    <span class="vehicle-card__body">
-      <span class="vehicle-card__name">{{ name() }}</span>
-      <app-license-plate class="vehicle-card__plate" [plate]="plate()" [country]="plateSign()" />
-      <span class="vehicle-card__specs text-body-s text-color-muted">
-        <span class="vehicle-card__swatch" aria-hidden="true"></span>
-        {{ specs() }}
+  <!-- Solo para ver (sin elegir): sin radio ni círculo. El texto va dentro de
+       cada caja (no en una plantilla común) para que la etiqueta del radio
+       tenga su texto a la vista de las herramientas de accesibilidad -->
+  @if (isReadOnly()) {
+    <div class="vehicle-card__choice vehicle-card__choice--static">
+      @if (hasIcon()) {
+        <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
+      }
+      <span class="vehicle-card__body">
+        <span class="vehicle-card__name">{{ name() }}</span>
+        <app-license-plate class="vehicle-card__plate" [plate]="plate()" [country]="plateSign()" />
+        <span class="vehicle-card__specs text-body-s text-color-muted">
+          <span class="vehicle-card__swatch" aria-hidden="true"></span>
+          {{ specs() }}
+        </span>
       </span>
-    </span>
-    <ion-icon
-      class="vehicle-card__check"
-      [icon]="isSelected() ? icons.checked : icons.unchecked"
-      aria-hidden="true"
-    />
-  </label>
+    </div>
+  } @else {
+    <label class="vehicle-card__choice">
+      <input
+        class="visually-hidden"
+        type="radio"
+        [name]="groupName()"
+        [checked]="isSelected()"
+        (change)="selected.emit(vehicle())"
+      />
+      @if (hasIcon()) {
+        <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
+      }
+      <span class="vehicle-card__body">
+        <span class="vehicle-card__name">{{ name() }}</span>
+        <app-license-plate class="vehicle-card__plate" [plate]="plate()" [country]="plateSign()" />
+        <span class="vehicle-card__specs text-body-s text-color-muted">
+          <span class="vehicle-card__swatch" aria-hidden="true"></span>
+          {{ specs() }}
+        </span>
+      </span>
+      <ion-icon
+        class="vehicle-card__check"
+        [icon]="isSelected() ? icons.checked : icons.unchecked"
+        aria-hidden="true"
+      />
+    </label>
+  }
   @if (hasActions()) {
     <button
       class="vehicle-card__action"

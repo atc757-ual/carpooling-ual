@@ -493,6 +493,8 @@
       "back": "Volver",
       "removed": "Hemos eliminado el coche.",
       "changeAction": "Cambiar de coche",
+      "current": "Ahora vas en",
+      "changeTo": "Cambiar a",
       "changeTitle": "Cambiar el coche de este viaje",
       "changeIntro": "Elige el coche con el que harás el viaje: avisaremos a tus pasajeros.",
       "changeNoOther": "No tienes otro coche. Registra uno para cambiarlo.",

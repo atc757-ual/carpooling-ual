@@ -57,13 +57,26 @@
     @if (vehicles.isLoading() && !vehicles.hasValue()) {
       <ion-spinner name="crescent" aria-hidden="true" />
     } @else {
+      <!-- Al cambiar el coche de un viaje: el de ahora, para ver de cuál a
+           cuál se cambia (solo para ver) -->
+      @if (mode === 'change' && currentVehicle(); as current) {
+        <section class="vehicle-trips__current">
+          <h3 class="text-label vehicle-trips__subtitle">
+            {{ 'profile.vehicleTrips.current' | transloco }}
+          </h3>
+          <app-vehicle-card
+            [vehicle]="current"
+            groupName="vehicle-trips-current"
+            [hasIcon]="false"
+            [isReadOnly]="true"
+          />
+        </section>
+      }
       @if (otherVehicles().length > 0) {
         <h3 class="text-label vehicle-trips__subtitle">
           {{
-            (mode === 'remove'
-              ? 'profile.vehicleTrips.moveTo'
-              : 'profile.vehicleTrips.changeAction'
-            ) | transloco
+            (mode === 'remove' ? 'profile.vehicleTrips.moveTo' : 'profile.vehicleTrips.changeTo')
+              | transloco
           }}
         </h3>
         <ul class="vehicle-trips__vehicles">

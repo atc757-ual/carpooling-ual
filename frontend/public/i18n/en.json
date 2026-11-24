@@ -493,6 +493,8 @@
       "back": "Back",
       "removed": "We have removed the car.",
       "changeAction": "Change car",
+      "current": "Current car",
+      "changeTo": "Change to",
       "changeTitle": "Change the car of this trip",
       "changeIntro": "Choose the car you will drive: we will let your passengers know.",
       "changeNoOther": "You have no other car. Register one to change it.",
