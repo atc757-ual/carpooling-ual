@@ -7,6 +7,7 @@ const SIMULATION_PATH = 'simulation';
 const DIGITAL_TWIN_PATH = 'digital-twin';
 const TRIPS_PATH = 'trips';
 const CATALOGS_PATH = 'catalogs';
+const SETTINGS_PATH = 'settings';
 
 // Rutas del panel (hijas de /admin), una pantalla por sección (con su detalle
 // en Usuarios, Incidencias y Viajes). La primera sección es la de entrada
@@ -62,5 +63,10 @@ export const ADMIN_ROUTES: Routes = [
     path: CATALOGS_PATH,
     title: 'Catálogos · Admin',
     loadComponent: () => import('./catalogs/admin-catalogs.page').then((m) => m.AdminCatalogsPage),
+  },
+  {
+    path: SETTINGS_PATH,
+    title: 'Ajustes · Admin',
+    loadComponent: () => import('./settings/admin-settings.page').then((m) => m.AdminSettingsPage),
   },
 ];

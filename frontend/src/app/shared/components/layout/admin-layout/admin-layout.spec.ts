@@ -117,7 +117,7 @@ describe('AdminLayout', () => {
     expect(goBack).toHaveBeenCalledTimes(1);
   });
 
-  it('shows the brand, the admin account and the six sections in order', () => {
+  it('shows the brand, the admin account and the seven sections in order', () => {
     expect(
       element().querySelector('.admin-desktop-header .admin-header__brand')?.textContent,
     ).toContain('Carpooling UAL · Admin');
@@ -132,10 +132,11 @@ describe('AdminLayout', () => {
       'Incidencias',
       'Viajes',
       'Catálogos',
+      'Ajustes',
     ]);
   });
 
-  it('shows the mobile drawer with six links and account actions, without repeating the brand', () => {
+  it('shows the mobile drawer with seven links and account actions, without repeating the brand', () => {
     element().querySelector<HTMLButtonElement>('.admin-mobile-header__menu-button')?.click();
     fixture.detectChanges();
     expect(
@@ -148,7 +149,7 @@ describe('AdminLayout', () => {
     expect(element().querySelector('.admin-mobile-menu__email')?.textContent).toContain(
       'admin@ual.es',
     );
-    expect(mobileLinks()).toHaveLength(6);
+    expect(mobileLinks()).toHaveLength(7);
     expect(element().querySelector('.admin-mobile-header__logout')).toBeNull();
     expect(element().querySelector('.admin-mobile-menu__footer')?.textContent).toContain(
       'Cerrar sesión',

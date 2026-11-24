@@ -5,6 +5,7 @@ import {
   carOutline,
   peopleOutline,
   pulseOutline,
+  settingsOutline,
 } from 'ionicons/icons';
 
 // Secciones del panel de administración (bloque b, CU-12 y RF-25), en el orden
@@ -45,6 +46,11 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
     path: 'catalogs',
     label: 'Catálogos',
     icon: albumsOutline,
+  },
+  {
+    path: 'settings',
+    label: 'Ajustes',
+    icon: settingsOutline,
   },
 ];
 

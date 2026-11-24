@@ -124,9 +124,11 @@ function toState(rows: PlatformSetting[]): PlatformSettingsState {
     (row): row is PlatformSetting & { updatedAt: Date } =>
       row.updatedAt !== null,
   );
-  const latest = changes.sort(
-    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
-  )[0];
+  const latest = changes.reduce<(typeof changes)[number] | undefined>(
+    (newest, row) =>
+      newest === undefined || row.updatedAt > newest.updatedAt ? row : newest,
+    undefined,
+  );
   return {
     settings,
     updatedAt: latest?.updatedAt ?? null,

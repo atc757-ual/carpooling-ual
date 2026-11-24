@@ -1,0 +1,51 @@
+<!-- La franja del panel (la pinta su cabecera); sin buscador, se desplaza con
+     el contenido -->
+<ng-template appHeadingContent>
+  <div class="admin-heading__text">
+    <h1 class="admin-heading__title">Ajustes</h1>
+    <p class="text-body-s admin-heading__subtitle">
+      Lo que se enciende o se apaga para todos. Cada cambio se guarda al momento.
+    </p>
+  </div>
+</ng-template>
+
+<div class="settings">
+  @if (errorMessage(); as message) {
+    <div class="notice notice--danger" role="alert">
+      <span>
+        <b>No hemos podido cargar los ajustes.</b>
+        {{ message }}
+      </span>
+      <ion-button fill="outline" size="small" (click)="handleRetry()">Reintentar</ion-button>
+    </div>
+  } @else if (settings.isLoading() && !settings.hasValue()) {
+    <ion-card class="settings__card" aria-busy="true" aria-label="Cargando los ajustes">
+      <ion-skeleton-text [animated]="true" class="settings__skeleton" />
+      <ion-skeleton-text [animated]="true" class="settings__skeleton" />
+    </ion-card>
+  } @else {
+    <ion-card class="settings__card">
+      <h2 class="settings__card-title">Publicar viajes</h2>
+      <!-- El texto, a la izquierda y unido al interruptor: su nombre
+           (aria-labelledby) y lo que hace (aria-describedby) -->
+      <div class="settings__row">
+        <span class="settings__text">
+          <span id="multi-day-title" class="text-body">Publicar varios días a la vez</span>
+          <span id="multi-day-hint" class="text-body-s text-color-muted">
+            Los conductores podrán elegir varios días, hasta un mes, al publicar. Cada día es un
+            viaje independiente.
+          </span>
+        </span>
+        <ion-toggle
+          mode="ios"
+          aria-labelledby="multi-day-title"
+          aria-describedby="multi-day-hint"
+          [checked]="isMultiDayChecked()"
+          [disabled]="isSaving()"
+          (ionChange)="handleMultiDay($event.detail.checked)"
+        />
+      </div>
+      <p class="text-body-s text-color-muted settings__change">{{ lastChange() }}</p>
+    </ion-card>
+  }
+</div>

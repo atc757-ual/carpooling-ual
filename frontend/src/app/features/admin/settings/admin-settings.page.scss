@@ -1,0 +1,50 @@
+// Una tarjeta por grupo de ajustes, a lo ancho de la columna de lectura
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  max-width: 45rem; // 720px
+}
+
+.settings__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  margin: 0;
+  padding: var(--space-base);
+}
+
+.settings__card-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle-s);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-title);
+}
+
+// El texto y el interruptor en la misma fila, como en Mi perfil
+.settings__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.settings__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  min-width: 0;
+}
+
+.settings__change {
+  margin: 0;
+  padding-top: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+}
+
+.settings__skeleton {
+  height: 1rem; // 16px
+}
