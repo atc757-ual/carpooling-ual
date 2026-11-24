@@ -43,6 +43,13 @@
   font-weight: var(--font-weight-semibold);
 }
 
+// El coche de ahora: el título y su tarjeta, a 8px
+.vehicle-trips__current {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
 .vehicle-trips__vehicles {
   display: flex;
   flex-direction: column;

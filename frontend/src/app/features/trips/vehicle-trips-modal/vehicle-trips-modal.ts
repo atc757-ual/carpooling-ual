@@ -130,6 +130,10 @@ export class VehicleTripsModal implements OnInit {
       ({ id, status }) => id !== this.vehicleId && status !== 'inactive',
     ),
   );
+  // El coche que lleva ahora el viaje (al cambiarlo)
+  readonly currentVehicle = computed(
+    () => (this.vehicles.value() ?? []).find(({ id }) => id === this.vehicleId) ?? null,
+  );
   readonly targetId = linkedSignal(() => this.otherVehicles()[0]?.id ?? null);
   // Cabe uno más (hasta 3 activos, contando el que se da de baja)
   readonly canRegister = computed(() => this.otherVehicles().length + 1 < MAX_VEHICLES);

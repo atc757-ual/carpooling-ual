@@ -46,6 +46,11 @@
   }
 }
 
+// Solo para ver: no se puede pulsar
+.vehicle-card__choice--static {
+  cursor: default;
+}
+
 .vehicle-card__car {
   flex: none;
   color: var(--color-text-muted);

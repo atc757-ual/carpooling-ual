@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
@@ -20,7 +21,7 @@ import { plateSign } from '../../../utils/plate-country.util';
 // Publicar elige el vehículo del viaje; en el Perfil, el predeterminado
 @Component({
   selector: 'app-vehicle-card',
-  imports: [IonIcon, LicensePlate, TranslocoPipe],
+  imports: [IonIcon, LicensePlate, NgTemplateOutlet, TranslocoPipe],
   templateUrl: './vehicle-card.html',
   styleUrl: './vehicle-card.scss',
 })
@@ -31,6 +32,8 @@ export class VehicleCard {
   readonly hasActions = input(false);
   // El coche a la izquierda (en Publicar; en Mi perfil, sin él)
   readonly hasIcon = input(true);
+  // Solo para ver, sin elegirlo (el coche actual al cambiar el de un viaje)
+  readonly isReadOnly = input(false);
 
   readonly selected = output<Vehicle>();
   readonly edit = output<Vehicle>();

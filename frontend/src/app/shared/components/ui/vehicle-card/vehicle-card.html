@@ -3,14 +3,29 @@
   [class.vehicle-card--selected]="isSelected()"
   [style.--swatch-color]="swatch()"
 >
-  <label class="vehicle-card__choice">
-    <input
-      class="visually-hidden"
-      type="radio"
-      [name]="groupName()"
-      [checked]="isSelected()"
-      (change)="selected.emit(vehicle())"
-    />
+  <!-- Solo para ver (sin elegir): sin radio ni círculo -->
+  @if (isReadOnly()) {
+    <div class="vehicle-card__choice vehicle-card__choice--static">
+      <ng-container [ngTemplateOutlet]="details" />
+    </div>
+  } @else {
+    <label class="vehicle-card__choice">
+      <input
+        class="visually-hidden"
+        type="radio"
+        [name]="groupName()"
+        [checked]="isSelected()"
+        (change)="selected.emit(vehicle())"
+      />
+      <ng-container [ngTemplateOutlet]="details" />
+      <ion-icon
+        class="vehicle-card__check"
+        [icon]="isSelected() ? icons.checked : icons.unchecked"
+        aria-hidden="true"
+      />
+    </label>
+  }
+  <ng-template #details>
     @if (hasIcon()) {
       <ion-icon class="vehicle-card__car" [icon]="icons.car" aria-hidden="true" />
     }
@@ -22,12 +37,7 @@
         {{ specs() }}
       </span>
     </span>
-    <ion-icon
-      class="vehicle-card__check"
-      [icon]="isSelected() ? icons.checked : icons.unchecked"
-      aria-hidden="true"
-    />
-  </label>
+  </ng-template>
   @if (hasActions()) {
     <button
       class="vehicle-card__action"
