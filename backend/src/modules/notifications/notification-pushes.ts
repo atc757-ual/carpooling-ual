@@ -20,6 +20,13 @@ const PUSH_TYPES: ReadonlySet<NotificationType> = new Set([
   'pending_requests_reminder',
   'trip_expired',
   'trip_start_reminder',
+  // Las incidencias: a los administradores, la nueva y el recordatorio; a
+  // quien la registró, cada paso de su revisión
+  'incident_reported',
+  'incident_reminder',
+  'incident_received',
+  'incident_in_review',
+  'incident_reviewed',
 ]);
 
 // La push de un aviso en cada idioma, o null si ese tipo no va por push. Los
@@ -36,6 +43,9 @@ export function toPushMessage(
   };
   if (content.requestId) {
     data['requestId'] = content.requestId;
+  }
+  if (content.incidentId) {
+    data['incidentId'] = content.incidentId;
   }
   return localizedPush(content.type, data);
 }

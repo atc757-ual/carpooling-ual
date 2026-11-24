@@ -95,6 +95,26 @@
       "title": "Es la hora de tu viaje",
       "body": "Inícialo: si no, se cancelará a los 10 min."
     },
+    "incident_reported": {
+      "title": "Nueva incidencia",
+      "body": "Ábrela en el panel para atenderla."
+    },
+    "incident_reminder": {
+      "title": "Incidencia sin atender",
+      "body": "Lleva 24 h registrada y nadie la ha cogido."
+    },
+    "incident_received": {
+      "title": "Hemos recibido tu reporte",
+      "body": "Lo revisaremos lo antes posible."
+    },
+    "incident_in_review": {
+      "title": "Estamos revisando tu reporte",
+      "body": "Es posible que te escribamos al correo para ayudarte."
+    },
+    "incident_reviewed": {
+      "title": "Hemos atendido tu reporte",
+      "body": "Mira la respuesta en Ayuda y soporte."
+    },
     "chat_message": {
       "title": "{{ name }} te ha escrito",
       "body": "Abre el chat del viaje para leerlo."

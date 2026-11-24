@@ -29,6 +29,13 @@ const ALMERIA_CENTRE = {
 const RESOLUTION = 'The driver was contacted and the car repaired';
 const UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
 
+// Un aviso de la incidencia: para quién, quién la revisa y si está leído
+interface NoticeRow {
+  userId: string;
+  reviewerName: string | null;
+  isRead: boolean;
+}
+
 describe('Incident review (e2e)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
@@ -150,6 +157,52 @@ describe('Incident review (e2e)', () => {
       'incident.review_started',
       'incident.reviewed',
     ]);
+  });
+
+  it('tells the reporter each step and the other admins who is reviewing it', async () => {
+    const ada = await createUser('ada', ['admin']);
+    const bob = await createUser('bob', ['admin']);
+    const id = await reportedIncident();
+    const notices = (type: string): Promise<NoticeRow[]> =>
+      dataSource.query(
+        `SELECT user_id AS "userId", reviewer_name AS "reviewerName",
+                read_at IS NOT NULL AS "isRead"
+           FROM notifications WHERE incident_id = $1 AND type = $2
+          ORDER BY user_id`,
+        [id, type],
+      );
+    const reportedTo = async (userId: string) =>
+      (await notices('incident_reported')).find((row) => row.userId === userId);
+
+    // Registrada: «Hemos recibido tu reporte» a quien la registró (el
+    // conductor) y «Nueva incidencia» a los administradores (también a los
+    // del seed)
+    expect(await notices('incident_received')).toHaveLength(1);
+    expect(await reportedTo(ada)).toMatchObject({ isRead: false });
+    expect(await reportedTo(bob)).toMatchObject({ isRead: false });
+
+    await review.start(ada, id);
+    expect(await notices('incident_in_review')).toHaveLength(1);
+    expect(await reportedTo(bob)).toMatchObject({
+      reviewerName: 'ada',
+      isRead: true,
+    });
+    expect(await reportedTo(ada)).toMatchObject({
+      reviewerName: null,
+      isRead: false,
+    });
+
+    // La suelta: ya no dice quién, pero sigue leído
+    await review.release(ada, id);
+    expect(await reportedTo(bob)).toMatchObject({
+      reviewerName: null,
+      isRead: true,
+    });
+
+    await review.start(bob, id);
+    await review.resolve(bob, id, RESOLUTION);
+    expect(await notices('incident_reviewed')).toHaveLength(1);
+    expect(await reportedTo(ada)).toMatchObject({ reviewerName: 'bob' });
   });
 
   it('leaves the review: back to registered, so that another admin can take it', async () => {

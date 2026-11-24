@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository, In } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
-import { NotificationsService } from '../notifications/notifications.service';
 import { RequestsService } from '../requests/requests.service';
 import { Trip } from '../trips/entities/trip.entity';
 import { TripStatsService } from '../trips/trip-stats.service';
@@ -15,6 +14,7 @@ import type {
   IncidentStatus,
 } from './entities/incident.entity';
 import { IncidentNotFoundError } from './errors/incident-not-found.error';
+import { IncidentNoticesService } from './incident-notices.service';
 import { ReportWindowClosedError } from './errors/report-window-closed.error';
 import { NotTripPassengerError } from '../requests/errors/not-trip-passenger.error';
 import {
@@ -77,7 +77,7 @@ export class IncidentsService {
     private readonly requestsService: RequestsService,
     private readonly usersService: UsersService,
     private readonly eventsService: EventsService,
-    private readonly notificationsService: NotificationsService,
+    private readonly notices: IncidentNoticesService,
   ) {}
 
   // --- Registrar (RF-23)
@@ -207,8 +207,9 @@ export class IncidentsService {
     return { items: await this.toViews(incidents, viewerId), total };
   }
 
-  // Una incidencia nueva (del viaje en curso o de un mensaje del chat): su
-  // evento y el aviso a los administradores, en la transacción que la crea
+  // Una incidencia nueva (del viaje en curso, de después del viaje o del
+  // chat): su evento y los avisos a los administradores y a quien la
+  // registró, en la transacción que la crea
   async recordReported(
     manager: EntityManager,
     incident: Incident,
@@ -219,7 +220,7 @@ export class IncidentsService {
       incident,
       driverId,
     });
-    await this.notifyAdmins(manager, incident);
+    await this.notices.reported(manager, incident, driverId);
   }
 
   // La incidencia con su viaje y los nombres, como la devuelve la API
@@ -287,24 +288,6 @@ export class IncidentsService {
       trip.id,
     );
     return request.id;
-  }
-
-  // RF-19: aviso a los administradores activos de cada incidencia nueva,
-  // salvo a quien la registró (si también es administrador)
-  private async notifyAdmins(
-    manager: EntityManager,
-    incident: Incident,
-  ): Promise<void> {
-    const adminIds = await this.usersService.getActiveAdminIds(manager);
-    await this.notificationsService.notify(
-      manager,
-      adminIds.filter((id) => id !== incident.reporterId),
-      {
-        type: 'incident_reported',
-        tripId: incident.tripId,
-        incidentId: incident.id,
-      },
-    );
   }
 
   // Los viajes y los nombres en una consulta cada uno (no una por fila)

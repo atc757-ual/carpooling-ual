@@ -4,6 +4,7 @@ import { EntityManager, In, IsNull, Not, Repository } from 'typeorm';
 import type { FindOptionsWhere } from 'typeorm';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import {
+  INCIDENT_NOTIFICATION_TYPES,
   LEGAL_NOTIFICATION_TYPES,
   Notification,
   type LegalNotificationType,
@@ -99,6 +100,43 @@ export class NotificationsService {
     }, Promise.resolve(0));
   }
 
+  // Si ya se dio ese aviso de esa incidencia a alguien (el recordatorio a los
+  // administradores, una sola vez)
+  hasIncidentNotice(
+    manager: EntityManager,
+    type: TripNotificationType,
+    incidentId: string,
+  ): Promise<boolean> {
+    return manager.existsBy(Notification, { type, incidentId });
+  }
+
+  // Un administrador coge una incidencia (reviewerName) o la suelta (null):
+  // el aviso de incident_reported de los demás dice quién la revisa y, al
+  // cogerla, deja de estar pendiente de leer. Al soltarla no vuelve a estar
+  // sin leer, para no molestar
+  async setIncidentReviewer(
+    manager: EntityManager,
+    incidentId: string,
+    {
+      reviewerId,
+      reviewerName,
+    }: { reviewerId: string; reviewerName: string | null },
+  ): Promise<void> {
+    const others = {
+      type: 'incident_reported' as const,
+      incidentId,
+      userId: Not(reviewerId),
+    };
+    await manager.update(Notification, others, { reviewerName });
+    if (reviewerName !== null) {
+      await manager.update(
+        Notification,
+        { ...others, readAt: IsNull() },
+        { readAt: new Date() },
+      );
+    }
+  }
+
   // Mis avisos, los más recientes primero; con isRead, solo los leídos o los
   // no leídos (el total de los no leídos es el contador del frontend)
   async listForUser(
@@ -110,7 +148,7 @@ export class NotificationsService {
     if (page.category === 'account') {
       where.type = In([...LEGAL_NOTIFICATION_TYPES]);
     } else if (page.category === 'incident') {
-      where.type = 'incident_reported';
+      where.type = In([...INCIDENT_NOTIFICATION_TYPES]);
     } else if (page.category === 'travel') {
       where.type = In([
         'request_received',

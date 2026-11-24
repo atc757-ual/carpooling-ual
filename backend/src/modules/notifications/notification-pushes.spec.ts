@@ -28,12 +28,33 @@ describe('toPushMessage', () => {
     });
   });
 
-  it('keeps the rest inside the app', () => {
+  it('sends the incident notices with the incident to open it', () => {
+    expect(
+      toPushMessage({
+        type: 'incident_in_review',
+        tripId: 't1',
+        incidentId: 'i1',
+      })?.es,
+    ).toEqual({
+      title: 'Estamos revisando tu reporte',
+      body: 'Es posible que te escribamos al correo para ayudarte.',
+      data: { type: 'incident_in_review', tripId: 't1', incidentId: 'i1' },
+    });
     expect(
       toPushMessage({
         type: 'incident_reported',
         tripId: 't1',
         incidentId: 'i1',
+      })?.en.title,
+    ).toBe('New incident');
+  });
+
+  it('keeps the rest inside the app', () => {
+    expect(
+      toPushMessage({
+        type: 'passenger_left',
+        tripId: 't1',
+        requestId: 'r1',
       }),
     ).toBeNull();
     expect(

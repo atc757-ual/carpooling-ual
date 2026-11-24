@@ -95,6 +95,26 @@
       "title": "It's time for your ride",
       "body": "Start it: otherwise it will be cancelled after 10 min."
     },
+    "incident_reported": {
+      "title": "New incident",
+      "body": "Open it in the admin panel to handle it."
+    },
+    "incident_reminder": {
+      "title": "Incident not taken yet",
+      "body": "It was reported 24 h ago and nobody has taken it."
+    },
+    "incident_received": {
+      "title": "We have received your report",
+      "body": "We will review it as soon as possible."
+    },
+    "incident_in_review": {
+      "title": "We are reviewing your report",
+      "body": "We may email you to help you."
+    },
+    "incident_reviewed": {
+      "title": "We have dealt with your report",
+      "body": "See our reply in Help and support."
+    },
     "chat_message": {
       "title": "{{ name }} wrote to you",
       "body": "Open the ride chat to read it."
