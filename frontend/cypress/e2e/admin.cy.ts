@@ -150,7 +150,7 @@ for (const viewport of VIEWPORTS) {
           );
         });
       }
-      cy.get(adminNavSelector).should('have.length', 6);
+      cy.get(adminNavSelector).should('have.length', 7);
       cy.contains(adminNavSelector, 'Incidencias').find('.admin-nav__badge').should('contain', '2');
       cy.contains('h1', 'Simulación de escenarios');
     });

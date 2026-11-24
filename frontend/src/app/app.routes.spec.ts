@@ -45,6 +45,7 @@ describe('application routes', () => {
         'trips',
         'trips/:id',
         'catalogs',
+        'settings',
       ].sort(),
     );
   });
