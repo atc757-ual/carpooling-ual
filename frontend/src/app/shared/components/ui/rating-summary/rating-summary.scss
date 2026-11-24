@@ -1,0 +1,81 @@
+// Media grande a la izquierda y una barra por nota a la derecha, con una línea
+// debajo que la separa de la lista
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-l);
+  padding-bottom: var(--space-base);
+  border-bottom: var(--border-width-s) solid var(--color-border);
+}
+
+.rating-summary__average {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.rating-summary__value {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+
+.rating-summary__thumb {
+  font-size: var(--icon-size-l);
+
+  &--up {
+    color: var(--color-success);
+  }
+
+  &--down {
+    color: var(--color-danger);
+  }
+}
+
+// «5 · Muy bien», en una línea (la columna se ajusta a la más larga)
+.rating-summary__bar-label {
+  white-space: nowrap;
+}
+
+// Una sola rejilla para las cinco filas (subgrid): la columna de la etiqueta
+// mide lo que la más larga («5 · Muy bien») y todas las barras empiezan y
+// acaban a la misma altura
+.rating-summary__bars {
+  display: grid;
+  flex: 1;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  column-gap: var(--space-s);
+  row-gap: var(--space-xs);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rating-summary__bar {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+
+  // El número de valoraciones, alineado a la derecha
+  > :last-child {
+    justify-self: end;
+  }
+}
+
+.rating-summary__track {
+  height: 0.5rem; // 8px
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+}
+
+.rating-summary__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-warning);
+}

@@ -7,17 +7,12 @@ import { DriverRating, DriverReview } from '../../../core/models/driver-review.m
 import { DriverReviewsService } from '../../../core/services/users/driver-reviews.service';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
 import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
+import { RatingSummary } from '../../../shared/components/ui/rating-summary/rating-summary';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { RATING_MAX, ratingName } from '../../../shared/utils/rating.util';
 import { getFirstName, getInitials } from '../trip-driver/trip-driver';
-import { dateTimeFormat, numberFormat } from '../../../core/i18n/app-locale';
+import { dateTimeFormat } from '../../../core/i18n/app-locale';
 
 const PAGE_SIZE = 10;
-const RATING_FORMAT = () =>
-  numberFormat({
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
 const DATE_FORMAT = () =>
   dateTimeFormat({
     day: 'numeric',
@@ -25,25 +20,12 @@ const DATE_FORMAT = () =>
     year: 'numeric',
   });
 
-// «1 valoración», «15 valoraciones»
-export function formatReviewCount(count: number): string {
-  return translate(count === 1 ? 'labels.rating.reviews.one' : 'labels.rating.reviews.other', {
-    count,
-  });
-}
-
-// La fila del reparto: «5 · Muy bien» y «1 · Muy mal» en los extremos; el
-// resto, solo el número
-export function barLabel(rating: number): string {
-  return rating === 1 || rating === RATING_MAX ? `${rating} · ${ratingName(rating)}` : `${rating}`;
-}
-
 // Las valoraciones de quien conduce, al pulsar su nota en un resultado o en el
 // detalle del viaje: la media, cuántas hay de cada estrella y la lista (las
-// más recientes primero, de 10 en 10)
+// más recientes primero, de 10 en 10). El resumen, en app-rating-summary
 @Component({
   selector: 'app-driver-reviews-modal',
-  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, RatingBar, TranslocoPipe],
+  imports: [ModalHeader, IonButton, IonIcon, IonSpinner, RatingBar, RatingSummary, TranslocoPipe],
   templateUrl: './driver-reviews-modal.html',
   styleUrl: './driver-reviews-modal.scss',
 })
@@ -67,19 +49,10 @@ export class DriverReviewsModal implements OnInit {
   readonly title = computed(() =>
     translate('labels.reviewsOf', { name: getFirstName(this.driverName) }),
   );
-  readonly average = computed(() => {
-    const average = this.rating()?.average;
-    return average === null || average === undefined ? null : RATING_FORMAT().format(average);
-  });
-  readonly countText = computed(() => formatReviewCount(this.rating()?.count ?? 0));
-  // Cada estrella con su parte de la barra (en % del total)
-  readonly bars = computed(() => {
+  // La nota, si ya tiene media (sin reseñas, el aviso de que aún no tiene)
+  readonly summary = computed(() => {
     const rating = this.rating();
-    const count = rating?.count ?? 0;
-    return (rating?.distribution ?? []).map((row) => ({
-      ...row,
-      percent: count > 0 ? Math.round((row.count / count) * 100) : 0,
-    }));
+    return rating && rating.average !== null ? rating : null;
   });
   readonly hasMore = computed(() => this.reviews().length < this.total());
 
@@ -106,10 +79,6 @@ export class DriverReviewsModal implements OnInit {
 
   initials(name: string): string {
     return getInitials(name);
-  }
-
-  barLabel(rating: number): string {
-    return barLabel(rating);
   }
 
   date(isoDate: string): string {

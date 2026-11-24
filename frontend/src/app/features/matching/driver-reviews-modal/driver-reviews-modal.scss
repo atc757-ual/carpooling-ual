@@ -1,5 +1,5 @@
-// Media grande a la izquierda y barras por estrella a la derecha; debajo, la
-// lista con avatar, nombre, fecha, estrellas y comentario
+// El resumen (app-rating-summary) arriba; debajo, la lista con avatar,
+// nombre, fecha, nota y comentario
 .driver-reviews {
   display: flex;
   flex-direction: column;
@@ -20,34 +20,6 @@
   }
 }
 
-.driver-reviews__summary {
-  display: flex;
-  align-items: center;
-  gap: var(--space-l);
-  padding-bottom: var(--space-base);
-  border-bottom: var(--border-width-s) solid var(--color-border);
-}
-
-.driver-reviews__average {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.driver-reviews__thumb {
-  font-size: var(--icon-size-l);
-
-  &--up {
-    color: var(--color-success);
-  }
-
-  &--down {
-    color: var(--color-danger);
-  }
-}
-
 .driver-reviews__item-score {
   display: inline-flex;
   align-items: center;
@@ -64,58 +36,6 @@
   &--down {
     color: var(--color-danger);
   }
-}
-
-.driver-reviews__average-value {
-  font-size: var(--font-size-title);
-  font-weight: var(--font-weight-semibold);
-  line-height: 1;
-}
-
-// «5 · Muy bien», en una línea (la columna se ajusta a la más larga)
-.driver-reviews__bar-label {
-  white-space: nowrap;
-}
-
-// Una sola rejilla para las cinco filas (subgrid): la columna de la etiqueta
-// mide lo que la más larga («5 · Muy bien») y todas las barras empiezan y
-// acaban a la misma altura
-.driver-reviews__bars {
-  display: grid;
-  flex: 1;
-  grid-template-columns: max-content minmax(0, 1fr) max-content;
-  column-gap: var(--space-s);
-  row-gap: var(--space-xs);
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.driver-reviews__bar {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
-  align-items: center;
-
-  // El número de valoraciones, alineado a la derecha
-  > :last-child {
-    justify-self: end;
-  }
-}
-
-.driver-reviews__track {
-  height: 0.5rem; // 8px
-  overflow: hidden;
-  border-radius: var(--radius-full);
-  background: var(--color-surface-subtle);
-}
-
-.driver-reviews__fill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--color-warning);
 }
 
 .driver-reviews__list {

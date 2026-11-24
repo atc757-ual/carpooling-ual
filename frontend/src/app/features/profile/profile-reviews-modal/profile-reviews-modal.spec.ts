@@ -2,11 +2,24 @@ import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { ApiError } from '../../../core/models/api-error.model';
+import { DriverRating } from '../../../core/models/driver-review.model';
 import {
   ReceivedReview,
   TripReviewsService,
 } from '../../../core/services/users/trip-reviews.service';
 import { ProfileReviewsModal } from './profile-reviews-modal';
+
+const RATING: DriverRating = {
+  average: 4.8,
+  count: 6,
+  distribution: [
+    { rating: 5, count: 5 },
+    { rating: 4, count: 1 },
+    { rating: 3, count: 0 },
+    { rating: 2, count: 0 },
+    { rating: 1, count: 0 },
+  ],
+};
 
 function review(id: string, overrides: Partial<ReceivedReview> = {}): ReceivedReview {
   return {
@@ -24,9 +37,14 @@ function review(id: string, overrides: Partial<ReceivedReview> = {}): ReceivedRe
   };
 }
 
+function reviews(from: number, count: number): ReceivedReview[] {
+  return Array.from({ length: count }, (_, index) => review(`v${from + index}`));
+}
+
 describe('ProfileReviewsModal', () => {
   let fixture: ComponentFixture<ProfileReviewsModal>;
   const listReceived = vi.fn();
+  const getMyRating = vi.fn();
   const dismiss = vi.fn().mockResolvedValue(true);
 
   async function render(inputs: Partial<ProfileReviewsModal> = {}): Promise<HTMLElement> {
@@ -35,7 +53,7 @@ describe('ProfileReviewsModal', () => {
       providers: [
         provideAppTransloco(),
         provideIonicAngular(),
-        { provide: TripReviewsService, useValue: { listReceived } },
+        { provide: TripReviewsService, useValue: { listReceived, getMyRating } },
         { provide: ModalController, useValue: { dismiss } },
       ],
     });
@@ -46,23 +64,37 @@ describe('ProfileReviewsModal', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
+  // Hasta que terminen las peticiones (la lista y la nota)
   async function settle(): Promise<void> {
     await fixture.whenStable();
+    await vi.waitFor(() => expect(fixture.componentInstance.isLoading()).toBe(false));
     fixture.detectChanges();
   }
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
+    // jsdom no tiene ResizeObserver (lo usan las flechas del carrusel)
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
     listReceived.mockResolvedValue({ items: [review('v1')], total: 1 });
+    getMyRating.mockResolvedValue(RATING);
   });
 
-  it('opens in the role of the row and lists its reviews with the trip', async () => {
-    const root = await render({ roles: ['driver', 'passenger'], initialRole: 'passenger' });
+  it('opens the role of the row with its summary and its reviews, without tabs', async () => {
+    const root = await render({ role: 'passenger' });
 
-    expect(listReceived).toHaveBeenCalledWith('passenger', 0, 10);
-    expect(root.querySelector('ion-title')?.textContent).toContain('Tus reseñas');
-    const selected = root.querySelector('.segmented-tabs__option--selected');
-    expect(selected?.textContent).toContain('Como pasajero');
+    expect(listReceived).toHaveBeenCalledWith('passenger', 0, 5);
+    expect(getMyRating).toHaveBeenCalledWith('passenger');
+    expect(root.querySelector('ion-title')?.textContent).toContain('Tus reseñas · Pasajero');
+    expect(root.querySelector('.segmented-tabs')).toBeNull();
+    // El resumen tiene sus propios tests (app-rating-summary)
+    expect(root.querySelector('.rating-summary__value')?.textContent).toBe('4,8');
     const item = root.querySelector('.profile-reviews__item')?.textContent ?? '';
     expect(item).toContain('Lucía Cortés');
     expect(item).toContain('Muy puntual.');
@@ -70,53 +102,87 @@ describe('ProfileReviewsModal', () => {
     expect(root.querySelector('.profile-reviews__thumb--up')).not.toBeNull();
   });
 
-  it('loads each role once, when its tab is opened', async () => {
-    const root = await render({ roles: ['driver', 'passenger'], initialRole: 'driver' });
-    const modal = fixture.componentInstance;
+  it('shows a low rating without comment or date', async () => {
     listReceived.mockResolvedValue({
       items: [review('v2', { rating: 2, comment: null, publishedAt: null })],
       total: 1,
     });
+    const root = await render({ role: 'driver' });
 
-    root.querySelectorAll<HTMLButtonElement>('.segmented-tabs__option')[1].click();
-    await settle();
-    expect(listReceived).toHaveBeenLastCalledWith('passenger', 0, 10);
     expect(root.querySelector('.profile-reviews__thumb--down')).not.toBeNull();
-    expect(modal.date(null)).toBe('');
-
-    modal.handleRole('driver');
-    await settle();
-    expect(listReceived).toHaveBeenCalledTimes(2);
-    expect(modal.reviews()[0].id).toBe('v1');
+    expect(root.querySelector('.profile-reviews__comment')).toBeNull();
+    expect(fixture.componentInstance.date(null)).toBe('');
   });
 
-  it('shows no tabs with a single role and pages ten by ten', async () => {
-    listReceived.mockResolvedValueOnce({
-      items: Array.from({ length: 10 }, (_, index) => review(`v${index}`)),
-      total: 11,
-    });
-    const root = await render({ roles: ['driver'], initialRole: 'passenger' });
+  it('pages five by five, keeping the summary', async () => {
+    listReceived.mockResolvedValueOnce({ items: reviews(0, 5), total: 6 });
+    await render({ role: 'driver' });
     const modal = fixture.componentInstance;
 
-    expect(root.querySelector('.segmented-tabs')).toBeNull();
-    expect(listReceived).toHaveBeenCalledWith('driver', 0, 10);
+    expect(listReceived).toHaveBeenCalledWith('driver', 0, 5);
     expect(modal.hasMore()).toBe(true);
 
-    listReceived.mockResolvedValueOnce({ items: [review('v10')], total: 11 });
-    await modal.loadMore();
-    expect(listReceived).toHaveBeenLastCalledWith('driver', 10, 10);
-    expect(modal.reviews()).toHaveLength(11);
+    listReceived.mockResolvedValueOnce({ items: reviews(5, 1), total: 6 });
+    await modal.loadMoreIfAny();
+    expect(listReceived).toHaveBeenLastCalledWith('driver', 5, 5);
+    expect(getMyRating).toHaveBeenCalledTimes(1);
+    expect(modal.summary()).toEqual(RATING);
+    expect(modal.reviews()).toHaveLength(6);
     expect(modal.hasMore()).toBe(false);
+
+    await modal.loadMoreIfAny();
+    expect(listReceived).toHaveBeenCalledTimes(2);
   });
 
-  it('says when a role has no reviews and shows the error when loading fails', async () => {
-    listReceived.mockResolvedValueOnce({ items: [], total: 0 });
-    const root = await render({ roles: ['driver'] });
-    expect(root.querySelector('.profile-reviews__empty')).not.toBeNull();
+  it('loads the next five on its own when sliding to the last card', async () => {
+    let onVisible: (entries: { isIntersecting: boolean }[]) => void = () => undefined;
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: typeof onVisible) {
+          onVisible = callback;
+        }
+        observe = vi.fn();
+        disconnect = disconnect;
+      },
+    );
+    listReceived.mockResolvedValueOnce({ items: reviews(0, 5), total: 7 });
+    const root = await render({ role: 'driver' });
+    expect(root.querySelectorAll('.profile-reviews__item')).toHaveLength(5);
+    // Quedan más: aún sin la tarjeta de cierre
+    expect(root.querySelector('.profile-reviews__done')).toBeNull();
 
-    listReceived.mockRejectedValueOnce(new ApiError('INTERNAL_ERROR', 500));
-    fixture.componentInstance.handleRole('passenger');
+    listReceived.mockResolvedValueOnce({ items: reviews(5, 2), total: 7 });
+    onVisible([{ isIntersecting: false }]);
+    expect(listReceived).toHaveBeenCalledTimes(1);
+    onVisible([{ isIntersecting: true }]);
     await settle();
+
+    expect(listReceived).toHaveBeenLastCalledWith('driver', 5, 5);
+    expect(fixture.componentInstance.reviews()).toHaveLength(7);
+    // Ya no quedan: sin final que observar y con la tarjeta de cierre
+    expect(root.querySelector('.profile-reviews__end')).toBeNull();
+    const done = root.querySelector('.profile-reviews__done')?.textContent ?? '';
+    expect(done).toContain('Has visto todas');
+    expect(done).toContain('7 valoraciones');
+    fixture.destroy();
+    expect(disconnect).toHaveBeenCalled();
+  });
+
+  it('says when the role has no reviews', async () => {
+    listReceived.mockResolvedValueOnce({ items: [], total: 0 });
+    getMyRating.mockResolvedValueOnce({ average: null, count: 0, distribution: [] });
+    const root = await render({ role: 'driver' });
+
+    expect(root.querySelector('.profile-reviews__empty')).not.toBeNull();
+    expect(root.querySelector('app-rating-summary')).toBeNull();
+  });
+
+  it('shows the error when loading fails', async () => {
+    listReceived.mockRejectedValueOnce(new ApiError('INTERNAL_ERROR', 500));
+    const root = await render({ role: 'passenger' });
+
     expect(root.querySelector('[role="alert"]')).not.toBeNull();
     expect(root.querySelector('.profile-reviews__empty')).toBeNull();
   });

@@ -219,32 +219,40 @@
               <ion-card-title>{{ 'profile.reviews' | transloco }}</ion-card-title>
             </ion-card-header>
             <ion-card-content class="profile-card__content">
-              @for (row of reviewRows(); track row.role) {
-                <!-- Toda la fila abre la lista de reseñas de ese papel -->
-                <button
-                  type="button"
-                  class="profile__review-row profile__review-button"
-                  (click)="handleOpenReviews(row.key)"
-                >
-                  <span class="text-body text-body--strong">{{ row.role }}</span>
-                  <span class="profile__review-score">
-                    <ion-icon
-                      class="profile__review-thumb"
-                      [class.profile__review-thumb--up]="row.value >= 3"
-                      [class.profile__review-thumb--down]="row.value < 3"
-                      [icon]="row.value >= 3 ? thumbsUpIcon : thumbsDownIcon"
-                      aria-hidden="true"
-                    />
-                    <span class="text-body">{{ row.average }}</span>
-                    <span class="text-color-muted">{{ row.count }}</span>
-                    <ion-icon
-                      class="profile__review-chevron"
-                      [icon]="chevronIcon"
-                      aria-hidden="true"
-                    />
-                  </span>
-                </button>
-              } @empty {
+              <!-- Un ion-item por papel, como las filas de Privacidad: el icono
+                   del papel, su nombre y la nota; abre «Tus reseñas» en ese
+                   papel (la flecha es la suya) -->
+              @if (reviewRows().length > 0) {
+                <ion-list class="profile__legal-list" lines="none">
+                  @for (row of reviewRows(); track row.key) {
+                    <ion-item
+                      class="profile__legal-row"
+                      [button]="true"
+                      [detail]="true"
+                      (click)="handleOpenReviews(row.key)"
+                    >
+                      <ion-icon
+                        slot="start"
+                        class="profile__legal-icon"
+                        [icon]="row.icon"
+                        aria-hidden="true"
+                      />
+                      <ion-label class="text-body text-body--strong">{{ row.role }}</ion-label>
+                      <span slot="end" class="profile__review-score">
+                        <ion-icon
+                          class="profile__review-thumb"
+                          [class.profile__review-thumb--up]="row.value >= 3"
+                          [class.profile__review-thumb--down]="row.value < 3"
+                          [icon]="row.value >= 3 ? thumbsUpIcon : thumbsDownIcon"
+                          aria-hidden="true"
+                        />
+                        <span class="text-body">{{ row.average }}</span>
+                        <span class="text-color-muted">{{ row.count }}</span>
+                      </span>
+                    </ion-item>
+                  }
+                </ion-list>
+              } @else {
                 <p class="text-body text-color-muted">
                   {{ 'profile.emptyReviews' | transloco }}
                   {{ 'profile.reviewsSubtitle' | transloco }}

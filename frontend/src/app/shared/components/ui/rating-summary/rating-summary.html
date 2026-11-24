@@ -1,0 +1,34 @@
+@if (average(); as average) {
+  <!-- Media (con el pulgar) y reparto por nota -->
+  <section class="rating-summary" [attr.aria-label]="'driverReviews.summary' | transloco">
+    <div class="rating-summary__average">
+      <span class="rating-summary__value">{{ average }}</span>
+      <ion-icon
+        class="rating-summary__thumb"
+        [class.rating-summary__thumb--up]="isPositive()"
+        [class.rating-summary__thumb--down]="!isPositive()"
+        [icon]="isPositive() ? upIcon : downIcon"
+        aria-hidden="true"
+      />
+      <span class="text-caption text-color-muted">{{ countText() }}</span>
+    </div>
+    <ul class="rating-summary__bars">
+      @for (bar of bars(); track bar.rating) {
+        <li
+          class="rating-summary__bar"
+          [attr.aria-label]="
+            ('tripReview.ofFive' | transloco: { rating: bar.rating }) + ': ' + bar.count
+          "
+        >
+          <span class="rating-summary__bar-label text-caption" aria-hidden="true">{{
+            bar.label
+          }}</span>
+          <span class="rating-summary__track" aria-hidden="true">
+            <span class="rating-summary__fill" [style.width.%]="bar.percent"></span>
+          </span>
+          <span class="text-caption text-color-muted" aria-hidden="true">{{ bar.count }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+}

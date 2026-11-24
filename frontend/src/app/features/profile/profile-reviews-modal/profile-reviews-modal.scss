@@ -1,36 +1,140 @@
-// Las pestañas arriba y la lista debajo: avatar, nombre y fecha, la nota,
-// el comentario y el viaje (como las reseñas del conductor en la búsqueda)
+@use 'breakpoints' as bp;
+
+// El resumen (app-rating-summary) y debajo el carrusel: una tarjeta por reseña
+// con el avatar, el nombre y la fecha, la nota, el comentario y el viaje
 .profile-reviews {
   display: flex;
   flex-direction: column;
   gap: var(--space-base);
 }
 
-.profile-reviews__tabs {
-  display: flex;
-  margin: 0;
+// En escritorio, un hueco a cada lado para las flechas: así no tapan las
+// tarjetas (en el móvil van encima, con el degradado)
+.profile-reviews__viewport {
+  position: relative;
 
-  .segmented-tabs__option {
-    flex: 1;
+  @include bp.up(md) {
+    padding-inline: var(--space-xl);
   }
 }
 
+// Las tarjetas en una fila; lo que no cabe se desliza, encajando en cada una
+// (se asoma la siguiente para que se vea que hay más)
 .profile-reviews__list {
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-s);
   margin: 0;
-  padding: 0;
+  // Sin relleno a los lados: así la primera tarjeta encaja en el borde y no
+  // sale la flecha de atrás al abrir
+  padding: var(--space-xxs) 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
   list-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
+// En el móvil, una tarjeta y la siguiente asomando (así se ve que hay más);
+// en escritorio, dos enteras, y las flechas pasan de dos en dos
 .profile-reviews__item {
   display: flex;
+  flex: 0 0 85%;
   gap: var(--space-s);
-  padding-block: var(--space-s);
-  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  padding: var(--space-base);
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+  scroll-snap-align: start;
 
-  &:last-child {
-    border-bottom: 0;
+  @include bp.up(md) {
+    flex-basis: calc((100% - var(--space-s)) / 2);
+  }
+}
+
+// El final de la fila: al verse, se cargan las siguientes (con su spinner)
+.profile-reviews__end {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-width: 1px;
+  scroll-snap-align: end;
+}
+
+// Sin más reseñas: la tarjeta de cierre, estrecha y sin acción, con el ✓,
+// «Has visto todas» y cuántas son. Encaja al final
+.profile-reviews__done {
+  display: flex;
+  flex: 0 0 9rem; // 144px
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xxs);
+  padding: var(--space-base);
+  border: var(--border-width-s) dashed var(--color-border);
+  border-radius: var(--radius-s);
+  text-align: center;
+  scroll-snap-align: end;
+
+  ion-icon {
+    color: var(--color-success);
+    font-size: var(--icon-size-l);
+  }
+}
+
+// La flecha sobre un degradado del color de la ventana (como en «Viajan
+// contigo»): avisa de que hay más a ese lado y, al pulsarla, avanza
+.profile-reviews__arrow {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  align-items: center;
+  width: var(--space-xxl);
+  padding: 0;
+  border: 0;
+  color: var(--color-text-muted);
+  font-size: var(--icon-size-base);
+  cursor: pointer;
+
+  &:focus-visible {
+    border-radius: var(--radius-s);
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset-inset);
+  }
+
+  &--back {
+    left: 0;
+    justify-content: flex-start;
+    background: linear-gradient(to right, var(--color-surface) 40%, transparent);
+  }
+
+  &--forward {
+    right: 0;
+    justify-content: flex-end;
+    background: linear-gradient(to left, var(--color-surface) 40%, transparent);
+  }
+
+  // En pantallas táctiles se desliza con el dedo: sin flechas encima de las
+  // tarjetas (taparían el avatar); la que asoma ya dice que hay más
+  @media (hover: none) and (pointer: coarse) {
+    display: none;
+  }
+
+  // En escritorio, en su hueco a los lados: sin degradado y centradas
+  @include bp.up(md) {
+    justify-content: center;
+    width: var(--space-xl);
+    background: none;
+
+    &--back,
+    &--forward {
+      justify-content: center;
+      background: none;
+    }
   }
 }
 

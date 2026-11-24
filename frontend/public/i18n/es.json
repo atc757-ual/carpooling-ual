@@ -424,8 +424,11 @@
     "reviewsSubtitle": "Aparecerán después de tus primeros viajes.",
     "reviewsModal": {
       "title": "Tus reseñas",
-      "role": "Reseñas que has recibido como",
-      "empty": "Aún no tienes reseñas con este papel."
+      "titleRole": "Tus reseñas · {{ role }}",
+      "empty": "Aún no tienes reseñas con este papel.",
+      "back": "Reseñas anteriores",
+      "forward": "Reseñas siguientes",
+      "allSeen": "Has visto todas"
     },
     "seeAllReviews": "Ver todas",
     "contactPhone": "Teléfono de contacto",
@@ -1738,8 +1741,8 @@
       "dejaraSalirVehiculosPodras": "Dejará de salir en tus vehículos y no podrás publicar viajes con él."
     },
     "profile": {
-      "comoConductor": "Como conductor",
-      "comoPasajero": "Como pasajero",
+      "roleDriver": "Conductor",
+      "rolePassenger": "Pasajero",
       "condicionesUso": "Condiciones de uso",
       "politicaPrivacidad": "Política de privacidad"
     },
