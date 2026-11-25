@@ -1,6 +1,8 @@
 <ion-card class="my-trips-aside">
-  <ion-card-header>
+  <!-- La cifra ya dice que es estimada: junto al título, solo la fuente -->
+  <ion-card-header class="card-header--row">
     <ion-card-title>{{ 'myTrips.impacto' | transloco }}</ion-card-title>
+    <app-co2-source />
   </ion-card-header>
   <ion-card-content>
     <!-- Las cifras en una fila: el valor arriba y su nombre debajo (en el
@@ -20,14 +22,13 @@
         @for (stat of kmStats(); track stat.label) {
           <div>
             <dt class="text-caption">{{ stat.label }}</dt>
-            <dd class="text-body text-body--strong">{{ stat.value }}</dd>
+            <dd class="text-body text-body--strong my-trips-aside__value my-trips-aside__value--km">
+              <ion-icon [icon]="stat.icon" aria-hidden="true" />{{ stat.value }}
+            </dd>
           </div>
         }
       </dl>
     }
-    <p class="text-caption my-trips-aside__note">
-      {{ 'myTrips.estimadoQueHabriaEmitido' | transloco }}
-    </p>
   </ion-card-content>
 </ion-card>
 

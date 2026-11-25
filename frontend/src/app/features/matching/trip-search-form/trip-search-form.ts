@@ -1,4 +1,5 @@
 import { TranslocoPipe } from '@jsverse/transloco';
+import { Co2Source } from '../../../shared/components/ui/co2-source/co2-source';
 import { Component, computed, effect, inject, input, output, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -68,6 +69,7 @@ export function shiftTime(time: string, minutes: number): string {
 @Component({
   selector: 'app-trip-search-form',
   imports: [
+    Co2Source,
     ReactiveFormsModule,
     IonButton,
     IonIcon,

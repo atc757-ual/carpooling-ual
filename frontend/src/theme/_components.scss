@@ -795,6 +795,16 @@ ion-card-header {
   padding: var(--space-base);
 }
 
+// Cabecera en fila: el título a la izquierda y un dato pequeño a la derecha
+// en la misma línea (p. ej. «Fuente: MITECO» en las tarjetas de impacto)
+ion-card-header.card-header--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-s); // 4px entre filas, 8px entre los dos
+}
+
 // Títulos de tarjeta: 18px en el móvil y 20px en escritorio
 ion-card-title {
   color: var(--color-text);
@@ -1070,6 +1080,22 @@ ion-item.role-card {
   b {
     color: var(--color-success);
   }
+}
+
+// Estimación del CO₂ ahorrado (Buscar, Publicar): las cifras resaltan con el
+// color y en semibold, no en negrita, para que la frase se lea seguida. La
+// fuente (<app-co2-source onBorder />) va en una etiqueta sobre el borde
+// superior: con ella, aire por fuera para la mitad que sobresale
+.notice--impact {
+  position: relative;
+
+  b {
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.notice--impact:has(> app-co2-source) {
+  margin-top: var(--space-s); // 8px
 }
 
 .notice--warning {

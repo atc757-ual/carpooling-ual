@@ -185,7 +185,8 @@ describe('TripSearchForm', () => {
 
     expect(label()).toBe('Hora de llegada');
     // Con dirección y parking, lo que se ahorra (aproximado)
-    expect(impact()).toContain('puede ahorrar hasta');
+    expect(impact()).toContain('Estimación: compartir coche en este trayecto de');
+    expect(impact()).toContain('Fuente: MITECO');
 
     form.form.controls.isToCampus.setValue(false);
     fixture.detectChanges();

@@ -240,12 +240,21 @@ describe('My trip entries (e2e)', () => {
   });
 
   it('adds up the impact of both profiles', async () => {
-    const { dan, seatId, piaTripId } = await setUp();
+    const { dan, seatId, pastTripId, piaTripId } = await setUp();
     await setTrip(piaTripId, { status: 'finished' });
     await dataSource.query(
       "UPDATE requests SET status = 'completed' WHERE id = $1",
       [seatId],
     );
+    // El viaje de Dan, con su ruta directa (OSRM); el de Pía, sin ruta
+    // guardada: se aproxima con la línea recta
+    await dataSource.query(
+      'UPDATE routes SET direct_distance_km = 9.4 WHERE trip_id = $1',
+      [pastTripId],
+    );
+    await dataSource.query('DELETE FROM routes WHERE trip_id = $1', [
+      piaTripId,
+    ]);
 
     const response = await request(app.getHttpServer())
       .get('/api/users/me/impact')
@@ -254,16 +263,15 @@ describe('My trip entries (e2e)', () => {
 
     // Como conductor, dos pasajeros en el viaje hecho; como pasajero, uno
     const leg = { origin: ALMERIA_CENTRE, destination: UAL_CAMPUS };
+    const driverLeg = { ...leg, directKm: 9.4, carsAvoided: 2 };
+    const passengerLeg = { ...leg, carsAvoided: 1 };
     expect(response.body).toEqual({
       '@type': 'UserImpact',
       href: '/api/users/me/impact',
       tripsDone: 2,
-      co2Kg: savedCo2Kg([
-        { ...leg, carsAvoided: 2 },
-        { ...leg, carsAvoided: 1 },
-      ]),
-      driverKm: sharedKm([{ ...leg, carsAvoided: 2 }]),
-      passengerKm: sharedKm([{ ...leg, carsAvoided: 1 }]),
+      co2Kg: savedCo2Kg([driverLeg, passengerLeg]),
+      driverKm: 9.4,
+      passengerKm: sharedKm([passengerLeg]),
     });
   });
 

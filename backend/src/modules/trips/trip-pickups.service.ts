@@ -19,7 +19,8 @@ import type { PickupPoint } from './pickup-plan';
 import { estimateRouteVia } from './route-plan';
 import type { RoutePlan } from './route-plan';
 import { planStopPickups } from './stop-pickups';
-import { TripRoutesService } from './trip-routes.service';
+import { directRouteOf, TripRoutesService } from './trip-routes.service';
+import type { DirectRoute } from './trip-routes.service';
 import { MINUTE_MS, STOP_TIME_MIN } from './trip-timing';
 
 export type PickupTrip = Pick<
@@ -52,7 +53,7 @@ export interface PickupPlan {
   previousRequestIds: string[];
   isAddition: boolean;
   route: RoutePlan;
-  directDurationMin: number;
+  direct: DirectRoute;
   pickups: PlannedPickup[];
   usedDetourMin: number;
 }
@@ -119,7 +120,7 @@ export class TripPickupsService {
         previousRequestIds: sortedRequestIds(current),
         isAddition: added !== null,
         route: toRoutePlan(route),
-        directDurationMin: route.directDurationMin,
+        direct: directRouteOf(route, route),
         ...planStopPickups({ tripId: trip.id, stops, points, route }),
       };
     }
@@ -130,14 +131,13 @@ export class TripPickupsService {
     const ordered = orderPickups(geometry, added ? [...kept, added] : kept);
     const { route, legsMin } = await this.planRoute(trip, ordered);
     const offsets = pickupOffsets(legsMin.slice(0, ordered.length));
-    const directDurationMin =
-      savedRoute?.directDurationMin ?? route.durationMin;
+    const direct = directRouteOf(savedRoute, route);
     return {
       tripId: trip.id,
       previousRequestIds: sortedRequestIds(current),
       isAddition: added !== null,
       route,
-      directDurationMin,
+      direct,
       pickups: ordered.map(({ id, location }, position) => ({
         requestId: id,
         location,
@@ -147,7 +147,7 @@ export class TripPickupsService {
       })),
       usedDetourMin: usedDetourMin({
         durationMin: route.durationMin,
-        directDurationMin,
+        directDurationMin: direct.durationMin,
         stops: stopCount(trip.origin, ordered),
       }),
     };
@@ -200,7 +200,7 @@ export class TripPickupsService {
       });
       return this.save(manager, trip, {
         route: toRoutePlan(savedRoute),
-        directDurationMin: savedRoute.directDurationMin,
+        direct: directRouteOf(savedRoute, savedRoute),
         ...planStopPickups({
           tripId: trip.id,
           stops,
@@ -221,7 +221,7 @@ export class TripPickupsService {
     const offsets = pickupOffsets(legsMin.slice(0, kept.length));
     return this.save(manager, trip, {
       route,
-      directDurationMin: savedRoute?.directDurationMin ?? route.durationMin,
+      direct: directRouteOf(savedRoute, route),
       pickups: kept.map(({ requestId: keptId, location }, position) => ({
         requestId: keptId,
         location,
@@ -235,7 +235,7 @@ export class TripPickupsService {
   private async save(
     manager: EntityManager,
     trip: PickupTrip,
-    plan: Pick<PickupPlan, 'route' | 'directDurationMin' | 'pickups'>,
+    plan: Pick<PickupPlan, 'route' | 'direct' | 'pickups'>,
   ): Promise<Map<string, Date>> {
     await manager.delete(TripPickup, { tripId: trip.id });
     if (plan.pickups.length > 0) {
@@ -245,12 +245,7 @@ export class TripPickupsService {
         ),
       );
     }
-    await this.tripRoutes.save(
-      manager,
-      trip.id,
-      plan.route,
-      plan.directDurationMin,
-    );
+    await this.tripRoutes.save(manager, trip.id, plan.route, plan.direct);
     return new Map(
       plan.pickups.map(({ requestId, etaOffsetMin }) => [
         requestId,

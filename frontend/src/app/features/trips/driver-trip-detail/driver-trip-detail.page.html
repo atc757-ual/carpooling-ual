@@ -39,8 +39,13 @@
         }
 
         <ion-card class="driver-detail__impact">
-          <ion-card-header>
+          <!-- La cifra ya dice que es estimada: junto al título, solo la fuente
+               (sin cifras, tampoco fuente) -->
+          <ion-card-header class="card-header--row">
             <ion-card-title>{{ 'myTrips.impactoEsteViaje' | transloco }}</ion-card-title>
+            @if (impact()) {
+              <app-co2-source />
+            }
           </ion-card-header>
           <ion-card-content>
             @if (impact(); as impact) {
@@ -51,14 +56,23 @@
                     <ion-icon [icon]="leafIcon" aria-hidden="true" />{{ impact.co2 }}
                   </dd>
                 </div>
+                <div>
+                  <dt class="text-caption">{{ 'myTrips.kmComoConductor' | transloco }}</dt>
+                  <dd class="text-subtitle driver-detail__value driver-detail__value--km">
+                    <ion-icon [icon]="carIcon" aria-hidden="true" />{{ impact.km }}
+                  </dd>
+                </div>
               </dl>
-              <p class="text-caption text-color-muted">
-                {{ 'myTrips.estimadoCo2PorPasajero' | transloco }}
-              </p>
             } @else {
-              <!-- Cancelado: no hubo viaje ni CO₂ ahorrado -->
-              <p class="text-body-s text-color-muted">
-                {{ 'myTrips.esteViajeRealizoAsi' | transloco }}
+              <!-- Sin pasajeros (aún, o el viaje se hizo sin ellos) o cancelado: por qué no hay cifras -->
+              @let note = impactNote();
+              <p class="text-body-s text-color-muted driver-detail__impact-note">
+                <ion-icon
+                  [class]="'driver-detail__note-icon--' + note.tone"
+                  [icon]="note.icon"
+                  aria-hidden="true"
+                />
+                <span>{{ note.key | transloco }}</span>
               </p>
             }
           </ion-card-content>

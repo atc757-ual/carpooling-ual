@@ -3,11 +3,12 @@ import type { Point } from 'typeorm';
 // El CO₂ que se dejó de emitir al compartir coche, como MÁXIMO (un coche menos
 // por pasajero; quien viene en bus o andando no deja un coche en casa). Los
 // mismos valores que la app (frontend: matching/trip-impact.ts). Método del
-// MITECO: km × factor de emisión por km; la carretera se aproxima con la
-// línea recta por un factor (la ruta guardada lleva los desvíos de las
-// recogidas, no el trayecto directo de cada pasajero)
+// MITECO: km × factor de emisión por km. Los km, los de la ruta directa de
+// OSRM (sin los desvíos de las recogidas: el coche evitado iría directo); si
+// el viaje no tiene ruta guardada, la línea recta por un factor de rodeo. Es
+// una estimación, no una medida
 
-// Lo que se alarga la carretera frente a la línea recta
+// Lo que se alarga la carretera frente a la línea recta (solo sin ruta)
 const ROAD_FACTOR = 1.3;
 // kg de CO₂e por km de un turismo (M1) de gasóleo en 2025: el factor oficial
 // más bajo de los turismos de combustión, para no exagerar el ahorro (con
@@ -22,6 +23,8 @@ const EARTH_RADIUS_KM = 6371;
 export interface ImpactLeg {
   origin: Point;
   destination: Point;
+  // Los km de la ruta directa; sin ella, se aproximan con la línea recta
+  directKm?: number | null;
   carsAvoided: number;
 }
 
@@ -40,10 +43,11 @@ export function straightLineKm(from: Point, to: Point): number {
   return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(a));
 }
 
-// Los km por carretera de un trayecto (0 si el origen y el destino son el
+// Los km por carretera de un trayecto: los de la ruta directa o, sin ella, la
+// línea recta por el factor de rodeo (0 si el origen y el destino son el
 // mismo sitio)
-function roadKm({ origin, destination }: ImpactLeg): number {
-  const km = straightLineKm(origin, destination) * ROAD_FACTOR;
+function roadKm({ origin, destination, directKm }: ImpactLeg): number {
+  const km = directKm ?? straightLineKm(origin, destination) * ROAD_FACTOR;
   return km < MIN_KM ? 0 : km;
 }
 

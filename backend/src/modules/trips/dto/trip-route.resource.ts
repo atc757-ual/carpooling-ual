@@ -39,8 +39,18 @@ export class TripRouteResource {
   @ApiProperty({ format: 'uuid' })
   tripId: string;
 
-  @ApiProperty({ example: 7.76 })
+  @ApiProperty({
+    example: 7.76,
+    description: 'The current route, through the accepted pickups',
+  })
   distanceKm: number;
+
+  @ApiProperty({
+    example: 7.12,
+    description:
+      'The direct route, from the origin to the destination without pickups: the km used to estimate the CO₂ saved',
+  })
+  directDistanceKm: number;
 
   @ApiProperty({ example: 11 })
   durationMin: number;
@@ -88,6 +98,7 @@ export function toTripRouteResource({
     href: `${tripHref(trip.id)}/route`,
     tripId: trip.id,
     distanceKm: route.distanceKm,
+    directDistanceKm: route.directDistanceKm,
     durationMin: route.durationMin,
     geometry: isGeometryHidden ? null : route.geometry,
     source: route.source,

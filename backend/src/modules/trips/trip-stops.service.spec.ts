@@ -60,7 +60,7 @@ describe('TripStopsService', () => {
       [point(-2.45), point(-2.43)],
       CAMPUS,
     );
-    expect(published.directDurationMin).toBe(12);
+    expect(published.direct).toBe(DIRECT);
     expect(published.routeDetourMin).toBe(3);
     expect(published.stops).toEqual([
       { name: 'First', location: point(-2.45), position: 0, etaOffsetMin: 3 },
@@ -95,7 +95,7 @@ describe('TripStopsService', () => {
       service.planRoute({ origin: ORIGIN, destination: CAMPUS }),
     ).resolves.toEqual({
       route: DIRECT,
-      directDurationMin: 12,
+      direct: DIRECT,
       routeDetourMin: 0,
       stops: [],
     });

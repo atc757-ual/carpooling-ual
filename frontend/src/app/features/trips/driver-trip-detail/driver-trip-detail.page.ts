@@ -1,4 +1,5 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
+import { Co2Source } from '../../../shared/components/ui/co2-source/co2-source';
 import {
   Component,
   computed,
@@ -23,14 +24,21 @@ import {
   IonContent,
   IonIcon,
 } from '@ionic/angular';
-import { carOutline, informationCircleOutline, leafOutline } from 'ionicons/icons';
+import {
+  carOutline,
+  closeCircleOutline,
+  informationCircleOutline,
+  leafOutline,
+  peopleOutline,
+} from 'ionicons/icons';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { tripStatusLabel } from '../../../shared/utils/trip-status.util';
-import { estimateTripImpact } from '../../matching/trip-impact';
+import { co2KgForKm, estimateTripImpact, formatAmount } from '../../matching/trip-impact';
+import { TripsService } from '../../../core/services/trips/trips.service';
 import { formatTime } from '../../matching/trip-results';
 import { DriverTripActions } from '../driver-trip-actions/driver-trip-actions';
 import { DriverTripPassengers } from '../driver-trip-passengers/driver-trip-passengers';
@@ -48,6 +56,7 @@ import { LoadingState } from '../../../shared/components/ui/loading-state/loadin
 @Component({
   selector: 'app-driver-trip-detail',
   imports: [
+    Co2Source,
     LoadingState,
     RouterLink,
     IonBreadcrumb,
@@ -71,6 +80,7 @@ import { LoadingState } from '../../../shared/components/ui/loading-state/loadin
 })
 export class DriverTripDetailPage {
   private readonly driver = inject(DriverService);
+  private readonly tripsService = inject(TripsService);
   private readonly headingContent = inject(HeadingContentService);
 
   readonly id = input.required<string>();
@@ -130,20 +140,49 @@ export class DriverTripDetailPage {
     return trip ? tripStatusLabel(trip.status) : '';
   });
 
-  // El CO₂ que no se emitió: el de un coche en ese trayecto por
-  // cada pasajero (estimado, como en Tus viajes)
+  // Los pasajeros con plaza (0 en un viaje cancelado: no hubo viaje)
+  private readonly passengers = computed(() => {
+    const trip = this.trip();
+    return !trip || trip.status === 'cancelled' ? 0 : trip.offeredSeats - trip.availableSeats;
+  });
+
+  // La ruta del viaje (solo con pasajeros): sus km directos (sin recogidas)
+  // son los del impacto
+  private readonly routeResource = resource({
+    params: () => (this.passengers() > 0 ? this.trip()?.id : undefined),
+    loader: ({ params: tripId }) => this.tripsService.getRoute(tripId),
+  });
+
+  // Con pasajeros, el CO₂ que no se emitió (el de un coche en ese trayecto
+  // por cada uno) y los km compartidos, como en Tus viajes: con los km de la
+  // ruta directa de OSRM o, sin ella, la aproximación en línea recta
   readonly impact = computed(() => {
     const trip = this.trip();
-    if (!trip || trip.status === 'cancelled') {
+    const passengers = this.passengers();
+    if (!trip || passengers === 0) {
       return null;
     }
-    const passengers = trip.offeredSeats - trip.availableSeats;
-    const perCar =
-      estimateTripImpact(trip.origin.coordinates, trip.destination.coordinates)?.co2Kg ?? 0;
+    const routeKm = this.routeResource.hasValue()
+      ? this.routeResource.value().directDistanceKm
+      : undefined;
+    const km =
+      routeKm ?? estimateTripImpact(trip.origin.coordinates, trip.destination.coordinates)?.km ?? 0;
     return {
-      cars: passengers,
-      co2: `${(perCar * passengers).toFixed(1).replace('.', ',')} kg`,
+      co2: formatAmount(Math.round(co2KgForKm(km) * passengers * 10) / 10, 'kg'),
+      km: formatAmount(Math.round(km * 10) / 10, 'km'),
     };
+  });
+
+  // Sin cifras, por qué, con su icono del color de su tipo: cancelado (rojo,
+  // como el estado), hecho sin pasajeros (ámbar) o aún sin ellos (azul)
+  readonly impactNote = computed(() => {
+    const status = this.trip()?.status;
+    if (status === 'cancelled') {
+      return { key: 'myTrips.esteViajeRealizoAsi', icon: closeCircleOutline, tone: 'danger' };
+    }
+    return status === 'finished'
+      ? { key: 'myTrips.sinPasajerosHecho', icon: carOutline, tone: 'warning' }
+      : { key: 'myTrips.sinPasajerosAun', icon: peopleOutline, tone: 'info' };
   });
 
   protected readonly carIcon = carOutline;

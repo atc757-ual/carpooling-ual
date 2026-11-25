@@ -334,7 +334,7 @@ export class TripsService {
       manager,
       saved.id,
       published.route,
-      published.directDurationMin,
+      published.direct,
     );
     await this.tripStops.save(manager, saved.id, published.stops);
     await this.tripStatus.recordEvent(manager, 'trip.published', saved);

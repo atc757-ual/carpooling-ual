@@ -88,14 +88,16 @@ ion-card.driver-detail__impact ion-card-content {
   margin-bottom: var(--space-s);
 }
 
+// El CO₂ y los km, uno junto al otro (si no caben, uno debajo del otro)
 .driver-detail__stats {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
+  flex-wrap: wrap;
+  gap: var(--space-s) var(--space-base); // 8px entre filas, 16px entre cifras
   margin: 0;
 
   div {
     display: flex;
+    flex: 1 1 8rem; // 128px: por debajo, la segunda cifra baja
     flex-direction: column-reverse;
   }
 
@@ -117,6 +119,37 @@ ion-card.driver-detail__impact ion-card-content {
     color: var(--color-eco);
     font-size: var(--icon-size-s);
   }
+}
+
+// Los km, con el coche en gris: el verde es solo para el CO₂
+.driver-detail__value--km ion-icon {
+  color: var(--color-text-muted);
+}
+
+// Sin cifras: el porqué, con su icono (18px) a la altura de la primera línea,
+// del color de su tipo; el texto sigue en gris
+.driver-detail__impact-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s); // 8px
+
+  ion-icon {
+    flex: none;
+    margin-top: var(--space-xxs); // 2px: a la altura de la primera línea
+    font-size: var(--icon-size-m);
+  }
+}
+
+.driver-detail__note-icon--info {
+  color: var(--color-link);
+}
+
+.driver-detail__note-icon--warning {
+  color: var(--color-warning);
+}
+
+.driver-detail__note-icon--danger {
+  color: var(--color-danger);
 }
 
 @include bp.up(md) {

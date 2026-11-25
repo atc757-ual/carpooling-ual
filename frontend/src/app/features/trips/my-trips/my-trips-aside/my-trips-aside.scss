@@ -72,8 +72,8 @@ ion-card.my-trips-aside ion-card-content {
   color: var(--color-eco);
 }
 
-.my-trips-aside__note {
-  margin: 0;
+// Los km, con el icono de su papel en gris: el verde es solo para el CO₂
+.my-trips-aside__value--km ion-icon {
   color: var(--color-text-muted);
 }
 

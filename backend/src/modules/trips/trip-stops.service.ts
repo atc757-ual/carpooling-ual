@@ -12,6 +12,7 @@ import { orderPickups, stopPickupOffsets, usedDetourMin } from './pickup-plan';
 import type { RoutePlan } from './route-plan';
 import { CAMPUS_RADIUS_M } from './trip-candidates.service';
 import { TripRoutesService } from './trip-routes.service';
+import type { DirectRoute } from './trip-routes.service';
 import {
   MAX_STOPS_ROUTE_DETOUR_MIN,
   MAX_TRIP_STOPS,
@@ -29,10 +30,10 @@ export interface PlannedStop extends StopInput {
 }
 
 // La ruta con la que se publica un viaje: en puntos, la que pasa por las
-// paradas (y la directa, para medir el desvío)
+// paradas (y la directa, para medir el desvío y el CO₂ ahorrado)
 export interface PublishedRoute {
   route: RoutePlan;
-  directDurationMin: number;
+  direct: DirectRoute;
   // Lo que alargan la ruta las paradas (0 recogiendo en ruta)
   routeDetourMin: number;
   stops: PlannedStop[];
@@ -76,7 +77,7 @@ export class TripStopsService {
       }
       return {
         route: direct,
-        directDurationMin: direct.durationMin,
+        direct,
         routeDetourMin: 0,
         stops: [],
       };
@@ -104,7 +105,7 @@ export class TripStopsService {
     let elapsedMin = 0;
     return {
       route,
-      directDurationMin: direct.durationMin,
+      direct,
       routeDetourMin: detourMin,
       stops: ordered.map(({ name, location }, position) => {
         elapsedMin += legsMin[position];
