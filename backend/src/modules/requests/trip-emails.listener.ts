@@ -5,11 +5,11 @@ import { ConfigService } from '@nestjs/config';
 import {
   DataSource,
   EntitySubscriberInterface,
-  QueryRunner,
   TransactionCommitEvent,
   TransactionRollbackEvent,
 } from 'typeorm';
 import type { MailConfig } from '../../config/mail.config';
+import { AfterCommitQueue } from '../../shared/database/after-commit-queue';
 import { MailSender } from '../../shared/mail/mail-sender';
 import { TripsService } from '../trips/trips.service';
 import { UsersService } from '../users/users.service';
@@ -19,9 +19,6 @@ import {
   TripMailData,
 } from './mail/trip-mails';
 import { RequestChangesRecorder } from './request-changes';
-
-// Clave en los datos del QueryRunner de la transacción
-const PENDING_KEY = 'pendingTripEmails';
 
 type TripEmailKind = 'seat_confirmed' | 'trip_finished';
 
@@ -45,6 +42,9 @@ export class TripEmailsListener
   implements OnModuleInit, EntitySubscriberInterface
 {
   private readonly logger = new Logger(TripEmailsListener.name);
+  private readonly pending = new AfterCommitQueue<PendingTripEmail>(
+    'pendingTripEmails',
+  );
 
   constructor(
     dataSource: DataSource,
@@ -60,9 +60,8 @@ export class TripEmailsListener
   onModuleInit(): void {
     this.changes.onRequestChanged((manager, { type, request }) => {
       const kind = KIND_BY_EVENT[type];
-      const queryRunner = manager.queryRunner;
-      if (kind && queryRunner?.isTransactionActive) {
-        pendingOf(queryRunner).push({
+      if (kind) {
+        this.pending.add(manager, {
           kind,
           requestId: request.id,
           tripId: request.tripId,
@@ -76,13 +75,13 @@ export class TripEmailsListener
   }
 
   afterTransactionCommit({ queryRunner }: TransactionCommitEvent): void {
-    for (const email of takePending(queryRunner)) {
+    for (const email of this.pending.take(queryRunner)) {
       void this.deliver(email);
     }
   }
 
   afterTransactionRollback({ queryRunner }: TransactionRollbackEvent): void {
-    takePending(queryRunner);
+    this.pending.take(queryRunner);
   }
 
   async deliver(email: PendingTripEmail): Promise<void> {
@@ -144,18 +143,4 @@ const KIND_BY_EVENT: Readonly<Partial<Record<string, TripEmailKind>>> = {
 function firstName(name: string, language: AppLanguage): string {
   const fallback = translate(language, 'mail.trip.yourDriver');
   return name.trim().split(/\s+/)[0] || fallback;
-}
-
-function pendingOf(queryRunner: QueryRunner): PendingTripEmail[] {
-  const data = queryRunner.data as Record<string, unknown>;
-  const pending = (data[PENDING_KEY] as PendingTripEmail[] | undefined) ?? [];
-  data[PENDING_KEY] = pending;
-  return pending;
-}
-
-function takePending(queryRunner: QueryRunner): PendingTripEmail[] {
-  const data = queryRunner.data as Record<string, unknown>;
-  const pending = (data[PENDING_KEY] as PendingTripEmail[] | undefined) ?? [];
-  delete data[PENDING_KEY];
-  return pending;
 }

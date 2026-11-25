@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from '../../events/events.module';
+import { MailModule } from '../../shared/mail/mail.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { RequestsModule } from '../requests/requests.module';
 import { TripsModule } from '../trips/trips.module';
 import { UsersModule } from '../users/users.module';
 import { Incident } from './entities/incident.entity';
 import { IncidentsController } from './incidents.controller';
+import { IncidentEmailsListener } from './incident-emails.listener';
 import { IncidentNoticesService } from './incident-notices.service';
+import { IncidentReminderScheduler } from './incident-reminder.scheduler';
 import { IncidentReviewService } from './incident-review.service';
 import { IncidentsService } from './incidents.service';
 import { ConversationReportsService } from './conversation-reports.service';
@@ -24,12 +27,15 @@ import { ConversationReportsService } from './conversation-reports.service';
     UsersModule,
     EventsModule,
     NotificationsModule,
+    MailModule,
   ],
   controllers: [IncidentsController],
   providers: [
     IncidentsService,
     IncidentReviewService,
     IncidentNoticesService,
+    IncidentEmailsListener,
+    IncidentReminderScheduler,
     ConversationReportsService,
   ],
   // Lo usa el panel de administración (incidencias abiertas por usuario)

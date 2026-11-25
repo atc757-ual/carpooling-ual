@@ -4,6 +4,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { RequestsService } from '../requests/requests.service';
 import { UsersService } from '../users/users.service';
 import { Incident } from './entities/incident.entity';
+import { IncidentEmailsListener } from './incident-emails.listener';
 
 // Los avisos del curso de una incidencia (RF-19, CU-12), en la transacción de
 // cada cambio (y por push al confirmarse):
@@ -13,12 +14,15 @@ import { Incident } from './entities/incident.entity';
 //   reporte»; el aviso de los demás administradores dice quién la revisa
 // - la suelta: el aviso de los demás deja de decir quién
 // - atendida: a quien la registró, «Hemos atendido tu reporte»
+// Además, por correo (IncidentEmailsListener): la del viaje en curso, a los
+// administradores; la atendida, a quien la registró, con la respuesta
 @Injectable()
 export class IncidentNoticesService {
   constructor(
     private readonly usersService: UsersService,
     private readonly requestsService: RequestsService,
     private readonly notificationsService: NotificationsService,
+    private readonly emails: IncidentEmailsListener,
   ) {}
 
   async reported(
@@ -28,6 +32,9 @@ export class IncidentNoticesService {
   ): Promise<void> {
     const adminIds = await this.handlingAdminIds(manager, incident, driverId);
     await this.notify(manager, adminIds, 'incident_reported', incident);
+    if (incident.source === 'trip') {
+      this.emails.queueUrgent(manager, incident, adminIds);
+    }
     await this.notify(
       manager,
       [incident.reporterId],
@@ -72,6 +79,29 @@ export class IncidentNoticesService {
       'incident_reviewed',
       incident,
     );
+    this.emails.queueReviewed(manager, incident);
+  }
+
+  // Registrada hace 24 h y sin que nadie la coja: «Incidencia sin atender» a
+  // los administradores que pueden gestionarla, una sola vez. Devuelve si se
+  // ha avisado
+  async remindUntaken(
+    manager: EntityManager,
+    incident: Incident,
+    driverId: string,
+  ): Promise<boolean> {
+    if (
+      await this.notificationsService.hasIncidentNotice(
+        manager,
+        'incident_reminder',
+        incident.id,
+      )
+    ) {
+      return false;
+    }
+    const adminIds = await this.handlingAdminIds(manager, incident, driverId);
+    await this.notify(manager, adminIds, 'incident_reminder', incident);
+    return adminIds.length > 0;
   }
 
   // Los administradores activos que pueden gestionarla: ninguno implicado en
@@ -107,7 +137,8 @@ export class IncidentNoticesService {
       | 'incident_reported'
       | 'incident_received'
       | 'incident_in_review'
-      | 'incident_reviewed',
+      | 'incident_reviewed'
+      | 'incident_reminder',
     incident: Incident,
   ): Promise<void> {
     return this.notificationsService.notify(manager, recipientIds, {
