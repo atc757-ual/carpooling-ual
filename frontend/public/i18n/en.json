@@ -432,7 +432,9 @@
       "titleRole": "Your reviews · {{ role }}",
       "empty": "You have no reviews in this role yet.",
       "loadingMore": "Loading more reviews…",
-      "allSeen": "You have seen them all"
+      "allSeen": "You have seen them all",
+      "noComment": "No comment",
+      "scrollHint": "Scroll for more"
     },
     "seeAllReviews": "See all",
     "contactPhone": "Contact phone",

@@ -39,6 +39,10 @@ describe('RatingSummary', () => {
     expect(bars).toHaveLength(5);
     expect(bars[0].getAttribute('aria-label')).toBe('5 de 5: 3');
     expect(component.bars()[0]).toMatchObject({ label: '5 · Muy bien', percent: 60 });
+    // Cada barra con el color de su nota (de verde a rojo)
+    const fills = root.querySelectorAll('.rating-summary__fill');
+    expect(fills[0].className).toBe('rating-summary__fill rating-summary__fill--5');
+    expect(fills[4].classList).toContain('rating-summary__fill--1');
   });
 
   it('turns the thumb down below 3 and shows nothing without an average', () => {

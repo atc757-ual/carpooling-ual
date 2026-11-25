@@ -1,5 +1,6 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
 import {
+  afterRenderEffect,
   Component,
   computed,
   effect,
@@ -11,7 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { IonIcon, IonSpinner, ModalController } from '@ionic/angular';
-import { checkmarkCircleOutline, thumbsDown, thumbsUp } from 'ionicons/icons';
+import { checkmarkCircleOutline, chevronDown, thumbsDown, thumbsUp } from 'ionicons/icons';
 import { dateTimeFormat } from '../../../core/i18n/app-locale';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverRating } from '../../../core/models/driver-review.model';
@@ -30,15 +31,17 @@ import { getInitials } from '../../matching/trip-driver/trip-driver';
 import { reviewRoleLabel } from '../profile-review-roles';
 
 const PAGE_SIZE = 5;
+const SCROLL_HINT_MARGIN = 16; // px
 const DATE_FORMAT = () => dateTimeFormat({ day: 'numeric', month: 'short', year: 'numeric' });
 
 // Las reseñas que he recibido con un papel, desde su fila de «Reseñas» en Mi
-// perfil (cada fila abre la suya, sin pestañas), en una hoja de alto fijo que
-// se desplaza dentro, como los comentarios de las redes sociales: el resumen
-// (media y reparto por nota) y la lista, las más recientes primero, de 5 en 5:
-// al bajar hasta el final se cargan solas las siguientes («Cargando más
-// reseñas…») y, cuando no quedan, «Has visto todas». Cada reseña, con quién la
-// escribió, la fecha, la nota, el comentario y el viaje
+// perfil (cada fila abre la suya, sin pestañas), en una hoja tan alta como su
+// contenido, con tope, que se desplaza dentro, como los comentarios de las
+// redes sociales: el resumen (media y reparto por nota) y la lista, las más
+// recientes primero, de 5 en 5: al bajar hasta el final se cargan solas las
+// siguientes («Cargando más reseñas…») y, cuando no quedan, «Has visto todas»
+// (si eran más de 5). Cada reseña, con quién la escribió, la fecha, la nota, el
+// comentario («Sin comentario» si no lo dejó) y el viaje
 @Component({
   selector: 'app-profile-reviews-modal',
   imports: [IonIcon, IonSpinner, ModalHeader, RatingSummary, TranslocoPipe],
@@ -52,6 +55,7 @@ export class ProfileReviewsModal implements OnInit {
   protected readonly upIcon = thumbsUp;
   protected readonly downIcon = thumbsDown;
   protected readonly doneIcon = checkmarkCircleOutline;
+  protected readonly hintIcon = chevronDown;
 
   // El papel de la fila pulsada
   @Input() role: ReviewTargetRole = 'driver';
@@ -72,12 +76,19 @@ export class ProfileReviewsModal implements OnInit {
     return rating && rating.average !== null ? rating : null;
   });
   readonly hasMore = computed(() => this.reviews().length < this.total());
+  // «Has visto todas», solo si eran más de 5 (las que salen de una vez): con
+  // pocas no hace falta bajar y ya se ve que no hay más
+  readonly showsAllSeen = computed(() => this.total() > PAGE_SIZE);
   // «6 valoraciones», en el cierre (como en el resumen)
   readonly totalText = computed(() => formatReviewCount(this.total()));
 
   // El final de la lista: al verse (bajando hasta él), se cargan las 5
   // siguientes
   private readonly listEnd = viewChild<ElementRef<HTMLElement>>('listEnd');
+  // La parte que se desplaza y si queda lista por debajo («Desliza para ver
+  // más»)
+  private readonly body = viewChild<ElementRef<HTMLElement>>('body');
+  readonly canScrollDown = signal(false);
 
   // Un observador nuevo con cada carga: si el final sigue a la vista (las que
   // hay no llenan la hoja), avisa enseguida y se cargan más. Se desconecta al
@@ -97,6 +108,36 @@ export class ProfileReviewsModal implements OnInit {
       observer.observe(end);
       onCleanup(() => observer.disconnect());
     });
+    // Si queda lista por debajo: tras pintar cada carga y cuando cambia el alto
+    // de la hoja (al abrirse con su animación, al girar el móvil)
+    afterRenderEffect(() => {
+      this.reviews();
+      this.updateScrollHint();
+    });
+    effect((onCleanup) => {
+      const body = this.body()?.nativeElement;
+      if (!body || typeof ResizeObserver === 'undefined') {
+        return;
+      }
+      const observer = new ResizeObserver(() => this.updateScrollHint());
+      observer.observe(body);
+      onCleanup(() => observer.disconnect());
+    });
+  }
+
+  // Queda lista por debajo si lo desplazable pasa de lo visible (con un
+  // margen, para no mostrarlo por un píxel)
+  updateScrollHint(): void {
+    const body = this.body()?.nativeElement;
+    this.canScrollDown.set(
+      !!body && body.scrollHeight - body.scrollTop - body.clientHeight > SCROLL_HINT_MARGIN,
+    );
+  }
+
+  // Baja casi lo que se ve (deja a la vista la última fila)
+  scrollDown(): void {
+    const body = this.body()?.nativeElement;
+    body?.scrollBy({ top: body.clientHeight * 0.8, behavior: 'smooth' });
   }
 
   ngOnInit(): void {

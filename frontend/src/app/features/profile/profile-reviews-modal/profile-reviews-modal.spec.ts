@@ -102,8 +102,64 @@ describe('ProfileReviewsModal', () => {
     const root = await render({ role: 'driver' });
 
     expect(root.querySelector('.profile-reviews__thumb--down')).not.toBeNull();
-    expect(root.querySelector('.profile-reviews__comment')).toBeNull();
+    expect(root.querySelector('.profile-reviews__comment')?.textContent).toContain(
+      'Sin comentario',
+    );
     expect(fixture.componentInstance.date(null)).toBe('');
+    // Con 5 o menos, sin el cierre (se ven sin bajar)
+    expect(root.querySelector('.profile-reviews__done')).toBeNull();
+  });
+
+  it('invites to scroll while there is list below and scrolls on tap', async () => {
+    const root = await render();
+    const body = root.querySelector<HTMLElement>('.modal-body');
+    if (!body) {
+      throw new Error('Sin .modal-body');
+    }
+    const scrollBy = vi.fn();
+    body.scrollBy = scrollBy;
+    Object.defineProperty(body, 'scrollHeight', { value: 900, configurable: true });
+    Object.defineProperty(body, 'clientHeight', { value: 400, configurable: true });
+
+    body.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    const hint = root.querySelector<HTMLButtonElement>('.profile-reviews__hint');
+    expect(hint?.textContent).toContain('Desliza para ver más');
+    hint?.click();
+    expect(scrollBy).toHaveBeenCalledWith({ top: 320, behavior: 'smooth' });
+
+    // Al llegar abajo, se va
+    body.scrollTop = 500;
+    body.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    expect(root.querySelector('.profile-reviews__hint')).toBeNull();
+  });
+
+  it('measures again when the sheet changes size', async () => {
+    let onResize: () => void = () => undefined;
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          onResize = callback;
+        }
+        observe = vi.fn();
+        disconnect = disconnect;
+      },
+    );
+    const root = await render();
+    const body = root.querySelector<HTMLElement>('.modal-body');
+    if (!body) {
+      throw new Error('Sin .modal-body');
+    }
+    Object.defineProperty(body, 'scrollHeight', { value: 900 });
+    Object.defineProperty(body, 'clientHeight', { value: 400 });
+
+    onResize();
+    expect(fixture.componentInstance.canScrollDown()).toBe(true);
+    fixture.destroy();
+    expect(disconnect).toHaveBeenCalled();
   });
 
   it('pages five by five, keeping the summary', async () => {
