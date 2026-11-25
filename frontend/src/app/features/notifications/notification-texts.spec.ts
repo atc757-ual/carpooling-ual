@@ -1,5 +1,11 @@
 import { initAppTranslations } from '../../core/i18n/testing-transloco';
-import { formatElapsed, legalDocumentOf, notificationMode } from './notification-texts';
+import {
+  formatElapsed,
+  isReporterIncidentNotice,
+  legalDocumentOf,
+  notificationCategory,
+  notificationMode,
+} from './notification-texts';
 
 describe('notification texts', () => {
   const now = new Date('2026-10-28T12:00:00');
@@ -16,6 +22,21 @@ describe('notification texts', () => {
     expect(notificationMode('trip_started')).toBe('passenger');
     expect(notificationMode('trip_vehicle_changed')).toBe('passenger');
     expect(notificationMode('incident_reported')).toBeNull();
+  });
+
+  it('puts every incident notice in Incidencias; only those of my report open it', () => {
+    for (const type of [
+      'incident_reported',
+      'incident_reminder',
+      'incident_received',
+      'incident_in_review',
+      'incident_reviewed',
+    ] as const) {
+      expect(notificationCategory(type)).toBe('incident');
+    }
+    expect(notificationCategory('trip_started')).toBe('travel');
+    expect(isReporterIncidentNotice('incident_in_review')).toBe(true);
+    expect(isReporterIncidentNotice('incident_reported')).toBe(false);
   });
 
   it('tells which legal document a minor change notice opens', () => {

@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -31,6 +32,10 @@ import { injectFaqLang, showHeadingWhileVisible } from './help-page.util';
 import { HelpAudiencePicker } from './help-audience-picker/help-audience-picker';
 import { HelpSupportCard } from './help-support-card/help-support-card';
 import { HelpIncidentsCard } from './help-incidents/help-incidents-card';
+import {
+  injectHelpIncidentLink,
+  injectHelpIncidentsPriority,
+} from './help-incidents/help-incidents-priority';
 
 const SKELETON_ROWS = [1, 2, 3, 4];
 // Las que caben en el desplegable del buscador
@@ -58,6 +63,7 @@ const MAX_SEARCH_ITEMS = 8;
     IonList,
     IonSearchbar,
     IonSkeletonText,
+    NgTemplateOutlet,
     RouterLink,
     TranslocoPipe,
   ],
@@ -122,8 +128,14 @@ export class HelpCenterPage {
   protected readonly helpCenterPath = HELP_CENTER_PATH;
   protected readonly skeletonRows = SKELETON_ROWS;
 
+  // Con incidencias activas o atendidas hace poco, la columna de contacto
+  // (con «Tus incidencias» arriba) va primero; desde un aviso, su ventana
+  readonly incidents = injectHelpIncidentsPriority();
+  private readonly openIncidentLink = injectHelpIncidentLink();
+
   ionViewDidEnter(): void {
     this.heading.enter();
+    void this.openIncidentLink();
   }
 
   // Al ir a una pregunta, el desplegable se cierra pero lo buscado se queda:

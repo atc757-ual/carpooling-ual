@@ -10,6 +10,8 @@ export interface PushTarget {
   requestId?: string;
   // El pasajero de la conversación (los mensajes del chat)
   passengerId?: string;
+  // La incidencia (los avisos de una incidencia)
+  incidentId?: string;
 }
 
 export type PushPermission = 'granted' | 'denied' | 'prompt';

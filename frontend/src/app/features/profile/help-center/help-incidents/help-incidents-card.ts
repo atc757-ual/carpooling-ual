@@ -17,12 +17,14 @@ import {
 } from '../../../../core/services/incidents/incidents.service';
 import { Pagination } from '../../../../shared/components/ui/pagination/pagination';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
-import { HelpIncidentModal } from './help-incident-modal';
+import { openHelpIncidentModal } from './help-incidents-priority';
 import { incidentCategoryKey, incidentDate, MY_INCIDENT_STATUS } from './my-incident-labels';
 
 // «Tus incidencias», en la columna de 4 de Ayuda y soporte, bajo «Escribir a
-// soporte»: las que comunicó el usuario (de 5 en 5) con su estado; cada una
-// abre su detalle y la respuesta del equipo en una ventana
+// soporte» (encima, y la columna antes de las preguntas en el móvil, si hay
+// alguna activa o atendida hace poco): las que comunicó el usuario (de 5 en
+// 5) con su estado; cada una abre su detalle y la respuesta del equipo en una
+// ventana
 @Component({
   selector: 'app-help-incidents-card',
   imports: [
@@ -68,12 +70,7 @@ export class HelpIncidentsCard {
     this.offset.set(offset);
   }
 
-  async handleOpen(incident: MyIncident): Promise<void> {
-    const modal = await this.modalController.create({
-      component: HelpIncidentModal,
-      cssClass: 'info-dialog',
-      componentProps: { incident },
-    });
-    await modal.present();
+  handleOpen(incident: MyIncident): Promise<void> {
+    return openHelpIncidentModal(this.modalController, incident);
   }
 }

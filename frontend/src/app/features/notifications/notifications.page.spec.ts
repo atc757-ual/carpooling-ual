@@ -58,6 +58,7 @@ function notification(
     request: requestId ? { id: requestId, href: `/api/requests/${requestId}` } : null,
     incident: null,
     legalDocument: null,
+    reviewerName: null,
     isRead,
     readAt: null,
     createdAt: new Date().toISOString(),
@@ -231,6 +232,24 @@ describe('NotificationsPage', () => {
 
     await fixture.componentInstance.handleOpen(incident);
     expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens my report in Help and support from the notice of its progress', async () => {
+    const root = await render(() =>
+      Promise.resolve([
+        {
+          ...notification('n1', 'incident_in_review', true),
+          incident: { id: 'i1', href: '/api/incidents/i1' },
+        },
+      ]),
+    );
+    expect(root.textContent).toContain('Estamos revisando tu reporte');
+
+    await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
+
+    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith(
+      '/tabs/profile/help?incident=i1',
+    );
   });
 
   it('shows the API error when it cannot mark them', async () => {

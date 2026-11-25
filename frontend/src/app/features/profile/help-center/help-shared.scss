@@ -149,14 +149,22 @@
   }
 }
 
-// Móvil: el contenido y debajo la columna de 4. Escritorio: el contenido en
-// la columna de 8 y la de 4 a la derecha
+// Móvil: el contenido y debajo la columna de 4 (encima, con incidencias
+// activas o atendidas hace poco). Escritorio: el contenido en la columna de 8
+// y la de 4 a la derecha
 .help-page__layout {
   display: grid;
   gap: var(--space-base);
   grid-template-areas:
     'main'
     'aside';
+
+  // Antes que la regla de escritorio, que la sustituye: ahí sigue a la derecha
+  &--contact-first {
+    grid-template-areas:
+      'aside'
+      'main';
+  }
 
   @include bp.up(md) {
     grid-template-columns: 2fr 1fr;

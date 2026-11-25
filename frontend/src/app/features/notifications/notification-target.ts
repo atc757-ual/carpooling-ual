@@ -2,7 +2,8 @@ import { Router } from '@angular/router';
 import { NotificationType } from '../../core/models/notification.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ActiveModeService } from '../../core/services/users/active-mode.service';
-import { notificationMode } from './notification-texts';
+import { HELP_CENTER_PATH, HELP_INCIDENT_PARAM } from '../profile/help-center/help-center.util';
+import { isReporterIncidentNotice, notificationMode } from './notification-texts';
 
 // Un mensaje nuevo del chat (solo llega por push: no es un aviso de Avisos)
 export const CHAT_MESSAGE_PUSH = 'chat_message';
@@ -15,6 +16,8 @@ export interface NotificationTarget {
   requestId?: string;
   // El pasajero de la conversación (los mensajes del chat, que es directo)
   passengerId?: string;
+  // La incidencia (los avisos de una incidencia)
+  incidentId?: string;
 }
 
 export interface NotificationTargetDeps {
@@ -25,9 +28,10 @@ export interface NotificationTargetDeps {
 
 // Abre lo suyo de un aviso (al pulsarlo en Avisos o en una push): el chat del
 // viaje, la solicitud del pasajero, el viaje del conductor o, sin ellos, Mis
-// viajes con el modo que toca. Las
-// incidencias y lo desconocido, Avisos. replaceUrl: al entrar desde una push
-// (/push-open), para que volver no regrese a esa página de paso
+// viajes con el modo que toca. El curso de mi reporte, su ventana en Ayuda y
+// soporte. Las incidencias del administrador y lo desconocido, Avisos.
+// replaceUrl: al entrar desde una push (/push-open), para que volver no
+// regrese a esa página de paso
 export async function openNotificationTarget(
   { router, auth, activeMode }: NotificationTargetDeps,
   target: NotificationTarget,
@@ -37,6 +41,10 @@ export async function openNotificationTarget(
     replaceUrl ? router.navigateByUrl(url, { replaceUrl }) : router.navigateByUrl(url);
   if (target.type === CHAT_MESSAGE_PUSH) {
     await go(chatUrl(target));
+    return;
+  }
+  if (isReporterIncidentNotice(target.type) && target.incidentId) {
+    await go(`${HELP_CENTER_PATH}?${HELP_INCIDENT_PARAM}=${target.incidentId}`);
     return;
   }
   const mode = notificationMode(target.type as NotificationType) ?? null;

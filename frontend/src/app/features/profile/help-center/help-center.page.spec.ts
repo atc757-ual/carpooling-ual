@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { HelpAudience, HelpFaq, HelpTopic } from '../../../core/models/faq.model';
+import type { MyIncident } from '../../../core/models/my-incident.model';
 import { FaqsService } from '../../../core/services/help/faqs.service';
 import { HelpAudienceService } from '../../../core/services/help/help-audience.service';
 import { IncidentsService } from '../../../core/services/incidents/incidents.service';
@@ -42,7 +43,9 @@ describe('HelpCenterPage', () => {
   let audience: ReturnType<typeof signal<HelpAudience>>;
   let headingContent: HeadingContentService;
 
-  async function render(): Promise<ComponentFixture<HelpCenterPage>> {
+  async function render(
+    myIncidents: Partial<MyIncident>[] = [],
+  ): Promise<ComponentFixture<HelpCenterPage>> {
     list = vi.fn((query: { q?: string }) => Promise.resolve(query.q ? [FAQS[0], FAQS[2]] : FAQS));
     listTopics = vi.fn().mockResolvedValue(TOPICS);
     audience = signal<HelpAudience>('passenger');
@@ -55,7 +58,9 @@ describe('HelpCenterPage', () => {
         { provide: FaqsService, useValue: { list, listTopics } },
         {
           provide: IncidentsService,
-          useValue: { listMine: vi.fn().mockResolvedValue({ items: [], total: 0 }) },
+          useValue: {
+            listMine: vi.fn().mockResolvedValue({ items: myIncidents, total: myIncidents.length }),
+          },
         },
         {
           provide: HelpAudienceService,
@@ -74,6 +79,49 @@ describe('HelpCenterPage', () => {
       (title) => title.textContent?.trim() ?? '',
     );
   }
+
+  // El orden de los bloques en el HTML (el que lee el lector de pantalla)
+  function blockOrder(root: HTMLElement): string[] {
+    return [...root.querySelectorAll('.help-page__layout > *, .help-page__aside > *')]
+      .map((element) => element.localName + '.' + (element.classList[0] ?? ''))
+      .filter((name) => !name.startsWith('div.'));
+  }
+
+  // Una incidencia mía con lo que pinta «Tus incidencias»
+  function myIncident(status: MyIncident['status']): Partial<MyIncident> {
+    return {
+      id: `i-${status}`,
+      code: 'INC-0001',
+      category: 'driver',
+      reportedAt: '2026-11-01T08:00:00.000Z',
+      status,
+      review: null,
+    };
+  }
+
+  it('puts the contact column after the questions without active incidents', async () => {
+    const root = (await render([myIncident('reviewed')])).nativeElement as HTMLElement;
+
+    expect(root.querySelector('.help-page__layout--contact-first')).toBeNull();
+    expect(blockOrder(root)).toEqual([
+      'section.help-page__main',
+      'aside.help-page__aside',
+      'app-help-support-card.',
+      'app-help-incidents-card.',
+    ]);
+  });
+
+  it('puts my incidents first, before the questions, with an active one', async () => {
+    const root = (await render([myIncident('in_review')])).nativeElement as HTMLElement;
+
+    expect(root.querySelector('.help-page__layout--contact-first')).not.toBeNull();
+    expect(blockOrder(root)).toEqual([
+      'aside.help-page__aside',
+      'app-help-incidents-card.',
+      'app-help-support-card.',
+      'section.help-page__main',
+    ]);
+  });
 
   it('shows a card per topic with the questions of the chosen tab', async () => {
     const root = (await render()).nativeElement as HTMLElement;

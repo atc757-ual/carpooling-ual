@@ -43,6 +43,7 @@ export class PushOpenPage implements OnInit {
         tripId: params.get('tripId') ?? undefined,
         requestId: params.get('requestId') ?? undefined,
         passengerId: params.get('passengerId') ?? undefined,
+        incidentId: params.get('incidentId') ?? undefined,
       },
       true,
     );

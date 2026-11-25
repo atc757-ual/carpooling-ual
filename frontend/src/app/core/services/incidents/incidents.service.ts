@@ -57,6 +57,16 @@ export class IncidentsService {
     }
   }
 
+  // Una que comuniqué (al abrir el aviso de su curso); INCIDENT_NOT_FOUND si
+  // no es mía
+  async getMine(id: string): Promise<MyIncident> {
+    try {
+      return await firstValueFrom(this.http.get<MyIncident>(`${this.apiUrl}/incidents/${id}`));
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
+  }
+
   // Reportar un viaje ya realizado (hasta 7 días después): no cancela nada
   async reportAfterTrip(tripId: string, payload: ReportIncidentPayload): Promise<CreatedIncident> {
     try {
