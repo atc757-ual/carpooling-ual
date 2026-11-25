@@ -65,13 +65,16 @@
         }
         <!-- El final de la fila: al verse, las 5 siguientes (con su spinner) -->
         @if (hasMore()) {
-          <li #listEnd class="profile-reviews__end" role="status">
-            @if (isLoading()) {
-              <ion-spinner
-                name="crescent"
-                [attr.aria-label]="'driverReviews.loading' | transloco"
-              />
-            }
+          <li #listEnd class="profile-reviews__end">
+            <!-- <output>: el lector de pantalla anuncia «Cargando» al llegar -->
+            <output>
+              @if (isLoading()) {
+                <ion-spinner
+                  name="crescent"
+                  [attr.aria-label]="'driverReviews.loading' | transloco"
+                />
+              }
+            </output>
           </li>
         } @else {
           <!-- Sin más: la tarjeta de cierre, con cuántas son (como el resumen) -->
@@ -110,9 +113,9 @@
   }
 
   @if (isLoading() && reviews().length === 0) {
-    <div class="profile-reviews__loading" role="status">
+    <output class="profile-reviews__loading">
       <ion-spinner name="crescent" [attr.aria-label]="'driverReviews.loading' | transloco" />
-    </div>
+    </output>
   } @else if (reviews().length === 0 && !errorMessage()) {
     <p class="text-body text-color-muted profile-reviews__empty">
       {{ 'profile.reviewsModal.empty' | transloco }}
