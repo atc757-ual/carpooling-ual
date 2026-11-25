@@ -1,5 +1,4 @@
-// El resumen (app-rating-summary) arriba; debajo, la lista con avatar,
-// nombre, fecha, nota y comentario
+// El resumen (app-rating-summary) arriba y debajo la lista (app-review-list)
 .driver-reviews {
   display: flex;
   flex-direction: column;
@@ -18,68 +17,4 @@
   p {
     margin: 0;
   }
-}
-
-.driver-reviews__item-score {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.driver-reviews__item-thumb {
-  font-size: var(--icon-size-s);
-
-  &--up {
-    color: var(--color-success);
-  }
-
-  &--down {
-    color: var(--color-danger);
-  }
-}
-
-.driver-reviews__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-base);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.driver-reviews__item {
-  display: flex;
-  gap: var(--space-s);
-}
-
-.driver-reviews__avatar {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: var(--box-size-m);
-  height: var(--box-size-m);
-  border-radius: var(--radius-full);
-  background: var(--color-primary-subtle);
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-semibold);
-}
-
-.driver-reviews__body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.driver-reviews__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-s);
-}
-
-.driver-reviews__comment {
-  margin: var(--space-xs) 0 0;
-  overflow-wrap: anywhere;
 }

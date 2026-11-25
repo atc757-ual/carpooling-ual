@@ -99,7 +99,7 @@ describe('TripDriver', () => {
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
         component: DriverReviewsModal,
-        cssClass: 'info-dialog',
+        cssClass: ['info-dialog', 'list-dialog'],
         componentProps: { driverId: 'driver-1', driverName: 'Lucía Cortés' },
       }),
     );

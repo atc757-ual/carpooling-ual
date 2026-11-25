@@ -18,7 +18,9 @@ import { dateTimeFormat } from '../../../core/i18n/app-locale';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
+import { ScrollHintButton } from '../../../shared/components/ui/scroll-hint/scroll-hint';
 import { VehicleCard } from '../../../shared/components/ui/vehicle-card/vehicle-card';
+import { ScrollHint } from '../../../shared/directives/scroll-hint.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { VehicleForm } from '../vehicle-form/vehicle-form';
 import { MAX_VEHICLES } from '../vehicle-picker/vehicle-picker';
@@ -101,6 +103,8 @@ export async function openVehicleTripsModal(
     IonIcon,
     IonSpinner,
     ModalHeader,
+    ScrollHint,
+    ScrollHintButton,
     TranslocoPipe,
     VehicleCard,
     VehicleForm,

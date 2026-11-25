@@ -18,8 +18,9 @@
 } @else {
   <app-modal-header [title]="title()" (closed)="close()" />
 
-  <!-- Sin ion-content: así la ventana toma el alto de su contenido -->
-  <div class="modal-body vehicle-trips">
+  <!-- Sin ion-content: así la ventana toma el alto de su contenido. Con
+       muchos viajes, «Desliza para ver más» hasta los botones -->
+  <div class="modal-body vehicle-trips" appScrollHint #hint="scrollHint">
     <p class="text-body-s text-color-muted vehicle-trips__intro">{{ intro() }}</p>
 
     <!-- Al dar de baja: cada viaje, marcado si se mantiene con el otro coche
@@ -121,5 +122,7 @@
         </ion-button>
       </form>
     </div>
+
+    <app-scroll-hint [target]="hint" />
   </div>
 }

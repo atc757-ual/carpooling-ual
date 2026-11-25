@@ -85,81 +85,35 @@ describe('ProfileReviewsModal', () => {
     expect(getMyRating).toHaveBeenCalledWith('passenger');
     expect(root.querySelector('ion-title')?.textContent).toContain('Tus reseñas · Pasajero');
     expect(root.querySelector('.segmented-tabs')).toBeNull();
-    // El resumen tiene sus propios tests (app-rating-summary)
+    // El resumen y la lista tienen sus propios tests
     expect(root.querySelector('.rating-summary__value')?.textContent).toBe('4,8');
-    const item = root.querySelector('.profile-reviews__item')?.textContent ?? '';
-    expect(item).toContain('Lucía Cortés');
-    expect(item).toContain('Muy puntual.');
-    expect(item).toContain('Roquetas de Mar → Campus UAL');
-    expect(root.querySelector('.profile-reviews__thumb--up')).not.toBeNull();
+    expect(fixture.componentInstance.items()).toEqual([
+      {
+        id: 'v1',
+        authorName: 'Lucía Cortés',
+        publishedAt: '2026-11-16T10:00:00.000Z',
+        rating: 5,
+        comment: 'Muy puntual.',
+        route: 'Roquetas de Mar → Campus UAL',
+      },
+    ]);
+    expect(root.querySelector('.review-list__item')?.textContent).toContain('Lucía Cortés');
+    // «Desliza para ver más», en el cuerpo que se desplaza
+    expect(root.querySelector('.modal-body app-scroll-hint')).not.toBeNull();
   });
 
-  it('shows a low rating without comment or date', async () => {
-    listReceived.mockResolvedValue({
-      items: [review('v2', { rating: 2, comment: null, publishedAt: null })],
+  it('leaves out the missing place of the trip', async () => {
+    listReceived.mockResolvedValueOnce({
+      items: [
+        review('v2', {
+          trip: { originName: null, destinationName: 'Campus UAL', departureAt: '' },
+        }),
+      ],
       total: 1,
     });
-    const root = await render({ role: 'driver' });
+    await render();
 
-    expect(root.querySelector('.profile-reviews__thumb--down')).not.toBeNull();
-    expect(root.querySelector('.profile-reviews__comment')?.textContent).toContain(
-      'Sin comentario',
-    );
-    expect(fixture.componentInstance.date(null)).toBe('');
-    // Con 5 o menos, sin el cierre (se ven sin bajar)
-    expect(root.querySelector('.profile-reviews__done')).toBeNull();
-  });
-
-  it('invites to scroll while there is list below and scrolls on tap', async () => {
-    const root = await render();
-    const body = root.querySelector<HTMLElement>('.modal-body');
-    if (!body) {
-      throw new Error('Sin .modal-body');
-    }
-    const scrollBy = vi.fn();
-    body.scrollBy = scrollBy;
-    Object.defineProperty(body, 'scrollHeight', { value: 900, configurable: true });
-    Object.defineProperty(body, 'clientHeight', { value: 400, configurable: true });
-
-    body.dispatchEvent(new Event('scroll'));
-    fixture.detectChanges();
-    const hint = root.querySelector<HTMLButtonElement>('.profile-reviews__hint');
-    expect(hint?.textContent).toContain('Desliza para ver más');
-    hint?.click();
-    expect(scrollBy).toHaveBeenCalledWith({ top: 320, behavior: 'smooth' });
-
-    // Al llegar abajo, se va
-    body.scrollTop = 500;
-    body.dispatchEvent(new Event('scroll'));
-    fixture.detectChanges();
-    expect(root.querySelector('.profile-reviews__hint')).toBeNull();
-  });
-
-  it('measures again when the sheet changes size', async () => {
-    let onResize: () => void = () => undefined;
-    const disconnect = vi.fn();
-    vi.stubGlobal(
-      'ResizeObserver',
-      class {
-        constructor(callback: () => void) {
-          onResize = callback;
-        }
-        observe = vi.fn();
-        disconnect = disconnect;
-      },
-    );
-    const root = await render();
-    const body = root.querySelector<HTMLElement>('.modal-body');
-    if (!body) {
-      throw new Error('Sin .modal-body');
-    }
-    Object.defineProperty(body, 'scrollHeight', { value: 900 });
-    Object.defineProperty(body, 'clientHeight', { value: 400 });
-
-    onResize();
-    expect(fixture.componentInstance.canScrollDown()).toBe(true);
-    fixture.destroy();
-    expect(disconnect).toHaveBeenCalled();
+    expect(fixture.componentInstance.items()[0].route).toBe('Campus UAL');
   });
 
   it('pages five by five, keeping the summary', async () => {
@@ -167,63 +121,16 @@ describe('ProfileReviewsModal', () => {
     await render({ role: 'driver' });
     const modal = fixture.componentInstance;
 
-    expect(listReceived).toHaveBeenCalledWith('driver', 0, 5);
-    expect(modal.hasMore()).toBe(true);
-
     listReceived.mockResolvedValueOnce({ items: reviews(5, 1), total: 6 });
     await modal.loadMoreIfAny();
     expect(listReceived).toHaveBeenLastCalledWith('driver', 5, 5);
     expect(getMyRating).toHaveBeenCalledTimes(1);
     expect(modal.summary()).toEqual(RATING);
-    expect(modal.reviews()).toHaveLength(6);
-    expect(modal.hasMore()).toBe(false);
+    expect(modal.items()).toHaveLength(6);
 
+    // Sin más, no vuelve a pedir
     await modal.loadMoreIfAny();
     expect(listReceived).toHaveBeenCalledTimes(2);
-  });
-
-  it('loads the next five on its own when scrolling to the end, saying so', async () => {
-    let onVisible: (entries: { isIntersecting: boolean }[]) => void = () => undefined;
-    const disconnect = vi.fn();
-    vi.stubGlobal(
-      'IntersectionObserver',
-      class {
-        constructor(callback: typeof onVisible) {
-          onVisible = callback;
-        }
-        observe = vi.fn();
-        disconnect = disconnect;
-      },
-    );
-    listReceived.mockResolvedValueOnce({ items: reviews(0, 5), total: 7 });
-    const root = await render({ role: 'driver' });
-    expect(root.querySelectorAll('.profile-reviews__item')).toHaveLength(5);
-    // Quedan más: aún sin el cierre
-    expect(root.querySelector('.profile-reviews__done')).toBeNull();
-
-    let arrive: (page: { items: ReceivedReview[]; total: number }) => void = () => undefined;
-    listReceived.mockReturnValueOnce(new Promise((resolve) => (arrive = resolve)));
-    onVisible([{ isIntersecting: false }]);
-    expect(listReceived).toHaveBeenCalledTimes(1);
-    onVisible([{ isIntersecting: true }]);
-    fixture.detectChanges();
-    // Mientras llegan, lo dice al final de la lista
-    expect(root.querySelector('.profile-reviews__more')?.textContent).toContain(
-      'Cargando más reseñas…',
-    );
-
-    arrive({ items: reviews(5, 2), total: 7 });
-    await settle();
-
-    expect(listReceived).toHaveBeenLastCalledWith('driver', 5, 5);
-    expect(fixture.componentInstance.reviews()).toHaveLength(7);
-    // Ya no quedan: sin final que observar y con el cierre
-    expect(root.querySelector('.profile-reviews__more')).toBeNull();
-    const done = root.querySelector('.profile-reviews__done')?.textContent ?? '';
-    expect(done).toContain('Has visto todas');
-    expect(done).toContain('7 valoraciones');
-    fixture.destroy();
-    expect(disconnect).toHaveBeenCalled();
   });
 
   it('says when the role has no reviews', async () => {

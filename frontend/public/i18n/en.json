@@ -128,7 +128,8 @@
         "6": "Saturday",
         "7": "Sunday"
       }
-    }
+    },
+    "scrollHint": "Scroll for more"
   },
   "search": {
     "pending": {
@@ -245,10 +246,14 @@
   "driverReviews": {
     "loading": "Loading ratings",
     "summary": "Ratings summary",
-    "more": "Show more",
     "empty": "No ratings yet",
     "emptyHint": "You'll see them here when their passengers rate them after a trip.",
     "ratingAria": "Rated {{ rating }} out of 5"
+  },
+  "reviewList": {
+    "loadingMore": "Loading more reviews…",
+    "allSeen": "You have seen them all",
+    "noComment": "No comment"
   },
   "participantProfile": {
     "title": "{{ name }}'s profile",
@@ -430,11 +435,7 @@
     "reviewsModal": {
       "title": "Your reviews",
       "titleRole": "Your reviews · {{ role }}",
-      "empty": "You have no reviews in this role yet.",
-      "loadingMore": "Loading more reviews…",
-      "allSeen": "You have seen them all",
-      "noComment": "No comment",
-      "scrollHint": "Scroll for more"
+      "empty": "You have no reviews in this role yet."
     },
     "seeAllReviews": "See all",
     "contactPhone": "Contact phone",

@@ -2,14 +2,17 @@
   <!-- Media (con el pulgar) y reparto por nota -->
   <section class="rating-summary" [attr.aria-label]="'driverReviews.summary' | transloco">
     <div class="rating-summary__average">
-      <span class="rating-summary__value">{{ average }}</span>
-      <ion-icon
-        class="rating-summary__thumb"
-        [class.rating-summary__thumb--up]="isPositive()"
-        [class.rating-summary__thumb--down]="!isPositive()"
-        [icon]="isPositive() ? upIcon : downIcon"
-        aria-hidden="true"
-      />
+      <!-- «5,0 👍» en una línea y debajo cuántas valoraciones -->
+      <span class="rating-summary__score">
+        <span class="rating-summary__value">{{ average }}</span>
+        <ion-icon
+          class="rating-summary__thumb"
+          [class.rating-summary__thumb--up]="isPositive()"
+          [class.rating-summary__thumb--down]="!isPositive()"
+          [icon]="isPositive() ? upIcon : downIcon"
+          aria-hidden="true"
+        />
+      </span>
       <span class="text-caption text-color-muted">{{ countText() }}</span>
     </div>
     <ul class="rating-summary__bars">

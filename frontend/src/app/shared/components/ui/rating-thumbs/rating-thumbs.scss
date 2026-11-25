@@ -1,0 +1,15 @@
+// Cinco manitas en fila: las de la nota, verdes; el resto, solo el borde azul
+.rating-thumbs {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xxs);
+}
+
+.rating-thumbs__thumb {
+  color: var(--color-link);
+  font-size: var(--icon-size-s);
+
+  &--filled {
+    color: var(--color-success);
+  }
+}

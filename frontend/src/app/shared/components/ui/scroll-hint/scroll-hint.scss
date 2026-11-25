@@ -1,0 +1,31 @@
+// Fija abajo y centrada, encima del contenido: no ocupa sitio (el margen
+// negativo la sube sobre lo último), así la ventana no crece por ella
+:host {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.scroll-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 2.5rem; // 40px
+  margin-top: calc(-1 * (2.5rem + var(--space-xs))); // su alto (40px) y un respiro
+  padding: 0 var(--space-base);
+  border: var(--border-width-s) solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-base);
+  color: var(--color-link);
+  cursor: pointer;
+  pointer-events: auto;
+
+  ion-icon {
+    font-size: var(--icon-size-base);
+  }
+}

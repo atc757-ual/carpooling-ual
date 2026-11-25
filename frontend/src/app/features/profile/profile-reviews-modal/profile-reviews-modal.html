@@ -1,10 +1,10 @@
 <!-- «Tus reseñas · Conductor»: cada fila de Mi perfil abre la de su papel -->
 <app-modal-header [title]="title()" [closeLabel]="'common.close' | transloco" (closed)="close()" />
 
-<!-- Una hoja tan alta como su contenido, con tope (list-dialog), que se
-     desplaza dentro, como los comentarios de las redes sociales: el resumen
-     arriba y la lista debajo -->
-<div #body class="modal-body profile-reviews" (scroll)="updateScrollHint()">
+<!-- Tan alta como su contenido, con tope (list-dialog), y se desplaza dentro,
+     como los comentarios de las redes sociales: el resumen arriba, la lista
+     debajo y «Desliza para ver más» mientras queda lista por debajo -->
+<div class="modal-body profile-reviews" appScrollHint #hint="scrollHint">
   @if (errorMessage(); as message) {
     <div class="notice notice--danger" role="alert">
       <span>{{ message }}</span>
@@ -16,93 +16,23 @@
     <app-rating-summary [rating]="summary" />
   }
 
-  @if (reviews().length > 0) {
-    <!-- Las más recientes primero, de 5 en 5: al bajar hasta el final se
-         cargan solas las siguientes («Cargando más reseñas…») y, sin más,
-         el cierre lo dice -->
-    <ul class="profile-reviews__list" [attr.aria-label]="title()">
-      @for (review of reviews(); track review.id) {
-        <li class="profile-reviews__item">
-          <span class="profile-reviews__avatar" aria-hidden="true">{{
-            initials(review.author.name)
-          }}</span>
-          <div class="profile-reviews__body">
-            <div class="profile-reviews__head">
-              <span class="text-label text-label--strong">{{ review.author.name }}</span>
-              <span class="text-caption text-color-muted">{{ date(review.publishedAt) }}</span>
-            </div>
-            <span
-              class="profile-reviews__score"
-              [attr.aria-label]="'driverReviews.ratingAria' | transloco: { rating: review.rating }"
-            >
-              <ion-icon
-                class="profile-reviews__thumb"
-                [class.profile-reviews__thumb--up]="review.rating >= 3"
-                [class.profile-reviews__thumb--down]="review.rating < 3"
-                [icon]="review.rating >= 3 ? upIcon : downIcon"
-                aria-hidden="true"
-              />
-              <span class="text-caption text-body--strong" aria-hidden="true">{{
-                review.rating
-              }}</span>
-            </span>
-            @if (review.comment) {
-              <p class="text-body-s profile-reviews__comment">{{ review.comment }}</p>
-            } @else {
-              <p class="text-body-s text-color-muted profile-reviews__comment">
-                {{ 'profile.reviewsModal.noComment' | transloco }}
-              </p>
-            }
-            @if (route(review); as route) {
-              <span class="text-caption text-color-muted">{{ route }}</span>
-            }
-          </div>
-        </li>
-      }
-    </ul>
-
-    @if (hasMore()) {
-      <!-- El final de la lista: al verse, las 5 siguientes. <output>: el
-           lector de pantalla anuncia «Cargando más reseñas…» -->
-      <output #listEnd class="profile-reviews__more">
-        @if (isLoading()) {
-          <ion-spinner name="crescent" aria-hidden="true" />
-          <span class="text-body-s text-color-muted">{{
-            'profile.reviewsModal.loadingMore' | transloco
-          }}</span>
-        }
-      </output>
-    } @else if (showsAllSeen()) {
-      <!-- Sin más, si eran más de 5 (se ha bajado): el cierre, con cuántas son
-           (como el resumen) -->
-      <p class="profile-reviews__done">
-        <ion-icon [icon]="doneIcon" aria-hidden="true" />
-        <span class="text-label text-label--strong">{{
-          'profile.reviewsModal.allSeen' | transloco
-        }}</span>
-        <span class="text-caption text-color-muted">· {{ totalText() }}</span>
-      </p>
-    }
-  }
-
-  @if (isLoading() && reviews().length === 0) {
+  @if (items().length > 0) {
+    <app-review-list
+      [items]="items()"
+      [total]="total()"
+      [isLoading]="isLoading()"
+      [label]="title()"
+      (reachedEnd)="loadMoreIfAny()"
+    />
+  } @else if (isLoading()) {
     <output class="profile-reviews__loading">
       <ion-spinner name="crescent" [attr.aria-label]="'driverReviews.loading' | transloco" />
     </output>
-  } @else if (reviews().length === 0 && !errorMessage()) {
+  } @else if (!errorMessage()) {
     <p class="text-body text-color-muted profile-reviews__empty">
       {{ 'profile.reviewsModal.empty' | transloco }}
     </p>
   }
 
-  @if (canScrollDown()) {
-    <!-- Mientras queda lista por debajo: «Desliza para ver más», fijo abajo
-         sobre un degradado; al pulsarlo, baja casi una pantalla -->
-    <button type="button" class="profile-reviews__hint" (click)="scrollDown()">
-      <span class="text-label text-label--strong">{{
-        'profile.reviewsModal.scrollHint' | transloco
-      }}</span>
-      <ion-icon [icon]="hintIcon" aria-hidden="true" />
-    </button>
-  }
+  <app-scroll-hint [target]="hint" />
 </div>

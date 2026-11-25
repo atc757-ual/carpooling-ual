@@ -128,7 +128,8 @@
         "6": "sábado",
         "7": "domingo"
       }
-    }
+    },
+    "scrollHint": "Desliza para ver más"
   },
   "search": {
     "pending": {
@@ -245,10 +246,14 @@
   "driverReviews": {
     "loading": "Cargando valoraciones",
     "summary": "Resumen de valoraciones",
-    "more": "Ver más",
     "empty": "Aún no tiene valoraciones",
     "emptyHint": "Las verás aquí cuando sus pasajeros lo valoren después de un viaje.",
     "ratingAria": "Valoración {{ rating }} de 5"
+  },
+  "reviewList": {
+    "loadingMore": "Cargando más reseñas…",
+    "allSeen": "Has visto todas",
+    "noComment": "Sin comentario"
   },
   "participantProfile": {
     "title": "Perfil de {{ name }}",
@@ -430,11 +435,7 @@
     "reviewsModal": {
       "title": "Tus reseñas",
       "titleRole": "Tus reseñas · {{ role }}",
-      "empty": "Aún no tienes reseñas con este papel.",
-      "loadingMore": "Cargando más reseñas…",
-      "allSeen": "Has visto todas",
-      "noComment": "Sin comentario",
-      "scrollHint": "Desliza para ver más"
+      "empty": "Aún no tienes reseñas con este papel."
     },
     "seeAllReviews": "Ver todas",
     "contactPhone": "Teléfono de contacto",
