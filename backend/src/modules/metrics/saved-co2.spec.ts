@@ -15,14 +15,14 @@ describe('saved CO₂', () => {
     const once = savedCo2Kg([
       { origin: ROQUETAS, destination: UAL_CAMPUS, carsAvoided: 1 },
     ]);
-    // 20 km × 1,3 (carretera) × 0,12 kg/km, redondeado a 0,1 kg
-    expect(once).toBe(3.1);
+    // 20 km × 1,3 (carretera) × 0,159 kg/km (MITECO), redondeado a 0,1 kg
+    expect(once).toBe(4.1);
     expect(
       savedCo2Kg([
         { origin: ROQUETAS, destination: UAL_CAMPUS, carsAvoided: 2 },
         { origin: UAL_CAMPUS, destination: ROQUETAS, carsAvoided: 1 },
       ]),
-    ).toBe(9.3);
+    ).toBe(12.3);
   });
 
   it('adds up the road km of the legs where the car was shared', () => {

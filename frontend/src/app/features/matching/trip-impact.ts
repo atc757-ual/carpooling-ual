@@ -1,14 +1,19 @@
 // Estimación de lo que se ahorra al compartir un trayecto en vez de ir en el
-// coche propio. Valores de ejemplo (DATOS DE EJEMPLO, ver
-// pendientes-memoria.md): la distancia por carretera se aproxima con la línea
-// recta por un factor, y el CO₂ con la media de un coche normal. Solo km y
-// CO₂: es una plataforma colaborativa, sin enfoque económico. Cuando haya rutas reales (OSRM) y métricas del Gemelo Digital,
-// se sustituye
+// coche propio, como MÁXIMO (un coche menos por pasajero; quien viene en bus
+// o andando no deja un coche en casa). Método del MITECO: km × factor de
+// emisión por km. La distancia por carretera se aproxima con la línea recta
+// por un factor (sin ruta aún). Solo km y CO₂: es una plataforma
+// colaborativa, sin enfoque económico. Las fuentes, en pendientes-memoria.md
+// («Sustento del CO₂ ahorrado»). Igual que la API (metrics/saved-co2.ts)
 
 // Lo que se alarga la carretera frente a la línea recta
 const ROAD_FACTOR = 1.3;
-// kg de CO₂ por km de un turismo medio
-const CO2_KG_PER_KM = 0.12;
+// kg de CO₂e por km de un turismo (M1) de gasóleo en 2025: el factor oficial
+// más bajo de los turismos de combustión, para no exagerar el ahorro (con
+// gasolina, 0,183). Fuente: MITECO, calculadora de huella de carbono de
+// organización, versión V32 (07/05/2026), pestaña «10. Factores de
+// emisión», «Opción A.2: distancia recorrida (km)»
+const CO2_KG_PER_KM = 0.159;
 const EARTH_RADIUS_KM = 6371;
 // Velocidad media por ciudad y carretera de la zona, y el redondeo de la
 // duración (como el selector de hora)
