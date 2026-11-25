@@ -12,7 +12,7 @@ ion-title {
   inset: 0;
   padding-inline: var(--space-xxxl);
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-subtitle);
+  font-size: var(--font-size-header-title);
   font-weight: var(--font-weight-semibold);
   text-align: center;
   pointer-events: none;
@@ -130,7 +130,7 @@ ion-back-button.back-button {
 
 .top-bar__title {
   font-family: var(--font-family-heading);
-  font-size: var(--font-size-subtitle);
+  font-size: var(--font-size-header-title);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-subtitle);
   text-align: center;
@@ -1662,7 +1662,7 @@ ion-toggle {
 
 @include bp.up(md) {
   .section-item__title.section-item__title {
-    font-size: var(--font-size-subtitle);
+    font-size: var(--font-size-subtitle-m);
   }
 }
 

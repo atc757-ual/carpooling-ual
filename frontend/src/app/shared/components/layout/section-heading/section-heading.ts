@@ -37,7 +37,7 @@ import { TabHeading } from '../../../../core/models/tab-heading.model';
     .section-heading__title {
       margin: 0;
       font-family: var(--font-family-heading);
-      font-size: 1.25rem; // 20px
+      font-size: var(--font-size-header-title);
       font-weight: var(--font-weight-semibold);
       line-height: var(--line-height-title);
     }
