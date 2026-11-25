@@ -138,8 +138,8 @@
     },
     "carTitle": "¿Tienes coche?",
     "carText": "Publica tu trayecto y comparte tu coche.",
-    "impact": "Compartiendo este trayecto ahorras aproximadamente <b>{{ km }} km</b> al volante y <b>{{ co2 }} kg de CO₂</b>.",
-    "impactHint": "Elige de dónde sales y te decimos cuánto ahorras compartiendo el trayecto.",
+    "impact": "Compartir este trayecto puede ahorrar hasta <b>{{ km }} km</b> de coche y <b>{{ co2 }} kg de CO₂</b>.",
+    "impactHint": "Elige de dónde sales y te decimos cuánto puede ahorrar compartir el trayecto.",
     "date": "Fecha",
     "margin": "Margen horario",
     "seats": "Plazas",
@@ -710,8 +710,8 @@
     "backTo": "Volver a {{ step }}",
     "departureHint": "Saldrás hacia las <b>{{ time }}</b> para llegar a tiempo aunque recojas a alguien.",
     "impact": {
-      "one": "Compartiendo viaje con <b>1 pasajero</b> ahorráis aproximadamente <b>{{ co2 }} kg de CO₂</b> en este trayecto de <b>{{ km }} km</b>.",
-      "other": "Compartiendo viaje con <b>{{ count }} pasajeros</b> ahorráis aproximadamente <b>{{ co2 }} kg de CO₂</b> en este trayecto de <b>{{ km }} km</b>."
+      "one": "Llevando a <b>1 pasajero</b> evitáis hasta <b>{{ co2 }} kg de CO₂</b> en este trayecto de <b>{{ km }} km</b>, si él habría venido en coche.",
+      "other": "Llevando a <b>{{ count }} pasajeros</b> evitáis hasta <b>{{ co2 }} kg de CO₂</b> en este trayecto de <b>{{ km }} km</b>, si habrían venido en coche."
     },
     "offered": {
       "one": "Ofreces 1 plaza, con {{ margin }} min de margen para recoger.",
@@ -767,12 +767,12 @@
     "kmComoConductor": "Compartidos como conductor",
     "kmComoPasajero": "Compartidos como pasajero",
     "valoracion": "Valoración",
-    "estimadoQueHabriaEmitido": "* Estimados: el CO₂ que habría emitido un coche más en cada viaje hecho y los km por carretera de los viajes compartidos.",
+    "estimadoQueHabriaEmitido": "* Como mucho: un coche menos por cada pasajero. Si alguien venía en bus o andando, el ahorro real es menor. Los km son los de carretera de los viajes compartidos.",
     "puedeInteresar": "Te puede interesar",
     "accionesImpactoDelViaje": "Acciones e impacto del viaje",
     "valoraTusPasajeros": "Valora a tus pasajeros",
     "impactoEsteViaje": "Impacto de este viaje",
-    "estimadoCo2PorPasajero": "* Estimado: lo que habría emitido un coche en este trayecto por cada pasajero que llevas.",
+    "estimadoCo2PorPasajero": "* Como mucho: un coche menos por cada pasajero que llevas. Si alguien venía en bus o andando, el ahorro real es menor.",
     "esteViajeRealizoAsi": "Este viaje no se realizó, así que no ahorró CO₂.",
     "cargandoViaje": "Cargando el viaje…",
     "hemosPodidoCargarEste": "No hemos podido cargar este viaje",

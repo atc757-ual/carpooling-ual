@@ -9,7 +9,7 @@ describe('trip impact', () => {
   });
 
   it('estimates the road km and CO2 saved by sharing the trip', () => {
-    expect(estimateTripImpact(ROQUETAS, CAMPUS)).toEqual({ km: 26, co2Kg: 3.1 });
+    expect(estimateTripImpact(ROQUETAS, CAMPUS)).toEqual({ km: 26, co2Kg: 4.1 });
   });
 
   it('has nothing to save when both points are the same place', () => {

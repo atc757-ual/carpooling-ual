@@ -138,8 +138,8 @@
     },
     "carTitle": "Got a car?",
     "carText": "Driving to campus? Offer a ride and share your car.",
-    "impact": "Share this ride and save about <b>{{ km }} km</b> of driving and <b>{{ co2 }} kg of CO₂</b>.",
-    "impactHint": "Choose where you leave from and we'll tell you how much you save by sharing the route.",
+    "impact": "Sharing this ride can save up to <b>{{ km }} km</b> of driving and <b>{{ co2 }} kg of CO₂</b>.",
+    "impactHint": "Choose where you leave from and we'll tell you how much sharing the route can save.",
     "date": "Date",
     "margin": "Time flexibility",
     "seats": "Seats",
@@ -710,8 +710,8 @@
     "backTo": "Back to {{ step }}",
     "departureHint": "You'll leave around <b>{{ time }}</b> to arrive on time even if you pick someone up.",
     "impact": {
-      "one": "Sharing your trip with <b>1 passenger</b> saves about <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip.",
-      "other": "Sharing your trip with <b>{{ count }} passengers</b> saves about <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip."
+      "one": "Taking <b>1 passenger</b> avoids up to <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip, if they would have come by car.",
+      "other": "Taking <b>{{ count }} passengers</b> avoids up to <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip, if they would have come by car."
     },
     "offered": {
       "one": "You offer 1 seat, with {{ margin }} min of margin for pick-ups.",
@@ -767,12 +767,12 @@
     "kmComoConductor": "Shared as the driver",
     "kmComoPasajero": "Shared as a passenger",
     "valoracion": "Rating",
-    "estimadoQueHabriaEmitido": "* Estimates: the CO₂ one more car would have emitted on each trip taken and the road km of the shared trips.",
+    "estimadoQueHabriaEmitido": "* At most: one car less per passenger. If someone came by bus or on foot, the real saving is smaller. The km are the road km of the shared trips.",
     "puedeInteresar": "You might be interested",
     "accionesImpactoDelViaje": "Trip actions and impact",
     "valoraTusPasajeros": "Rate your passengers",
     "impactoEsteViaje": "Impact of this trip",
-    "estimadoCo2PorPasajero": "* Estimate: what a car would have emitted on this route for each passenger you take.",
+    "estimadoCo2PorPasajero": "* At most: one car less per passenger you take. If someone came by bus or on foot, the real saving is smaller.",
     "esteViajeRealizoAsi": "This trip didn't take place, so it saved no CO₂.",
     "cargandoViaje": "Loading the trip…",
     "hemosPodidoCargarEste": "We couldn't load this trip",
