@@ -49,6 +49,7 @@ import { openLegalModal } from '../../shared/components/modals/legal-modal/legal
 import { openNotificationTarget } from './notification-target';
 import {
   formatElapsed,
+  isReporterIncidentNotice,
   legalDocumentOf,
   notificationCategory,
   notificationMode,
@@ -266,10 +267,19 @@ export class NotificationsPage implements OnInit {
         await openLegalModal(this.modalController, document);
         return;
       }
-      if (notificationMode(notification.type) === null) return;
+      if (
+        notificationMode(notification.type) === null &&
+        !isReporterIncidentNotice(notification.type)
+      ) {
+        return;
+      }
       await openNotificationTarget(
         { router: this.router, auth: this.auth, activeMode: this.activeMode },
-        { type: notification.type, requestId: notification.request?.id },
+        {
+          type: notification.type,
+          requestId: notification.request?.id,
+          incidentId: notification.incident?.id,
+        },
       );
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));

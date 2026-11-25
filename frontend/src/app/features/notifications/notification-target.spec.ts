@@ -56,11 +56,20 @@ describe('openNotificationTarget', () => {
     expect(navigateByUrl).toHaveBeenNthCalledWith(2, '/tabs/trips');
   });
 
-  it('opens Avisos for incidents and unknown types', async () => {
-    await openNotificationTarget(deps(), { type: 'incident_reported' });
+  it('opens Avisos for the admin incident notices and unknown types', async () => {
+    await openNotificationTarget(deps(), { type: 'incident_reported', incidentId: 'i1' });
     await openNotificationTarget(deps(), { type: 'something_new' });
 
     expect(navigateByUrl).toHaveBeenCalledTimes(2);
     expect(navigateByUrl).toHaveBeenLastCalledWith('/tabs/notifications');
+  });
+
+  it('opens my report in Help and support from the notice of its progress', async () => {
+    await openNotificationTarget(deps(), { type: 'incident_reviewed', incidentId: 'i1' }, true);
+
+    expect(setMode).not.toHaveBeenCalled();
+    expect(navigateByUrl).toHaveBeenCalledWith('/tabs/profile/help?incident=i1', {
+      replaceUrl: true,
+    });
   });
 });

@@ -9,8 +9,8 @@ const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
 
-// Con qué modo se ve en Mis viajes; las incidencias son de la administración
-// y los avisos legales abren el documento
+// Con qué modo se ve en Mis viajes; las incidencias abren su ficha (en Ayuda
+// y soporte o en el panel) y los avisos legales abren el documento
 const MODES: Record<NotificationType, TravelMode | null> = {
   request_received: 'driver',
   passenger_joined: 'driver',
@@ -31,9 +31,28 @@ const MODES: Record<NotificationType, TravelMode | null> = {
   pending_requests_reminder: 'driver',
   trip_start_reminder: 'driver',
   trip_expired: 'driver',
+  incident_received: null,
+  incident_in_review: null,
+  incident_reviewed: null,
+  incident_reminder: null,
   terms_updated: null,
   privacy_updated: null,
 };
+
+// Los avisos de una incidencia: los de la administración (nueva y sin coger)
+// y el curso de un reporte, a quien lo hizo (abren su ventana en Ayuda)
+const INCIDENT_TYPES: ReadonlySet<string> = new Set([
+  'incident_reported',
+  'incident_reminder',
+  'incident_received',
+  'incident_in_review',
+  'incident_reviewed',
+]);
+const REPORTER_INCIDENT_TYPES: ReadonlySet<string> = new Set([
+  'incident_received',
+  'incident_in_review',
+  'incident_reviewed',
+]);
 
 export function notificationMode(type: NotificationType): TravelMode | null {
   return MODES[type];
@@ -41,7 +60,12 @@ export function notificationMode(type: NotificationType): TravelMode | null {
 
 export function notificationCategory(type: NotificationType): 'travel' | 'account' | 'incident' {
   if (type === 'terms_updated' || type === 'privacy_updated') return 'account';
-  return type === 'incident_reported' ? 'incident' : 'travel';
+  return INCIDENT_TYPES.has(type) ? 'incident' : 'travel';
+}
+
+// Un aviso del curso de mi reporte: abre su ventana en Ayuda y soporte
+export function isReporterIncidentNotice(type: string): boolean {
+  return REPORTER_INCIDENT_TYPES.has(type);
 }
 
 // «Ahora», «hace 5 min», «hace 3 h», «Ayer» y después la fecha («jue, 30 oct»)

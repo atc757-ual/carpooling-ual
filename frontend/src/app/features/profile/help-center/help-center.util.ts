@@ -6,6 +6,8 @@ export { topicIcon } from '../../../shared/utils/faq-topic-icons.util';
 
 // Ayuda y soporte; cada pregunta, en HELP_CENTER_PATH/:id
 export const HELP_CENTER_PATH = '/tabs/profile/help';
+// ?incident=<id>: abre la ventana de esa incidencia mía (desde su aviso)
+export const HELP_INCIDENT_PARAM = 'incident';
 
 export interface HelpGroup {
   topic: HelpTopic;

@@ -23,6 +23,12 @@ export type NotificationType =
   | 'trip_start_reminder'
   // El viaje llegó al corte sin pasajeros y se cerró
   | 'trip_expired'
+  // El curso de un reporte, a quien lo hizo: recibido, en revisión y atendido
+  | 'incident_received'
+  | 'incident_in_review'
+  | 'incident_reviewed'
+  // A los administradores: una incidencia sin coger en 24 h
+  | 'incident_reminder'
   // Un cambio menor en las condiciones o la política (no hay que aceptarlo)
   | 'terms_updated'
   | 'privacy_updated';
@@ -41,6 +47,9 @@ export interface AppNotification {
   trip: NotificationLink | null;
   request: NotificationLink | null;
   incident: NotificationLink | null;
+  // En incident_reported: el nombre de pila del administrador que ya la está
+  // revisando («Lo está revisando Ana»); null si nadie la ha cogido
+  reviewerName: string | null;
   // La versión publicada: solo en terms_updated y privacy_updated
   legalDocument: NotificationLink | null;
   isRead: boolean;

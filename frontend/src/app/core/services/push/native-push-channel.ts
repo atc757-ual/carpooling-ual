@@ -85,6 +85,7 @@ export class NativePushChannel implements PushChannel {
           tripId: data.tripId,
           requestId: data.requestId,
           passengerId: data.passengerId,
+          incidentId: data.incidentId,
         });
       }
     });
