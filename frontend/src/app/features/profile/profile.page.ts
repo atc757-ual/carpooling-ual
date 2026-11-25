@@ -28,7 +28,6 @@ import {
   sunny,
   thumbsDown,
   thumbsUp,
-  chevronForwardOutline,
   trashOutline,
 } from 'ionicons/icons';
 import { RouterLink } from '@angular/router';
@@ -67,6 +66,7 @@ import { ProfilePhoneModal } from './profile-phone-modal/profile-phone-modal';
 import { ProfilePasswordModal } from './profile-password-modal/profile-password-modal';
 import { ProfileDeleteModal } from './profile-delete-modal/profile-delete-modal';
 import { ProfileReviewsModal } from './profile-reviews-modal/profile-reviews-modal';
+import { reviewRoleIcon, reviewRoleLabel } from './profile-review-roles';
 import { ReviewTargetRole } from '../../core/services/users/trip-reviews.service';
 import { rethrowUnlessApiError } from '../../core/models/api-error.model';
 
@@ -79,6 +79,7 @@ interface PreferenceRow {
 interface ReviewRow {
   key: ReviewTargetRole;
   role: string;
+  icon: string;
   average: string;
   value: number;
   count: string;
@@ -154,25 +155,18 @@ export class ProfilePage implements OnInit {
   );
   readonly timeToleranceLabel = computed(() => `± ${this.user()?.timeToleranceMin ?? 15} min`);
 
-  // Solo los papeles con reseñas: quien no conduce no ve «Como conductor»
+  // Solo los papeles con reseñas: quien no conduce no ve «Conductor»
   readonly reviewRows = computed<ReviewRow[]>(() => {
     const ratings = this.user()?.ratings;
     return [
-      {
-        key: 'driver' as const,
-        role: translate('screens.profile.comoConductor'),
-        rating: ratings?.driver,
-      },
-      {
-        key: 'passenger' as const,
-        role: translate('screens.profile.comoPasajero'),
-        rating: ratings?.passenger,
-      },
+      { key: 'driver' as const, rating: ratings?.driver },
+      { key: 'passenger' as const, rating: ratings?.passenger },
     ]
       .filter(({ rating }) => (rating?.ratingCount ?? 0) > 0 && rating?.averageRating != null)
-      .map(({ key, role, rating }) => ({
+      .map(({ key, rating }) => ({
         key,
-        role,
+        role: reviewRoleLabel(key),
+        icon: reviewRoleIcon(key),
         average: (rating?.averageRating ?? 0).toFixed(1).replace('.', ','),
         value: rating?.averageRating ?? 0,
         count: `(${rating?.ratingCount ?? 0})`,
@@ -223,7 +217,6 @@ export class ProfilePage implements OnInit {
   protected readonly sunIcon = sunny;
   protected readonly moonIcon = moon;
   protected readonly thumbsUpIcon = thumbsUp;
-  protected readonly chevronIcon = chevronForwardOutline;
   protected readonly thumbsDownIcon = thumbsDown;
   protected readonly toleranceIcon = TIME_TOLERANCE_ICON;
   protected readonly keyIcon = keyOutline;
@@ -281,13 +274,12 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  // Las reseñas recibidas, abiertas en el papel de la fila pulsada (con una
-  // pestaña por cada papel que tiene reseñas)
+  // Las reseñas recibidas con el papel de la fila pulsada (cada fila, la suya)
   async handleOpenReviews(role: ReviewTargetRole): Promise<void> {
     const modal = await this.modalController.create({
       component: ProfileReviewsModal,
       cssClass: 'info-dialog',
-      componentProps: { roles: this.reviewRows().map((row) => row.key), initialRole: role },
+      componentProps: { role },
     });
     await modal.present();
   }

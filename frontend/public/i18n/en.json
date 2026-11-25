@@ -424,8 +424,11 @@
     "reviewsSubtitle": "They will appear after your first trips.",
     "reviewsModal": {
       "title": "Your reviews",
-      "role": "Reviews you have received as",
-      "empty": "You have no reviews in this role yet."
+      "titleRole": "Your reviews · {{ role }}",
+      "empty": "You have no reviews in this role yet.",
+      "back": "Previous reviews",
+      "forward": "Next reviews",
+      "allSeen": "You have seen them all"
     },
     "seeAllReviews": "See all",
     "contactPhone": "Contact phone",
@@ -1738,8 +1741,8 @@
       "dejaraSalirVehiculosPodras": "It will no longer appear in your vehicles and you won't be able to publish trips with it."
     },
     "profile": {
-      "comoConductor": "As a driver",
-      "comoPasajero": "As a passenger",
+      "roleDriver": "Driver",
+      "rolePassenger": "Passenger",
       "condicionesUso": "Terms of use",
       "politicaPrivacidad": "Privacy policy"
     },

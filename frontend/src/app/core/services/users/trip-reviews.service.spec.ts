@@ -56,6 +56,18 @@ describe('TripReviewsService', () => {
     await expect(failed).rejects.toBeInstanceOf(ApiError);
   });
 
+  it('gets my rating in a role', async () => {
+    const rating = service.getMyRating('driver');
+    const request = http.expectOne((req) => req.url === '/api/users/me/rating');
+    expect(request.request.params.get('role')).toBe('driver');
+    request.flush({ average: 4.5, count: 2, distribution: [] });
+    await expect(rating).resolves.toMatchObject({ average: 4.5, count: 2 });
+
+    const failed = service.getMyRating('passenger');
+    http.expectOne((req) => req.url === '/api/users/me/rating').error(new ProgressEvent('x'));
+    await expect(failed).rejects.toBeInstanceOf(ApiError);
+  });
+
   it('turns the API errors into ApiError', async () => {
     const created = service.create('t1', { targetId: 'd1', rating: 1 });
     http.expectOne('/api/trips/t1/reviews').flush(

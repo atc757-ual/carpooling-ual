@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverRating, DriverReview } from '../../../core/models/driver-review.model';
 import { DriverReviewsService } from '../../../core/services/users/driver-reviews.service';
-import { barLabel, DriverReviewsModal, formatReviewCount } from './driver-reviews-modal';
+import { DriverReviewsModal } from './driver-reviews-modal';
 
 const RATING: DriverRating = {
   average: 4.4,
@@ -64,12 +64,9 @@ describe('DriverReviewsModal', () => {
 
     expect(component.title()).toBe('Valoraciones de Lucía');
     expect(list).toHaveBeenCalledWith('driver-1', 0, 10);
-    expect(root.querySelector('.driver-reviews__average-value')?.textContent).toBe('4,4');
-    expect(root.textContent).toContain('5 valoraciones');
-    const bars = root.querySelectorAll('.driver-reviews__bar');
-    expect(bars).toHaveLength(5);
-    expect(bars[0].getAttribute('aria-label')).toBe('5 de 5: 3');
-    expect(component.bars()[0].percent).toBe(60);
+    // El resumen tiene sus propios tests (app-rating-summary)
+    expect(root.querySelector('.rating-summary__value')?.textContent).toBe('4,4');
+    expect(root.querySelectorAll('.rating-summary__bar')).toHaveLength(5);
     const items = root.querySelectorAll('.driver-reviews__item');
     expect(items).toHaveLength(2);
     expect(items[0].textContent).toContain('Carlos R.');
@@ -128,20 +125,5 @@ describe('DriverReviewsModal', () => {
     component.close();
 
     expect(dismiss).toHaveBeenCalled();
-  });
-});
-
-describe('formatReviewCount', () => {
-  it('speaks of one or many reviews', () => {
-    expect(formatReviewCount(1)).toBe('1 valoración');
-    expect(formatReviewCount(15)).toBe('15 valoraciones');
-  });
-});
-
-describe('barLabel', () => {
-  it('names only the ends of the scale', () => {
-    expect(barLabel(5)).toBe('5 · Muy bien');
-    expect(barLabel(3)).toBe('3');
-    expect(barLabel(1)).toBe('1 · Muy mal');
   });
 });

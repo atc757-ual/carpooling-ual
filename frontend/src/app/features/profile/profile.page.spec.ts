@@ -171,7 +171,7 @@ describe('ProfilePage', () => {
       expect.objectContaining({
         component: ProfileReviewsModal,
         cssClass: 'info-dialog',
-        componentProps: expect.objectContaining({ initialRole: 'passenger' }),
+        componentProps: { role: 'passenger' },
       }),
     );
     expect(present).toHaveBeenCalled();

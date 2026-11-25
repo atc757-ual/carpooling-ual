@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiError } from '../../models/api-error.model';
+import { DriverRating } from '../../models/driver-review.model';
 
 // Valorar a quien ha viajado contigo en un viaje terminado (RF-22): de 1 a 5
 // estrellas y, si se quiere, un comentario. Doble ciego: se publica cuando
@@ -101,6 +102,17 @@ export class TripReviewsService {
       );
       const items = response.body ?? [];
       return { items, total: Number(response.headers.get('X-Total-Count') ?? items.length) };
+    } catch (error) {
+      throw ApiError.fromHttpError(error);
+    }
+  }
+
+  // Mi nota con un papel: media, número de reseñas y cuántas de cada nota
+  async getMyRating(role: ReviewTargetRole): Promise<DriverRating> {
+    try {
+      return await firstValueFrom(
+        this.http.get<DriverRating>(`${this.url}/users/me/rating`, { params: { role } }),
+      );
     } catch (error) {
       throw ApiError.fromHttpError(error);
     }
