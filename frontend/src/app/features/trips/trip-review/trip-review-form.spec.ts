@@ -35,17 +35,17 @@ describe('TripReviewForm', () => {
     const root = fixture.nativeElement as HTMLElement;
 
     expect(root.textContent).toContain('¿Qué tal con Lucía?');
-    expect(root.textContent).toContain('Elige de 1 (muy mal) a 5 (muy bien)');
+    expect(root.textContent).toContain('Elige de 1 (correcto) a 5 (excelente)');
     const radios = root.querySelectorAll<HTMLInputElement>('input[type="radio"]');
     expect(radios).toHaveLength(5);
-    expect(radios[3].getAttribute('aria-label')).toBe('4 de 5, Bien');
+    expect(radios[3].getAttribute('aria-label')).toBe('4 de 5, Genial');
 
     await form.handleSend();
     expect(create).not.toHaveBeenCalled();
 
     radios[3].click();
     fixture.detectChanges();
-    expect(root.querySelector('.trip-review__chosen')?.textContent).toContain('4 de 5 · Bien');
+    expect(root.querySelector('.trip-review__chosen')?.textContent).toContain('4 de 5 · Genial');
     expect(root.querySelectorAll('.trip-review__step--on')).toHaveLength(4);
     expect(root.querySelectorAll('.trip-review__step--current')).toHaveLength(1);
     form.comment.set('  Muy puntual  ');

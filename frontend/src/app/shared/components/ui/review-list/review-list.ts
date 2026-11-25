@@ -4,7 +4,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { checkmarkCircleOutline } from 'ionicons/icons';
 import { dateTimeFormat } from '../../../../core/i18n/app-locale';
 import { getInitials } from '../../../../features/matching/trip-driver/trip-driver';
-import { RatingThumbs } from '../rating-thumbs/rating-thumbs';
+import { RatingMedals } from '../rating-medals/rating-medals';
 import { formatReviewCount } from '../rating-summary/rating-summary';
 
 // Lo que necesita cada fila (la reseña de un conductor no lleva viaje)
@@ -23,14 +23,14 @@ const DATE_FORMAT = () => dateTimeFormat({ day: 'numeric', month: 'short', year:
 
 // La lista de reseñas de una ventana (Tus reseñas, las del conductor), como
 // los comentarios de las redes sociales: una fila por reseña con las iniciales,
-// el nombre y la fecha, las cinco manitas, el comentario («Sin comentario» si
+// el nombre y la fecha, las cinco medallas, el comentario («Sin comentario» si
 // no lo hay) y, si lo hay, el viaje. Al ver el final de la lista avisa
 // (reachedEnd) para cargar las 5 siguientes, con «Cargando más reseñas…»
 // mientras llegan; sin más, «Has visto todas» si eran más de 5 (con menos se
 // ven sin bajar)
 @Component({
   selector: 'app-review-list',
-  imports: [IonIcon, IonSpinner, RatingThumbs, TranslocoPipe],
+  imports: [IonIcon, IonSpinner, RatingMedals, TranslocoPipe],
   templateUrl: './review-list.html',
   styleUrl: './review-list.scss',
 })

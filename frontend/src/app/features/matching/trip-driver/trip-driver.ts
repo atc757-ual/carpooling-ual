@@ -3,11 +3,11 @@ import { TranslocoPipe, translate } from '@jsverse/transloco';
 import { TripDriver as Driver } from '../../../core/models/trip-result.model';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { IonIcon, ModalController } from '@ionic/angular';
-import { thumbsDown, thumbsUp } from 'ionicons/icons';
 import { AvatarArt } from '../../../shared/components/ui/avatar-art/avatar-art';
 import { numberFormat } from '../../../core/i18n/app-locale';
 import { ParticipantLink } from '../../../shared/components/ui/participant-link/participant-link';
 import { getInitials } from '../../../shared/utils/person-name.util';
+import { RATING_ICON } from '../../../shared/utils/rating.util';
 
 const RATING_FORMAT = () =>
   numberFormat({
@@ -41,8 +41,7 @@ export class TripDriver {
   private readonly avatars = inject(AvatarsService);
   private readonly modalController = inject(ModalController);
 
-  protected readonly upIcon = thumbsUp;
-  protected readonly downIcon = thumbsDown;
+  protected readonly medalIcon = RATING_ICON;
 
   readonly initials = computed(() => getInitials(this.driver().name));
   readonly avatarSvg = resource({

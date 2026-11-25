@@ -10,14 +10,7 @@ import {
   IonIcon,
   ModalController,
 } from '@ionic/angular';
-import {
-  callOutline,
-  carOutline,
-  chatbubblesOutline,
-  mailOutline,
-  thumbsDown,
-  thumbsUp,
-} from 'ionicons/icons';
+import { callOutline, carOutline, chatbubblesOutline, mailOutline } from 'ionicons/icons';
 import { ChatContact } from '../../../../core/models/chat.model';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest, SeatRequestStatus } from '../../../../core/models/seat-request.model';
@@ -37,6 +30,7 @@ import {
   RoutePoint,
   TripRouteMap,
 } from '../../../../shared/components/ui/trip-route-map/trip-route-map';
+import { RATING_ICON } from '../../../../shared/utils/rating.util';
 import { formatAvailableSeats, formatSeats } from '../../../../shared/utils/seats.util';
 import { vehicleDisplayName } from '../../../../shared/utils/vehicle-display.util';
 import {
@@ -230,8 +224,7 @@ export class PassengerRequestRoute {
     return rating === undefined ? null : RATING_FORMAT().format(rating);
   });
 
-  protected readonly upIcon = thumbsUp;
-  protected readonly downIcon = thumbsDown;
+  protected readonly medalIcon = RATING_ICON;
 
   async openReviews(): Promise<void> {
     const { id, name } = this.driver();

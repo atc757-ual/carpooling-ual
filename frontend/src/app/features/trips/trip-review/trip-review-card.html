@@ -42,7 +42,7 @@
                 <span class="text-body-s text-body--strong">{{ section.target.name }}</span>
                 @if (section.view.kind === 'given' && section.view.review; as review) {
                   <span class="trip-review-card__summary-verdict">
-                    <app-rating-bar [rating]="review.rating" />
+                    <app-rating-medals [rating]="review.rating" />
                     <span class="text-caption"
                       >{{ review.rating }} · {{ ratingName(review.rating) }}</span
                     >
@@ -123,7 +123,7 @@
                     }
                   </p>
                   <!-- Debajo, solo para leer: el comentario a la izquierda y la
-                       manita con su texto a la derecha -->
+                       medallas con su texto a la derecha -->
                   <div class="trip-review-card__given">
                     <p class="trip-review-card__comment text-body-s">
                       @if (review.comment) {
@@ -135,7 +135,7 @@
                       }
                     </p>
                     <span class="trip-review-card__verdict">
-                      <app-rating-bar [rating]="review.rating" />
+                      <app-rating-medals [rating]="review.rating" />
                       <span class="text-caption"
                         >{{ review.rating }} · {{ ratingName(review.rating) }}</span
                       >

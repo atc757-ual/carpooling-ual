@@ -1,10 +1,9 @@
 import { Component, computed, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { translate, TranslocoPipe } from '@jsverse/transloco';
-import { thumbsDown, thumbsUp } from 'ionicons/icons';
 import { numberFormat } from '../../../../core/i18n/app-locale';
 import { DriverRating } from '../../../../core/models/driver-review.model';
-import { RATING_MAX, ratingName } from '../../../utils/rating.util';
+import { RATING_ICON, RATING_MAX, ratingName } from '../../../utils/rating.util';
 
 const RATING_FORMAT = () =>
   numberFormat({
@@ -19,13 +18,13 @@ export function formatReviewCount(count: number): string {
   });
 }
 
-// La fila del reparto: «5 · Muy bien» y «1 · Muy mal» en los extremos; el
+// La fila del reparto: «5 · Excelente» y «1 · Correcto» en los extremos; el
 // resto, solo el número
 export function barLabel(rating: number): string {
   return rating === 1 || rating === RATING_MAX ? `${rating} · ${ratingName(rating)}` : `${rating}`;
 }
 
-// El resumen de una nota: la media grande con el pulgar y cuántas valoraciones
+// El resumen de una nota: la media grande con la medalla y cuántas valoraciones
 // hay, y a la derecha una barra por cada nota. Lo usan las valoraciones de
 // quien conduce (en la búsqueda) y «Tus reseñas» (Mi perfil). Sin media (aún
 // sin reseñas), no pinta nada
@@ -38,14 +37,12 @@ export function barLabel(rating: number): string {
 export class RatingSummary {
   readonly rating = input.required<DriverRating>();
 
-  protected readonly upIcon = thumbsUp;
-  protected readonly downIcon = thumbsDown;
+  protected readonly medalIcon = RATING_ICON;
 
   readonly average = computed(() => {
     const average = this.rating().average;
     return average === null ? null : RATING_FORMAT().format(average);
   });
-  readonly isPositive = computed(() => (this.rating().average ?? 0) >= 3);
   readonly countText = computed(() => formatReviewCount(this.rating().count));
   // Cada nota con su parte de la barra (en % del total)
   readonly bars = computed(() => {

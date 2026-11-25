@@ -33,21 +33,19 @@ describe('RatingSummary', () => {
     const { root, component } = render(RATING);
 
     expect(root.querySelector('.rating-summary__value')?.textContent).toBe('4,4');
-    expect(root.querySelector('.rating-summary__thumb--up')).not.toBeNull();
+    expect(root.querySelector('.rating-summary__medal')).not.toBeNull();
     expect(root.textContent).toContain('5 valoraciones');
     const bars = root.querySelectorAll('.rating-summary__bar');
     expect(bars).toHaveLength(5);
     expect(bars[0].getAttribute('aria-label')).toBe('5 de 5: 3');
-    expect(component.bars()[0]).toMatchObject({ label: '5 · Muy bien', percent: 60 });
-    // Cada barra con el color de su nota (de verde a rojo)
+    expect(component.bars()[0]).toMatchObject({ label: '5 · Excelente', percent: 60 });
+    // Cada barra con el tono de su nota (más intenso cuanto más alta)
     const fills = root.querySelectorAll('.rating-summary__fill');
     expect(fills[0].className).toBe('rating-summary__fill rating-summary__fill--5');
     expect(fills[4].classList).toContain('rating-summary__fill--1');
   });
 
-  it('turns the thumb down below 3 and shows nothing without an average', () => {
-    const low = render({ ...RATING, average: 2.5 }).root;
-    expect(low.querySelector('.rating-summary__thumb--down')).not.toBeNull();
+  it('shows nothing without an average', () => {
     const { root } = render({ average: null, count: 0, distribution: [] });
     expect(root.querySelector('.rating-summary')).toBeNull();
   });
@@ -62,8 +60,8 @@ describe('formatReviewCount', () => {
 
 describe('barLabel', () => {
   it('names only the ends of the scale', () => {
-    expect(barLabel(5)).toBe('5 · Muy bien');
+    expect(barLabel(5)).toBe('5 · Excelente');
     expect(barLabel(3)).toBe('3');
-    expect(barLabel(1)).toBe('1 · Muy mal');
+    expect(barLabel(1)).toBe('1 · Correcto');
   });
 });

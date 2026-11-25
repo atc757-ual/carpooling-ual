@@ -5,11 +5,11 @@ describe('rating.util', () => {
   beforeEach(() => initAppTranslations());
 
   it('names each point of the scale, rounding and clamping', () => {
-    expect(ratingName(1)).toBe('Muy mal');
-    expect(ratingName(3)).toBe('Normal');
-    expect(ratingName(4.6)).toBe('Muy bien');
-    expect(ratingName(0)).toBe('Muy mal');
-    expect(ratingName(9)).toBe('Muy bien');
+    expect(ratingName(1)).toBe('Correcto');
+    expect(ratingName(3)).toBe('Muy bien');
+    expect(ratingName(4.6)).toBe('Excelente');
+    expect(ratingName(0)).toBe('Correcto');
+    expect(ratingName(9)).toBe('Excelente');
   });
 
   it('formats the average with one decimal and the count', () => {

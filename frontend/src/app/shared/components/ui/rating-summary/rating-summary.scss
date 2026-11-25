@@ -16,7 +16,7 @@
   gap: var(--space-xs);
 }
 
-// La media y la manita, al lado
+// La media y la medalla, al lado
 .rating-summary__score {
   display: inline-flex;
   align-items: center;
@@ -29,25 +29,19 @@
   line-height: 1;
 }
 
-.rating-summary__thumb {
+// La medalla: todas las notas son buenas (una escala de reconocimiento)
+.rating-summary__medal {
+  color: var(--color-rating);
   font-size: var(--icon-size-l);
-
-  &--up {
-    color: var(--color-success);
-  }
-
-  &--down {
-    color: var(--color-danger);
-  }
 }
 
-// «5 · Muy bien», en una línea (la columna se ajusta a la más larga)
+// «5 · Excelente», en una línea (la columna se ajusta a la más larga)
 .rating-summary__bar-label {
   white-space: nowrap;
 }
 
 // Una sola rejilla para las cinco filas (subgrid): la columna de la etiqueta
-// mide lo que la más larga («5 · Muy bien») y todas las barras empiezan y
+// mide lo que la más larga («5 · Excelente») y todas las barras empiezan y
 // acaban a la misma altura
 .rating-summary__bars {
   display: grid;
@@ -84,24 +78,23 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--color-link);
+  background: var(--color-rating);
 
-  // Cada nota con su color, de verde (Muy bien) a rojo (Muy mal), con el 3 en
-  // azul (neutro). El 4 y el 2, el verde y el rojo mezclados con la superficie:
-  // un tono más suave que vale también en oscuro
-  &--5 {
-    background: var(--color-success);
+  // Todas en dorado (todas las notas son buenas), de claro (1) a oscuro (5): el
+  // dorado mezclado con la superficie, que vale también en oscuro
+  &--4 {
+    background: color-mix(in srgb, var(--color-rating) 85%, var(--color-surface));
   }
 
-  &--4 {
-    background: color-mix(in srgb, var(--color-success) 55%, var(--color-surface));
+  &--3 {
+    background: color-mix(in srgb, var(--color-rating) 70%, var(--color-surface));
   }
 
   &--2 {
-    background: color-mix(in srgb, var(--color-danger) 55%, var(--color-surface));
+    background: color-mix(in srgb, var(--color-rating) 55%, var(--color-surface));
   }
 
   &--1 {
-    background: var(--color-danger);
+    background: color-mix(in srgb, var(--color-rating) 40%, var(--color-surface));
   }
 }

@@ -132,16 +132,10 @@ app-profile-push-setting {
   gap: var(--space-xs);
 }
 
-.profile__review-thumb {
+// La medalla de la nota: todas las notas son buenas (escala de reconocimiento)
+.profile__review-medal {
+  color: var(--color-rating);
   font-size: var(--icon-size-s);
-
-  &--up {
-    color: var(--color-success);
-  }
-
-  &--down {
-    color: var(--color-danger);
-  }
 }
 
 app-profile-push-setting,
