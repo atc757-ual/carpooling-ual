@@ -431,8 +431,7 @@
       "title": "Your reviews",
       "titleRole": "Your reviews · {{ role }}",
       "empty": "You have no reviews in this role yet.",
-      "back": "Previous reviews",
-      "forward": "Next reviews",
+      "loadingMore": "Loading more reviews…",
       "allSeen": "You have seen them all"
     },
     "seeAllReviews": "See all",

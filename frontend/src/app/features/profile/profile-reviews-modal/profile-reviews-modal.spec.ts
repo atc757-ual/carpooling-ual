@@ -74,14 +74,6 @@ describe('ProfileReviewsModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.unstubAllGlobals();
-    // jsdom no tiene ResizeObserver (lo usan las flechas del carrusel)
-    vi.stubGlobal(
-      'ResizeObserver',
-      class {
-        observe = vi.fn();
-        disconnect = vi.fn();
-      },
-    );
     listReceived.mockResolvedValue({ items: [review('v1')], total: 1 });
     getMyRating.mockResolvedValue(RATING);
   });
@@ -134,7 +126,7 @@ describe('ProfileReviewsModal', () => {
     expect(listReceived).toHaveBeenCalledTimes(2);
   });
 
-  it('loads the next five on its own when sliding to the last card', async () => {
+  it('loads the next five on its own when scrolling to the end, saying so', async () => {
     let onVisible: (entries: { isIntersecting: boolean }[]) => void = () => undefined;
     const disconnect = vi.fn();
     vi.stubGlobal(
@@ -150,19 +142,27 @@ describe('ProfileReviewsModal', () => {
     listReceived.mockResolvedValueOnce({ items: reviews(0, 5), total: 7 });
     const root = await render({ role: 'driver' });
     expect(root.querySelectorAll('.profile-reviews__item')).toHaveLength(5);
-    // Quedan más: aún sin la tarjeta de cierre
+    // Quedan más: aún sin el cierre
     expect(root.querySelector('.profile-reviews__done')).toBeNull();
 
-    listReceived.mockResolvedValueOnce({ items: reviews(5, 2), total: 7 });
+    let arrive: (page: { items: ReceivedReview[]; total: number }) => void = () => undefined;
+    listReceived.mockReturnValueOnce(new Promise((resolve) => (arrive = resolve)));
     onVisible([{ isIntersecting: false }]);
     expect(listReceived).toHaveBeenCalledTimes(1);
     onVisible([{ isIntersecting: true }]);
+    fixture.detectChanges();
+    // Mientras llegan, lo dice al final de la lista
+    expect(root.querySelector('.profile-reviews__more')?.textContent).toContain(
+      'Cargando más reseñas…',
+    );
+
+    arrive({ items: reviews(5, 2), total: 7 });
     await settle();
 
     expect(listReceived).toHaveBeenLastCalledWith('driver', 5, 5);
     expect(fixture.componentInstance.reviews()).toHaveLength(7);
-    // Ya no quedan: sin final que observar y con la tarjeta de cierre
-    expect(root.querySelector('.profile-reviews__end')).toBeNull();
+    // Ya no quedan: sin final que observar y con el cierre
+    expect(root.querySelector('.profile-reviews__more')).toBeNull();
     const done = root.querySelector('.profile-reviews__done')?.textContent ?? '';
     expect(done).toContain('Has visto todas');
     expect(done).toContain('7 valoraciones');

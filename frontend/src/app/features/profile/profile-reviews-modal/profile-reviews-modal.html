@@ -1,6 +1,8 @@
 <!-- «Tus reseñas · Conductor»: cada fila de Mi perfil abre la de su papel -->
 <app-modal-header [title]="title()" [closeLabel]="'common.close' | transloco" (closed)="close()" />
 
+<!-- Una hoja de alto fijo (list-dialog) que se desplaza dentro, como los
+     comentarios de las redes sociales: el resumen arriba y la lista debajo -->
 <div class="modal-body profile-reviews">
   @if (errorMessage(); as message) {
     <div class="notice notice--danger" role="alert">
@@ -14,102 +16,67 @@
   }
 
   @if (reviews().length > 0) {
-    <div class="profile-reviews__viewport">
-      <!-- Una tarjeta por reseña en una fila que se desliza con el dedo o
-           arrastrando, encajando en cada una (en el móvil se asoma la
-           siguiente; en escritorio, dos enteras); con el teclado o el ratón,
-           con las flechas de los lados. Al llegar a la última se cargan solas
-           otras 5 y, sin más, la tarjeta de cierre lo dice -->
-      <ul
-        #edges="scrollEdges"
-        class="profile-reviews__list"
-        appDragScroll
-        appScrollEdges
-        [attr.aria-label]="title()"
-      >
-        @for (review of reviews(); track review.id) {
-          <li class="profile-reviews__item">
-            <span class="profile-reviews__avatar" aria-hidden="true">{{
-              initials(review.author.name)
-            }}</span>
-            <div class="profile-reviews__body">
-              <div class="profile-reviews__head">
-                <span class="text-label text-label--strong">{{ review.author.name }}</span>
-                <span class="text-caption text-color-muted">{{ date(review.publishedAt) }}</span>
-              </div>
-              <span
-                class="profile-reviews__score"
-                [attr.aria-label]="
-                  'driverReviews.ratingAria' | transloco: { rating: review.rating }
-                "
-              >
-                <ion-icon
-                  class="profile-reviews__thumb"
-                  [class.profile-reviews__thumb--up]="review.rating >= 3"
-                  [class.profile-reviews__thumb--down]="review.rating < 3"
-                  [icon]="review.rating >= 3 ? upIcon : downIcon"
-                  aria-hidden="true"
-                />
-                <span class="text-caption text-body--strong" aria-hidden="true">{{
-                  review.rating
-                }}</span>
-              </span>
-              @if (review.comment) {
-                <p class="text-body-s profile-reviews__comment">{{ review.comment }}</p>
-              }
-              @if (route(review); as route) {
-                <span class="text-caption text-color-muted">{{ route }}</span>
-              }
+    <!-- Las más recientes primero, de 5 en 5: al bajar hasta el final se
+         cargan solas las siguientes («Cargando más reseñas…») y, sin más,
+         el cierre lo dice -->
+    <ul class="profile-reviews__list" [attr.aria-label]="title()">
+      @for (review of reviews(); track review.id) {
+        <li class="profile-reviews__item">
+          <span class="profile-reviews__avatar" aria-hidden="true">{{
+            initials(review.author.name)
+          }}</span>
+          <div class="profile-reviews__body">
+            <div class="profile-reviews__head">
+              <span class="text-label text-label--strong">{{ review.author.name }}</span>
+              <span class="text-caption text-color-muted">{{ date(review.publishedAt) }}</span>
             </div>
-          </li>
-        }
-        <!-- El final de la fila: al verse, las 5 siguientes (con su spinner) -->
-        @if (hasMore()) {
-          <li #listEnd class="profile-reviews__end">
-            <!-- <output>: el lector de pantalla anuncia «Cargando» al llegar -->
-            <output>
-              @if (isLoading()) {
-                <ion-spinner
-                  name="crescent"
-                  [attr.aria-label]="'driverReviews.loading' | transloco"
-                />
-              }
-            </output>
-          </li>
-        } @else {
-          <!-- Sin más: la tarjeta de cierre, con cuántas son (como el resumen) -->
-          <li class="profile-reviews__done">
-            <ion-icon [icon]="doneIcon" aria-hidden="true" />
-            <span class="text-label text-label--strong">{{
-              'profile.reviewsModal.allSeen' | transloco
-            }}</span>
-            <span class="text-caption text-color-muted">{{ totalText() }}</span>
-          </li>
-        }
-      </ul>
+            <span
+              class="profile-reviews__score"
+              [attr.aria-label]="'driverReviews.ratingAria' | transloco: { rating: review.rating }"
+            >
+              <ion-icon
+                class="profile-reviews__thumb"
+                [class.profile-reviews__thumb--up]="review.rating >= 3"
+                [class.profile-reviews__thumb--down]="review.rating < 3"
+                [icon]="review.rating >= 3 ? upIcon : downIcon"
+                aria-hidden="true"
+              />
+              <span class="text-caption text-body--strong" aria-hidden="true">{{
+                review.rating
+              }}</span>
+            </span>
+            @if (review.comment) {
+              <p class="text-body-s profile-reviews__comment">{{ review.comment }}</p>
+            }
+            @if (route(review); as route) {
+              <span class="text-caption text-color-muted">{{ route }}</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
 
-      <!-- Si quedan a un lado: degradado y flecha (también con el teclado) -->
-      @if (edges.canScrollBack()) {
-        <button
-          class="profile-reviews__arrow profile-reviews__arrow--back"
-          type="button"
-          [attr.aria-label]="'profile.reviewsModal.back' | transloco"
-          (click)="edges.scrollStep(-1)"
-        >
-          <ion-icon [icon]="backIcon" aria-hidden="true" />
-        </button>
-      }
-      @if (edges.canScrollForward()) {
-        <button
-          class="profile-reviews__arrow profile-reviews__arrow--forward"
-          type="button"
-          [attr.aria-label]="'profile.reviewsModal.forward' | transloco"
-          (click)="edges.scrollStep(1)"
-        >
-          <ion-icon [icon]="forwardIcon" aria-hidden="true" />
-        </button>
-      }
-    </div>
+    @if (hasMore()) {
+      <!-- El final de la lista: al verse, las 5 siguientes. <output>: el
+           lector de pantalla anuncia «Cargando más reseñas…» -->
+      <output #listEnd class="profile-reviews__more">
+        @if (isLoading()) {
+          <ion-spinner name="crescent" aria-hidden="true" />
+          <span class="text-body-s text-color-muted">{{
+            'profile.reviewsModal.loadingMore' | transloco
+          }}</span>
+        }
+      </output>
+    } @else {
+      <!-- Sin más: el cierre, con cuántas son (como el resumen) -->
+      <p class="profile-reviews__done">
+        <ion-icon [icon]="doneIcon" aria-hidden="true" />
+        <span class="text-label text-label--strong">{{
+          'profile.reviewsModal.allSeen' | transloco
+        }}</span>
+        <span class="text-caption text-color-muted">· {{ totalText() }}</span>
+      </p>
+    }
   }
 
   @if (isLoading() && reviews().length === 0) {

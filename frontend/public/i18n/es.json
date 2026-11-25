@@ -431,8 +431,7 @@
       "title": "Tus reseñas",
       "titleRole": "Tus reseñas · {{ role }}",
       "empty": "Aún no tienes reseñas con este papel.",
-      "back": "Reseñas anteriores",
-      "forward": "Reseñas siguientes",
+      "loadingMore": "Cargando más reseñas…",
       "allSeen": "Has visto todas"
     },
     "seeAllReviews": "Ver todas",
