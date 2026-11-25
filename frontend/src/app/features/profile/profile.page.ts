@@ -274,11 +274,12 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  // Las reseñas recibidas con el papel de la fila pulsada (cada fila, la suya)
+  // Las reseñas recibidas con el papel de la fila pulsada (cada fila, la suya),
+  // en una hoja de alto fijo que se desplaza al cargar más (list-dialog)
   async handleOpenReviews(role: ReviewTargetRole): Promise<void> {
     const modal = await this.modalController.create({
       component: ProfileReviewsModal,
-      cssClass: 'info-dialog',
+      cssClass: ['info-dialog', 'list-dialog'],
       componentProps: { role },
     });
     await modal.present();
