@@ -84,7 +84,7 @@ describe('TripReviewCard (de uno en uno)', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     expect(root.textContent).toContain('Tus valoraciones');
-    expect(root.textContent).toContain('4 · Bien');
+    expect(root.textContent).toContain('4 · Genial');
     expect(root.textContent).toContain('Más tarde, en el viaje');
     expect(root.textContent).toContain('¡Gracias por valorar!');
   });

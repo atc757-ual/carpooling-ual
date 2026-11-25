@@ -3,11 +3,14 @@
     <li class="review-list__item">
       <span class="review-list__avatar" aria-hidden="true">{{ initials(review.authorName) }}</span>
       <div class="review-list__body">
+        <!-- El nombre con sus medallas al lado y la fecha a la derecha -->
         <div class="review-list__head">
-          <span class="text-label text-label--strong">{{ review.authorName }}</span>
+          <span class="review-list__who">
+            <span class="text-label text-label--strong">{{ review.authorName }}</span>
+            <app-rating-medals [rating]="review.rating" />
+          </span>
           <span class="text-caption text-color-muted">{{ date(review.publishedAt) }}</span>
         </div>
-        <app-rating-thumbs [rating]="review.rating" />
         @if (review.comment) {
           <p class="text-body-s review-list__comment">{{ review.comment }}</p>
         } @else {

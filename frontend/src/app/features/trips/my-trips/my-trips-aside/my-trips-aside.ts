@@ -12,7 +12,7 @@ import {
   IonList,
   IonRouterLink,
 } from '@ionic/angular';
-import { addCircleOutline, leafOutline, searchOutline, thumbsDown, thumbsUp } from 'ionicons/icons';
+import { addCircleOutline, leafOutline, searchOutline } from 'ionicons/icons';
 import { UserImpact } from '../../../../core/models/my-trips.model';
 import { RoleRating } from '../../../../core/models/user.model';
 import { appLocale } from '../../../../core/i18n/app-locale';
@@ -123,6 +123,4 @@ export class MyTripsAside {
   });
 
   protected readonly co2Icon = leafOutline;
-  protected readonly upIcon = thumbsUp;
-  protected readonly downIcon = thumbsDown;
 }

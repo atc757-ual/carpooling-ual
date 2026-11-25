@@ -1,7 +1,7 @@
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject, input, output, signal } from '@angular/core';
 import { IonButton, IonIcon, IonSpinner, IonTextarea } from '@ionic/angular';
-import { addOutline, thumbsDownOutline, thumbsUpOutline } from 'ionicons/icons';
+import { addOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import {
   GivenReview,
@@ -9,10 +9,15 @@ import {
   TripReviewsService,
 } from '../../../core/services/users/trip-reviews.service';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { RATING_MAX, ratingName } from '../../../shared/utils/rating.util';
+import {
+  RATING_ICON,
+  RATING_ICON_EMPTY,
+  RATING_MAX,
+  ratingName,
+} from '../../../shared/utils/rating.util';
 
 // Valorar a quien ha viajado contigo (RF-22): 5 botones con su número entre la
-// manita abajo y la manita arriba (de 1 a 5),
+// medalla vacía y la rellena (de 1 a 5, todas buenas),
 // un comentario opcional que se abre al pedirlo, «Enviar valoración»
 // y, si se puede dejar para luego, «Ahora no» debajo.
 // En En curso al llegar y en el detalle del viaje terminado
@@ -41,8 +46,8 @@ export class TripReviewForm {
   readonly error = signal<string | null>(null);
   protected readonly options = Array.from({ length: RATING_MAX }, (_, index) => index + 1);
   protected readonly ratingName = ratingName;
-  protected readonly upIcon = thumbsUpOutline;
-  protected readonly downIcon = thumbsDownOutline;
+  protected readonly fullIcon = RATING_ICON;
+  protected readonly emptyIcon = RATING_ICON_EMPTY;
   protected readonly addIcon = addOutline;
   protected readonly maxComment = MAX_REVIEW_COMMENT_LENGTH;
 

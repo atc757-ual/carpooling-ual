@@ -14,10 +14,11 @@
   list-style: none;
 }
 
+// Con aire entre reseñas (16px arriba y abajo) para que no se vean apretadas
 .review-list__item {
   display: flex;
   gap: var(--space-s);
-  padding-block: var(--space-s);
+  padding-block: var(--space-base);
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
 
   &:last-child {
@@ -43,16 +44,28 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--space-xxs);
+  gap: var(--space-xs);
   min-width: 0;
 }
 
 .review-list__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-xs);
+}
+
+// El nombre y sus medallas, juntos (si no caben, las medallas bajan); las
+// medallas, más pequeñas que el nombre (14px) para que no compitan con él
+.review-list__who {
+  --rating-medals-size: var(--icon-size-xs);
+
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s);
+  min-width: 0;
 }
 
 .review-list__comment {

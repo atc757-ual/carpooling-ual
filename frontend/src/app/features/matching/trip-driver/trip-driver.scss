@@ -49,7 +49,7 @@
   color: var(--color-text-muted);
 }
 
-// La manita y la nota («4,8»)
+// La medalla y la nota («4,8»)
 .trip-driver__rating {
   display: inline-flex;
   align-items: center;
@@ -59,16 +59,10 @@
   white-space: nowrap;
 }
 
-.trip-driver__thumb {
+// La medalla de la nota: todas las notas son buenas (escala de reconocimiento)
+.trip-driver__medal {
+  color: var(--color-rating);
   font-size: var(--icon-size-s);
-
-  &--up {
-    color: var(--color-success);
-  }
-
-  &--down {
-    color: var(--color-danger);
-  }
 }
 
 // La nota se pulsa para ver las valoraciones

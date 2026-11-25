@@ -27,13 +27,7 @@
           [attr.aria-label]="'request.ratingLabel' | transloco: { rating }"
           (click)="openReviews()"
         >
-          <ion-icon
-            class="trip-driver__thumb"
-            [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
-            [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
-            [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
-            aria-hidden="true"
-          />
+          <ion-icon class="trip-driver__medal" [icon]="medalIcon" aria-hidden="true" />
           <span>{{ rating }}</span>
         </button>
       } @else {
@@ -41,13 +35,7 @@
           class="trip-driver__rating"
           [attr.aria-label]="'driverReviews.ratingAria' | transloco: { rating }"
         >
-          <ion-icon
-            class="trip-driver__thumb"
-            [class.trip-driver__thumb--up]="(driver().rating ?? 0) >= 3"
-            [class.trip-driver__thumb--down]="(driver().rating ?? 0) < 3"
-            [icon]="(driver().rating ?? 0) >= 3 ? upIcon : downIcon"
-            aria-hidden="true"
-          />
+          <ion-icon class="trip-driver__medal" [icon]="medalIcon" aria-hidden="true" />
           <span>{{ rating }}</span>
         </span>
       }

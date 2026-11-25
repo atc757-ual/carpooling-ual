@@ -54,7 +54,7 @@ describe('ReviewList', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('shows each review with its thumbs, comment and trip', () => {
+  it('shows each review with its medals, comment and trip', () => {
     const root = render({
       items: [
         item('v1', { route: 'Roquetas de Mar → Campus UAL' }),
@@ -68,7 +68,7 @@ describe('ReviewList', () => {
     expect(rows[0].textContent).toContain('Lucía Cortés');
     expect(rows[0].textContent).toContain('Muy puntual.');
     expect(rows[0].textContent).toContain('Roquetas de Mar → Campus UAL');
-    expect(rows[0].querySelectorAll('.rating-thumbs__thumb--filled')).toHaveLength(4);
+    expect(rows[0].querySelectorAll('.rating-medals__medal--filled')).toHaveLength(4);
     expect(rows[1].textContent).toContain('Sin comentario');
     expect(root.querySelector('ul')?.getAttribute('aria-label')).toBe('Tus reseñas');
     // Con 5 o menos, sin el cierre (se ven sin bajar)

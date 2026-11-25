@@ -79,16 +79,10 @@ ion-card.passenger-route ion-card-content {
   }
 }
 
-.trip-driver__thumb {
+// La medalla de la nota: todas las notas son buenas (escala de reconocimiento)
+.trip-driver__medal {
+  color: var(--color-rating);
   font-size: var(--icon-size-s);
-
-  &--up {
-    color: var(--color-success);
-  }
-
-  &--down {
-    color: var(--color-danger);
-  }
 }
 
 .passenger-route__driver-row {

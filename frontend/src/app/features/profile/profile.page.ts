@@ -26,8 +26,6 @@ import {
   moon,
   shieldCheckmarkOutline,
   sunny,
-  thumbsDown,
-  thumbsUp,
   trashOutline,
 } from 'ionicons/icons';
 import { RouterLink } from '@angular/router';
@@ -54,6 +52,7 @@ import {
 } from '../../shared/components/modals/legal-modal/legal-modal';
 import { formatPersonName, fullName } from '../../shared/utils/person-name.util';
 import { formatPhone } from '../../shared/utils/phone.util';
+import { RATING_ICON } from '../../shared/utils/rating.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
 import { PREFERENCE_ICONS, TIME_TOLERANCE_ICON } from './preference-icons';
 import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
@@ -216,8 +215,7 @@ export class ProfilePage implements OnInit {
 
   protected readonly sunIcon = sunny;
   protected readonly moonIcon = moon;
-  protected readonly thumbsUpIcon = thumbsUp;
-  protected readonly thumbsDownIcon = thumbsDown;
+  protected readonly medalIcon = RATING_ICON;
   protected readonly toleranceIcon = TIME_TOLERANCE_ICON;
   protected readonly keyIcon = keyOutline;
   protected readonly helpIcon = helpCircleOutline;

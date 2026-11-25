@@ -80,6 +80,10 @@
   --color-warning-text: #{$yellow-700};
   --color-on-warning: #{$neutral-950};
 
+  // Valoraciones (medallas): dorado, distinto del azul de la interfaz. El
+  // 700 en claro (el 500 no llega a 3:1 sobre blanco)
+  --color-rating: #{$yellow-700};
+
   // Degradados
   --gradient-brand: #{$gradient-brand};
   --gradient-highlight: #{$gradient-highlight};
@@ -148,6 +152,8 @@
   --color-warning-subtle: #{$yellow-900};
   --color-warning-text: #{$yellow-200};
   --color-on-warning: #{$neutral-950};
+
+  --color-rating: #{$yellow-400};
 
   --shadow-s: 0 1px 2px rgb(0 0 0 / 40%);
   --shadow-base: 0 4px 12px rgb(0 0 0 / 50%);

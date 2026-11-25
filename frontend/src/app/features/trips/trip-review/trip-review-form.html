@@ -1,6 +1,6 @@
 <form class="trip-review" (submit)="$event.preventDefault(); handleSend()">
-  <!-- Una escala de 5 botones con su número entre la manita abajo y la manita
-       arriba (se guarda de 1 a 5). Cada botón, un radio nativo oculto
+  <!-- Una escala de 5 botones con su número entre la medalla vacía y la
+       rellena (se guarda de 1 a 5; todas las notas son buenas). Cada botón, un radio nativo oculto
        (teclado y lector de pantalla de serie) de 48 × 48px;
        en verde claro hasta el elegido y el elegido en verde -->
   <fieldset class="trip-review__fieldset">
@@ -9,8 +9,8 @@
     </legend>
     <div class="trip-review__scale">
       <ion-icon
-        class="trip-review__end trip-review__end--down"
-        [icon]="downIcon"
+        class="trip-review__end trip-review__end--empty"
+        [icon]="emptyIcon"
         aria-hidden="true"
       />
       <div class="trip-review__steps">
@@ -35,11 +35,15 @@
           </label>
         }
       </div>
-      <ion-icon class="trip-review__end trip-review__end--up" [icon]="upIcon" aria-hidden="true" />
+      <ion-icon
+        class="trip-review__end trip-review__end--full"
+        [icon]="fullIcon"
+        aria-hidden="true"
+      />
     </div>
     <p class="trip-review__chosen" [class.text-color-muted]="rating() === 0" aria-hidden="true">
       @if (rating() === 0) {
-        {{ 'tripReview.elige1MuyMal' | transloco }}
+        {{ 'tripReview.chooseRating' | transloco }}
       } @else {
         <b>{{ 'tripReview.ofFive' | transloco: { rating: rating() } }}</b> ·
         {{ ratingName(rating()) }}

@@ -16,7 +16,7 @@ import {
   ReviewTargetRole,
   TripReviewsService,
 } from '../../../core/services/users/trip-reviews.service';
-import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
+import { RatingMedals } from '../../../shared/components/ui/rating-medals/rating-medals';
 import { ratingName } from '../../../shared/utils/rating.util';
 import { TripReviewForm } from './trip-review-form';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
@@ -44,7 +44,7 @@ export type TripReviewView =
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
-    RatingBar,
+    RatingMedals,
     TripReviewForm,
     TranslocoPipe,
   ],

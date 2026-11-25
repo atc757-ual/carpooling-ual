@@ -1,17 +1,11 @@
 @if (average(); as average) {
-  <!-- Media (con el pulgar) y reparto por nota -->
+  <!-- Media (con la medalla) y reparto por nota -->
   <section class="rating-summary" [attr.aria-label]="'driverReviews.summary' | transloco">
     <div class="rating-summary__average">
-      <!-- «5,0 👍» en una línea y debajo cuántas valoraciones -->
+      <!-- «5,0 🏅» en una línea y debajo cuántas valoraciones -->
       <span class="rating-summary__score">
         <span class="rating-summary__value">{{ average }}</span>
-        <ion-icon
-          class="rating-summary__thumb"
-          [class.rating-summary__thumb--up]="isPositive()"
-          [class.rating-summary__thumb--down]="!isPositive()"
-          [icon]="isPositive() ? upIcon : downIcon"
-          aria-hidden="true"
-        />
+        <ion-icon class="rating-summary__medal" [icon]="medalIcon" aria-hidden="true" />
       </span>
       <span class="text-caption text-color-muted">{{ countText() }}</span>
     </div>

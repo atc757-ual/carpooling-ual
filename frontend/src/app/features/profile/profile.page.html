@@ -240,10 +240,8 @@
                       <ion-label class="text-body text-body--strong">{{ row.role }}</ion-label>
                       <span slot="end" class="profile__review-score">
                         <ion-icon
-                          class="profile__review-thumb"
-                          [class.profile__review-thumb--up]="row.value >= 3"
-                          [class.profile__review-thumb--down]="row.value < 3"
-                          [icon]="row.value >= 3 ? thumbsUpIcon : thumbsDownIcon"
+                          class="profile__review-medal"
+                          [icon]="medalIcon"
                           aria-hidden="true"
                         />
                         <span class="text-body">{{ row.average }}</span>

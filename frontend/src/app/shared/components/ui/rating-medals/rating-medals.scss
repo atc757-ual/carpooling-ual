@@ -1,0 +1,17 @@
+// Cinco medallas en fila: las de la nota, rellenas en dorado (--color-rating);
+// el resto, vacías en gris. Quien la usa puede cambiar su tamaño con
+// --rating-medals-size (16px por defecto)
+.rating-medals {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xxs);
+}
+
+.rating-medals__medal {
+  color: var(--color-text-muted);
+  font-size: var(--rating-medals-size, var(--icon-size-s));
+
+  &--filled {
+    color: var(--color-rating);
+  }
+}
