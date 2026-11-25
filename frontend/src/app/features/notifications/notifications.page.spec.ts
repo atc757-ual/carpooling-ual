@@ -252,6 +252,27 @@ describe('NotificationsPage', () => {
     );
   });
 
+  it('tells an admin who is reviewing it and opens it in the panel', async () => {
+    const root = await render(
+      () =>
+        Promise.resolve([
+          {
+            ...notification('n1', 'incident_reported', true),
+            incident: { id: 'i1', href: '/api/incidents/i1' },
+            reviewerName: 'Ana',
+          },
+        ]),
+      ['admin'],
+    );
+    expect(root.querySelector('.notification__reviewer')?.textContent?.trim()).toBe(
+      'Lo está revisando Ana',
+    );
+
+    await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
+
+    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/admin/incidents/i1');
+  });
+
   it('shows the API error when it cannot mark them', async () => {
     await render(() => Promise.resolve([notification('n1', 'request_received')]));
     service['markRead'].mockRejectedValue(new Error('down'));

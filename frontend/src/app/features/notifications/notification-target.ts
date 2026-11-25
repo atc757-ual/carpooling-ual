@@ -3,7 +3,11 @@ import { NotificationType } from '../../core/models/notification.model';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ActiveModeService } from '../../core/services/users/active-mode.service';
 import { HELP_CENTER_PATH, HELP_INCIDENT_PARAM } from '../profile/help-center/help-center.util';
-import { isReporterIncidentNotice, notificationMode } from './notification-texts';
+import {
+  isAdminIncidentNotice,
+  isReporterIncidentNotice,
+  notificationMode,
+} from './notification-texts';
 
 // Un mensaje nuevo del chat (solo llega por push: no es un aviso de Avisos)
 export const CHAT_MESSAGE_PUSH = 'chat_message';
@@ -29,9 +33,9 @@ export interface NotificationTargetDeps {
 // Abre lo suyo de un aviso (al pulsarlo en Avisos o en una push): el chat del
 // viaje, la solicitud del pasajero, el viaje del conductor o, sin ellos, Mis
 // viajes con el modo que toca. El curso de mi reporte, su ventana en Ayuda y
-// soporte. Las incidencias del administrador y lo desconocido, Avisos.
-// replaceUrl: al entrar desde una push (/push-open), para que volver no
-// regrese a esa página de paso
+// soporte; una incidencia para el administrador, su ficha en el panel. Lo
+// desconocido, Avisos. replaceUrl: al entrar desde una push (/push-open), para
+// que volver no regrese a esa página de paso
 export async function openNotificationTarget(
   { router, auth, activeMode }: NotificationTargetDeps,
   target: NotificationTarget,
@@ -43,8 +47,9 @@ export async function openNotificationTarget(
     await go(chatUrl(target));
     return;
   }
-  if (isReporterIncidentNotice(target.type) && target.incidentId) {
-    await go(`${HELP_CENTER_PATH}?${HELP_INCIDENT_PARAM}=${target.incidentId}`);
+  const incident = incidentUrl(target, auth);
+  if (incident !== null) {
+    await go(incident);
     return;
   }
   const mode = notificationMode(target.type as NotificationType) ?? null;
@@ -57,6 +62,20 @@ export async function openNotificationTarget(
     await activeMode.setMode(mode);
   }
   await go(tripUrl(mode, target));
+}
+
+// La incidencia de un aviso: la de mi reporte, en Ayuda y soporte; la del
+// administrador, en el panel (solo si lo es). null si no es de incidencia o
+// no lleva la incidencia
+function incidentUrl({ type, incidentId }: NotificationTarget, auth: AuthService): string | null {
+  if (!incidentId) return null;
+  if (isReporterIncidentNotice(type)) {
+    return `${HELP_CENTER_PATH}?${HELP_INCIDENT_PARAM}=${incidentId}`;
+  }
+  if (isAdminIncidentNotice(type) && auth.hasProfile('admin')) {
+    return `/admin/incidents/${incidentId}`;
+  }
+  return null;
 }
 
 // Directo a lo suyo: el pasajero, a su solicitud; el conductor, a su viaje.

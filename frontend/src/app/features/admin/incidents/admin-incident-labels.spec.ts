@@ -5,6 +5,7 @@ import {
   incidentMoments,
   incidentStatus,
   incidentRoute,
+  isUntakenTooLong,
   reviewStateOf,
   severityOf,
 } from './admin-incident-labels';
@@ -60,6 +61,14 @@ describe('admin incident labels', () => {
       label: 'Atendida',
       cssClass: 'status status--accepted',
     });
+  });
+
+  it('marks the registered ones nobody has taken in 24 h', () => {
+    // INCIDENT se registró el 02/11 a las 08:05 (UTC)
+    expect(isUntakenTooLong(INCIDENT, new Date('2026-11-03T08:04:00.000Z'))).toBe(false);
+    expect(isUntakenTooLong(INCIDENT, new Date('2026-11-03T08:05:00.000Z'))).toBe(true);
+    expect(isUntakenTooLong(IN_REVIEW, new Date('2026-11-10T08:00:00.000Z'))).toBe(false);
+    expect(isUntakenTooLong(REVIEWED, new Date('2026-11-10T08:00:00.000Z'))).toBe(false);
   });
 
   it('tells what the admin can do with the review', () => {

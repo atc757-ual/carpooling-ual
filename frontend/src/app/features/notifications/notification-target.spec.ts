@@ -11,10 +11,13 @@ describe('openNotificationTarget', () => {
   let navigateByUrl: ReturnType<typeof vi.fn>;
   let setMode: ReturnType<typeof vi.fn>;
   let mode: string | null;
+  let isAdmin: boolean;
 
   const deps = () => ({
     router: { navigateByUrl } as unknown as Router,
-    auth: { hasProfile: () => true } as unknown as AuthService,
+    auth: {
+      hasProfile: (profile: string) => profile !== 'admin' || isAdmin,
+    } as unknown as AuthService,
     activeMode: { mode: () => mode, setMode } as unknown as ActiveModeService,
   });
 
@@ -22,6 +25,7 @@ describe('openNotificationTarget', () => {
     navigateByUrl = vi.fn().mockResolvedValue(true);
     setMode = vi.fn().mockResolvedValue(undefined);
     mode = 'driver';
+    isAdmin = false;
   });
 
   it('opens the trip chat for a chat message, or Mensajes without a trip', async () => {
@@ -56,12 +60,21 @@ describe('openNotificationTarget', () => {
     expect(navigateByUrl).toHaveBeenNthCalledWith(2, '/tabs/trips');
   });
 
-  it('opens Avisos for the admin incident notices and unknown types', async () => {
+  it('opens Avisos for admin incident notices without being admin and for unknown types', async () => {
     await openNotificationTarget(deps(), { type: 'incident_reported', incidentId: 'i1' });
     await openNotificationTarget(deps(), { type: 'something_new' });
 
     expect(navigateByUrl).toHaveBeenCalledTimes(2);
     expect(navigateByUrl).toHaveBeenLastCalledWith('/tabs/notifications');
+  });
+
+  it('opens the incident in the admin panel for an admin', async () => {
+    isAdmin = true;
+    await openNotificationTarget(deps(), { type: 'incident_reported', incidentId: 'i1' });
+    await openNotificationTarget(deps(), { type: 'incident_reminder', incidentId: 'i2' }, true);
+
+    expect(navigateByUrl).toHaveBeenNthCalledWith(1, '/admin/incidents/i1');
+    expect(navigateByUrl).toHaveBeenNthCalledWith(2, '/admin/incidents/i2', { replaceUrl: true });
   });
 
   it('opens my report in Help and support from the notice of its progress', async () => {

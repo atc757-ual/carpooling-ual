@@ -325,6 +325,7 @@
     "tripDeparture": "Salida del viaje",
     "incidentLabel": "Incidencia registrada",
     "incidentDetail": "Requiere revisión del equipo administrador",
+    "reviewing": "Lo está revisando {{ name }}",
     "documentLabel": "Documento actualizado",
     "documentDetail": "Toca para ver qué ha cambiado",
     "loadMore": "Ver más",

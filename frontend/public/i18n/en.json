@@ -325,6 +325,7 @@
     "tripDeparture": "Ride departure",
     "incidentLabel": "Incident reported",
     "incidentDetail": "Needs review by the admin team",
+    "reviewing": "{{ name }} is reviewing it",
     "documentLabel": "Document updated",
     "documentDetail": "Tap to see what changed",
     "loadMore": "Show more",
