@@ -40,6 +40,12 @@
   font-weight: var(--font-weight-semibold);
 }
 
+// «Más de 24 h» junto al estado (debajo si no cabe)
+.incidents__overdue {
+  margin-inline-start: var(--space-xs);
+  white-space: nowrap;
+}
+
 // La gravedad, en el borde izquierdo de la fila con el color de su rol (la
 // categoría la dice en texto: el color solo acompaña)
 .incidents__row td:first-child {

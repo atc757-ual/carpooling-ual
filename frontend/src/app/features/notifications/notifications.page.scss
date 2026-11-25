@@ -301,6 +301,13 @@ ion-content {
   overflow-wrap: anywhere;
 }
 
+// «Lo está revisando Ana»: la píldora azul de «En revisión», a su ancho y
+// debajo del detalle
+.notification__reviewer {
+  align-self: flex-start;
+  margin-top: var(--space-xs);
+}
+
 .notification__departure {
   display: flex;
   flex-wrap: wrap;

@@ -135,6 +135,12 @@
                             <span>{{ 'notifications.documentDetail' | transloco }}</span>
                           }
                         </span>
+                        <!-- Otro administrador ya la ha cogido: no hace falta cogerla -->
+                        @if (item.notification.reviewerName; as reviewer) {
+                          <span class="status status--info notification__reviewer">
+                            {{ 'notifications.reviewing' | transloco: { name: reviewer } }}
+                          </span>
+                        }
                       </span>
                       <time
                         class="notification__time text-body-s text-color-muted"

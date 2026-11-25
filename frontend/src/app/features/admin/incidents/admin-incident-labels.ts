@@ -69,6 +69,22 @@ export function incidentStatus(status: AdminIncident['status']): {
   return STATUSES[status];
 }
 
+// Horas registrada sin que nadie la coja a partir de las que se marca en rojo
+// (las mismas del recordatorio a los administradores)
+export const UNTAKEN_ALERT_HOURS = 24;
+const HOUR_MS = 60 * 60 * 1000;
+
+// Registrada hace 24 h o más y sin coger: se marca «Más de 24 h» en rojo
+export function isUntakenTooLong(
+  { status, reportedAt }: Pick<AdminIncident, 'status' | 'reportedAt'>,
+  now: Date,
+): boolean {
+  return (
+    status === 'open' &&
+    now.getTime() - new Date(reportedAt).getTime() >= UNTAKEN_ALERT_HOURS * HOUR_MS
+  );
+}
+
 // Lo que puede hacer el administrador con la revisión: empezarla (registrada),
 // atenderla o dejarla (la revisa él), solo verla (la revisa otro o está
 // implicado en el viaje) o leer la resolución (atendida)

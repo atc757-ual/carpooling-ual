@@ -53,6 +53,10 @@ const REPORTER_INCIDENT_TYPES: ReadonlySet<string> = new Set([
   'incident_in_review',
   'incident_reviewed',
 ]);
+const ADMIN_INCIDENT_TYPES: ReadonlySet<string> = new Set([
+  'incident_reported',
+  'incident_reminder',
+]);
 
 export function notificationMode(type: NotificationType): TravelMode | null {
   return MODES[type];
@@ -66,6 +70,12 @@ export function notificationCategory(type: NotificationType): 'travel' | 'accoun
 // Un aviso del curso de mi reporte: abre su ventana en Ayuda y soporte
 export function isReporterIncidentNotice(type: string): boolean {
   return REPORTER_INCIDENT_TYPES.has(type);
+}
+
+// Un aviso de incidencia para el administrador (nueva o sin coger): abre su
+// ficha en el panel
+export function isAdminIncidentNotice(type: string): boolean {
+  return ADMIN_INCIDENT_TYPES.has(type);
 }
 
 // «Ahora», «hace 5 min», «hace 3 h», «Ayer» y después la fecha («jue, 30 oct»)

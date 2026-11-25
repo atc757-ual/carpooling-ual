@@ -49,6 +49,7 @@ import { openLegalModal } from '../../shared/components/modals/legal-modal/legal
 import { openNotificationTarget } from './notification-target';
 import {
   formatElapsed,
+  isAdminIncidentNotice,
   isReporterIncidentNotice,
   legalDocumentOf,
   notificationCategory,
@@ -267,10 +268,12 @@ export class NotificationsPage implements OnInit {
         await openLegalModal(this.modalController, document);
         return;
       }
-      if (
-        notificationMode(notification.type) === null &&
-        !isReporterIncidentNotice(notification.type)
-      ) {
+      // Sin nada que abrir se queda en Avisos: sin modo y sin incidencia que
+      // le toque (la de su reporte, o la del panel si es administrador)
+      const opensIncident =
+        isReporterIncidentNotice(notification.type) ||
+        (isAdminIncidentNotice(notification.type) && this.auth.hasProfile('admin'));
+      if (notificationMode(notification.type) === null && !opensIncident) {
         return;
       }
       await openNotificationTarget(

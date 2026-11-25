@@ -29,6 +29,7 @@ import {
   formatDateTime,
   incidentRoute,
   incidentStatus,
+  isUntakenTooLong,
   severityOf,
   STATUS_FILTERS,
   StatusFilter,
@@ -93,8 +94,9 @@ export class AdminIncidentsPage {
     loader: ({ params }) => this.incidents.list(params),
   });
 
-  readonly rows = computed(() =>
-    (this.page.value()?.items ?? []).map((incident) => {
+  readonly rows = computed(() => {
+    const now = new Date();
+    return (this.page.value()?.items ?? []).map((incident) => {
       const status = incidentStatus(incident.status);
       return {
         id: incident.id,
@@ -105,9 +107,11 @@ export class AdminIncidentsPage {
         date: formatDateTime(incident.reportedAt),
         status: status.label,
         statusClass: status.cssClass,
+        // Más de 24 h sin que nadie la coja: en rojo
+        isOverdue: isUntakenTooLong(incident, now),
       };
-    }),
-  );
+    });
+  });
   readonly total = computed(() => this.page.value()?.total ?? 0);
   // Lo que no es lo de por defecto (estado distinto de «Todas» y categoría),
   // para el resumen del móvil con «Más filtros» cerrado

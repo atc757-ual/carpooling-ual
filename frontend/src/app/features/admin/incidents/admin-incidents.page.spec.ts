@@ -53,7 +53,9 @@ describe('AdminIncidentsPage', () => {
       'Con el conductor',
       'Roquetas de Mar → Campus UAL',
     ]);
-    expect(cells[4]).toBe('Registrada');
+    // Registrada hace más de 24 h y sin coger: también «Más de 24 h», en rojo
+    expect(cells[4]).toBe('Registrada, Más de 24 h');
+    expect(row?.querySelector('.incidents__overdue.status--danger')).not.toBeNull();
     expect(row?.querySelector('a')?.getAttribute('href')).toBe('/i1');
     // Se gestiona solo desde el detalle
     expect(root.textContent).not.toContain('Marcar revisada');

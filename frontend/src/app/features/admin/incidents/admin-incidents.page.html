@@ -91,6 +91,12 @@
                 <td class="incidents__nowrap incidents__cell-date">{{ row.date }}</td>
                 <td class="incidents__cell-status">
                   <span [class]="row.statusClass">{{ row.status }}</span>
+                  <!-- Registrada hace 24 h o más y sin coger: en rojo (la coma,
+                       para que el lector de pantalla no lo lea junto) -->
+                  @if (row.isOverdue) {
+                    <span class="visually-hidden">, </span>
+                    <span class="status status--danger incidents__overdue">Más de 24 h</span>
+                  }
                 </td>
                 <td class="incidents__cell-action">
                   <a class="admin-table__link admin-table__link--row" [routerLink]="[row.id]">
