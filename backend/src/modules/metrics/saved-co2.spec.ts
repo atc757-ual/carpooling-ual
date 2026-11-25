@@ -40,6 +40,24 @@ describe('saved CO₂', () => {
     ).toBe(0);
   });
 
+  it('uses the km of the direct route when the trip has one', () => {
+    const legs = [
+      {
+        origin: ROQUETAS,
+        destination: UAL_CAMPUS,
+        directKm: 24.6,
+        carsAvoided: 2,
+      },
+    ];
+    // 24,6 km de OSRM × 0,159 kg/km = 3,9 kg por coche; dos coches
+    expect(savedCo2Kg(legs)).toBe(7.8);
+    expect(sharedKm(legs)).toBe(24.6);
+    // Sin ruta (null), la línea recta × 1,3, como antes
+    expect(savedCo2Kg([{ ...legs[0], directKm: null, carsAvoided: 1 }])).toBe(
+      4.1,
+    );
+  });
+
   it('saves nothing without trips or when origin and destination match', () => {
     expect(savedCo2Kg([])).toBe(0);
     expect(

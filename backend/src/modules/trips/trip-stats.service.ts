@@ -4,6 +4,7 @@ import { EntityManager, In, MoreThan, Repository } from 'typeorm';
 import type { Point } from 'typeorm';
 import { LateCancellation } from './entities/late-cancellation.entity';
 import { Trip } from './entities/trip.entity';
+import { TripRoute } from './entities/trip-route.entity';
 import { Page, PageRequest } from '../../shared/pagination/page';
 import { TripNotFoundError } from './errors/trip-not-found.error';
 import { DAY_MS, LATE_CANCELLATION_WINDOW_DAYS } from './trip-timing';
@@ -26,10 +27,13 @@ export interface AdminTripFilter {
   number?: number;
 }
 
-// Un trayecto compartido: de dónde a dónde y cuántos coches dejaron de salir
+// Un trayecto compartido: de dónde a dónde, los km de la ruta directa (sin
+// recogidas; null si el viaje no tiene ruta guardada) y cuántos coches
+// dejaron de salir
 export interface SharedLeg {
   origin: Point;
   destination: Point;
+  directKm: number | null;
   carsAvoided: number;
 }
 
@@ -49,6 +53,8 @@ export class TripStatsService {
     private readonly tripsRepository: Repository<Trip>,
     @InjectRepository(LateCancellation)
     private readonly lateCancellationsRepository: Repository<LateCancellation>,
+    @InjectRepository(TripRoute)
+    private readonly routesRepository: Repository<TripRoute>,
   ) {}
 
   // Los viajes que el conductor terminó, con los pasajeros que llevó (cada
@@ -56,6 +62,7 @@ export class TripStatsService {
   async finishedLegsByDriver(driverId: string): Promise<SharedLeg[]> {
     const trips = await this.tripsRepository.find({
       select: {
+        id: true,
         origin: true,
         destination: true,
         offeredSeats: true,
@@ -63,9 +70,11 @@ export class TripStatsService {
       },
       where: { driverId, status: 'finished' },
     });
+    const directKms = await this.directKmByTrip(trips);
     return trips.map((trip) => ({
       origin: trip.origin,
       destination: trip.destination,
+      directKm: directKms.get(trip.id) ?? null,
       carsAvoided: trip.offeredSeats - trip.availableSeats,
     }));
   }
@@ -80,11 +89,29 @@ export class TripStatsService {
       select: { id: true, origin: true, destination: true },
       where: { id: In([...new Set(tripIds)]) },
     });
-    return trips.map(({ origin, destination }) => ({
+    const directKms = await this.directKmByTrip(trips);
+    return trips.map(({ id, origin, destination }) => ({
       origin,
       destination,
+      directKm: directKms.get(id) ?? null,
       carsAvoided: 1,
     }));
+  }
+
+  // Los km de la ruta directa de cada viaje, en una sola consulta
+  private async directKmByTrip(
+    trips: readonly Pick<Trip, 'id'>[],
+  ): Promise<Map<string, number>> {
+    if (trips.length === 0) {
+      return new Map();
+    }
+    const routes = await this.routesRepository.find({
+      select: { tripId: true, directDistanceKm: true },
+      where: { tripId: In(trips.map(({ id }) => id)) },
+    });
+    return new Map(
+      routes.map(({ tripId, directDistanceKm }) => [tripId, directDistanceKm]),
+    );
   }
 
   // Viajes publicados por cada conductor, sin contar los cancelados
