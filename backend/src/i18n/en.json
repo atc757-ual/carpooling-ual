@@ -40,6 +40,32 @@
         "rate": "Rate {{ driver }}: it helps the community. You have 7 days.",
         "button": "Rate {{ driver }}"
       }
+    },
+    "incident": {
+      "categories": {
+        "technical": "a technical problem",
+        "driver": "a problem with the driver",
+        "passenger": "a problem with a passenger",
+        "safety": "a safety problem",
+        "chat_behavior": "behaviour in the chat",
+        "other": "another reason"
+      },
+      "urgent": {
+        "subject": "Urgent incident {{ code }} on a ride in progress",
+        "title": "Incident {{ code }} was reported during a ride in progress.",
+        "what": "It is about {{ category }}, on the ride {{ route }}.",
+        "open": "Open it in the admin panel to handle it:",
+        "button": "Open in the panel",
+        "footer": "You receive this email because you manage Carpooling UAL."
+      },
+      "reviewed": {
+        "subject": "We have dealt with your report {{ code }}",
+        "title": "We have dealt with your report {{ code }}.",
+        "answer": "Our reply:",
+        "open": "You can also see it in Help and support:",
+        "button": "See my report",
+        "footer": "You receive this email because you reported an incident on Carpooling UAL."
+      }
     }
   },
   "push": {

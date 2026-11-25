@@ -40,6 +40,32 @@
         "rate": "Valora a {{ driver }}: ayuda a la comunidad. Tienes 7 días.",
         "button": "Valorar a {{ driver }}"
       }
+    },
+    "incident": {
+      "categories": {
+        "technical": "un problema técnico",
+        "driver": "un problema con el conductor",
+        "passenger": "un problema con un pasajero",
+        "safety": "un problema de seguridad",
+        "chat_behavior": "el comportamiento en el chat",
+        "other": "otro motivo"
+      },
+      "urgent": {
+        "subject": "Incidencia urgente {{ code }} en un viaje en curso",
+        "title": "Se ha registrado la incidencia {{ code }} durante un viaje en curso.",
+        "what": "Es por {{ category }}, en el viaje {{ route }}.",
+        "open": "Ábrela en el panel para atenderla:",
+        "button": "Abrir en el panel",
+        "footer": "Recibes este correo porque administras Carpooling UAL."
+      },
+      "reviewed": {
+        "subject": "Hemos atendido tu reporte {{ code }}",
+        "title": "Hemos atendido tu reporte {{ code }}.",
+        "answer": "Nuestra respuesta:",
+        "open": "Puedes verla también en Ayuda y soporte:",
+        "button": "Ver mi reporte",
+        "footer": "Recibes este correo porque reportaste una incidencia en Carpooling UAL."
+      }
     }
   },
   "push": {

@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 import { DomainEvent } from '../src/events/entities/domain-event.entity';
@@ -14,6 +15,9 @@ import { RequestsService } from '../src/modules/requests/requests.service';
 import { TripsService } from '../src/modules/trips/trips.service';
 import { UsersService } from '../src/modules/users/users.service';
 import { VehiclesService } from '../src/modules/users/vehicles.service';
+import { Incident } from '../src/modules/incidents/entities/incident.entity';
+import { IncidentNoticesService } from '../src/modules/incidents/incident-notices.service';
+import { testMailbox } from './support/accounts';
 import { deleteTestUsers } from './support/cleanup';
 import { publishableDeparture, setDepartureIn } from './support/trips';
 
@@ -37,7 +41,7 @@ interface NoticeRow {
 }
 
 describe('Incident review (e2e)', () => {
-  let app: INestApplication;
+  let app: INestApplication<App>;
   let dataSource: DataSource;
   let review: IncidentReviewService;
   let usersService: UsersService;
@@ -203,6 +207,64 @@ describe('Incident review (e2e)', () => {
     await review.resolve(bob, id, RESOLUTION);
     expect(await notices('incident_reviewed')).toHaveLength(1);
     expect(await reportedTo(ada)).toMatchObject({ reviewerName: 'bob' });
+  });
+
+  // Los correos salen al confirmarse la transacción, sin esperarlos: se
+  // espera al de esa incidencia (el buzón guarda los de los tests anteriores,
+  // con las mismas direcciones)
+  async function mailAbout(email: string, incidentId: string) {
+    const mailbox = testMailbox(app);
+    const find = () =>
+      mailbox.sentTo(email).find(({ text }) => text.includes(incidentId));
+    for (let tries = 0; tries < 50 && find() === undefined; tries += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    const mail = find();
+    if (mail === undefined) {
+      throw new Error(`No email about ${incidentId} for ${email}`);
+    }
+    return mail;
+  }
+
+  it('emails the admins about an incident during a trip and the reporter its answer', async () => {
+    const ada = await createUser('ada', ['admin']);
+    const id = await reportedIncident();
+
+    const urgent = await mailAbout(`${EMAIL_PREFIX}ada@ual.es`, id);
+    expect(urgent.subject).toMatch(
+      /^Incidencia urgente INC-\d{4,} en un viaje en curso$/,
+    );
+    expect(urgent.text).toContain(`/admin/incidents/${id}`);
+    // Sin la descripción: se lee en el panel
+    expect(urgent.text).not.toContain('The car broke down');
+
+    await review.start(ada, id);
+    await review.resolve(ada, id, RESOLUTION);
+
+    const answer = await mailAbout(`${EMAIL_PREFIX}dan@ual.es`, id);
+    expect(answer.subject).toMatch(/^Hemos atendido tu reporte INC-\d{4,}$/);
+    expect(answer.text).toContain(RESOLUTION);
+    expect(answer.text).toContain(`/tabs/profile/help?incident=${id}`);
+  });
+
+  it('reminds the admins once of an incident nobody has taken', async () => {
+    const ada = await createUser('ada', ['admin']);
+    const id = await reportedIncident();
+    const notices = app.get(IncidentNoticesService);
+    const incident = await dataSource.manager.findOneByOrFail(Incident, { id });
+    const remind = () =>
+      dataSource.transaction((manager) =>
+        notices.remindUntaken(manager, incident, incident.reporterId),
+      );
+
+    expect(await remind()).toBe(true);
+    expect(await remind()).toBe(false);
+    const [{ count }] = await dataSource.query<{ count: number }[]>(
+      `SELECT COUNT(*)::int AS count FROM notifications
+        WHERE incident_id = $1 AND type = 'incident_reminder' AND user_id = $2`,
+      [id, ada],
+    );
+    expect(count).toBe(1);
   });
 
   it('leaves the review: back to registered, so that another admin can take it', async () => {
