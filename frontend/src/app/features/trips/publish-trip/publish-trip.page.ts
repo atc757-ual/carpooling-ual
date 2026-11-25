@@ -1,4 +1,5 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
+import { Co2Source } from '../../../shared/components/ui/co2-source/co2-source';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
@@ -155,6 +156,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
 @Component({
   selector: 'app-publish-trip',
   imports: [
+    Co2Source,
     NgTemplateOutlet,
     ReactiveFormsModule,
     RouterLink,

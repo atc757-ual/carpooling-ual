@@ -4,7 +4,12 @@
 // emisión por km. La distancia por carretera se aproxima con la línea recta
 // por un factor (sin ruta aún). Solo km y CO₂: es una plataforma
 // colaborativa, sin enfoque económico. Las fuentes, en pendientes-memoria.md
-// («Sustento del CO₂ ahorrado»). Igual que la API (metrics/saved-co2.ts)
+// («Sustento del CO₂ ahorrado»). Los mismos valores que la API
+// (metrics/saved-co2.ts), que con el viaje ya hecho usa los km de su ruta
+// directa de OSRM. En pantalla se dice que es una estimación y su fuente
+// (app-co2-source)
+
+import { appLocale } from '../../core/i18n/app-locale';
 
 // Lo que se alarga la carretera frente a la línea recta
 const ROAD_FACTOR = 1.3;
@@ -25,20 +30,32 @@ export interface TripImpact {
   co2Kg: number;
 }
 
-// Entre dos puntos GeoJSON ([longitud, latitud]); null si están en el mismo
-// sitio (no hay nada que ahorrar)
+// Por debajo, el origen y el destino son el mismo sitio: nada que ahorrar
+const MIN_KM = 0.5;
+
+// El CO₂ de un coche en un trayecto de esos km por carretera, redondeado a
+// 0,1 kg (0 si no hay trayecto). Con la ruta directa de OSRM del viaje
+// (detalle del viaje) o con la aproximación de estimateTripImpact
+export function co2KgForKm(km: number): number {
+  return km < MIN_KM ? 0 : Math.round(km * CO2_KG_PER_KM * 10) / 10;
+}
+
+// Entre dos puntos GeoJSON ([longitud, latitud]), sin ruta aún (Buscar,
+// Publicar); null si están en el mismo sitio (no hay nada que ahorrar)
 export function estimateTripImpact(
   from: readonly [number, number],
   to: readonly [number, number],
 ): TripImpact | null {
   const km = distanceKm(from, to) * ROAD_FACTOR;
-  if (km < 0.5) {
+  if (km < MIN_KM) {
     return null;
   }
-  return {
-    km: Math.round(km),
-    co2Kg: Math.round(km * CO2_KG_PER_KM * 10) / 10,
-  };
+  return { km: Math.round(km), co2Kg: co2KgForKm(km) };
+}
+
+// «25,4 kg», «52,4 km»: la cifra en el idioma de la app y su unidad
+export function formatAmount(value: number, unit: string): string {
+  return `${value.toLocaleString(appLocale())} ${unit}`;
 }
 
 // Minutos aproximados del trayecto, sin desvíos, redondeados hacia arriba a

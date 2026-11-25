@@ -1,4 +1,5 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
+import { Co2Source } from '../../../../shared/components/ui/co2-source/co2-source';
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -12,21 +13,23 @@ import {
   IonList,
   IonRouterLink,
 } from '@ionic/angular';
-import { addCircleOutline, leafOutline, searchOutline } from 'ionicons/icons';
+import {
+  addCircleOutline,
+  carOutline,
+  leafOutline,
+  personOutline,
+  searchOutline,
+} from 'ionicons/icons';
 import { UserImpact } from '../../../../core/models/my-trips.model';
 import { RoleRating } from '../../../../core/models/user.model';
 import { appLocale } from '../../../../core/i18n/app-locale';
+import { formatAmount } from '../../../matching/trip-impact';
 
 interface Suggestion {
   link: string;
   title: string;
   detail: string;
   icon: string;
-}
-
-// «25,4 kg», «52,4 km»: la cifra en el idioma de la app y su unidad
-function formatAmount(value: number, unit: string): string {
-  return `${value.toLocaleString(appLocale())} ${unit}`;
 }
 
 // La columna de 4 de Tus viajes (a la derecha en escritorio, debajo en el
@@ -38,6 +41,7 @@ function formatAmount(value: number, unit: string): string {
   // En escritorio, una sola tarjeta con las de dentro planas (theme/_live-trip.scss)
   host: { class: 'live-column' },
   imports: [
+    Co2Source,
     RouterLink,
     IonRouterLink,
     IonCard,
@@ -82,20 +86,23 @@ export class MyTripsAside {
     return `${formatted} (${rating.ratingCount})`;
   });
   readonly co2Text = computed(() => formatAmount(this.impact()?.co2Kg ?? 0, 'kg'));
-  // Los km compartidos, cada papel por separado (solo los que tiene)
+  // Los km compartidos, cada papel por separado (solo los que tiene), con el
+  // icono de su papel (el coche y la persona, como en Mi perfil)
   readonly kmStats = computed(() => {
     const impact = this.impact();
-    const stats: { label: string; value: string }[] = [];
+    const stats: { label: string; value: string; icon: string }[] = [];
     if (this.canDrive()) {
       stats.push({
         label: translate('myTrips.kmComoConductor'),
         value: formatAmount(impact?.driverKm ?? 0, 'km'),
+        icon: carOutline,
       });
     }
     if (this.canRide()) {
       stats.push({
         label: translate('myTrips.kmComoPasajero'),
         value: formatAmount(impact?.passengerKm ?? 0, 'km'),
+        icon: personOutline,
       });
     }
     return stats;

@@ -17,6 +17,8 @@ import {
 import { Mock, vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
+import { TripRoute } from '../../../core/models/trip-route.model';
+import { TripsService } from '../../../core/services/trips/trips.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { DriverTripDetailPage } from './driver-trip-detail.page';
 
@@ -50,6 +52,12 @@ function findTrip<T extends { id: string }>(trips: readonly T[], id: string): Pr
 describe('DriverTripDetailPage', () => {
   let fixture: ComponentFixture<DriverTripDetailPage>;
   let myTrips: Mock<() => Promise<DriverTrip[]>>;
+  // La ruta del viaje: 24,6 km directos (OSRM), salvo que el test diga otra cosa
+  let getRoute: Mock<() => Promise<Partial<TripRoute>>>;
+
+  beforeEach(() => {
+    getRoute = vi.fn().mockResolvedValue({ directDistanceKm: 24.6 });
+  });
 
   async function render(trips: () => Promise<DriverTrip[]>): Promise<HTMLElement> {
     myTrips = vi.fn().mockImplementation(trips);
@@ -64,6 +72,7 @@ describe('DriverTripDetailPage', () => {
             getMyTrip: async (id: string) => findTrip(await myTrips(), id),
           },
         },
+        { provide: TripsService, useValue: { getRoute: () => getRoute() } },
       ],
     });
     // Las piezas (recorrido, pasajeros y acciones) tienen sus propios tests
@@ -118,7 +127,9 @@ describe('DriverTripDetailPage', () => {
 
   it('estimates the impact by passenger, and says a cancelled trip saved nothing', async () => {
     const root = await render(() => Promise.resolve([trip('t1')]));
-    expect(fixture.componentInstance.impact()?.cars).toBe(2);
+    await fixture.whenStable();
+    // 24,6 km directos × 0,159 kg/km = 3,9 kg por coche; dos pasajeros
+    expect(fixture.componentInstance.impact()).toEqual({ co2: '7,8 kg', km: '24,6 km' });
 
     myTrips.mockResolvedValue([trip('t1', { status: 'cancelled' })]);
     fixture.componentInstance.handleReload();
@@ -127,6 +138,33 @@ describe('DriverTripDetailPage', () => {
 
     expect(fixture.componentInstance.impact()).toBeNull();
     expect(root.textContent).toContain('Este viaje no se realizó');
+  });
+
+  it('explains why there are no figures without passengers', async () => {
+    const empty = { availableSeats: 3 };
+    const root = await render(() => Promise.resolve([trip('t1', empty)]));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.impact()).toBeNull();
+    expect(getRoute).not.toHaveBeenCalled();
+    expect(root.textContent).toContain('Cuando lleves pasajeros, verás aquí el CO₂');
+    expect(root.querySelector('app-co2-source')).toBeNull();
+
+    myTrips.mockResolvedValue([trip('t1', { ...empty, status: 'finished' })]);
+    fixture.componentInstance.handleReload();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Este viaje se hizo sin pasajeros');
+  });
+
+  it('approximates the km in a straight line while the trip has no route', async () => {
+    getRoute = vi.fn().mockRejectedValue(new ApiError('ROUTE_NOT_FOUND', 404));
+    await render(() => Promise.resolve([trip('t1')]));
+    await fixture.whenStable();
+
+    // Roquetas - campus: unos 20 km en línea recta × 1,3 = 26 km
+    expect(fixture.componentInstance.impact()?.km).toBe('26 km');
   });
 
   it('says so when the trip is not among those of the driver', async () => {

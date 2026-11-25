@@ -1,5 +1,9 @@
 {
   "common": {
+    "co2Source": {
+      "label": "Source:",
+      "title": "Spanish Ministry for the Ecological Transition"
+    },
     "save": "Save changes",
     "cancel": "Cancel",
     "retry": "Retry",
@@ -138,7 +142,7 @@
     },
     "carTitle": "Got a car?",
     "carText": "Driving to campus? Offer a ride and share your car.",
-    "impact": "Sharing this ride can save up to <b>{{ km }} km</b> of driving and <b>{{ co2 }} kg of CO₂</b>.",
+    "impact": "Estimate: sharing a car on this <b>{{ km }}\u00a0km</b> trip can save up to <b>{{ co2 }}\u00a0kg of CO₂</b>.",
     "impactHint": "Choose where you leave from and we'll tell you how much sharing the route can save.",
     "date": "Date",
     "margin": "Time flexibility",
@@ -710,8 +714,8 @@
     "backTo": "Back to {{ step }}",
     "departureHint": "You'll leave around <b>{{ time }}</b> to arrive on time even if you pick someone up.",
     "impact": {
-      "one": "Taking <b>1 passenger</b> avoids up to <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip, if they would have come by car.",
-      "other": "Taking <b>{{ count }} passengers</b> avoids up to <b>{{ co2 }} kg of CO₂</b> on this <b>{{ km }} km</b> trip, if they would have come by car."
+      "one": "Taking <b>1 passenger</b> avoids up to <b>about {{ co2 }}\u00a0kg of CO₂</b> on this trip of <b>about {{ km }}\u00a0km</b>.",
+      "other": "Taking <b>{{ count }} passengers</b> avoids up to <b>about {{ co2 }}\u00a0kg of CO₂</b> on this trip of <b>about {{ km }}\u00a0km</b>."
     },
     "offered": {
       "one": "You offer 1 seat, with {{ margin }} min of margin for pick-ups.",
@@ -763,17 +767,17 @@
     "hemosPodidoCargarTus": "We couldn't load your trips",
     "reintentar": "Try again",
     "impacto": "Your impact",
-    "ahorrado": "CO₂ saved*",
+    "ahorrado": "CO₂ saved (estimated)",
     "kmComoConductor": "Shared as the driver",
     "kmComoPasajero": "Shared as a passenger",
     "valoracion": "Rating",
-    "estimadoQueHabriaEmitido": "* At most: one car less per passenger. If someone came by bus or on foot, the real saving is smaller. The km are the road km of the shared trips.",
     "puedeInteresar": "You might be interested",
     "accionesImpactoDelViaje": "Trip actions and impact",
     "valoraTusPasajeros": "Rate your passengers",
     "impactoEsteViaje": "Impact of this trip",
-    "estimadoCo2PorPasajero": "* At most: one car less per passenger you take. If someone came by bus or on foot, the real saving is smaller.",
     "esteViajeRealizoAsi": "This trip didn't take place, so it saved no CO₂.",
+    "sinPasajerosAun": "Once you take passengers, you'll see here the CO₂ you save together.",
+    "sinPasajerosHecho": "This trip had no passengers, so it saved no CO₂.",
     "cargandoViaje": "Loading the trip…",
     "hemosPodidoCargarEste": "We couldn't load this trip",
     "cerradoAutomaticamenteHabiaPasado": "Closed automatically: an hour had passed since the estimated arrival",

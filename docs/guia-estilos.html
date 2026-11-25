@@ -330,6 +330,9 @@
   .notice--danger { background: var(--color-danger-subtle); }
   .notice--danger b { color: var(--color-danger); }
   .notice--action { flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .notice--impact { position: relative; margin-top: var(--space-s); border: 1px solid var(--color-success); }
+  .notice--impact b { display: inline; font-weight: 600; }
+  .co2-source--border { position: absolute; top: 0; left: var(--space-s); transform: translateY(-50%); padding: 0 var(--space-xs); color: var(--color-success); font-size: var(--font-size-meta); background: linear-gradient(to bottom, var(--color-surface) 50%, var(--color-success-subtle) 50%); white-space: nowrap; }
   .notice--action > span { flex: 1 1 14rem; min-width: 0; }
   .notice--action > .btn { flex: none; }
 
@@ -1113,6 +1116,12 @@
       <div class="notice notice--warning"><span><b>Prioridad alta · viaje anterior cancelado</b>Tienes prioridad de búsqueda. Ninguna alternativa está confirmada ni garantizada.</span></div>
       <div class="notice notice--danger"><span><b>No se pudo publicar el viaje</b>Revisa la conexión y vuelve a intentarlo; no hemos perdido tus datos.</span></div>
       <div class="notice notice--warning"><span><b>Ubicación sin actualizar desde hace 4 min</b>La llegada 08:12 es la última estimación, no una posición en directo. No extrapolar el movimiento.</span></div>
+    </div>
+
+    <h3>Estimación del CO₂ ahorrado, con su fuente</h3>
+    <p class="note">Toda cifra de CO₂ ahorrado es una <b>estimación</b> y lo dice («Estimación:», «unos», «(estimado)»), con su fuente, «Fuente: MITECO» (<code>app-co2-source</code>, 12px; la sigla con el nombre del ministerio en su <code>title</code>). En los avisos de Buscar y Publicar (<code>.notice--impact</code>: las cifras en verde y semibold, la cifra y su unidad con espacio no separable), la fuente es una etiqueta sobre el borde superior izquierdo, en verde, como la leyenda de un <code>fieldset</code> (<code>&lt;app-co2-source onBorder /&gt;</code>; en el HTML, después de la frase). En las tarjetas de impacto (Mis viajes, detalle del viaje), a la derecha del título, en gris (<code>ion-card-header.card-header--row</code>). 25/11/2026.</p>
+    <div class="grid">
+      <div class="notice notice--success notice--impact"><span>Estimación: compartir coche en este trayecto de <b>26&nbsp;km</b> puede ahorrar hasta <b>4,1&nbsp;kg de CO₂</b>.</span><small class="co2-source--border">Fuente: MITECO</small></div>
     </div>
 
     <h3>Toast (<code>ion-toast</code>)</h3>

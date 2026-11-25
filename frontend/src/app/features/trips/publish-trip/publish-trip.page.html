@@ -189,7 +189,7 @@
                     @case (3) {
                       <!-- Lo que se ahorra si se llenan las plazas -->
                       @if (impact(); as impact) {
-                        <div class="notice notice--success publish__impact">
+                        <div class="notice notice--success notice--impact publish__impact">
                           <ion-icon [icon]="icons.impact" aria-hidden="true" />
                           <p
                             [innerHTML]="
@@ -202,6 +202,7 @@
                                     }
                             "
                           ></p>
+                          <app-co2-source onBorder />
                         </div>
                       }
 
