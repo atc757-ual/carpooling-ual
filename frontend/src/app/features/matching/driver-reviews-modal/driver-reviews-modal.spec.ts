@@ -63,30 +63,37 @@ describe('DriverReviewsModal', () => {
     const { root, component } = await render();
 
     expect(component.title()).toBe('Valoraciones de Lucía');
-    expect(list).toHaveBeenCalledWith('driver-1', 0, 10);
+    expect(list).toHaveBeenCalledWith('driver-1', 0, 5);
     // El resumen tiene sus propios tests (app-rating-summary)
     expect(root.querySelector('.rating-summary__value')?.textContent).toBe('4,4');
     expect(root.querySelectorAll('.rating-summary__bar')).toHaveLength(5);
-    const items = root.querySelectorAll('.driver-reviews__item');
-    expect(items).toHaveLength(2);
-    expect(items[0].textContent).toContain('Carlos R.');
-    expect(items[0].textContent).toContain('Muy puntual');
-    expect(items[1].querySelector('.driver-reviews__comment')).toBeNull();
-    expect(root.querySelector('.driver-reviews__more')).toBeNull();
+    // La lista tiene sus propios tests (app-review-list)
+    expect(component.items()[1]).toEqual({
+      id: 'r2',
+      authorName: 'Carlos R.',
+      publishedAt: '2026-10-27T08:00:00.000Z',
+      rating: 4,
+      comment: null,
+    });
+    const rows = root.querySelectorAll('.review-list__item');
+    expect(rows).toHaveLength(2);
+    expect(rows[0].textContent).toContain('Muy puntual');
+    expect(root.querySelector('.modal-body app-scroll-hint')).not.toBeNull();
   });
 
-  it('loads the next page with «Ver más» until all the reviews are shown', async () => {
+  it('loads the next five when reaching the end, until all are shown', async () => {
     list
       .mockResolvedValueOnce({ items: [review('r1')], total: 2 })
       .mockResolvedValueOnce({ items: [review('r2')], total: 2 });
     const { component } = await render();
-    expect(component.hasMore()).toBe(true);
 
-    await component.loadMore();
+    await component.loadMoreIfAny();
 
-    expect(list).toHaveBeenLastCalledWith('driver-1', 1, 10);
+    expect(list).toHaveBeenLastCalledWith('driver-1', 1, 5);
     expect(component.reviews().map(({ id }) => id)).toEqual(['r1', 'r2']);
-    expect(component.hasMore()).toBe(false);
+    // Sin más, no vuelve a pedir
+    await component.loadMoreIfAny();
+    expect(list).toHaveBeenCalledTimes(2);
   });
 
   it('says so when the driver has no reviews yet', async () => {
@@ -112,11 +119,11 @@ describe('DriverReviewsModal', () => {
     const { component } = await render();
     list.mockRejectedValueOnce(new ApiError('NETWORK_ERROR', 0));
 
-    await component.loadMore();
+    await component.loadMoreIfAny();
 
     expect(component.reviews()).toHaveLength(1);
     expect(component.errorMessage()).not.toBeNull();
-    expect(component.isLoadingMore()).toBe(false);
+    expect(component.isLoading()).toBe(false);
   });
 
   it('closes with the ✕', async () => {

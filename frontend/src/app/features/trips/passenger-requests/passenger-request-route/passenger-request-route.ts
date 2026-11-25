@@ -239,7 +239,7 @@ export class PassengerRequestRoute {
       await import('../../../matching/driver-reviews-modal/driver-reviews-modal');
     const modal = await this.modalController.create({
       component: DriverReviewsModal,
-      cssClass: 'info-dialog',
+      cssClass: ['info-dialog', 'list-dialog'],
       componentProps: { driverId: id, driverName: name },
     });
     await modal.present();

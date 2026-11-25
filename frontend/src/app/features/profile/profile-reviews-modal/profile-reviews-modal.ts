@@ -1,19 +1,6 @@
 import { translate, TranslocoPipe } from '@jsverse/transloco';
-import {
-  afterRenderEffect,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  Input,
-  OnInit,
-  signal,
-  viewChild,
-} from '@angular/core';
-import { IonIcon, IonSpinner, ModalController } from '@ionic/angular';
-import { checkmarkCircleOutline, chevronDown, thumbsDown, thumbsUp } from 'ionicons/icons';
-import { dateTimeFormat } from '../../../core/i18n/app-locale';
+import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
+import { IonSpinner, ModalController } from '@ionic/angular';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverRating } from '../../../core/models/driver-review.model';
 import {
@@ -22,29 +9,40 @@ import {
   TripReviewsService,
 } from '../../../core/services/users/trip-reviews.service';
 import { ModalHeader } from '../../../shared/components/modals/modal-header/modal-header';
+import { RatingSummary } from '../../../shared/components/ui/rating-summary/rating-summary';
 import {
-  formatReviewCount,
-  RatingSummary,
-} from '../../../shared/components/ui/rating-summary/rating-summary';
+  REVIEW_PAGE_SIZE,
+  ReviewList,
+  ReviewListItem,
+} from '../../../shared/components/ui/review-list/review-list';
+import { ScrollHintButton } from '../../../shared/components/ui/scroll-hint/scroll-hint';
+import { ScrollHint } from '../../../shared/directives/scroll-hint.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
-import { getInitials } from '../../matching/trip-driver/trip-driver';
 import { reviewRoleLabel } from '../profile-review-roles';
 
-const PAGE_SIZE = 5;
-const SCROLL_HINT_MARGIN = 16; // px
-const DATE_FORMAT = () => dateTimeFormat({ day: 'numeric', month: 'short', year: 'numeric' });
+// El viaje de una reseña: «Roquetas de Mar → Campus UAL»
+function routeOf(review: ReceivedReview): string {
+  return [review.trip.originName, review.trip.destinationName]
+    .filter((name) => name !== null)
+    .join(' → ');
+}
 
 // Las reseñas que he recibido con un papel, desde su fila de «Reseñas» en Mi
-// perfil (cada fila abre la suya, sin pestañas), en una hoja tan alta como su
-// contenido, con tope, que se desplaza dentro, como los comentarios de las
-// redes sociales: el resumen (media y reparto por nota) y la lista, las más
-// recientes primero, de 5 en 5: al bajar hasta el final se cargan solas las
-// siguientes («Cargando más reseñas…») y, cuando no quedan, «Has visto todas»
-// (si eran más de 5). Cada reseña, con quién la escribió, la fecha, la nota, el
-// comentario («Sin comentario» si no lo dejó) y el viaje
+// perfil (cada fila abre la suya, sin pestañas): el resumen (media y reparto
+// por nota) y la lista (app-review-list), las más recientes primero, de 5 en
+// 5: al bajar hasta el final se cargan solas las siguientes. Cada reseña, con
+// el viaje
 @Component({
   selector: 'app-profile-reviews-modal',
-  imports: [IonIcon, IonSpinner, ModalHeader, RatingSummary, TranslocoPipe],
+  imports: [
+    IonSpinner,
+    ModalHeader,
+    RatingSummary,
+    ReviewList,
+    ScrollHint,
+    ScrollHintButton,
+    TranslocoPipe,
+  ],
   templateUrl: './profile-reviews-modal.html',
   styleUrl: './profile-reviews-modal.scss',
 })
@@ -52,17 +50,12 @@ export class ProfileReviewsModal implements OnInit {
   private readonly modalController = inject(ModalController);
   private readonly tripReviews = inject(TripReviewsService);
 
-  protected readonly upIcon = thumbsUp;
-  protected readonly downIcon = thumbsDown;
-  protected readonly doneIcon = checkmarkCircleOutline;
-  protected readonly hintIcon = chevronDown;
-
   // El papel de la fila pulsada
   @Input() role: ReviewTargetRole = 'driver';
 
   private readonly rating = signal<DriverRating | null>(null);
-  readonly reviews = signal<ReceivedReview[]>([]);
-  private readonly total = signal(0);
+  private readonly reviews = signal<ReceivedReview[]>([]);
+  readonly total = signal(0);
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
@@ -75,70 +68,16 @@ export class ProfileReviewsModal implements OnInit {
     const rating = this.rating();
     return rating && rating.average !== null ? rating : null;
   });
-  readonly hasMore = computed(() => this.reviews().length < this.total());
-  // «Has visto todas», solo si eran más de 5 (las que salen de una vez): con
-  // pocas no hace falta bajar y ya se ve que no hay más
-  readonly showsAllSeen = computed(() => this.total() > PAGE_SIZE);
-  // «6 valoraciones», en el cierre (como en el resumen)
-  readonly totalText = computed(() => formatReviewCount(this.total()));
-
-  // El final de la lista: al verse (bajando hasta él), se cargan las 5
-  // siguientes
-  private readonly listEnd = viewChild<ElementRef<HTMLElement>>('listEnd');
-  // La parte que se desplaza y si queda lista por debajo («Desliza para ver
-  // más»)
-  private readonly body = viewChild<ElementRef<HTMLElement>>('body');
-  readonly canScrollDown = signal(false);
-
-  // Un observador nuevo con cada carga: si el final sigue a la vista (las que
-  // hay no llenan la hoja), avisa enseguida y se cargan más. Se desconecta al
-  // cargar y al cerrar
-  constructor() {
-    effect((onCleanup) => {
-      this.reviews();
-      const end = this.listEnd()?.nativeElement;
-      if (!end || typeof IntersectionObserver === 'undefined') {
-        return;
-      }
-      const observer = new IntersectionObserver((entries) => {
-        if (entries.some(({ isIntersecting }) => isIntersecting)) {
-          void this.loadMoreIfAny();
-        }
-      });
-      observer.observe(end);
-      onCleanup(() => observer.disconnect());
-    });
-    // Si queda lista por debajo: tras pintar cada carga y cuando cambia el alto
-    // de la hoja (al abrirse con su animación, al girar el móvil)
-    afterRenderEffect(() => {
-      this.reviews();
-      this.updateScrollHint();
-    });
-    effect((onCleanup) => {
-      const body = this.body()?.nativeElement;
-      if (!body || typeof ResizeObserver === 'undefined') {
-        return;
-      }
-      const observer = new ResizeObserver(() => this.updateScrollHint());
-      observer.observe(body);
-      onCleanup(() => observer.disconnect());
-    });
-  }
-
-  // Queda lista por debajo si lo desplazable pasa de lo visible (con un
-  // margen, para no mostrarlo por un píxel)
-  updateScrollHint(): void {
-    const body = this.body()?.nativeElement;
-    this.canScrollDown.set(
-      !!body && body.scrollHeight - body.scrollTop - body.clientHeight > SCROLL_HINT_MARGIN,
-    );
-  }
-
-  // Baja casi lo que se ve (deja a la vista la última fila)
-  scrollDown(): void {
-    const body = this.body()?.nativeElement;
-    body?.scrollBy({ top: body.clientHeight * 0.8, behavior: 'smooth' });
-  }
+  readonly items = computed<ReviewListItem[]>(() =>
+    this.reviews().map((review) => ({
+      id: review.id,
+      authorName: review.author.name,
+      publishedAt: review.publishedAt,
+      rating: review.rating,
+      comment: review.comment,
+      route: routeOf(review),
+    })),
+  );
 
   ngOnInit(): void {
     void this.load(0);
@@ -146,7 +85,7 @@ export class ProfileReviewsModal implements OnInit {
 
   // Al llegar al final: solo si quedan y no se está cargando ya
   loadMoreIfAny(): Promise<void> {
-    return this.hasMore() && !this.isLoading()
+    return this.reviews().length < this.total() && !this.isLoading()
       ? this.load(this.reviews().length)
       : Promise.resolve();
   }
@@ -155,27 +94,13 @@ export class ProfileReviewsModal implements OnInit {
     void this.modalController.dismiss();
   }
 
-  initials(name: string): string {
-    return getInitials(name);
-  }
-
-  date(isoDate: string | null): string {
-    return isoDate ? DATE_FORMAT().format(new Date(isoDate)) : '';
-  }
-
-  route(review: ReceivedReview): string {
-    return [review.trip.originName, review.trip.destinationName]
-      .filter((name) => name !== null)
-      .join(' → ');
-  }
-
   // La primera vez, también la nota del papel
   private async load(offset: number): Promise<void> {
     this.isLoading.set(true);
     this.errorMessage.set(null);
     try {
       const [page, rating] = await Promise.all([
-        this.tripReviews.listReceived(this.role, offset, PAGE_SIZE),
+        this.tripReviews.listReceived(this.role, offset, REVIEW_PAGE_SIZE),
         offset === 0 ? this.tripReviews.getMyRating(this.role) : null,
       ]);
       if (rating) {

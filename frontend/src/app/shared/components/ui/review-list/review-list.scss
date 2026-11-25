@@ -1,0 +1,95 @@
+// La lista y el final van uno debajo del otro, como bloques de la ventana
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+// Una fila por reseña, separadas por una línea gris muy clara
+.review-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.review-list__item {
+  display: flex;
+  gap: var(--space-s);
+  padding-block: var(--space-s);
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.review-list__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--box-size-l);
+  height: var(--box-size-l);
+  border-radius: 50%;
+  background: var(--color-primary-subtle);
+  color: var(--color-link);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+}
+
+.review-list__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  min-width: 0;
+}
+
+.review-list__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.review-list__comment {
+  margin: 0;
+}
+
+// El final de la lista: al verse, las 5 siguientes; mientras llegan,
+// «Cargando más reseñas…» con su spinner, centrado. Sin cargar, sin alto
+.review-list__more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+  min-height: 1px;
+  margin-top: calc(-1 * var(--space-base));
+
+  ion-spinner {
+    width: var(--icon-size-base);
+    height: var(--icon-size-base);
+  }
+}
+
+// Sin más reseñas: «✓ Has visto todas · 9 valoraciones», centrado y sin
+// acción, con una línea encima que cierra la lista
+.review-list__done {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin: 0;
+  padding-top: var(--space-base);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+  text-align: center;
+
+  ion-icon {
+    flex: none;
+    color: var(--color-success);
+    font-size: var(--icon-size-base);
+  }
+}

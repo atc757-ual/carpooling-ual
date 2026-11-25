@@ -1,0 +1,42 @@
+<ul class="review-list" [attr.aria-label]="label() || null">
+  @for (review of items(); track review.id) {
+    <li class="review-list__item">
+      <span class="review-list__avatar" aria-hidden="true">{{ initials(review.authorName) }}</span>
+      <div class="review-list__body">
+        <div class="review-list__head">
+          <span class="text-label text-label--strong">{{ review.authorName }}</span>
+          <span class="text-caption text-color-muted">{{ date(review.publishedAt) }}</span>
+        </div>
+        <app-rating-thumbs [rating]="review.rating" />
+        @if (review.comment) {
+          <p class="text-body-s review-list__comment">{{ review.comment }}</p>
+        } @else {
+          <p class="text-body-s text-color-muted review-list__comment">
+            {{ 'reviewList.noComment' | transloco }}
+          </p>
+        }
+        @if (review.route) {
+          <span class="text-caption text-color-muted">{{ review.route }}</span>
+        }
+      </div>
+    </li>
+  }
+</ul>
+
+@if (hasMore()) {
+  <!-- El final de la lista: al verse, las 5 siguientes. <output>: el lector
+       de pantalla anuncia «Cargando más reseñas…» -->
+  <output #listEnd class="review-list__more">
+    @if (isLoading()) {
+      <ion-spinner name="crescent" aria-hidden="true" />
+      <span class="text-body-s text-color-muted">{{ 'reviewList.loadingMore' | transloco }}</span>
+    }
+  </output>
+} @else if (showsAllSeen()) {
+  <!-- Sin más, si eran más de 5 (se ha bajado): el cierre, con cuántas son -->
+  <p class="review-list__done">
+    <ion-icon [icon]="doneIcon" aria-hidden="true" />
+    <span class="text-label text-label--strong">{{ 'reviewList.allSeen' | transloco }}</span>
+    <span class="text-caption text-color-muted">· {{ totalText() }}</span>
+  </p>
+}

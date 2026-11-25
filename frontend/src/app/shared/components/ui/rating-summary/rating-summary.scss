@@ -16,6 +16,13 @@
   gap: var(--space-xs);
 }
 
+// La media y la manita, al lado
+.rating-summary__score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 .rating-summary__value {
   font-size: var(--font-size-title);
   font-weight: var(--font-weight-semibold);
