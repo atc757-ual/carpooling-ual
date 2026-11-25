@@ -144,6 +144,8 @@ describe('Trip routes (e2e)', () => {
       href: `/api/trips/${trip.id}/route`,
       tripId: trip.id,
       distanceKm: 7.76,
+      // Sin recogidas, la directa es la misma ruta
+      directDistanceKm: 7.76,
       durationMin: 11,
       geometry: osrmRoute(UAL_CAMPUS).geometry,
       source: 'osrm',

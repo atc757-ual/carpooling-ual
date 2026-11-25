@@ -18748,7 +18748,13 @@
           },
           "distanceKm": {
             "type": "number",
-            "example": 7.76
+            "example": 7.76,
+            "description": "The current route, through the accepted pickups"
+          },
+          "directDistanceKm": {
+            "type": "number",
+            "example": 7.12,
+            "description": "The direct route, from the origin to the destination without pickups: the km used to estimate the CO₂ saved"
           },
           "durationMin": {
             "type": "number",
@@ -18800,6 +18806,7 @@
           "href",
           "tripId",
           "distanceKm",
+          "directDistanceKm",
           "durationMin",
           "geometry",
           "source",
