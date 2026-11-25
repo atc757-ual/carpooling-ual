@@ -1,9 +1,10 @@
 <!-- «Tus reseñas · Conductor»: cada fila de Mi perfil abre la de su papel -->
 <app-modal-header [title]="title()" [closeLabel]="'common.close' | transloco" (closed)="close()" />
 
-<!-- Una hoja de alto fijo (list-dialog) que se desplaza dentro, como los
-     comentarios de las redes sociales: el resumen arriba y la lista debajo -->
-<div class="modal-body profile-reviews">
+<!-- Una hoja tan alta como su contenido, con tope (list-dialog), que se
+     desplaza dentro, como los comentarios de las redes sociales: el resumen
+     arriba y la lista debajo -->
+<div #body class="modal-body profile-reviews" (scroll)="updateScrollHint()">
   @if (errorMessage(); as message) {
     <div class="notice notice--danger" role="alert">
       <span>{{ message }}</span>
@@ -47,6 +48,10 @@
             </span>
             @if (review.comment) {
               <p class="text-body-s profile-reviews__comment">{{ review.comment }}</p>
+            } @else {
+              <p class="text-body-s text-color-muted profile-reviews__comment">
+                {{ 'profile.reviewsModal.noComment' | transloco }}
+              </p>
             }
             @if (route(review); as route) {
               <span class="text-caption text-color-muted">{{ route }}</span>
@@ -67,8 +72,9 @@
           }}</span>
         }
       </output>
-    } @else {
-      <!-- Sin más: el cierre, con cuántas son (como el resumen) -->
+    } @else if (showsAllSeen()) {
+      <!-- Sin más, si eran más de 5 (se ha bajado): el cierre, con cuántas son
+           (como el resumen) -->
       <p class="profile-reviews__done">
         <ion-icon [icon]="doneIcon" aria-hidden="true" />
         <span class="text-label text-label--strong">{{
@@ -87,5 +93,16 @@
     <p class="text-body text-color-muted profile-reviews__empty">
       {{ 'profile.reviewsModal.empty' | transloco }}
     </p>
+  }
+
+  @if (canScrollDown()) {
+    <!-- Mientras queda lista por debajo: «Desliza para ver más», fijo abajo
+         sobre un degradado; al pulsarlo, baja casi una pantalla -->
+    <button type="button" class="profile-reviews__hint" (click)="scrollDown()">
+      <span class="text-label text-label--strong">{{
+        'profile.reviewsModal.scrollHint' | transloco
+      }}</span>
+      <ion-icon [icon]="hintIcon" aria-hidden="true" />
+    </button>
   }
 </div>

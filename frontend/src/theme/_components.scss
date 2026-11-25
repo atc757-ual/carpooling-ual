@@ -378,25 +378,26 @@ ion-modal.legal-dialog {
   }
 }
 
-// Una lista larga que se carga al bajar («Tus reseñas», como los comentarios
-// de las redes sociales): de alto fijo, para que la hoja no crezca al llegar
-// más y la lista se desplace dentro. 3/4 de la pantalla en el móvil; en
-// escritorio, 640px (o el 80 % si la pantalla es más baja). Con info-dialog
+// Una lista que se carga al bajar («Tus reseñas», como los comentarios de las
+// redes sociales): tan alta como su contenido, como el resto de ventanas,
+// pero con un tope más bajo, para que se abra del tamaño de las demás y no
+// tape la pantalla: el 60 % en el móvil (como el buscador de lugares); en
+// escritorio, 512px (o el 70 % si la pantalla es más baja). Pasado el tope, la
+// lista se desplaza dentro, con «Desliza para ver más». Con info-dialog
 ion-modal.info-dialog.list-dialog {
-  --height: 75%;
+  --max-height: 60%;
 
   .modal-body {
-    height: calc(75vh - 3.5rem); // menos la cabecera (56px)
-    max-height: none;
+    max-height: calc(60vh - 3.5rem); // menos la cabecera (56px)
   }
 }
 
 @include bp.up(md) {
   ion-modal.info-dialog.list-dialog {
-    --height: min(80%, 40rem); // 640px
+    --max-height: min(70%, 32rem); // 512px
 
     .modal-body {
-      height: calc(min(80vh, 40rem) - 3.5rem); // 640px 56px
+      max-height: calc(min(70vh, 32rem) - 3.5rem); // 512px 56px
     }
   }
 }

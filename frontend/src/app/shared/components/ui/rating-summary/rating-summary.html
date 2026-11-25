@@ -24,7 +24,11 @@
             bar.label
           }}</span>
           <span class="rating-summary__track" aria-hidden="true">
-            <span class="rating-summary__fill" [style.width.%]="bar.percent"></span>
+            <span
+              class="rating-summary__fill"
+              [class]="'rating-summary__fill--' + bar.rating"
+              [style.width.%]="bar.percent"
+            ></span>
           </span>
           <span class="text-caption text-color-muted" aria-hidden="true">{{ bar.count }}</span>
         </li>

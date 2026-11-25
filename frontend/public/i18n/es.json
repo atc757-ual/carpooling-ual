@@ -432,7 +432,9 @@
       "titleRole": "Tus reseñas · {{ role }}",
       "empty": "Aún no tienes reseñas con este papel.",
       "loadingMore": "Cargando más reseñas…",
-      "allSeen": "Has visto todas"
+      "allSeen": "Has visto todas",
+      "noComment": "Sin comentario",
+      "scrollHint": "Desliza para ver más"
     },
     "seeAllReviews": "Ver todas",
     "contactPhone": "Teléfono de contacto",

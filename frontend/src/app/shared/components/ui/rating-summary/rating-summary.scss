@@ -77,5 +77,24 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--color-warning);
+  background: var(--color-link);
+
+  // Cada nota con su color, de verde (Muy bien) a rojo (Muy mal), con el 3 en
+  // azul (neutro). El 4 y el 2, el verde y el rojo mezclados con la superficie:
+  // un tono más suave que vale también en oscuro
+  &--5 {
+    background: var(--color-success);
+  }
+
+  &--4 {
+    background: color-mix(in srgb, var(--color-success) 55%, var(--color-surface));
+  }
+
+  &--2 {
+    background: color-mix(in srgb, var(--color-danger) 55%, var(--color-surface));
+  }
+
+  &--1 {
+    background: var(--color-danger);
+  }
 }
