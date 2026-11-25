@@ -37,6 +37,16 @@ export class TripRoute {
   @Column({ name: 'direct_duration_min', type: 'integer' })
   directDurationMin: number;
 
+  // Los km de esa ruta directa: con ellos se calcula el CO₂ ahorrado
+  @Column({
+    name: 'direct_distance_km',
+    type: 'numeric',
+    precision: 7,
+    scale: 2,
+    transformer: numericTransformer,
+  })
+  directDistanceKm: number;
+
   @Column({ type: 'geography', spatialFeatureType: 'LineString', srid: 4326 })
   geometry: LineString;
 

@@ -112,6 +112,7 @@ describe('TripRoutesService.getForTrip', () => {
     findOneBy.mockResolvedValue({
       ...savedRoute('estimated', 5),
       directDurationMin: 14,
+      directDistanceKm: 7.5,
     });
     findStops.mockResolvedValue([
       { location: STOP, position: 0 },
@@ -127,7 +128,12 @@ describe('TripRoutesService.getForTrip', () => {
       otherStop,
     ]);
     expect(upsert).toHaveBeenCalledWith(
-      { tripId: 't1', ...OSRM_PLAN, directDurationMin: 14 },
+      {
+        tripId: 't1',
+        ...OSRM_PLAN,
+        directDurationMin: 14,
+        directDistanceKm: 7.5,
+      },
       ['tripId'],
     );
   });
@@ -136,6 +142,7 @@ describe('TripRoutesService.getForTrip', () => {
     findOneBy.mockResolvedValue({
       ...savedRoute('estimated', 5),
       directDurationMin: 14,
+      directDistanceKm: 7.5,
     });
     findPickups.mockResolvedValue([{ location: STOP, position: 0 }]);
     routeWithLegs.mockResolvedValue({ route: OSRM_PLAN, legsMin: [4, 17] });
@@ -144,7 +151,12 @@ describe('TripRoutesService.getForTrip', () => {
 
     expect(routeWithLegs).toHaveBeenCalledWith(ORIGIN, CAMPUS, [STOP]);
     expect(upsert).toHaveBeenCalledWith(
-      { tripId: 't1', ...OSRM_PLAN, directDurationMin: 14 },
+      {
+        tripId: 't1',
+        ...OSRM_PLAN,
+        directDurationMin: 14,
+        directDistanceKm: 7.5,
+      },
       ['tripId'],
     );
   });
@@ -178,6 +190,7 @@ describe('TripRoutesService.getForTrip', () => {
         tripId: 't1',
         ...OSRM_PLAN,
         directDurationMin: OSRM_PLAN.durationMin,
+        directDistanceKm: OSRM_PLAN.distanceKm,
       },
       ['tripId'],
     );
@@ -192,7 +205,12 @@ describe('TripRoutesService.getForTrip', () => {
 
     const estimate = estimateRoute(ORIGIN, CAMPUS);
     expect(upsert).toHaveBeenCalledWith(
-      { tripId: 't1', ...estimate, directDurationMin: estimate.durationMin },
+      {
+        tripId: 't1',
+        ...estimate,
+        directDurationMin: estimate.durationMin,
+        directDistanceKm: estimate.distanceKm,
+      },
       ['tripId'],
     );
   });

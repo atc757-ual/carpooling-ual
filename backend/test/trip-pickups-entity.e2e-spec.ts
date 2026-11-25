@@ -72,8 +72,8 @@ describe('Pickup modes data model (e2e)', () => {
       [driverId, vehicleId],
     );
     await queryRunner.query(
-      `INSERT INTO routes (trip_id, distance_km, duration_min, direct_duration_min, geometry, source)
-       VALUES ($1, 8.5, 15, 15,
+      `INSERT INTO routes (trip_id, distance_km, direct_distance_km, duration_min, direct_duration_min, geometry, source)
+       VALUES ($1, 8.5, 8.5, 15, 15,
                ST_GeogFromText('LINESTRING(-2.4637 36.8381, -2.4058 36.8297)'), 'estimated')`,
       [tripId],
     );
@@ -105,6 +105,7 @@ describe('Pickup modes data model (e2e)', () => {
       tripId: trip.id,
     });
     expect(route.directDurationMin).toBe(15);
+    expect(route.directDistanceKm).toBe(8.5);
   });
 
   it('only allows 150, 300 or 500 m', async () => {

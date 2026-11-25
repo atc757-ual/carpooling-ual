@@ -12,6 +12,24 @@ import type { RoutePlan } from './route-plan';
 
 const ESTIMATE_RETRY_MS = 5 * 60_000;
 
+// La ruta sin recogidas, del origen al destino: con su duración se mide el
+// desvío gastado y con sus km, el CO₂ ahorrado
+export type DirectRoute = Pick<RoutePlan, 'durationMin' | 'distanceKm'>;
+
+// La directa guardada; si aún no hay ruta guardada, la del plan (sin
+// recogidas, la directa es la misma ruta)
+export function directRouteOf(
+  saved: Pick<TripRoute, 'directDurationMin' | 'directDistanceKm'> | null,
+  plan: DirectRoute,
+): DirectRoute {
+  return saved === null
+    ? { durationMin: plan.durationMin, distanceKm: plan.distanceKm }
+    : {
+        durationMin: saved.directDurationMin,
+        distanceKm: saved.directDistanceKm,
+      };
+}
+
 // Rutas de los viajes (RF-12). Se calculan con OSRM; si no responde, se
 // estiman (plan B del análisis de riesgos, cap. 13): publicar un viaje nunca
 // falla por culpa del motor de rutas
@@ -82,10 +100,10 @@ export class TripRoutesService {
     manager: EntityManager,
     tripId: string,
     plan: RoutePlan,
-    directDurationMin = plan.durationMin,
+    direct: DirectRoute = plan,
   ): Promise<void> {
     await manager.save(
-      manager.create(TripRoute, { tripId, ...plan, directDurationMin }),
+      manager.create(TripRoute, { tripId, ...plan, ...directColumns(direct) }),
     );
   }
 
@@ -108,12 +126,9 @@ export class TripRoutesService {
       via.length === 0
         ? await this.plan(trip.origin, trip.destination)
         : (await this.planVia(trip.origin, via, trip.destination)).route;
-    const directDurationMin =
-      via.length === 0
-        ? plan.durationMin
-        : (saved?.directDurationMin ?? plan.durationMin);
+    const direct = directRouteOf(via.length === 0 ? null : saved, plan);
     await this.routesRepository.upsert(
-      { tripId: trip.id, ...plan, directDurationMin },
+      { tripId: trip.id, ...plan, ...directColumns(direct) },
       ['tripId'],
     );
     return this.routesRepository.findOneByOrFail({ tripId: trip.id });
@@ -134,6 +149,16 @@ export class TripRoutesService {
     });
     return pickups.map(({ location }) => location);
   }
+}
+
+// Las columnas de la ruta directa en la tabla routes
+function directColumns(
+  direct: DirectRoute,
+): Pick<TripRoute, 'directDurationMin' | 'directDistanceKm'> {
+  return {
+    directDurationMin: direct.durationMin,
+    directDistanceKm: direct.distanceKm,
+  };
 }
 
 // Solo las estimadas, y pasado el plazo desde el último intento

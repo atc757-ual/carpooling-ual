@@ -71,6 +71,7 @@ describe('TripPickupsService', () => {
       tripId: 't1',
       durationMin: 11,
       directDurationMin: 11,
+      directDistanceKm: 7.5,
       geometry: LINE,
     });
   });
@@ -153,7 +154,10 @@ describe('TripPickupsService', () => {
     expect(managerSave).toHaveBeenCalledWith([
       expect.objectContaining({ tripId: 't1', requestId: 'r1', position: 0 }),
     ]);
-    expect(saveRoute).toHaveBeenCalledWith(manager, 't1', routePlan(15), 11);
+    expect(saveRoute).toHaveBeenCalledWith(manager, 't1', routePlan(15), {
+      durationMin: 11,
+      distanceKm: 7.5,
+    });
     expect(times.get('r1')).toEqual(new Date('2026-11-20T07:33:00Z'));
   });
 
@@ -192,6 +196,7 @@ describe('TripPickupsService', () => {
   it('removes a released pickup with an estimated route, without OSRM', async () => {
     const managerFindOneBy = jest.fn().mockResolvedValue({
       directDurationMin: 11,
+      directDistanceKm: 7.5,
     });
     const inTransaction = {
       ...manager,
@@ -212,7 +217,7 @@ describe('TripPickupsService', () => {
       inTransaction,
       't1',
       expect.objectContaining({ source: 'estimated' }),
-      11,
+      { durationMin: 11, distanceKm: 7.5 },
     );
     expect([...(times?.keys() ?? [])]).toEqual(['r2']);
   });
@@ -250,6 +255,7 @@ describe('TripPickupsService', () => {
       distanceKm: 9,
       durationMin: 15,
       directDurationMin: 11,
+      directDistanceKm: 7.5,
       geometry: LINE,
       source: 'osrm',
     };
@@ -311,7 +317,7 @@ describe('TripPickupsService', () => {
         stopsManager,
         't1',
         expect.objectContaining({ durationMin: 15 }),
-        11,
+        { durationMin: 11, distanceKm: 7.5 },
       );
     });
   });
