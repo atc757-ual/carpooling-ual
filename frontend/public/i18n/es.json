@@ -420,6 +420,11 @@
     "report": "Denunciar la conversación"
   },
   "profile": {
+    "preferencesAndSettings": "Ajustes y preferencias",
+    "tripSettingsNav": "Configuración de mis viajes",
+    "tripSettingsDesc": "Preferencias en ruta, vehículos y valoraciones",
+    "appSettingsNav": "Configuración y privacidad",
+    "appSettingsDesc": "Teléfono, idioma, tema, avisos, GPS y consentimientos",
     "verifiedEmail": "Correo UAL verificado",
     "editInfo": "Editar mi información",
     "aboutMe": "Sobre mí",
@@ -1619,6 +1624,14 @@
       "title": "Mi perfil",
       "subtitle": "Tu cuenta y tus vehículos."
     },
+    "profilePreferences": {
+      "title": "Configuración de mis viajes",
+      "subtitle": "Preferencias de viaje, vehículos y valoraciones."
+    },
+    "profileSettings": {
+      "title": "Configuración y privacidad",
+      "subtitle": "Idioma, tema, avisos y consentimientos."
+    },
     "help": {
       "title": "Ayuda y soporte",
       "subtitle": "Preguntas frecuentes y contacto con soporte."
@@ -1631,6 +1644,8 @@
       "searchTrip": "Buscar viaje",
       "trips": "Tus viajes",
       "profile": "Mi perfil",
+      "profilePreferences": "Mis viajes",
+      "profileSettings": "Ajustes y privacidad",
       "help": "Ayuda y soporte"
     },
     "pageTitles": {

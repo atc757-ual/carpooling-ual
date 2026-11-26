@@ -1,0 +1,268 @@
+@use 'breakpoints' as bp;
+
+.profile {
+  align-items: stretch;
+
+  ion-card {
+    margin: 0;
+    text-align: left;
+  }
+}
+
+.profile__layout {
+  display: grid;
+  gap: var(--space-base);
+  grid-template-areas:
+    'aside'
+    'main';
+
+  @include bp.up(md) {
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas: 'main aside';
+    align-items: start;
+  }
+}
+
+.profile__main {
+  grid-area: main;
+}
+
+.profile__aside {
+  grid-area: aside;
+}
+
+.profile__main,
+.profile__aside,
+.profile-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+
+  form ion-button {
+    margin: 0;
+  }
+}
+
+.profile-card__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding: var(--space-base) var(--space-base) var(--space-s);
+  min-height: var(--control-height-l);
+
+  ion-card-title {
+    margin: 0;
+    font-size: var(--font-size-subtitle-s);
+  }
+
+  form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+  }
+}
+
+.profile__phone-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+
+  .status ion-icon {
+    font-size: var(--icon-size-m);
+  }
+}
+
+.profile__phone-value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+
+  ion-icon {
+    font-size: var(--icon-size-m);
+    color: var(--color-text-muted);
+  }
+}
+
+// Verificar el teléfono: botón outline de acción pendiente
+.profile__verify {
+  --background: transparent;
+  --background-hover: var(--color-primary-subtle);
+  --background-activated: var(--color-primary-subtle);
+  --color: var(--color-primary);
+  --border-color: var(--color-primary);
+  --border-style: solid;
+  --border-width: 1px;
+  --border-radius: var(--radius-s);
+  --box-shadow: none;
+  height: var(--box-size-s);
+  min-height: var(--box-size-s);
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+
+  ion-icon {
+    font-size: var(--icon-size-m);
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.status--accepted {
+  background: var(--color-surface);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.profile-card__content--rows {
+  gap: 0;
+  display: flex;
+  flex-direction: column;
+
+  > .profile__setting-row,
+  > .profile__location-row,
+  > app-profile-push-setting,
+  > app-profile-device-location {
+    min-height: var(--control-height-s);
+    padding: var(--space-s);
+    border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  }
+
+  > :last-child {
+    border-bottom: none;
+  }
+}
+
+.profile__setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.profile__setting-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  min-width: 0;
+}
+
+app-profile-push-setting,
+app-profile-device-location {
+  display: block;
+}
+
+// Selector de tema
+.theme-switch__option {
+  ion-icon {
+    font-size: var(--icon-size-base);
+  }
+
+  .icon-sun {
+    color: var(--color-accent);
+  }
+
+  .icon-moon {
+    color: var(--color-primary-pressed);
+  }
+}
+
+.theme-switch__option--active {
+  .icon-sun,
+  .icon-moon {
+    color: var(--color-on-primary);
+  }
+}
+
+:host-context(.theme-dark) {
+  .theme-switch__option--active ion-icon {
+    color: var(--color-on-selected);
+  }
+
+  .theme-switch__option:not(.theme-switch__option--active) .icon-moon {
+    color: var(--color-text-muted);
+  }
+}
+
+// Lista legal y de privacidad
+ion-list.profile__legal-list {
+  padding: 0;
+  background: transparent;
+  gap: 0;
+}
+
+.profile__legal-row {
+  --background: var(--color-surface);
+  --background-hover: var(--color-surface-subtle);
+  --background-hover-opacity: 1;
+  --border-radius: 0;
+  --padding-start: var(--space-s);
+  --inner-padding-end: var(--space-s);
+  --min-height: var(--control-height-s);
+  --color: var(--color-text);
+  --detail-icon-color: var(--color-text-muted);
+  --detail-icon-opacity: 1;
+
+  border: none;
+  border-radius: 0;
+  border-bottom: var(--border-width-s) solid var(--color-border-subtle);
+  transition: background var(--motion-duration-fast);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.ion-focused {
+    outline: var(--border-width-l) solid var(--color-focus);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+.profile__legal-icon {
+  flex: none;
+  margin-inline-end: var(--space-s);
+  font-size: var(--icon-size-l);
+  color: var(--color-primary);
+}
+
+.profile__legal-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  min-width: 0;
+  white-space: normal;
+}
+
+.profile__legal-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-success);
+
+  ion-icon {
+    flex: none;
+  }
+}
+
+.profile__legal-update {
+  color: var(--color-link);
+}
+
+.profile__legal-hash {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: monospace;
+  font-size: var(--font-size-body-s);
+  line-height: 1.2;
+
+  ion-icon {
+    flex: none;
+  }
+}

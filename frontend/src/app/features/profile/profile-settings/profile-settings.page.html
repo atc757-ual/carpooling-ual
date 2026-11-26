@@ -1,0 +1,184 @@
+<ion-content>
+  <div class="tab-page profile">
+    <div class="profile__layout">
+      <!-- Columna lateral en escritorio (col-4): Teléfono de contacto -->
+      <div class="profile__aside">
+        <!-- Bloque: Teléfono de contacto -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.contactPhone' | transloco }}</ion-card-title>
+            @if (!phone() || isPhoneVerified()) {
+              <form (submit)="$event.preventDefault(); handleManagePhone()">
+                <ion-button
+                  type="submit"
+                  class="edit-button"
+                  [attr.aria-label]="'profile.managePhone' | transloco"
+                >
+                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                </ion-button>
+              </form>
+            }
+          </ion-card-header>
+          <ion-card-content class="profile-card__content">
+            @if (phone(); as ph) {
+              <div class="profile__phone-row">
+                <span class="profile__phone-value">
+                  <ion-icon [icon]="phoneIcon" aria-hidden="true" />
+                  <span class="text-body text-body--strong">{{ ph }}</span>
+                </span>
+                @if (isPhoneVerified()) {
+                  <output class="status status--accepted">
+                    <ion-icon [icon]="shieldIcon" aria-hidden="true" />
+                    {{ 'profile.phoneVerified' | transloco }}
+                  </output>
+                } @else {
+                  <form (submit)="$event.preventDefault(); handleManagePhone(true)">
+                    <ion-button
+                      type="submit"
+                      class="profile__verify"
+                      fill="outline"
+                      size="small"
+                      [attr.aria-label]="'profile.verifyPhoneAria' | transloco"
+                    >
+                      <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
+                      {{ 'profile.verify' | transloco }}
+                    </ion-button>
+                  </form>
+                }
+              </div>
+              <!-- Compartirlo en los viajes: voluntario, con el teléfono verificado -->
+              <app-profile-phone-share />
+            } @else {
+              <p class="text-body text-color-muted profile__empty-text">
+                {{ 'profile.emptyPhone' | transloco }}
+              </p>
+            }
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Columna principal en escritorio (col-8): Configuración y Privacidad -->
+      <div class="profile__main">
+        <!-- Bloque: Configuración -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.settings' | transloco }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="profile-card__content profile-card__content--rows">
+            <!-- Idioma -->
+            <div class="profile__setting-row">
+              <span class="profile__setting-text">
+                <span class="text-body">{{ 'profile.language' | transloco }}</span>
+                <span class="text-body-s text-color-muted">{{
+                  'profile.languageHint' | transloco
+                }}</span>
+              </span>
+              <app-language-switch [label]="'labels.forms.appLanguage' | transloco" />
+            </div>
+
+            <!-- Tema -->
+            <div class="profile__setting-row">
+              <span class="profile__setting-text">
+                <span class="text-body">{{ 'profile.theme' | transloco }}</span>
+                <span class="text-body-s text-color-muted">{{
+                  'profile.themeHint' | transloco
+                }}</span>
+              </span>
+              <fieldset
+                class="theme-switch"
+                [attr.aria-label]="'labels.forms.appTheme' | transloco"
+              >
+                <button
+                  type="button"
+                  class="theme-switch__option"
+                  [class.theme-switch__option--active]="!isDarkMode()"
+                  [attr.aria-pressed]="!isDarkMode()"
+                  [attr.aria-label]="'profile.themeLight' | transloco"
+                  (click)="handleSetTheme(false)"
+                >
+                  <ion-icon class="icon-sun" [icon]="sunIcon" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  class="theme-switch__option"
+                  [class.theme-switch__option--active]="isDarkMode()"
+                  [attr.aria-pressed]="isDarkMode()"
+                  [attr.aria-label]="'profile.themeDark' | transloco"
+                  (click)="handleSetTheme(true)"
+                >
+                  <ion-icon class="icon-moon" [icon]="moonIcon" aria-hidden="true" />
+                </button>
+              </fieldset>
+            </div>
+
+            <!-- Notificaciones push -->
+            <app-profile-push-setting />
+
+            <!-- Ubicación en este dispositivo -->
+            <app-profile-device-location />
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Bloque: Privacidad y documentos legales -->
+        <ion-card class="profile-card">
+          <ion-card-header class="profile-card__header">
+            <ion-card-title>{{ 'profile.privacy.title' | transloco }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content class="profile-card__content profile-card__content--rows">
+            <!-- Compartir ubicación en viajes -->
+            <app-profile-location class="profile__location-row" />
+
+            <!-- Documentos legales -->
+            <ion-list class="profile__legal-list" lines="none">
+              @for (doc of legalDocs(); track doc.id) {
+                <ion-item
+                  class="profile__legal-row"
+                  [button]="true"
+                  [detail]="true"
+                  (click)="handleOpenLegal(doc.id)"
+                >
+                  <ion-icon
+                    slot="start"
+                    class="profile__legal-icon"
+                    [icon]="docIcon"
+                    aria-hidden="true"
+                  />
+                  <ion-label class="profile__legal-text">
+                    <span class="text-body text-body--strong">{{ doc.title }}</span>
+                    @if (doc.acceptedAt) {
+                      <span class="profile__legal-status text-body-s">
+                        <ion-icon [icon]="checkmarkIcon" aria-hidden="true" />
+                        {{
+                          'profile.privacy.acceptedVersion'
+                            | transloco: { version: doc.acceptedVersion, date: doc.acceptedAt }
+                        }}
+                      </span>
+                      @if (doc.update; as update) {
+                        <span class="profile__legal-update text-body-s">
+                          {{
+                            'profile.privacy.currentMinor'
+                              | transloco: { version: update.version, date: update.date }
+                          }}
+                        </span>
+                      }
+                      <span
+                        class="profile__legal-hash text-body-s text-color-muted"
+                        [title]="'profile.privacy.hashTitle' | transloco"
+                      >
+                        <ion-icon [icon]="lockIcon" aria-hidden="true" />
+                        <span class="visually-hidden">{{
+                          'profile.privacy.hashHidden' | transloco
+                        }}</span>
+                        {{ doc.fingerprint }}
+                      </span>
+                    }
+                  </ion-label>
+                </ion-item>
+              }
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </div>
+</ion-content>
