@@ -1710,6 +1710,7 @@ ion-toggle {
 // arriba: la fila va justo debajo de la tarjeta anterior
 .live-actions {
   padding-top: 0;
+  container: live-actions / inline-size;
 }
 
 .live-actions__row {
@@ -1721,6 +1722,74 @@ ion-toggle {
     flex: 1 1 0;
     width: auto;
     min-width: 0;
+  }
+}
+
+// Con sitio (fila de 416px o más: caben hasta cuatro con su texto), cada
+// botón con el icono y el nombre en línea, dentro del botón y con su
+// recuadro; si no, el icono con el nombre debajo, para no cortar el texto
+@container live-actions (min-width: 26rem) {
+  .live-actions__row > .icon-btn--labeled.icon-btn--stacked {
+    flex-direction: row;
+    gap: var(--space-xs);
+    min-height: var(--control-height-s);
+    padding: var(--space-xs) var(--space-s);
+    border-color: var(--color-border);
+    background: var(--color-surface);
+
+    ion-icon {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      font-size: var(--icon-size-s);
+    }
+
+    .icon-btn__label {
+      text-align: left;
+    }
+
+    @media (any-hover: hover) {
+      &:hover:not(:disabled, [aria-disabled='true']) {
+        border-color: var(--color-link);
+        background: var(--color-primary-subtle);
+
+        ion-icon {
+          background: transparent;
+        }
+      }
+    }
+
+    &:active:not(:disabled, [aria-disabled='true']) {
+      border-color: var(--color-link);
+      background: var(--color-primary-subtle);
+
+      ion-icon {
+        background: transparent;
+      }
+    }
+
+    // El SOS: todo el botón en rojo, con el icono y el texto en blanco
+    &.icon-btn--danger {
+      border-color: transparent;
+      background: var(--color-danger);
+      color: var(--color-on-danger);
+
+      ion-icon {
+        background: transparent;
+      }
+
+      @media (any-hover: hover) {
+        &:hover:not(:disabled, [aria-disabled='true']) {
+          border-color: transparent;
+          background: var(--color-danger-text);
+        }
+      }
+
+      &:active:not(:disabled, [aria-disabled='true']) {
+        border-color: transparent;
+        background: var(--color-danger-text);
+      }
+    }
   }
 }
 
