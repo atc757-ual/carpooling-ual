@@ -117,13 +117,15 @@ FROM trips;
 -- -----------------------------------------------------------------------------
 -- Solicitudes
 -- -----------------------------------------------------------------------------
-INSERT INTO requests (id, trip_id, passenger_id, is_priority, status) VALUES
+-- Una plaza aceptada lleva su código de recogida (lo genera la API al aceptar;
+-- sin él, «En curso» no le enseña el código al pasajero)
+INSERT INTO requests (id, trip_id, passenger_id, is_priority, status, board_code) VALUES
   -- Mario ya tiene plaza en el viaje de Lucía (por eso quedan 2 de 3)
   ('00000000-0000-4000-8000-000000000301', '00000000-0000-4000-8000-000000000201',
-   '00000000-0000-4000-8000-000000000003', false, 'accepted'),
+   '00000000-0000-4000-8000-000000000003', false, 'accepted', '4821'),
   -- Mario también ha pedido plaza en el de Sara, pendiente de respuesta
   ('00000000-0000-4000-8000-000000000302', '00000000-0000-4000-8000-000000000202',
-   '00000000-0000-4000-8000-000000000003', false, 'pending');
+   '00000000-0000-4000-8000-000000000003', false, 'pending', NULL);
 
 -- -----------------------------------------------------------------------------
 -- Eventos (formato provisional, DP-05)

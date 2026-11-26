@@ -37,7 +37,7 @@ export class ConfirmService {
   async ask(options: ConfirmOptions): Promise<boolean> {
     const modal = await this.modalController.create({
       component: ConfirmModal,
-      cssClass: 'info-dialog',
+      cssClass: ['info-dialog', 'confirm-dialog'],
       componentProps: { icon: CONFIRM_ICONS.warning, ...options },
     });
     await modal.present();

@@ -108,7 +108,7 @@ export async function confirmWithReason(
 ): Promise<boolean> {
   const modal = await modalController.create({
     component: ReasonConfirmModal,
-    cssClass: 'info-dialog',
+    cssClass: ['info-dialog', 'confirm-dialog'],
     componentProps: options,
   });
   await modal.present();
