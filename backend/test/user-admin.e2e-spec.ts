@@ -104,6 +104,18 @@ describe('User administration API (e2e)', () => {
     ).send({ isActive, reason: 'Reason given by the admin' });
   }
 
+  function setAccess(
+    admin: Session,
+    userId: string,
+    isDisabled: boolean,
+  ): request.Test {
+    return api(
+      'put',
+      `/users/${userId}/account-access`,
+      admin.accessToken,
+    ).send({ isDisabled, reason: 'Reason given by the admin' });
+  }
+
   it('lets only administrators list users, with all their profiles', async () => {
     const ada = await sessionFor('ada', ['passenger'], true);
     const pia = await sessionFor('pia', ['passenger', 'driver']);
@@ -193,16 +205,58 @@ describe('User administration API (e2e)', () => {
     expect(response.body).toMatchObject({ code: 'CANNOT_CHANGE_OWN_ADMIN' });
   });
 
-  it('validates the profile, the body and that the profile exists', async () => {
+  it('validates the profile and the body, and grants a missing profile', async () => {
     const ada = await sessionFor('ada', ['passenger'], true);
     const pia = await sessionFor('pia');
 
     const badProfile = await setProfile(ada, pia.id, 'pilot', true).expect(400);
     const badBody = await setProfile(ada, pia.id, 'driver', 'yes').expect(400);
-    const missing = await setProfile(ada, pia.id, 'driver', true).expect(404);
+    const granted = await setProfile(ada, pia.id, 'driver', true).expect(200);
 
     expect(badProfile.body).toMatchObject({ fields: [{ field: 'profile' }] });
     expect(badBody.body).toMatchObject({ fields: [{ field: 'isActive' }] });
-    expect(missing.body).toMatchObject({ code: 'PROFILE_NOT_FOUND' });
+    expect((granted.body as { profiles: unknown[] }).profiles).toContainEqual({
+      profile: 'driver',
+      isActive: true,
+    });
+  });
+
+  it('disables an account: the user cannot sign in or refresh until it is enabled', async () => {
+    const ada = await sessionFor('ada', ['passenger'], true);
+    const pia = await sessionFor('pia');
+    const signIn = (): request.Test =>
+      request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: `${EMAIL_PREFIX}pia@ual.es`, password: PASSWORD });
+
+    await setAccess(pia, ada.id, true).expect(403);
+    await setAccess(ada, pia.id, true).expect(204);
+    const blocked = await signIn().expect(403);
+    await request(app.getHttpServer())
+      .post('/api/auth/refresh')
+      .send({ refreshToken: pia.refreshToken })
+      .expect(401);
+    const listed = await api(
+      'get',
+      `/admin/users?search=${EMAIL_PREFIX}pia&status=disabled`,
+      ada.accessToken,
+    ).expect(200);
+
+    expect(blocked.body).toMatchObject({ code: 'ACCOUNT_DISABLED' });
+    expect(listed.headers['x-total-count']).toBe('1');
+
+    await setAccess(ada, pia.id, false).expect(204);
+    await signIn().expect(200);
+  });
+
+  it('does not disable the own account or an active administrator', async () => {
+    const ada = await sessionFor('ada', ['passenger'], true);
+    const max = await sessionFor('max', ['passenger'], true);
+
+    const own = await setAccess(ada, ada.id, true).expect(409);
+    const admin = await setAccess(ada, max.id, true).expect(409);
+
+    expect(own.body).toMatchObject({ code: 'CANNOT_DISABLE_OWN_ACCOUNT' });
+    expect(admin.body).toMatchObject({ code: 'ACCOUNT_IS_ADMIN' });
   });
 });

@@ -62,6 +62,8 @@ export const SUPPORTED_EVENT_VERSIONS: Readonly<
   'user.registered': V1,
   'user.phone_verified': V1,
   'user.deactivated': V1,
+  'user.disabled': V1,
+  'user.enabled': V1,
   'user.profile_activated': V1,
   'user.profile_deactivated': V1,
   'user.active_mode_changed': V1,

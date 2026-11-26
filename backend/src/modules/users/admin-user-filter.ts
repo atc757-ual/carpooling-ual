@@ -10,6 +10,7 @@ export const ACCOUNT_STATUSES = [
   'active',
   'email_unverified',
   'profile_deactivated',
+  'disabled',
   'deleted',
 ] as const;
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
@@ -31,14 +32,17 @@ const PROFILE_ALIASES: Record<ProfileType, string> = {
 };
 
 const NOT_DELETED = 'user.deactivatedAt IS NULL';
+// Ni dada de baja ni inhabilitada por un administrador
+const USABLE = `${NOT_DELETED} AND user.disabledAt IS NULL`;
 const ALL_PROFILES_ACTIVE =
   'COALESCE(driver.isActive, true) AND COALESCE(passenger.isActive, true) AND COALESCE(admin.isActive, true)';
 
 const STATUS_CONDITIONS: Record<AccountStatus, string> = {
   deleted: 'user.deactivatedAt IS NOT NULL',
-  email_unverified: `${NOT_DELETED} AND user.emailVerifiedAt IS NULL`,
-  profile_deactivated: `${NOT_DELETED} AND NOT (${ALL_PROFILES_ACTIVE})`,
-  active: `${NOT_DELETED} AND user.emailVerifiedAt IS NOT NULL AND ${ALL_PROFILES_ACTIVE}`,
+  disabled: `${NOT_DELETED} AND user.disabledAt IS NOT NULL`,
+  email_unverified: `${USABLE} AND user.emailVerifiedAt IS NULL`,
+  profile_deactivated: `${USABLE} AND NOT (${ALL_PROFILES_ACTIVE})`,
+  active: `${USABLE} AND user.emailVerifiedAt IS NOT NULL AND ${ALL_PROFILES_ACTIVE}`,
 };
 
 export function escapeLike(text: string): string {
@@ -74,11 +78,14 @@ export function applyAdminUserFilter(
 
 // Estado de la cuenta de un usuario ya cargado con sus perfiles
 export function accountStatusOf(
-  user: Pick<User, 'deactivatedAt' | 'emailVerifiedAt'>,
+  user: Pick<User, 'deactivatedAt' | 'disabledAt' | 'emailVerifiedAt'>,
   profilesActive: readonly boolean[],
 ): AccountStatus {
   if (user.deactivatedAt !== null) {
     return 'deleted';
+  }
+  if (user.disabledAt !== null) {
+    return 'disabled';
   }
   if (user.emailVerifiedAt === null) {
     return 'email_unverified';

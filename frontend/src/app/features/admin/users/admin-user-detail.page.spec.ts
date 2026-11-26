@@ -1,4 +1,4 @@
-import { initAppTranslations, provideAppTransloco } from '../../../core/i18n/testing-transloco';
+import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { renderHeadingContent } from '../../../core/services/ui/heading-content.testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -8,7 +8,10 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { AdminUsersService } from '../../../core/services/admin/admin-users.service';
 import { HeadingContentService } from '../../../core/services/ui/heading-content.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { AdminUserDetailPage, profileRows } from './admin-user-detail.page';
+import { signal } from '@angular/core';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { AdminUserDetailPage } from './admin-user-detail.page';
+import { profileRows } from './admin-user-profiles';
 
 const DETAIL: AdminUserDetail = {
   id: 'u1',
@@ -43,27 +46,13 @@ const DETAIL: AdminUserDetail = {
   consents: null,
 };
 
-describe('profileRows', () => {
-  beforeEach(() => initAppTranslations());
-
-  it('offers activating or deactivating the own profiles and giving or removing admin', () => {
-    expect(
-      profileRows(DETAIL).map(({ profile, actionText, rating }) => [profile, actionText, rating]),
-    ).toEqual([
-      ['driver', 'Inhabilitar', '4,5 de 5 · 4 valoraciones'],
-      ['passenger', 'Habilitar', 'Sin valoraciones'],
-      ['admin', 'Conceder', null],
-    ]);
-    const admin = profileRows({ ...DETAIL, profiles: [{ profile: 'admin', isActive: true }] });
-    expect(admin.map(({ actionText }) => actionText)).toEqual(['Revocar']);
-  });
-});
-
 describe('AdminUserDetailPage', () => {
   let fixture: ComponentFixture<AdminUserDetailPage>;
   const get = vi.fn();
   const setProfileActive = vi.fn().mockResolvedValue(undefined);
   const liftSuspension = vi.fn().mockResolvedValue(undefined);
+  const setAccountAccess = vi.fn().mockResolvedValue(undefined);
+  const currentUser = signal<{ id: string } | null>({ id: 'admin-1' });
   const showSuccess = vi.fn().mockResolvedValue(undefined);
   const create = vi.fn();
 
@@ -87,7 +76,11 @@ describe('AdminUserDetailPage', () => {
         provideAppTransloco(),
         provideIonicAngular(),
         provideRouter([]),
-        { provide: AdminUsersService, useValue: { get, setProfileActive, liftSuspension } },
+        {
+          provide: AdminUsersService,
+          useValue: { get, setProfileActive, liftSuspension, setAccountAccess },
+        },
+        { provide: AuthService, useValue: { currentUser } },
         { provide: ToastService, useValue: { showSuccess } },
         { provide: ModalController, useValue: { create } },
       ],
@@ -102,6 +95,7 @@ describe('AdminUserDetailPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    currentUser.set({ id: 'admin-1' });
     get.mockResolvedValue(DETAIL);
   });
 
@@ -142,6 +136,46 @@ describe('AdminUserDetailPage', () => {
 
     await fixture.componentInstance.handleProfile(passenger);
     expect(create.mock.lastCall?.[0].componentProps.message).not.toContain('ningún perfil activo');
+  });
+
+  it('disables and enables the account with the reason', async () => {
+    const root = await render();
+    confirmingModal();
+    expect(root.textContent).toContain('Inhabilitar cuenta');
+
+    await fixture.componentInstance.handleAccess(false);
+    expect(setAccountAccess).toHaveBeenCalledWith('u1', {
+      isDisabled: true,
+      reason: 'Checked with the user',
+    });
+    expect(showSuccess).toHaveBeenCalledWith('Cuenta inhabilitada.');
+
+    await fixture.componentInstance.handleAccess(true);
+    expect(setAccountAccess).toHaveBeenLastCalledWith('u1', {
+      isDisabled: false,
+      reason: 'Checked with the user',
+    });
+    expect(showSuccess).toHaveBeenLastCalledWith('Cuenta rehabilitada.');
+  });
+
+  it('offers enabling a disabled account', async () => {
+    get.mockResolvedValue({ ...DETAIL, statuses: ['disabled'] });
+    const root = await render();
+    expect(root.textContent).toContain('Rehabilitar cuenta');
+    expect(fixture.componentInstance.access()?.isDisabled).toBe(true);
+  });
+
+  it('hides the account access for the own and for a deleted account', async () => {
+    currentUser.set({ id: 'u1' });
+    const own = await render();
+    expect(own.textContent).not.toContain('Acceso a la cuenta');
+    expect(own.textContent).toContain('Tu cuenta');
+
+    TestBed.resetTestingModule();
+    currentUser.set({ id: 'admin-1' });
+    get.mockResolvedValue({ ...DETAIL, statuses: ['deleted'] });
+    const deleted = await render();
+    expect(deleted.textContent).not.toContain('Acceso a la cuenta');
   });
 
   it('asks the layout for the back button and the title on mobile', async () => {

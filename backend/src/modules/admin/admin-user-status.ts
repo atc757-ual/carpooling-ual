@@ -8,6 +8,7 @@ export const ADMIN_USER_STATUSES = [
   'open_incidents',
   'suspended',
   'profile_deactivated',
+  'disabled',
   'deleted',
 ] as const;
 export type AdminUserStatus = (typeof ADMIN_USER_STATUSES)[number];
@@ -18,6 +19,7 @@ const ACCOUNT_STATUS_SET: ReadonlySet<string> = new Set<AccountStatus>([
   'active',
   'email_unverified',
   'profile_deactivated',
+  'disabled',
   'deleted',
 ]);
 

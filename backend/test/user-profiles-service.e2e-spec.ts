@@ -7,7 +7,6 @@ import { InvalidRefreshTokenError } from '../src/modules/auth/errors/invalid-ref
 import { RefreshTokensService } from '../src/modules/auth/refresh-tokens.service';
 import { TripsService } from '../src/modules/trips/trips.service';
 import { CannotChangeOwnAdminError } from '../src/modules/users/errors/cannot-change-own-admin.error';
-import { ProfileNotFoundError } from '../src/modules/users/errors/profile-not-found.error';
 import { UserNotFoundError } from '../src/modules/users/errors/user-not-found.error';
 import type { ProfileType } from '../src/modules/users/profile-type';
 import { UserProfilesService } from '../src/modules/users/user-profiles.service';
@@ -159,7 +158,7 @@ describe('UserProfilesService (e2e)', () => {
     ).rejects.toBeInstanceOf(CannotChangeOwnAdminError);
   });
 
-  it('only activates driver or passenger profiles that the user already has', async () => {
+  it('grants a driver or passenger profile the user did not have', async () => {
     const ada = await createUser('ada', ['admin']);
     const pia = await createUser('pia', ['passenger']);
 
@@ -170,7 +169,12 @@ describe('UserProfilesService (e2e)', () => {
         isActive: true,
         reason: 'Reason given by the admin',
       }),
-    ).rejects.toBeInstanceOf(ProfileNotFoundError);
+    ).resolves.toBeUndefined();
+    await expect(userProfiles.getAdminView(pia)).resolves.toMatchObject({
+      profiles: expect.arrayContaining([
+        { profile: 'driver', isActive: true },
+      ]) as unknown,
+    });
     await expect(
       userProfiles.setProfileActive(ada, {
         userId: '00000000-0000-4000-8000-000000000000',

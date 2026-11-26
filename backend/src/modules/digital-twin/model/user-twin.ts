@@ -5,6 +5,8 @@ export const USER_EVENTS: ReadonlySet<string> = new Set([
   'user.registered',
   'user.phone_verified',
   'user.deactivated',
+  'user.disabled',
+  'user.enabled',
   'user.profile_activated',
   'user.profile_deactivated',
   'user.active_mode_changed',
@@ -36,7 +38,11 @@ export class UserTwin {
         this.isPhoneVerified = true;
         break;
       case 'user.deactivated':
+      case 'user.disabled':
         this.isActive = false;
+        break;
+      case 'user.enabled':
+        this.isActive = true;
         break;
       case 'user.active_mode_changed':
         this.activeMode = readString(payload, 'activeMode') ?? this.activeMode;

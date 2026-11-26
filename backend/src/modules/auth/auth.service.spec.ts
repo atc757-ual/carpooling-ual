@@ -7,6 +7,7 @@ import { EmailAlreadyRegisteredError } from '../users/errors/email-already-regis
 import { UsersService } from '../users/users.service';
 import { AccessTokenPayload } from '../../shared/auth/access-token-payload';
 import { AuthService } from './auth.service';
+import { AccountDisabledError } from './errors/account-disabled.error';
 import { EmailVerificationService } from './email-verification.service';
 import { EmailNotVerifiedError } from './errors/email-not-verified.error';
 import { AdminAlreadyExistsError } from './errors/admin-already-exists.error';
@@ -305,6 +306,24 @@ describe('AuthService', () => {
       expect(refreshTokensService.issue).not.toHaveBeenCalled();
     });
 
+    it('tells a disabled account apart only after the right password (403)', async () => {
+      const disabled = Object.assign(
+        storedUser(await hash('secret-password', 4)),
+        {
+          disabledAt: new Date(),
+        },
+      );
+      usersService.findByEmailWithPassword.mockResolvedValue(disabled);
+
+      await expect(
+        authService.login('ana@ual.es', 'secret-password'),
+      ).rejects.toBeInstanceOf(AccountDisabledError);
+      await expect(
+        authService.login('ana@ual.es', 'wrong-password'),
+      ).rejects.toBeInstanceOf(InvalidCredentialsError);
+      expect(refreshTokensService.issue).not.toHaveBeenCalled();
+    });
+
     it('answers a wrong password with 401 even if the email is not verified', async () => {
       usersService.findByEmailWithPassword.mockResolvedValue(
         storedUser(await hash('secret-password', 4), null),
@@ -401,6 +420,20 @@ describe('AuthService', () => {
       );
     });
 
+    it('rejects the refresh of a disabled account', async () => {
+      refreshTokensService.rotate.mockResolvedValue({
+        userId: 'user-1',
+        refreshToken: ISSUED_REFRESH_TOKEN,
+      });
+      usersService.findById.mockResolvedValue(
+        Object.assign(storedUser(), { disabledAt: new Date() }),
+      );
+
+      await expect(authService.refresh('refresh-token')).rejects.toBeInstanceOf(
+        InvalidRefreshTokenError,
+      );
+    });
+
     it('rejects the refresh when the user no longer exists', async () => {
       refreshTokensService.rotate.mockResolvedValue({
         userId: 'deleted-user',
@@ -457,6 +490,16 @@ describe('AuthService', () => {
 
       await expect(
         authService.getAuthenticatedUser('deleted-user'),
+      ).rejects.toBeInstanceOf(InvalidAccessTokenError);
+    });
+
+    it('rejects a token of a disabled account', async () => {
+      usersService.findById.mockResolvedValue(
+        Object.assign(storedUser(), { disabledAt: new Date() }),
+      );
+
+      await expect(
+        authService.getAuthenticatedUser('user-1'),
       ).rejects.toBeInstanceOf(InvalidAccessTokenError);
     });
   });

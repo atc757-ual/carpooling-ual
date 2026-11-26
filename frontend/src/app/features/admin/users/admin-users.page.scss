@@ -100,6 +100,12 @@
   color: var(--color-warning-text);
 }
 
+.admin-users__chip--danger {
+  border-color: transparent;
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
+}
+
 // Móvil: cada usuario en una línea: avatar y nombre (recortado si no cabe), sus
 // estados y la flecha. El correo y el rol, en el detalle
 @include bp.container-down(admin-list, md) {

@@ -31,6 +31,8 @@ El `payload` de cada tipo lo construye el fichero indicado.
 | `user.email_verified`      | Reservado: aún no se registra (el correo se verifica antes de crear la cuenta)                     | —                                      |
 | `user.phone_verified`      | Verifica su teléfono con el código                                                                 | `users/users.service.ts`               |
 | `user.deactivated`         | Elimina su cuenta                                                                                  | `users/users.service.ts`               |
+| `user.disabled`            | Un administrador inhabilita la cuenta (reversible; payload vacío)                                  | `users/account-access.service.ts`      |
+| `user.enabled`             | Un administrador la rehabilita (payload vacío)                                                     | `users/account-access.service.ts`      |
 | `user.profile_activated`   | Se activa un perfil (por el usuario o por un administrador)                                        | `users/user-profiles.service.ts`       |
 | `user.profile_deactivated` | Un administrador desactiva un perfil                                                               | `users/user-profiles.service.ts`       |
 | `user.updated`             | Cambia los datos de su cuenta                                                                      | `users/users.service.ts`               |

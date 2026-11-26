@@ -7,6 +7,7 @@ const ERROR_TRANSLATION_KEYS: Readonly<Record<string, string>> = {
   VALIDATION_FAILED: 'auth.errors.validation',
   SERVICE_UNAVAILABLE: 'auth.errors.unavailable',
   INVALID_CREDENTIALS: 'auth.errors.invalidCredentials',
+  ACCOUNT_DISABLED: 'errors.ACCOUNT_DISABLED',
   INVALID_VERIFICATION_CODE: 'auth.errors.invalidCode',
   PASSWORD_UNCHANGED: 'auth.errors.passwordUnchanged',
   TOO_MANY_ATTEMPTS: 'auth.errors.tooManyAttempts',

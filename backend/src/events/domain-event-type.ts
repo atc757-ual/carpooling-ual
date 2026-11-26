@@ -6,6 +6,9 @@ export type DomainEventType =
   | 'user.email_verified'
   | 'user.phone_verified'
   | 'user.deactivated'
+  // Un administrador inhabilita o rehabilita la cuenta (RF-25)
+  | 'user.disabled'
+  | 'user.enabled'
   | 'user.profile_activated'
   | 'user.profile_deactivated'
   // Cambia los datos de su cuenta (nombre, teléfono o tolerancia horaria)

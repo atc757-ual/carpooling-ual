@@ -288,7 +288,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Activate or deactivate a profile of a user',
     description:
-      'RF-25. For the admin profile, activating assigns it and deactivating removes it. The last active administrator cannot be removed, nor can administrators remove themselves. Deactivating a profile closes all the sessions of the user.',
+      'RF-25. Activating a profile the user does not have grants it (a granted driver profile still needs the driver declaration and a vehicle to publish trips). For the admin profile, deactivating removes it. The last active administrator cannot be removed, nor can administrators remove themselves. Deactivating a profile closes all the sessions of the user.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiParam({ name: 'profile', enum: PROFILE_TYPES })
@@ -297,7 +297,7 @@ export class UsersController {
     ...AUTH_ERRORS,
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.FORBIDDEN]: ['PROFILE_REQUIRED'],
-    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND', 'PROFILE_NOT_FOUND'],
+    [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
     [HttpStatus.CONFLICT]: ['LAST_ADMIN', 'CANNOT_CHANGE_OWN_ADMIN'],
   })
   async setProfileActive(

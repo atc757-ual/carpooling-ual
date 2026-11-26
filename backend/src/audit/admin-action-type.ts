@@ -2,5 +2,7 @@
 export type AdminActionType =
   | 'profile.activated'
   | 'profile.deactivated'
+  | 'account.disabled'
+  | 'account.enabled'
   | 'suspension.lifted'
   | 'setting.changed';
