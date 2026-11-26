@@ -1390,7 +1390,8 @@
     "liveTrip": "{{ route }}, leaving at {{ time }}",
     "liveDriver": "I'm driving a UAL shared trip: {{ trip }}.",
     "livePassenger": "I'm on a UAL shared trip: {{ trip }}. {{ name }} is driving{{ car }}.",
-    "plate": "plate {{ plate }}"
+    "plate": "plate {{ plate }}",
+    "linkCopied": "Link copied"
   },
   "sharedTrip": {
     "carpoolingUal": "Carpooling UAL",

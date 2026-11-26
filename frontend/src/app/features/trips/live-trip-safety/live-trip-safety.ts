@@ -2,11 +2,12 @@ import { booleanAttribute, Component, inject, input, output } from '@angular/cor
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { callOutline, documentTextOutline, paperPlaneOutline } from 'ionicons/icons';
+import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 
 // «Viaje seguro» en el viaje en curso, como las demás tarjetas de la hoja.
 // Conductor y pasajero: compartir el viaje con alguien de confianza (el menú
-// del sistema o WhatsApp), con el mismo texto y botón. El 112 va en la esquina de las
+// del sistema, enlace en directo o WhatsApp), con el mismo texto y botón. El 112 va en la esquina de las
 // pastillas de cada pantalla
 @Component({
   selector: 'app-live-trip-safety',
@@ -15,18 +16,31 @@ import { TripShareService } from '../../../core/services/trips/trip-share.servic
   styleUrl: './live-trip-safety.scss',
 })
 export class LiveTripSafety {
+  private readonly liveShare = inject(TripLiveShareService);
   private readonly tripShare = inject(TripShareService);
   private readonly transloco = inject(TranslocoService);
 
   // El mensaje para la persona de confianza (el trayecto y, del pasajero, con quién)
   readonly shareText = input.required<string>();
+  // Pasajero: si se indica el viaje, genera y añade el enlace en directo
+  readonly tripId = input<string | null>(null);
 
   protected readonly shareIcon = paperPlaneOutline;
 
   async handleShare(): Promise<void> {
+    const tripId = this.tripId();
+    let url: string | undefined;
+    if (tripId) {
+      try {
+        url = await this.liveShare.start(tripId);
+      } catch {
+        // Si no se puede generar el enlace, se comparte al menos el texto
+      }
+    }
     await this.tripShare.share({
       title: this.transloco.translate('share.liveTitle'),
       text: this.shareText(),
+      url,
     });
   }
 }
@@ -106,7 +120,7 @@ export class LiveTripQuickActions {
       <h2 id="other-actions-title" class="live-group__title">
         {{ 'live.otrasAcciones' | transloco }}
       </h2>
-      <app-live-trip-safety [shareText]="shareText()" />
+      <app-live-trip-safety [shareText]="shareText()" [tripId]="tripId()" />
       <ng-content />
       <ion-card class="live-safety" role="region" aria-labelledby="live-emergency-title">
         <ion-card-content>
@@ -128,4 +142,5 @@ export class LiveTripQuickActions {
 })
 export class LiveTripOtherActions {
   readonly shareText = input.required<string>();
+  readonly tripId = input<string | null>(null);
 }

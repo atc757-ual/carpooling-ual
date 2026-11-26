@@ -46,6 +46,7 @@ import { PassengerRequestActions } from './passenger-request-actions/passenger-r
 import { PassengerRequestRoute } from './passenger-request-route/passenger-request-route';
 import { isRelocatable, RelocationCard } from './relocation-card/relocation-card';
 import { TripReviewCard } from '../trip-review/trip-review-card';
+import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { vehicleDisplayName } from '../../../shared/utils/vehicle-display.util';
 import { Translate } from '../../../core/i18n/translate';
@@ -92,6 +93,7 @@ export class PassengerRequestDetailPage {
   private readonly requests = inject(SeatRequestsService);
   private readonly trips = inject(TripsService);
   private readonly headingContent = inject(HeadingContentService);
+  private readonly liveShare = inject(TripLiveShareService);
   private readonly tripShare = inject(TripShareService);
   private readonly transloco = inject(TranslocoService);
   private readonly translate: Translate = (key, params) => this.transloco.translate(key, params);
@@ -224,14 +226,25 @@ export class PassengerRequestDetailPage {
   }
 
   // Compartir el viaje con alguien de confianza (el menú del sistema): el
-  // trayecto, quién conduce, el coche y la matrícula
+  // trayecto, quién conduce, el coche, la matrícula y el enlace en directo
   async handleShare(request: SeatRequest, trip: Trip): Promise<void> {
     const text = buildLiveShareText(trip, this.translate, {
       name: trip.driver.name,
       vehicleName: trip.vehicle ? vehicleDisplayName(trip.vehicle) : null,
       plate: request.vehiclePlate ?? null,
     });
-    await this.tripShare.share({ title: this.translate('share.liveTitle'), text });
+    let url: string | undefined;
+    if (
+      request.status === 'accepted' &&
+      (trip.status === 'confirmed' || trip.status === 'in_progress')
+    ) {
+      try {
+        url = await this.liveShare.start(trip.id);
+      } catch {
+        // Si no se puede generar el enlace, se comparte al menos el texto
+      }
+    }
+    await this.tripShare.share({ title: this.translate('share.liveTitle'), text, url });
   }
 
   protected readonly firstName = (name: string) => getFirstName(name);

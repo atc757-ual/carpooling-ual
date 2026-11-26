@@ -17,6 +17,7 @@ import {
   ROQUETAS,
   stubIntersectionObserver,
 } from '../trip-search.testing';
+import { TripsService } from '../../../core/services/trips/trips.service';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { TripSearchPage } from './trip-search.page';
 import { UsualTripService } from '../usual-trip/usual-trip.service';
@@ -40,7 +41,11 @@ describe('TripSearchPage', () => {
 
   async function setUp(
     current: TripSearch | null,
-    { profiles = ['passenger'], pending = 0 }: { profiles?: Profile[]; pending?: number } = {},
+    {
+      profiles = ['passenger'],
+      pending = 0,
+      nextTripEntries = [],
+    }: { profiles?: Profile[]; pending?: number; nextTripEntries?: unknown[] } = {},
   ): Promise<ComponentFixture<TripSearchPage>> {
     sessionStorage.clear();
     stubIntersectionObserver();
@@ -70,6 +75,23 @@ describe('TripSearchPage', () => {
         {
           provide: SeatRequestsService,
           useValue: { listMine: vi.fn().mockResolvedValue(requests) },
+        },
+        {
+          provide: TripsService,
+          useValue: {
+            listMyTripEntries: vi
+              .fn()
+              .mockResolvedValue({ items: nextTripEntries, total: nextTripEntries.length }),
+            getTrip: vi.fn().mockImplementation((id: string) =>
+              Promise.resolve({
+                id,
+                status: 'published',
+                departureAt: '2026-11-26T18:00:00Z',
+                origin: { name: 'Almería' },
+                destination: { name: 'Campus' },
+              }),
+            ),
+          },
         },
         {
           provide: LocationService,
@@ -118,6 +140,27 @@ describe('TripSearchPage', () => {
     const alert = root.querySelector('a.trip-search__pending');
     expect(alert?.textContent).toContain('Tienes 1 solicitud esperando respuesta.');
     expect(alert?.getAttribute('href')).toBe('/tabs/trips/requests/r0');
+  });
+
+  it('does not duplicate the waiting notice when the next trip card already shows it', async () => {
+    const fixture = await setUp(null, {
+      pending: 1,
+      nextTripEntries: [
+        {
+          role: 'passenger',
+          request: {
+            id: 'r0',
+            status: 'pending',
+            trip: { id: 't0' },
+          },
+        },
+      ],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('a.trip-search__pending')).toBeNull();
   });
 
   it('asks again for the requests and the next trip when coming back to the tab', async () => {

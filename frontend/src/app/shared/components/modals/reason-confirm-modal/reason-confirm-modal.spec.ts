@@ -95,6 +95,8 @@ describe('ReasonConfirmModal', () => {
     });
 
     expect(isDone).toBe(true);
-    expect(create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'info-dialog' }));
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({ cssClass: ['info-dialog', 'confirm-dialog'] }),
+    );
   });
 });

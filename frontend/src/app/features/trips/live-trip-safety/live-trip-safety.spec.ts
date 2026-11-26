@@ -3,6 +3,7 @@ import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import {
   LiveTripOtherActions,
@@ -28,15 +29,18 @@ class OtherActionsHost {
 describe('LiveTripSafety', () => {
   let fixture: ComponentFixture<LiveTripSafety>;
   let share: ReturnType<typeof vi.fn>;
+  let liveShareStart: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     share = vi.fn().mockResolvedValue('shared');
+    liveShareStart = vi.fn().mockResolvedValue('https://carpooling.example/seguir/tok1');
     TestBed.configureTestingModule({
       imports: [LiveTripSafety],
       providers: [
         provideAppTransloco(),
         provideIonicAngular(),
         { provide: TripShareService, useValue: { share } },
+        { provide: TripLiveShareService, useValue: { start: liveShareStart } },
       ],
     });
     fixture = TestBed.createComponent(LiveTripSafety);
@@ -60,6 +64,19 @@ describe('LiveTripSafety', () => {
     expect(share).toHaveBeenCalledWith({
       title: 'Mi viaje en Carpooling UAL',
       text: SHARE_TEXT,
+    });
+  });
+
+  it('generates and includes the live tracking link when tripId is given', async () => {
+    render({ shareText: SHARE_TEXT, tripId: 't123' });
+
+    await fixture.componentInstance.handleShare();
+
+    expect(liveShareStart).toHaveBeenCalledWith('t123');
+    expect(share).toHaveBeenCalledWith({
+      title: 'Mi viaje en Carpooling UAL',
+      text: SHARE_TEXT,
+      url: 'https://carpooling.example/seguir/tok1',
     });
   });
 

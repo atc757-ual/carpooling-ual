@@ -25,6 +25,7 @@ describe('Combobox', () => {
   let ionInput: HTMLElement;
 
   beforeEach(async () => {
+    document.querySelectorAll('ion-popover, ion-modal, .datetime-popover').forEach((el) => el.remove());
     TestBed.configureTestingModule({ imports: [HostComponent] });
     fixture = TestBed.createComponent(HostComponent);
     host = fixture.componentInstance;

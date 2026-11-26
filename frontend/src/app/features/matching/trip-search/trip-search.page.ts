@@ -61,15 +61,22 @@ export class TripSearchPage {
   });
 
   // Cuántas de sus solicitudes esperan respuesta (0: sin aviso). Si no se
-  // pueden cargar, no se avisa: no es motivo para un error
+  // pueden cargar, no se avisa: no es motivo para un error. Si la tarjeta de
+  // arriba ya muestra esta solicitud pendiente como próximo viaje, no se duplica
   private readonly myRequests = resource({
     loader: () => this.seatRequests.listMine().catch(fallbackOnApiError([])),
   });
-  private readonly pendingList = computed(() =>
-    this.myRequests.hasValue()
-      ? this.myRequests.value().filter(({ status }) => status === 'pending')
-      : [],
-  );
+  private readonly pendingList = computed(() => {
+    if (!this.myRequests.hasValue()) {
+      return [];
+    }
+    const allPending = this.myRequests.value().filter(({ status }) => status === 'pending');
+    const shown = this.nextTrip()?.next();
+    if (shown && shown.role === 'passenger' && shown.request.status === 'pending') {
+      return allPending.filter(({ id }) => id !== shown.request.id);
+    }
+    return allPending;
+  });
   readonly pendingRequests = computed(() => this.pendingList().length);
   // Con una sola, el aviso lleva a ella; con varias, a Tus viajes
   readonly pendingLink = computed(() => {

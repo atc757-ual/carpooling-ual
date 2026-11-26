@@ -359,7 +359,7 @@
           <!-- «Otras acciones» en escritorio ancho: debajo del mapa, en la columna
                de 8, las tres tarjetas en fila (compartir, reportar y la emergencia) -->
           <ng-template #otherActions>
-            <app-live-trip-other-actions [shareText]="safetyShareText()">
+            <app-live-trip-other-actions [tripId]="trip.id" [shareText]="safetyShareText()">
               <app-passenger-request-actions
                 [request]="request"
                 [trip]="trip"
