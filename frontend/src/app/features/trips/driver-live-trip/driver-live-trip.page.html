@@ -132,7 +132,7 @@
                 </div>
               </ion-card-content>
             </ion-card>
-          } @else if (finishCheck(); as check) {
+          } @else if (sheet.isDesktop() ? null : finishCheck(); as check) {
             <ion-card class="driver-live-trip__panel">
               <ion-card-content>
                 <!-- El encabezado centrado (icono y pregunta) con la línea
@@ -183,7 +183,7 @@
                 </div>
               </ion-card-content>
             </ion-card>
-          } @else if (isReportingIncident()) {
+          } @else if (isReportingIncident() && !sheet.isDesktop()) {
             <!-- Reportar: el formulario sustituye al resto; «Continuar el viaje»
                  lo vuelve a mostrar -->
             <ion-card class="driver-live-trip__panel">
@@ -641,7 +641,7 @@
                       type="button"
                       class="icon-btn icon-btn--labeled icon-btn--stacked"
                       [attr.aria-label]="'live.reportarAbreFormulario' | transloco"
-                      (click)="isReportingIncident.set(true)"
+                      (click)="handleReport()"
                     >
                       <ion-icon [icon]="reportIcon" aria-hidden="true" />
                       <span class="icon-btn__label" aria-hidden="true">{{
@@ -733,7 +733,7 @@
                   type="button"
                   class="icon-btn icon-btn--labeled"
                   [attr.aria-label]="'live.enviarReporteAbreFormulario' | transloco"
-                  (click)="isReportingIncident.set(true)"
+                  (click)="handleReport()"
                 >
                   <ion-icon [icon]="reportIcon" aria-hidden="true" />
                   <span class="icon-btn__label" aria-hidden="true">{{
@@ -806,7 +806,7 @@
               class="driver-live-trip__side live-column"
               [attr.aria-label]="'live.viajeAhora' | transloco"
             >
-              @if (!justFinished() && !finishCheck()) {
+              @if (!justFinished()) {
                 <ng-container [ngTemplateOutlet]="liveHero" />
               }
               <ng-container [ngTemplateOutlet]="liveDetails" />

@@ -99,7 +99,7 @@
                   }
                 </ion-card-content>
               </ion-card>
-            } @else if (isReportingIncident()) {
+            } @else if (isReportingIncident() && !sheet.isDesktop()) {
               <!-- Bajarse con incidencia: el formulario sustituye al
                    resto; «Continuar en el viaje» lo vuelve a mostrar -->
               <ion-card class="ride__panel">
@@ -355,7 +355,7 @@
                           type="button"
                           class="icon-btn icon-btn--labeled icon-btn--stacked"
                           [attr.aria-label]="'live.reportarBajarmeRegistrarUna' | transloco"
-                          (click)="isReportingIncident.set(true)"
+                          (click)="handleReport()"
                         >
                           <ion-icon [icon]="reportIcon" aria-hidden="true" />
                           <span class="icon-btn__label" aria-hidden="true">{{
@@ -389,7 +389,7 @@
                 [trip]="trip"
                 [showChat]="false"
                 [inlineIncident]="true"
-                (incidentRequested)="isReportingIncident.set(true)"
+                (incidentRequested)="handleReport()"
               />
               <ion-card class="ride__panel" role="region" aria-labelledby="ride-sos-title">
                 <ion-card-content>

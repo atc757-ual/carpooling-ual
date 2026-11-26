@@ -1,7 +1,14 @@
 import { Component, computed, DestroyRef, inject, input, resource, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { IonButton, IonCard, IonCardContent, IonContent, IonIcon } from '@ionic/angular';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonContent,
+  IonIcon,
+  ModalController,
+} from '@ionic/angular';
 import {
   businessOutline,
   callOutline,
@@ -57,6 +64,7 @@ import { TripShareService } from '../../../core/services/trips/trip-share.servic
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { ParticipantEmail } from '../../../shared/components/ui/participant-email/participant-email';
 import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
+import { openIncidentDialog } from '../live-trip-dialogs';
 
 // Cada cuánto se revisa si ya subió (código validado) o si el viaje terminó
 const REFRESH_MS = 15_000;
@@ -135,6 +143,7 @@ export class PassengerLiveTripPage {
   private readonly trips = inject(TripsService);
   private readonly tripCall = inject(TripCallService);
   private readonly toast = inject(ToastService);
+  private readonly modalController = inject(ModalController);
   private readonly tripShare = inject(TripShareService);
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
@@ -233,6 +242,21 @@ export class PassengerLiveTripPage {
   protected readonly ratingName = ratingName;
   // Registrando una incidencia: el formulario sustituye a todo lo demás
   readonly isReportingIncident = signal(false);
+  // En el móvil, el formulario en la hoja; en escritorio, en una ventana
+  async handleReport(): Promise<void> {
+    const trip = this.trip();
+    if (!trip) {
+      return;
+    }
+    if (!this.sheet.isDesktop()) {
+      this.isReportingIncident.set(true);
+      return;
+    }
+    const props = { tripId: trip.id, isDriver: false };
+    if (await openIncidentDialog(this.modalController, props)) {
+      await this.handleIncidentReported();
+    }
+  }
   // Lo que el mapa sabe en directo (minutos hasta la recogida y el destino)
   readonly liveStatus = signal<LiveTripStatus | null>(null);
   readonly etaText = computed(() => {
