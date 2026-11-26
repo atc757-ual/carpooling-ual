@@ -1,7 +1,7 @@
-import { Component, inject, input } from '@angular/core';
+import { booleanAttribute, Component, inject, input, output } from '@angular/core';
 import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { paperPlaneOutline } from 'ionicons/icons';
+import { callOutline, documentTextOutline, paperPlaneOutline } from 'ionicons/icons';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 
 // «Viaje seguro» en el viaje en curso, como las demás tarjetas de la hoja.
@@ -29,4 +29,103 @@ export class LiveTripSafety {
       text: this.shareText(),
     });
   }
+}
+
+// 112: el teléfono único de emergencias en Europa. En la fila del móvil,
+// «SOS» (corto); en su tarjeta, «Llamar al 112»
+@Component({
+  selector: 'app-live-trip-sos-button',
+  imports: [IonIcon, TranslocoPipe],
+  host: { style: 'display: contents' },
+  template: `
+    <a
+      class="icon-btn icon-btn--labeled icon-btn--danger"
+      [class.icon-btn--stacked]="stacked()"
+      href="tel:112"
+      [attr.aria-label]="'live.sosLlamar112' | transloco"
+      [title]="'live.llamar112' | transloco"
+    >
+      <ion-icon [icon]="callIcon" aria-hidden="true" />
+      <span class="icon-btn__label" aria-hidden="true">{{
+        (stacked() ? 'live.sos' : 'live.llamar112') | transloco
+      }}</span>
+    </a>
+  `,
+})
+export class LiveTripSosButton {
+  readonly stacked = input(false, { transform: booleanAttribute });
+
+  protected readonly callIcon = callOutline;
+}
+
+// Botones cortos comunes de la fila de acciones (móvil y tableta): Compartir,
+// Reportar y SOS
+@Component({
+  selector: 'app-live-trip-quick-actions',
+  imports: [IonIcon, TranslocoPipe, LiveTripSosButton],
+  host: { style: 'display: contents' },
+  template: `
+    <button
+      type="button"
+      class="icon-btn icon-btn--labeled icon-btn--stacked"
+      [attr.aria-label]="'live.compartirViajeConAlguien' | transloco"
+      (click)="shared.emit()"
+    >
+      <ion-icon [icon]="shareIcon" aria-hidden="true" />
+      <span class="icon-btn__label" aria-hidden="true">{{ 'live.compartir' | transloco }}</span>
+    </button>
+    <button
+      type="button"
+      class="icon-btn icon-btn--labeled icon-btn--stacked"
+      [attr.aria-label]="reportLabel()"
+      (click)="reported.emit()"
+    >
+      <ion-icon [icon]="reportIcon" aria-hidden="true" />
+      <span class="icon-btn__label" aria-hidden="true">{{ 'live.reportar' | transloco }}</span>
+    </button>
+    <app-live-trip-sos-button stacked />
+  `,
+})
+export class LiveTripQuickActions {
+  readonly reportLabel = input.required<string>();
+  readonly shared = output<void>();
+  readonly reported = output<void>();
+
+  protected readonly shareIcon = paperPlaneOutline;
+  protected readonly reportIcon = documentTextOutline;
+}
+
+// «Otras acciones» en escritorio ancho: debajo del mapa, en la columna de 8,
+// las tres tarjetas en fila (compartir, reportar y la emergencia)
+@Component({
+  selector: 'app-live-trip-other-actions',
+  imports: [IonCard, IonCardContent, TranslocoPipe, LiveTripSafety, LiveTripSosButton],
+  styleUrl: './live-trip-safety.scss',
+  template: `
+    <section class="live-group live-group--actions" aria-labelledby="other-actions-title">
+      <h2 id="other-actions-title" class="live-group__title">
+        {{ 'live.otrasAcciones' | transloco }}
+      </h2>
+      <app-live-trip-safety [shareText]="shareText()" />
+      <ng-content />
+      <ion-card class="live-safety" role="region" aria-labelledby="live-emergency-title">
+        <ion-card-content>
+          <div class="section-item">
+            <div class="section-item__text">
+              <h2 id="live-emergency-title" class="section-item__title">
+                {{ 'live.emergencia' | transloco }}
+              </h2>
+              <p class="section-item__subtitle">
+                {{ 'live.hayUnaEmergenciaLlama' | transloco }}
+              </p>
+            </div>
+            <app-live-trip-sos-button />
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </section>
+  `,
+})
+export class LiveTripOtherActions {
+  readonly shareText = input.required<string>();
 }

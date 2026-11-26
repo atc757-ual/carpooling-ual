@@ -347,31 +347,10 @@
                     }}</span>
                   </button>
                 }
-                <button
-                  type="button"
-                  class="icon-btn icon-btn--labeled icon-btn--stacked"
-                  [attr.aria-label]="'live.compartirViajeConAlguien' | transloco"
-                  (click)="handleShareTrip()"
-                >
-                  <ion-icon [icon]="shareIcon" aria-hidden="true" />
-                  <span class="icon-btn__label" aria-hidden="true">{{
-                    'live.compartir' | transloco
-                  }}</span>
-                </button>
-                <button
-                  type="button"
-                  class="icon-btn icon-btn--labeled icon-btn--stacked"
-                  [attr.aria-label]="'live.reportarBajarmeRegistrarUna' | transloco"
-                  (click)="handleReport()"
-                >
-                  <ion-icon [icon]="reportIcon" aria-hidden="true" />
-                  <span class="icon-btn__label" aria-hidden="true">{{
-                    'live.reportar' | transloco
-                  }}</span>
-                </button>
-                <ng-container
-                  [ngTemplateOutlet]="sosButton"
-                  [ngTemplateOutletContext]="{ $implicit: true }"
+                <app-live-trip-quick-actions
+                  [reportLabel]="'live.reportarBajarmeRegistrarUna' | transloco"
+                  (shared)="handleShareTrip()"
+                  (reported)="handleReport()"
                 />
               </div>
             </div>
@@ -380,13 +359,7 @@
           <!-- «Otras acciones» en escritorio ancho: debajo del mapa, en la columna
                de 8, las tres tarjetas en fila (compartir, reportar y la emergencia) -->
           <ng-template #otherActions>
-            <!-- «Otras acciones», juntas en una tarjeta: compartir,
-               reportar y la emergencia -->
-            <section class="live-group live-group--actions" aria-labelledby="other-actions-title">
-              <h2 id="other-actions-title" class="live-group__title">
-                {{ 'live.otrasAcciones' | transloco }}
-              </h2>
-              <app-live-trip-safety [shareText]="safetyShareText()" />
+            <app-live-trip-other-actions [shareText]="safetyShareText()">
               <app-passenger-request-actions
                 [request]="request"
                 [trip]="trip"
@@ -394,39 +367,7 @@
                 [inlineIncident]="true"
                 (incidentRequested)="handleReport()"
               />
-              <ion-card class="ride__panel" role="region" aria-labelledby="ride-sos-title">
-                <ion-card-content>
-                  <div class="section-item">
-                    <div class="section-item__text">
-                      <h2 id="ride-sos-title" class="section-item__title">
-                        {{ 'live.emergencia' | transloco }}
-                      </h2>
-                      <p class="section-item__subtitle">
-                        {{ 'live.hayUnaEmergenciaLlama' | transloco }}
-                      </p>
-                    </div>
-                    <ng-container [ngTemplateOutlet]="sosButton" />
-                  </div>
-                </ion-card-content>
-              </ion-card>
-            </section>
-          </ng-template>
-
-          <!-- 112: el teléfono único de emergencias en Europa. En la fila del móvil,
-             «SOS» (corto); en su tarjeta, «Llamar al 112» -->
-          <ng-template #sosButton let-isStacked>
-            <a
-              class="icon-btn icon-btn--labeled icon-btn--danger"
-              [class.icon-btn--stacked]="isStacked"
-              href="tel:112"
-              [attr.aria-label]="'live.sosLlamar112' | transloco"
-              [title]="'live.llamar112' | transloco"
-            >
-              <ion-icon [icon]="callIcon" aria-hidden="true" />
-              <span class="icon-btn__label" aria-hidden="true">{{
-                (isStacked ? 'live.sos' : 'live.llamar112') | transloco
-              }}</span>
-            </a>
+            </app-live-trip-other-actions>
           </ng-template>
 
           <!-- «Rumbo al campus»: en la hoja (móvil) o arriba de la columna de 4 (escritorio) -->

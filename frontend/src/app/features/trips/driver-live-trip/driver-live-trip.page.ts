@@ -18,7 +18,6 @@ import {
   checkmarkCircle,
   chatbubblesOutline,
   checkmarkCircleOutline,
-  paperPlaneOutline,
   chevronBackOutline,
   chevronForwardOutline,
   documentTextOutline,
@@ -65,7 +64,7 @@ import {
   LiveTripSheet,
   stageIndex,
 } from '../live-trip-hero.util';
-import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
+import { LiveTripOtherActions, LiveTripQuickActions } from '../live-trip-safety/live-trip-safety';
 import { DragScroll } from '../../../shared/directives/drag-scroll.directive';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { buildLiveShareText } from '../trip-share-text';
@@ -108,7 +107,8 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     LiveTripHero,
     LiveTripMap,
     DragScroll,
-    LiveTripSafety,
+    LiveTripOtherActions,
+    LiveTripQuickActions,
     PassengerIncidentModal,
     LiveTripSheet,
     TripReviewCard,
@@ -563,7 +563,6 @@ export class DriverLiveTripPage {
   // está llegando al destino; antes, en la fila de acciones (móvil) o a la vista
   readonly showFinishAlert = computed(() => this.isReadyToFinish() || this.isNearDestination());
   // Móvil: qué hace el botón desplegado de la fila de acciones
-  protected readonly shareIcon = paperPlaneOutline;
 
   // Compartir el viaje con alguien de confianza (el menú del sistema)
   async handleShareTrip(): Promise<void> {

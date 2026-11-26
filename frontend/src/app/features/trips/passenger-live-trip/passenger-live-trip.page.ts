@@ -14,10 +14,8 @@ import {
   callOutline,
   checkmarkCircle,
   chatbubblesOutline,
-  documentTextOutline,
   homeOutline,
   locationOutline,
-  paperPlaneOutline,
   personOutline,
   walkOutline,
   alertCircleOutline,
@@ -58,7 +56,7 @@ import { GivenReview } from '../../../core/services/users/trip-reviews.service';
 import { RatingBar } from '../../../shared/components/ui/rating-bar/rating-bar';
 import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
-import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
+import { LiveTripOtherActions, LiveTripQuickActions } from '../live-trip-safety/live-trip-safety';
 import { buildLiveShareText } from '../trip-share-text';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
@@ -125,7 +123,8 @@ function arriveErrorKey(code: string): string {
     LicensePlate,
     LiveTripHero,
     LiveTripMap,
-    LiveTripSafety,
+    LiveTripOtherActions,
+    LiveTripQuickActions,
     LiveTripSheet,
     PassengerIncidentModal,
     PassengerRequestActions,
@@ -282,10 +281,6 @@ export class PassengerLiveTripPage {
     if (!this.isToCampus()) return 'default';
     return this.isNearDestination() ? 'near' : 'early';
   });
-  // Móvil: qué hace el botón desplegado de la fila de acciones
-  protected readonly shareIcon = paperPlaneOutline;
-  protected readonly reportIcon = documentTextOutline;
-
   // Compartir el viaje con alguien de confianza (el menú del sistema)
   async handleShareTrip(): Promise<void> {
     await this.tripShare.share({
