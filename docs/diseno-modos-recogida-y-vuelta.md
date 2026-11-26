@@ -1,6 +1,6 @@
 # Diseño: modos de recogida, tiempo con varios pasajeros e ida y vuelta
 
-> Estado: propuesta para aprobar (13/11/2026). Decisiones de la reunión con el director del 12/11/2026 y del autor el 13/11/2026.
+> Estado: implementado (#381, 22/11/2026). Propuesta del 13/11/2026. Decisiones de la reunión con el director del 12/11/2026 y del autor el 13/11/2026.
 
 ## 1. Por qué
 
