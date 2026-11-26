@@ -69,14 +69,14 @@ describe('ProfilePreferencesPage', () => {
     expect(root.querySelector('app-profile-vehicles')).not.toBeNull();
     expect(page.timeToleranceLabel()).toBe('± 20 min');
     expect(page.preferencesItems().length).toBeGreaterThan(0);
-    expect(page.reviewRows().length).toBe(2);
+    expect(page.reviewRows()).toHaveLength(2);
   });
 
   it('shows empty reviews message when user has no ratings', () => {
     const { page, root } = render(['passenger'], false);
 
-    expect(page.reviewRows().length).toBe(0);
-    expect(root.querySelectorAll('.profile__review-score').length).toBe(0);
+    expect(page.reviewRows()).toHaveLength(0);
+    expect(root.querySelectorAll('.profile__review-score')).toHaveLength(0);
   });
 
   it('opens the edit preferences modal and refreshes when saved', async () => {
