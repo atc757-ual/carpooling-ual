@@ -72,8 +72,9 @@ export class BiometricSetting implements OnInit {
 
   protected readonly icon = fingerPrintOutline;
 
-  async ngOnInit(): Promise<void> {
-    await this.biometric.load();
+  // Sin esperar: la pantalla se pinta ya y el botón aparece al saberlo
+  ngOnInit(): void {
+    void this.biometric.load();
   }
 
   async handleDisable(): Promise<void> {

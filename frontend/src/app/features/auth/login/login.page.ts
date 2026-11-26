@@ -100,8 +100,9 @@ export class LoginPage implements OnInit {
   protected readonly eyeOffIcon = eyeOffOutline;
   protected readonly fingerPrintIcon = fingerPrintOutline;
 
-  async ngOnInit(): Promise<void> {
-    await this.biometric.load();
+  // Sin esperar: la pantalla se pinta ya y el botón aparece al saberlo
+  ngOnInit(): void {
+    void this.biometric.load();
   }
 
   emailErrorKey(): string {
