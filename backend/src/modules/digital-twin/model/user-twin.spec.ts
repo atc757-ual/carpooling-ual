@@ -49,6 +49,14 @@ describe('UserTwin', () => {
     expect([...user.profiles]).toEqual(['passenger']);
   });
 
+  it('counts a disabled account as inactive until it is enabled', () => {
+    expect(user.apply(event('user.disabled'))).toBe(true);
+    expect(user.isActive).toBe(false);
+
+    user.apply(event('user.enabled'));
+    expect(user.isActive).toBe(true);
+  });
+
   it('follows the active mode, the phone and the account', () => {
     user.apply(event('user.active_mode_changed', { activeMode: 'driver' }));
     user.apply(event('user.active_mode_changed', {}));
