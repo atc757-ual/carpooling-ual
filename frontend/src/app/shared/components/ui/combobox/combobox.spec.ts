@@ -65,8 +65,9 @@ describe('Combobox', () => {
     expect(press('Tab').defaultPrevented).toBe(true);
     expect(host.choose).toHaveBeenCalledWith('a');
 
-    await new Promise((resolve) => setTimeout(resolve));
-    expect(document.activeElement?.textContent).toBe('Siguiente');
+    // El foco pasa en un setTimeout del componente: se espera a que llegue
+    // (con el CI cargado, un solo setTimeout del test no siempre basta)
+    await vi.waitFor(() => expect(document.activeElement?.textContent).toBe('Siguiente'));
   });
 
   it('lets Enter submit and Tab leave without choosing once closed with Escape', () => {
