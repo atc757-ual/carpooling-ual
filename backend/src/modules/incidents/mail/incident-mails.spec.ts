@@ -36,7 +36,7 @@ describe('incident mails', () => {
       helpUrl: 'https://carpooling.test/tabs/profile/help?incident=i7',
     });
 
-    expect(mail.subject).toBe('We have dealt with your report INC-0007');
+    expect(mail.subject).toBe('We have resolved your report INC-0007');
     expect(mail.text).toContain(
       'Our reply:\nWe spoke to the driver <b>today</b>',
     );

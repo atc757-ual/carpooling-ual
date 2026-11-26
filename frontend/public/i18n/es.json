@@ -1,5 +1,6 @@
 {
   "common": {
+    "quoted": "«{{ text }}»",
     "co2Source": {
       "label": "Fuente:",
       "title": "Ministerio para la Transición Ecológica"
@@ -40,6 +41,7 @@
     "logoutConfirm": {
       "title": "¿Cerrar sesión?",
       "message": "Podrás volver cuando quieras con tu correo UAL y tu contraseña.",
+      "unsavedTrip": "Se perderá el viaje que estabas publicando.",
       "confirm": "Cerrar sesión"
     },
     "footer": {
@@ -647,6 +649,7 @@
     }
   },
   "publish": {
+    "preparandoFormulario": "Preparando el formulario…",
     "anadirVehiculo": "Añadir vehículo",
     "vehiculo": "Vehículo",
     "aunTienesVehiculos": "Aún no tienes vehículos",
@@ -886,7 +889,7 @@
     "seguirDirecto": "Seguir en directo",
     "comparteUbicacion": "Comparte tu ubicación",
     "enviaViajeAlguienConfianza": "Envía tu viaje a alguien de confianza.",
-    "compartirViajeConAlguien": "Compartir el viaje con alguien de confianza",
+    "compartirViajeConAlguien": "Compartir viaje con alguien de confianza",
     "compartirViaje": "Compartir viaje",
     "algoMal": "¿Algo va mal?",
     "bajateSitioSeguroReportalo": "Bájate en un sitio seguro y repórtalo.",
@@ -895,7 +898,7 @@
     "tusViajes": "Tus viajes",
     "solicitud": "Tu solicitud",
     "accionesSolicitud": "Acciones de tu solicitud",
-    "enviarReporteAbreFormulario": "Enviar un reporte: abre el formulario de la incidencia",
+    "enviarReporteAbreFormulario": "Enviar reporte: abre el formulario de la incidencia",
     "enviarReporte": "Enviar reporte",
     "cancelasAhoraContaraComo": "Si cancelas ahora, contará como cancelación tardía",
     "con330Dias": "Con 3 en 30 días, 7 días sin poder pedir plaza.",
@@ -1241,11 +1244,12 @@
     "tapHint": "Toca un botón para ver qué hace.",
     "hazloCuandoHayanBajado": "Hazlo cuando se hayan bajado todos: dejarán de ver dónde estás.",
     "finishWhenAllOff": "Cuando se hayan bajado todos",
-    "compartirViajeConAlguien": "Compartir el viaje con alguien de confianza",
+    "compartirViajeConAlguien": "Compartir viaje con alguien de confianza",
     "compartir": "Compartir",
     "puedesSeguirReportaloRevisara": "Si no puedes seguir, repórtalo: lo revisará un administrador.",
-    "enviarReporteAbreFormulario": "Enviar un reporte: abre el formulario de la incidencia",
+    "enviarReporteAbreFormulario": "Enviar reporte: abre el formulario de la incidencia",
     "reportar": "Reportar",
+    "reportarAbreFormulario": "Reportar: abre el formulario de la incidencia",
     "algoMal": "¿Algo va mal?",
     "enviarReporte": "Enviar reporte",
     "sosLlamar112": "SOS: llamar al 112",
@@ -1267,7 +1271,7 @@
     "llegado2": "He llegado",
     "conductorVehiculo": "Conductor y vehículo",
     "conduce": "Conduce:",
-    "enviarMensajeConductor": "Enviar un mensaje al conductor",
+    "enviarMensajeConductor": "Enviar mensaje al conductor",
     "getOffSafely": "Bájate en un sitio seguro y repórtalo.",
     "reportarBajarmeRegistrarUna": "Reportar: bajarme y registrar una incidencia",
     "mapaDirecto": "Mapa en directo",

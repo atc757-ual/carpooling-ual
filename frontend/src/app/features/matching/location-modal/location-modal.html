@@ -68,7 +68,12 @@
 
         <!-- El mapa con el pin, la dirección más cercana y usarla -->
         @case ('map') {
-          <div #map class="location__map" [attr.aria-label]="'location.mapLabel' | transloco"></div>
+          <!-- Una sección con nombre (región): un div no admite aria-label -->
+          <section
+            #map
+            class="location__map"
+            [attr.aria-label]="'location.mapLabel' | transloco"
+          ></section>
           <p class="text-caption text-color-muted">
             {{ 'location.mapHint' | transloco }}
           </p>
@@ -121,13 +126,13 @@
 
         <!-- Solo ver un lugar: el mapa con el pin fijo -->
         @case ('view') {
-          <!-- role="region" (no "img"): con nombre y sin ocultar los botones del zoom -->
-          <div
+          <!-- Una sección con nombre (región), no role="img": no oculta los
+               botones del zoom -->
+          <section
             #map
             class="location__map"
-            role="region"
             [attr.aria-label]="'location.mapAria' | transloco: { title }"
-          ></div>
+          ></section>
         }
 
         <!-- Sin permiso: cómo darlo, o escribir la dirección -->

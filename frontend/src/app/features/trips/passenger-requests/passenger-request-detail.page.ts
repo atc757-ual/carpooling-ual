@@ -53,6 +53,7 @@ import { buildLiveShareText } from '../trip-share-text';
 import { Trip } from '../../../core/models/driver.model';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Desde cuánto antes de la salida ve el pasajero su código de recogida
 const BOARD_CODE_LEAD_MS = 10 * 60_000;
@@ -134,7 +135,7 @@ export class PassengerRequestDetailPage {
     return Date.parse(trip.departureAt) - this.now() <= BOARD_CODE_LEAD_MS;
   });
 
-  readonly when = computed(() => {
+  readonly when = localizedComputed(() => {
     const trip = this.trip();
     if (!trip) {
       return '';
@@ -143,7 +144,7 @@ export class PassengerRequestDetailPage {
     return `${formatDateLabel(date)} · ${formatTime(trip.departureAt)}`;
   });
 
-  readonly statusLabel = computed(() => {
+  readonly statusLabel = localizedComputed(() => {
     const request = this.request();
     const trip = this.trip();
     return request && trip ? passengerRequestLabel(request, trip) : '';

@@ -43,6 +43,12 @@ export function getDefaultTime(now: Date, leadMinutes = LEAD_MINUTES): string {
   return minutes >= MINUTES_PER_DAY ? LAST_TIME : shiftTime('00:00', minutes);
 }
 
+// La primera hora que se puede elegir ese día: hoy, la de ahora redondeada
+// hacia arriba a los 5 minutos; otro día, sin límite (null)
+export function earliestTime(date: string | undefined, now = new Date()): string | null {
+  return date === toIsoDate(now) ? getDefaultTime(now, 0) : null;
+}
+
 // Dentro de un mes (el último día que se puede elegir)
 function inOneMonth(): Date {
   const date = new Date();
@@ -145,6 +151,12 @@ export class TripSearchForm {
   }
 
   protected readonly minDate = toIsoDate(new Date());
+  // Hoy, la rueda de la hora desactiva las que ya han pasado; otro día, todas
+  protected readonly minTime = computed(() => {
+    const { date } = this.value();
+    const earliest = earliestTime(date);
+    return earliest ? `${date}T${earliest}` : undefined;
+  });
   protected readonly maxDate = toIsoDate(inOneMonth());
   protected readonly parkings = this.places.parkings;
 
@@ -168,6 +180,16 @@ export class TripSearchForm {
     effect(() => {
       const search = this.searchState.search();
       untracked(() => this.fill(search));
+    });
+
+    // Hoy, una hora ya pasada (al cambiar la fecha a hoy o al recuperar una
+    // búsqueda antigua) sube a la primera que se puede elegir
+    effect(() => {
+      const { date, time } = this.value();
+      const earliest = earliestTime(date);
+      if (earliest && time && time < earliest) {
+        untracked(() => this.form.controls.time.setValue(earliest));
+      }
     });
 
     // Al cambiar la tolerancia en Mi perfil, el margen la toma (también si hay

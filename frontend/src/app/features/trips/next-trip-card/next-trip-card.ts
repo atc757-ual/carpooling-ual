@@ -11,6 +11,7 @@ import { formatTime } from '../../matching/trip-results';
 import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
 import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
 import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } from './next-trip';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // «Próximo viaje», arriba de Buscar y de Publicar: el viaje más cercano del
 // usuario en cualquiera de sus papeles (el que está en curso, con la misma
@@ -53,11 +54,11 @@ export class NextTripCard {
     const next = this.next();
     return next ? nextTripLink(next) : '';
   });
-  readonly status = computed(() => {
+  readonly status = localizedComputed(() => {
     const next = this.next();
     return next ? nextTripStatus(next) : null;
   });
-  readonly when = computed(() => {
+  readonly when = localizedComputed(() => {
     const next = this.next();
     if (!next) {
       return '';
@@ -71,7 +72,7 @@ export class NextTripCard {
   });
   // En curso: cuántos van (conductor) o quién conduce (pasajero), como en la
   // tarjeta de Tus viajes
-  readonly liveDetail = computed(() => {
+  readonly liveDetail = localizedComputed(() => {
     const next = this.next();
     if (!next) {
       return '';

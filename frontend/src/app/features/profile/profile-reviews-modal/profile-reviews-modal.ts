@@ -19,6 +19,7 @@ import { ScrollHintButton } from '../../../shared/components/ui/scroll-hint/scro
 import { ScrollHint } from '../../../shared/directives/scroll-hint.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { reviewRoleLabel } from '../profile-review-roles';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // El viaje de una reseña: «Roquetas de Mar → Campus UAL»
 function routeOf(review: ReceivedReview): string {
@@ -60,7 +61,7 @@ export class ProfileReviewsModal implements OnInit {
   readonly errorMessage = signal<string | null>(null);
 
   // «Tus reseñas · Conductor»
-  readonly title = computed(() =>
+  readonly title = localizedComputed(() =>
     translate('profile.reviewsModal.titleRole', { role: reviewRoleLabel(this.role) }),
   );
   // La nota, si ya tiene media

@@ -1,10 +1,11 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { IonIcon } from '@ionic/angular';
 import { translate } from '@jsverse/transloco';
 import { checkmark, close } from 'ionicons/icons';
 import { Trip } from '../../../../core/models/driver.model';
 import { SeatRequest } from '../../../../core/models/seat-request.model';
 import { dateTimeFormat } from '../../../../core/i18n/app-locale';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 export type ProgressStepState = 'done' | 'current' | 'upcoming' | 'stopped';
 
@@ -132,7 +133,7 @@ export function buildProgressSteps(request: SeatRequest, trip: Trip): ProgressSt
   selector: 'app-passenger-progress',
   imports: [IonIcon],
   template: `
-    <ol class="passenger-progress" [attr.aria-label]="progressLabel">
+    <ol class="passenger-progress" [attr.aria-label]="progressLabel()">
       @for (step of steps(); track step.label) {
         <li
           class="passenger-progress__step"
@@ -159,11 +160,15 @@ export function buildProgressSteps(request: SeatRequest, trip: Trip): ProgressSt
   styleUrl: './passenger-progress.scss',
 })
 export class PassengerProgress {
-  protected readonly progressLabel = translate('screens.passengerProgress.aria');
+  protected readonly progressLabel = localizedComputed(() =>
+    translate('screens.passengerProgress.aria'),
+  );
   readonly request = input.required<SeatRequest>();
   readonly trip = input.required<Trip>();
 
-  protected readonly steps = computed(() => buildProgressSteps(this.request(), this.trip()));
+  protected readonly steps = localizedComputed(() =>
+    buildProgressSteps(this.request(), this.trip()),
+  );
   protected readonly doneIcon = checkmark;
   protected readonly stoppedIcon = close;
   protected readonly formatTime = (iso: string) => formatStepTime(iso);

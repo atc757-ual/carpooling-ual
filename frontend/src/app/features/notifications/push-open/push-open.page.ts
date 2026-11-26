@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, IonSpinner } from '@ionic/angular';
-import { translate } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { ActiveModeService } from '../../../core/services/users/active-mode.service';
 import { openNotificationTarget } from '../notification-target';
@@ -11,12 +11,13 @@ import { openNotificationTarget } from '../notification-target';
 // pantalla, sin quedarse en el historial
 @Component({
   selector: 'app-push-open',
-  imports: [IonContent, IonSpinner],
+  imports: [IonContent, IonSpinner, TranslocoPipe],
   template: `
     <ion-content>
-      <div class="push-open">
-        <ion-spinner name="crescent" [attr.aria-label]="openingLabel" />
-      </div>
+      <output class="push-open">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="visually-hidden">{{ 'screens.pushOpen.opening' | transloco }}</span>
+      </output>
     </ion-content>
   `,
   styles: `
@@ -28,7 +29,6 @@ import { openNotificationTarget } from '../notification-target';
   `,
 })
 export class PushOpenPage implements OnInit {
-  protected readonly openingLabel = translate('screens.pushOpen.opening');
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);

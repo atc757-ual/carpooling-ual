@@ -29,6 +29,7 @@ import { formatTime } from '../../matching/trip-results';
 import { lazyLabels } from '../../../core/i18n/lazy-labels';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { ParticipantLink } from '../../../shared/components/ui/participant-link/participant-link';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 const REQUEST_STATUS_LABELS: Readonly<Record<SeatRequestStatus, string>> = lazyLabels({
   pending: 'screens.driverTripPassengers.status.pending',
@@ -88,7 +89,7 @@ export class DriverTripPassengers {
     const taken = offeredSeats - availableSeats;
     return Array.from({ length: offeredSeats }, (_, index) => index < taken);
   });
-  readonly seatsLabel = computed(() => {
+  readonly seatsLabel = localizedComputed(() => {
     const { offeredSeats, availableSeats } = this.trip();
     return translate('screens.driverTripPassengers.plazasOcupadas', {
       value1: offeredSeats - availableSeats,

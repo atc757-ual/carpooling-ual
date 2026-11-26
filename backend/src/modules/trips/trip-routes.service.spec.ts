@@ -68,6 +68,8 @@ describe('TripRoutesService.getForTrip', () => {
     },
     source: 'osrm' as const,
   };
+  // La ruta directa (sin paradas ni recogidas), la del CO₂ evitado
+  const DIRECT_PLAN = { ...OSRM_PLAN, distanceKm: 7.5, durationMin: 14 };
   const route = jest.fn();
   const findOneBy = jest.fn();
   const findOneByOrFail = jest.fn();
@@ -119,6 +121,7 @@ describe('TripRoutesService.getForTrip', () => {
       { location: otherStop, position: 1 },
     ]);
     routeWithLegs.mockResolvedValue({ route: OSRM_PLAN, legsMin: [4, 6, 11] });
+    route.mockResolvedValue(DIRECT_PLAN);
 
     await service.getForTrip(TRIP, NOW);
 
@@ -138,7 +141,7 @@ describe('TripRoutesService.getForTrip', () => {
     );
   });
 
-  it('asks OSRM again through the accepted pickups, keeping the direct duration', async () => {
+  it('asks OSRM again through the accepted pickups, and for the direct route apart', async () => {
     findOneBy.mockResolvedValue({
       ...savedRoute('estimated', 5),
       directDurationMin: 14,
@@ -146,6 +149,7 @@ describe('TripRoutesService.getForTrip', () => {
     });
     findPickups.mockResolvedValue([{ location: STOP, position: 0 }]);
     routeWithLegs.mockResolvedValue({ route: OSRM_PLAN, legsMin: [4, 17] });
+    route.mockResolvedValue(DIRECT_PLAN);
 
     await service.getForTrip(TRIP, NOW);
 
@@ -210,6 +214,28 @@ describe('TripRoutesService.getForTrip', () => {
         ...estimate,
         directDurationMin: estimate.durationMin,
         directDistanceKm: estimate.distanceKm,
+      },
+      ['tripId'],
+    );
+  });
+
+  // Sin ruta guardada y con paradas: la directa no es la que pasa por ellas
+  // (exageraría la distancia del CO₂ evitado), sino la de OSRM sin ellas
+  it('takes the direct route without the stops when a trip with stops has none saved', async () => {
+    findOneBy.mockResolvedValue(null);
+    findStops.mockResolvedValue([{ location: STOP, position: 0 }]);
+    routeWithLegs.mockResolvedValue({ route: OSRM_PLAN, legsMin: [4, 17] });
+    route.mockResolvedValue(DIRECT_PLAN);
+
+    await service.getForTrip(TRIP, NOW);
+
+    expect(route).toHaveBeenCalledWith(ORIGIN, CAMPUS);
+    expect(upsert).toHaveBeenCalledWith(
+      {
+        tripId: 't1',
+        ...OSRM_PLAN,
+        directDurationMin: 14,
+        directDistanceKm: 7.5,
       },
       ['tripId'],
     );

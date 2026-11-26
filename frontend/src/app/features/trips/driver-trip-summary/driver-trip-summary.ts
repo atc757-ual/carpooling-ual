@@ -9,6 +9,7 @@ import { formatDateLabel } from '../../../shared/components/ui/datetime-field/da
 import { tripStatusLabel } from '../../../shared/utils/trip-status.util';
 import { formatTime } from '../../matching/trip-results';
 import { tripWayOf } from '../trip-way';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Cuánto antes de la salida se puede iniciar (START_WINDOW_MIN del backend)
 const START_WINDOW_MS = 10 * 60 * 1000;
@@ -30,7 +31,7 @@ export class DriverTripSummary {
   readonly pendingCount = input(0);
 
   // «2 solicitudes por responder»
-  readonly pendingLabel = computed(() => {
+  readonly pendingLabel = localizedComputed(() => {
     const count = this.pendingCount();
     if (count === 0) {
       return null;
@@ -46,7 +47,7 @@ export class DriverTripSummary {
       ? `/tabs/trips/drive/${this.trip().id}`
       : `/tabs/trips/published/${this.trip().id}`,
   );
-  readonly when = computed(() => {
+  readonly when = localizedComputed(() => {
     const { departureAt } = this.trip();
     const day = new Date(departureAt).toLocaleDateString('sv-SE');
     return `${formatDateLabel(day)} · ${formatTime(departureAt)}`;
@@ -60,13 +61,13 @@ export class DriverTripSummary {
     const { originName, destinationName } = this.trip();
     return `${originName ?? 'Origen'} → ${destinationName ?? 'Destino'}`;
   });
-  readonly statusLabel = computed(() => {
+  readonly statusLabel = localizedComputed(() => {
     if (this.isAutoFinished()) {
       return translate('myTrips.finalizadoAutomatico');
     }
     return tripStatusLabel(this.trip().status);
   });
-  readonly seatsLabel = computed(() => {
+  readonly seatsLabel = localizedComputed(() => {
     // El código delante: «VJ-0042 · 2 libres de 3»
     const { availableSeats, offeredSeats, code } = this.trip();
     const seats = translate('screens.driverTripSummary.freeOf', {
@@ -76,14 +77,14 @@ export class DriverTripSummary {
     return `${code} · ${seats}`;
   });
   // Lo que lee el lector de pantalla del enlace (toda la tarjeta)
-  readonly linkLabel = computed(() =>
+  readonly linkLabel = localizedComputed(() =>
     translate('screens.driverTripSummary.linkLabel', {
       action: this.action(),
       when: this.when(),
       route: this.route(),
     }),
   );
-  readonly action = computed(() => {
+  readonly action = localizedComputed(() => {
     const { status, departureAt } = this.trip();
     if (status === 'in_progress') {
       return translate('screens.driverTripSummary.abrirViaje');

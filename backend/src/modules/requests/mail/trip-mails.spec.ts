@@ -78,14 +78,14 @@ describe('trip mails', () => {
     const confirmed = buildSeatConfirmedMail(english);
     const finished = buildTripFinishedMail(english);
 
-    expect(confirmed.subject).toBe("You have a seat on Lucía's ride");
+    expect(confirmed.subject).toBe("You have a seat on Lucía's trip");
     expect(confirmed.text).toContain('Hi Mario,');
     expect(confirmed.text).toMatch(/It leaves on Friday 20 November.*08:00/);
     expect(confirmed.text).toContain(
       'You are picked up at Av. Carlos III at 08:05.',
     );
     expect(confirmed.html).toContain('See your seat');
-    expect(finished.subject).toBe('Your ride with Lucía is over');
+    expect(finished.subject).toBe('Your trip with Lucía is over');
     expect(finished.html).toContain('Rate Lucía');
   });
 });

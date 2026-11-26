@@ -55,10 +55,14 @@ describe('VehiclesService', () => {
     // La matrícula estaba libre al comprobarla, pero otra petición la ha
     // guardado justo antes: lo detecta la restricción UNIQUE
     vehiclesRepository.save.mockRejectedValue(
-      new QueryFailedError('INSERT ...', [], {
-        code: '23505',
-        constraint: 'vehicles_plate_country_plate_key',
-      }),
+      new QueryFailedError(
+        'INSERT ...',
+        [],
+        Object.assign(new Error('duplicate'), {
+          code: '23505',
+          constraint: 'vehicles_plate_country_plate_key',
+        }),
+      ),
     );
 
     await expect(

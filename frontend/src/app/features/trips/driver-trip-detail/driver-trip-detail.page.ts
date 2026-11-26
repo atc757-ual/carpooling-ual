@@ -47,6 +47,7 @@ import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
 import { occupiedSeats } from '../my-trips/my-trips-summary';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 const FINISHED_KEY = 'screens.driverTripActions.esteViajeYaTermino';
 
@@ -138,7 +139,7 @@ export class DriverTripDetailPage {
   readonly trip = computed(() => (this.tripResource.hasValue() ? this.tripResource.value() : null));
 
   // «Mañana · 08:00»
-  readonly when = computed(() => {
+  readonly when = localizedComputed(() => {
     const trip = this.trip();
     if (!trip) {
       return '';
@@ -146,7 +147,7 @@ export class DriverTripDetailPage {
     const day = new Date(trip.departureAt).toLocaleDateString('sv-SE');
     return `${formatDateLabel(day)} · ${formatTime(trip.departureAt)}`;
   });
-  readonly statusLabel = computed(() => {
+  readonly statusLabel = localizedComputed(() => {
     const trip = this.trip();
     return trip ? tripStatusLabel(trip.status) : '';
   });
@@ -167,7 +168,7 @@ export class DriverTripDetailPage {
   // Con pasajeros, el CO₂ que no se emitió (el de un coche en ese trayecto
   // por cada uno) y los km compartidos, como en Tus viajes: con los km de la
   // ruta directa de OSRM o, sin ella, la aproximación en línea recta
-  readonly impact = computed(() => {
+  readonly impact = localizedComputed(() => {
     const trip = this.trip();
     const passengers = this.passengers();
     if (!trip || passengers === 0) {
@@ -249,7 +250,7 @@ export class DriverTripDetailPage {
   });
 
   // Con el viaje en curso, el mismo aviso que en Tus viajes, que lleva a En curso
-  readonly liveBanner = computed(() => {
+  readonly liveBanner = localizedComputed(() => {
     const trip = this.trip();
     if (trip?.status !== 'in_progress') {
       return null;

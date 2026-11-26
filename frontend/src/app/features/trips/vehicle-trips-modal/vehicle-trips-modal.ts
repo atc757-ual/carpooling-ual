@@ -24,6 +24,7 @@ import { ScrollHint } from '../../../shared/directives/scroll-hint.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { VehicleForm } from '../vehicle-form/vehicle-form';
 import { MAX_VEHICLES } from '../vehicle-picker/vehicle-picker';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // remove: dar de baja un coche con viajes programados (cada viaje marcado
 // pasa al coche elegido y los demás se cancelan); change: cambiar el coche de
@@ -149,7 +150,7 @@ export class VehicleTripsModal implements OnInit {
     const kept = new Set(this.kept().map(({ id }) => id));
     return this.trips.filter(({ id }) => !kept.has(id));
   });
-  readonly title = computed(() => {
+  readonly title = localizedComputed(() => {
     if (this.mode === 'change') {
       return translate('profile.vehicleTrips.changeTitle');
     }
@@ -157,7 +158,7 @@ export class VehicleTripsModal implements OnInit {
       ? translate('profile.vehicleTrips.titleOne')
       : translate('profile.vehicleTrips.titleOther', { count: this.trips.length });
   });
-  readonly intro = computed(() => {
+  readonly intro = localizedComputed(() => {
     if (this.mode === 'change') {
       return this.otherVehicles().length > 0
         ? translate('profile.vehicleTrips.changeIntro')
@@ -167,7 +168,7 @@ export class VehicleTripsModal implements OnInit {
       ? translate('profile.vehicleTrips.intro')
       : translate('profile.vehicleTrips.introNoOther');
   });
-  readonly confirmText = computed(() =>
+  readonly confirmText = localizedComputed(() =>
     this.mode === 'change'
       ? translate('profile.vehicleTrips.changeConfirm')
       : confirmLabel(this.kept().length, this.cancelled().length),

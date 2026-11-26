@@ -13,6 +13,7 @@ import { Vehicle } from '../../../../core/models/driver.model';
 import { VehicleColorsStore } from '../../../../core/services/catalogs/vehicle-colors.store';
 import { formatPlate, vehicleDisplayName, vehicleSpecs } from '../../../utils/vehicle-display.util';
 import { plateSign } from '../../../utils/plate-country.util';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 // Un vehículo en una tarjeta: «Seat Ibiza | 1234 BGG» y debajo «● Gris ·
 // 4 plazas · Híbrido». Se elige pulsándola (un radio nativo, oculto, del
@@ -38,12 +39,12 @@ export class VehicleCard {
   readonly edit = output<Vehicle>();
   readonly remove = output<Vehicle>();
 
-  readonly name = computed(() => vehicleDisplayName(this.vehicle()));
+  readonly name = localizedComputed(() => vehicleDisplayName(this.vehicle()));
   readonly plate = computed(() => formatPlate(this.vehicle().plate));
   // La letra de su país en la franja azul (España: E)
   readonly plateSign = computed(() => plateSign(this.vehicle().plateCountry));
   private readonly colors = inject(VehicleColorsStore);
-  readonly specs = computed(() =>
+  readonly specs = localizedComputed(() =>
     vehicleSpecs(this.vehicle(), this.colors.label(this.vehicle().color)),
   );
   readonly swatch = computed(() => this.colors.swatch(this.vehicle().color));

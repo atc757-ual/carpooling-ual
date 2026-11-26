@@ -1,3 +1,5 @@
+import { signal } from '@angular/core';
+
 // El formato de fechas y números según el idioma de la app. Lo actualiza
 // LanguageService al cambiar de idioma; sin él (p. ej. en los tests de
 // funciones puras), español
@@ -9,10 +11,23 @@ let currentLanguage: AppLocaleLanguage = 'es';
 let currentLocale: string = LOCALES.es;
 const dateFormats = new Map<string, Intl.DateTimeFormat>();
 const numberFormats = new Map<string, Intl.NumberFormat>();
+// El idioma cuyas traducciones ya están cargadas (cambia después de cargarlas,
+// no al pedir el cambio: antes, translate() devolvería las claves)
+const loadedLanguage = signal<AppLocaleLanguage>('es');
 
 export function setAppLocale(language: AppLocaleLanguage): void {
   currentLanguage = language;
   currentLocale = LOCALES[language];
+}
+
+export function markLanguageLoaded(language: AppLocaleLanguage): void {
+  loadedLanguage.set(language);
+}
+
+// Para los computed() que traducen o formatean: al leerlo, se rehacen al
+// cambiar de idioma (las pestañas que Ionic deja montadas no se vuelven a crear)
+export function trackLanguage(): AppLocaleLanguage {
+  return loadedLanguage();
 }
 
 export function appLanguage(): AppLocaleLanguage {

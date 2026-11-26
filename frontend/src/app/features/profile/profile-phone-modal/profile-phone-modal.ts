@@ -32,6 +32,7 @@ import {
   phoneNumberValidator,
   splitPhone,
 } from '../../../shared/utils/phone.util';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 const RESEND_WAIT_SECONDS = 60;
 const TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS';
@@ -87,7 +88,7 @@ export class ProfilePhoneModal implements OnInit {
   private readonly codeInput = viewChild(CodeInput);
   private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, this.destroyRef);
   readonly secondsToResend = this.resendCountdown.seconds;
-  readonly resendLabel = computed(() => getResendLabel(this.secondsToResend()));
+  readonly resendLabel = localizedComputed(() => getResendLabel(this.secondsToResend()));
 
   protected readonly verifiedIcon = checkmarkCircle;
   protected readonly shieldIcon = shieldCheckmarkOutline;

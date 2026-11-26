@@ -32,6 +32,7 @@
     <app-datetime-field
       formControlName="time"
       presentation="time"
+      [min]="minTime()"
       [label]="
         (timeType() === 'arrival' ? 'search.arrivalTime' : 'search.departureTime') | transloco
       "

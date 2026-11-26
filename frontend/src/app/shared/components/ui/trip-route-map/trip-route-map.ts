@@ -11,6 +11,7 @@ import {
 import type * as Leaflet from 'leaflet';
 import { TripRoute } from '../../../../core/models/trip-route.model';
 import { CAR_ICON_HTML, CAR_MARKER_SIZE } from './car-marker';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 const TILES_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILES_ATTRIBUTION = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
@@ -87,7 +88,7 @@ export class TripRouteMap implements OnDestroy {
   protected readonly hasApproximatePoints = computed(
     () => this.origin().isApproximate === true || this.destination().isApproximate === true,
   );
-  protected readonly label = computed(() => {
+  protected readonly label = localizedComputed(() => {
     const ends = `${this.origin().label} a ${this.destination().label}`;
     const route = this.hasApproximatePoints()
       ? translate('screens.tripRouteMap.zonaAproximadaViaje', { ends })
@@ -101,7 +102,7 @@ export class TripRouteMap implements OnDestroy {
     return car ? `${withPickups}; ${car.label}` : withPickups;
   });
   // Salida, recogidas y destino, con su letra y su color
-  private readonly markers = computed<RouteMarker[]>(() => {
+  private readonly markers = localizedComputed<RouteMarker[]>(() => {
     const car = this.car();
     return [
       letterMarker(

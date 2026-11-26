@@ -68,9 +68,10 @@
         </ion-button>
       </form>
     } @else {
-      <div class="legal-update__loading">
-        <ion-spinner name="crescent" [attr.aria-label]="'auth.legalUpdate.loading' | transloco" />
-      </div>
+      <output class="legal-update__loading">
+        <ion-spinner name="crescent" aria-hidden="true" />
+        <span class="visually-hidden">{{ 'auth.legalUpdate.loading' | transloco }}</span>
+      </output>
     }
 
     <!-- Quien no acepta puede irse, pero no usar la app -->

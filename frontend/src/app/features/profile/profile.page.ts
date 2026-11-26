@@ -37,6 +37,7 @@ import { AvatarsService } from '../../core/services/users/avatars.service';
 import { UsersService } from '../../core/services/users/users.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
+import { PublishDraftService } from '../../core/services/trips/publish-draft.service';
 import { ThemeService } from '../../core/services/ui/theme.service';
 import { TRAVEL_PREFERENCE_GROUPS } from '../../core/models/travel-preferences.model';
 import { TravelPreferencesStore } from '../../core/services/catalogs/travel-preferences.store';
@@ -68,6 +69,8 @@ import { ProfileReviewsModal } from './profile-reviews-modal/profile-reviews-mod
 import { reviewRoleIcon, reviewRoleLabel } from './profile-review-roles';
 import { ReviewTargetRole } from '../../core/services/users/trip-reviews.service';
 import { rethrowUnlessApiError } from '../../core/models/api-error.model';
+import { localizedComputed } from '../../core/i18n/localized-computed';
+import { numberFormat } from '../../core/i18n/app-locale';
 
 interface PreferenceRow {
   criterion: string;
@@ -119,6 +122,7 @@ export class ProfilePage implements OnInit {
   private readonly locationConsent = inject(LocationConsentService);
   private readonly navController = inject(NavController);
   private readonly confirm = inject(ConfirmService);
+  private readonly publishDraft = inject(PublishDraftService);
   private readonly modalController = inject(ModalController);
   private readonly theme = inject(ThemeService);
   private readonly legalDocuments = inject(LegalDocumentsService);
@@ -155,7 +159,7 @@ export class ProfilePage implements OnInit {
   readonly timeToleranceLabel = computed(() => `± ${this.user()?.timeToleranceMin ?? 15} min`);
 
   // Solo los papeles con reseñas: quien no conduce no ve «Conductor»
-  readonly reviewRows = computed<ReviewRow[]>(() => {
+  readonly reviewRows = localizedComputed<ReviewRow[]>(() => {
     const ratings = this.user()?.ratings;
     return [
       { key: 'driver' as const, rating: ratings?.driver },
@@ -166,7 +170,9 @@ export class ProfilePage implements OnInit {
         key,
         role: reviewRoleLabel(key),
         icon: reviewRoleIcon(key),
-        average: (rating?.averageRating ?? 0).toFixed(1).replace('.', ','),
+        average: numberFormat({ minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(
+          rating?.averageRating ?? 0,
+        ),
         value: rating?.averageRating ?? 0,
         count: `(${rating?.ratingCount ?? 0})`,
       }));
@@ -184,7 +190,7 @@ export class ProfilePage implements OnInit {
       return { terms, privacy };
     },
   });
-  readonly legalDocs = computed<LegalDocRow[]>(() => {
+  readonly legalDocs = localizedComputed<LegalDocRow[]>(() => {
     const current = this.consents()?.current;
     const versions = this.legalVersions.hasValue() ? this.legalVersions.value() : undefined;
     return [
@@ -318,7 +324,7 @@ export class ProfilePage implements OnInit {
   }
 
   async handleLogout(): Promise<void> {
-    if (!(await confirmLogout(this.confirm))) {
+    if (!(await confirmLogout(this.confirm, this.publishDraft.hasUnsavedTrip()))) {
       return;
     }
     await this.auth.logout();

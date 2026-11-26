@@ -66,12 +66,16 @@
       }
     </ion-datetime>
   } @else {
+    <!-- Con la fecha del límite delante («2026-11-26T10:35»): si no, Ionic no
+         sabe qué día es y no desactiva las horas anteriores -->
     <ion-datetime
       #picker
       [id]="pickerId"
-      [formControl]="control"
+      [value]="timePickerValue()"
+      (ionChange)="handleTimeChange($event.detail.value)"
       presentation="time"
       [locale]="pickerLocale()"
+      [min]="min()"
       hourCycle="h23"
       [minuteValues]="minuteValues"
       [showDefaultButtons]="true"

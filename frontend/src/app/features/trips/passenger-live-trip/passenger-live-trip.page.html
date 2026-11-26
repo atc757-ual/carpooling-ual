@@ -80,7 +80,9 @@
                             </span>
                           </span>
                           @if (review.comment) {
-                            <p class="ride__given-comment text-body-s">«{{ review.comment }}»</p>
+                            <p class="ride__given-comment text-body-s">
+                              {{ 'common.quoted' | transloco: { text: review.comment } }}
+                            </p>
                           }
                         </section>
                       }

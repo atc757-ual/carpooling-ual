@@ -20,7 +20,8 @@
     }}</ion-button>
   </div>
 } @else {
-  <div class="declaration-content__loading">
-    <ion-spinner name="crescent" [attr.aria-label]="'publish.cargandoDeclaracion' | transloco" />
-  </div>
+  <output class="declaration-content__loading">
+    <ion-spinner name="crescent" aria-hidden="true" />
+    <span class="visually-hidden">{{ 'publish.cargandoDeclaracion' | transloco }}</span>
+  </output>
 }

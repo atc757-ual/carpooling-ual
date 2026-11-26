@@ -26,7 +26,8 @@
     />
   } @else if (isLoading()) {
     <output class="profile-reviews__loading">
-      <ion-spinner name="crescent" [attr.aria-label]="'driverReviews.loading' | transloco" />
+      <ion-spinner name="crescent" aria-hidden="true" />
+      <span class="visually-hidden">{{ 'driverReviews.loading' | transloco }}</span>
     </output>
   } @else if (!errorMessage()) {
     <p class="text-body text-color-muted profile-reviews__empty">

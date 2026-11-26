@@ -1,6 +1,6 @@
 import { DOCUMENT, inject, Injectable, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { setAppLocale } from '../../i18n/app-locale';
+import { markLanguageLoaded, setAppLocale } from '../../i18n/app-locale';
 
 export type AppLanguage = 'es' | 'en';
 const LANGUAGE_STORAGE_KEY = 'carpooling_language';
@@ -63,6 +63,9 @@ export class LanguageService {
   private applyLanguage(lang: AppLanguage): void {
     setAppLocale(lang);
     this.transloco.setActiveLang(lang);
+    // Con las traducciones ya cargadas, se rehacen los textos calculados
+    // (localizedComputed); un fallo de carga llega al registro global de errores
+    this.transloco.load(lang).subscribe(() => markLanguageLoaded(lang));
     // El idioma de la página, para que el lector de pantalla use la voz que toca
     this.document.documentElement.lang = lang;
   }
