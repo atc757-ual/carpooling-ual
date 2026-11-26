@@ -1610,13 +1610,80 @@ ion-toggle {
 .icon-btn--labeled.icon-btn--stacked {
   flex: none;
   flex-direction: column;
-  gap: var(--space-xxs);
+  gap: var(--space-xs);
   width: 4.5rem; // 72px
   min-height: var(--control-height-base);
-  padding: var(--space-xs);
+  padding: var(--space-xxs);
+  // Sin recuadro alrededor: el cuadro es el del icono (como un botón de
+  // imagen) y el nombre va debajo, suelto. Toda la casilla se pulsa
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text);
 
   ion-icon {
+    box-sizing: content-box;
+    padding: 0.625rem; // 10px: el icono de 24px en un cuadro de 44px
+    border: var(--border-width-s) solid var(--color-border);
+    border-radius: var(--radius-s);
+    background: var(--color-surface);
+    color: var(--color-link);
     font-size: var(--icon-size-base);
+    transition: background-color var(--motion-duration-fast) ease;
+  }
+
+  // Al pasar o pulsar, solo el cuadro del icono se pone azul claro
+  @media (any-hover: hover) {
+    &:hover:not(:disabled, [aria-disabled='true']) {
+      border-color: transparent;
+      background: transparent;
+
+      ion-icon {
+        border-color: var(--color-link);
+        background: var(--color-primary-subtle);
+      }
+    }
+  }
+
+  &:active:not(:disabled, [aria-disabled='true']) {
+    border-color: transparent;
+    background: transparent;
+
+    ion-icon {
+      border-color: var(--color-link);
+      background: var(--color-primary-subtle);
+    }
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    color: var(--color-text-disabled);
+
+    ion-icon {
+      color: var(--color-text-disabled);
+    }
+  }
+
+  // El 112: el cuadro del icono en rojo y el nombre en el rojo oscuro del texto
+  &.icon-btn--danger {
+    color: var(--color-danger-text);
+
+    ion-icon {
+      border-color: transparent;
+      background: var(--color-danger);
+      color: var(--color-on-danger);
+    }
+
+    @media (any-hover: hover) {
+      &:hover:not(:disabled, [aria-disabled='true']) ion-icon {
+        border-color: transparent;
+        background: var(--color-danger-text);
+      }
+    }
+
+    &:active:not(:disabled, [aria-disabled='true']) ion-icon {
+      border-color: transparent;
+      background: var(--color-danger-text);
+    }
   }
 
   // El nombre entero, en las líneas que haga falta (también con el texto
