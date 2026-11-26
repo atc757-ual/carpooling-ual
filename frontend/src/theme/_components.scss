@@ -1604,8 +1604,7 @@ ion-toggle {
 }
 
 // En una fila de varias acciones (p. ej. «En curso» en el móvil, o chat y
-// llamar junto a una persona): el icono arriba y su nombre debajo (hasta dos
-// líneas), como una barra de herramientas. Todas igual de anchas (72px; en la
+// llamar junto a una persona): el icono arriba y su nombre debajo, como una barra de herramientas. Todas igual de anchas (72px; en la
 // fila de «En curso», el ancho repartido), sin que el texto empuje a las
 // vecinas, y con 48px de alto como mínimo
 .icon-btn--labeled.icon-btn--stacked {
@@ -1620,16 +1619,14 @@ ion-toggle {
     font-size: var(--icon-size-base);
   }
 
+  // El nombre entero, en las líneas que haga falta (también con el texto
+  // ampliado al 200 %, WCAG 1.4.4): sin cortarse con «…»
   .icon-btn__label {
-    display: -webkit-box;
-    overflow: hidden;
     max-width: 100%;
     line-height: var(--line-height-caption);
     text-align: center;
     white-space: normal;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    overflow-wrap: anywhere;
   }
 }
 
