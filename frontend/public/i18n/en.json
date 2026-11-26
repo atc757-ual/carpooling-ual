@@ -40,6 +40,7 @@
     "logoutConfirm": {
       "title": "Log out?",
       "message": "You can log back in at any time with your UAL email and password.",
+      "unsavedTrip": "The trip you were publishing will be lost.",
       "confirm": "Log out"
     },
     "footer": {

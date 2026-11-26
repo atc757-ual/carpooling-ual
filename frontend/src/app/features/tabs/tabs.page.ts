@@ -38,6 +38,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { WELCOME_PATH } from '../../core/guards/redirect-paths';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
+import { PublishDraftService } from '../../core/services/trips/publish-draft.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { ApiError, rethrowUnlessApiError } from '../../core/models/api-error.model';
 import { TripEntryResponse } from '../../core/models/my-trips.model';
@@ -136,6 +137,7 @@ export class TabsPage implements OnInit {
   private readonly router = inject(Router);
   private readonly notifications = inject(NotificationsService);
   private readonly confirm = inject(ConfirmService);
+  private readonly publishDraft = inject(PublishDraftService);
   private readonly trips = inject(TripsService);
   private readonly navController = inject(NavController);
   private readonly chat = inject(ChatService);
@@ -282,7 +284,7 @@ export class TabsPage implements OnInit {
 
   // Salir: siempre con la misma confirmación que en Mi perfil
   async handleLogout(): Promise<void> {
-    if (!(await confirmLogout(this.confirm))) {
+    if (!(await confirmLogout(this.confirm, this.publishDraft.hasUnsavedTrip()))) {
       return;
     }
     await this.auth.logout();

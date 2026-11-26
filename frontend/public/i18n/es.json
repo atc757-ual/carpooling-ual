@@ -40,6 +40,7 @@
     "logoutConfirm": {
       "title": "¿Cerrar sesión?",
       "message": "Podrás volver cuando quieras con tu correo UAL y tu contraseña.",
+      "unsavedTrip": "Se perderá el viaje que estabas publicando.",
       "confirm": "Cerrar sesión"
     },
     "footer": {
