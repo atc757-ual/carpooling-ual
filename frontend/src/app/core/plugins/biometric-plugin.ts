@@ -6,11 +6,24 @@ import {
   type NativeBiometricPlugin,
 } from '@capgo/capacitor-native-biometric';
 
+// Lo que se usa del plugin nativo
+export type NativeBiometricApi = Pick<
+  NativeBiometricPlugin,
+  'isAvailable' | 'setCredentials' | 'getSecureCredentials' | 'deleteCredentials'
+>;
+
 // El plugin nativo, como token: los tests ponen uno falso (vi.mock de un
-// paquete no siempre se aplica con el empaquetado de los tests de Angular)
-export const NATIVE_BIOMETRIC = new InjectionToken<NativeBiometricPlugin>('NATIVE_BIOMETRIC', {
+// paquete no siempre se aplica con el empaquetado de los tests de Angular).
+// Un objeto propio y no el plugin: este es un proxy de Capacitor que «tiene»
+// cualquier método, y Angular llamaría a su ngOnDestroy al cerrarse
+export const NATIVE_BIOMETRIC = new InjectionToken<NativeBiometricApi>('NATIVE_BIOMETRIC', {
   providedIn: 'root',
-  factory: () => NativeBiometric,
+  factory: () => ({
+    isAvailable: (options) => NativeBiometric.isAvailable(options),
+    setCredentials: (options) => NativeBiometric.setCredentials(options),
+    getSecureCredentials: (options) => NativeBiometric.getSecureCredentials(options),
+    deleteCredentials: (options) => NativeBiometric.deleteCredentials(options),
+  }),
 });
 
 // Dónde guarda el sistema las credenciales de esta app (Keystore de Android)
