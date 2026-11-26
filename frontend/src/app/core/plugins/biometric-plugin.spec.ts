@@ -1,25 +1,20 @@
 import { TestBed } from '@angular/core/testing';
 import { Capacitor } from '@capacitor/core';
-import { NativeBiometric } from '@capgo/capacitor-native-biometric';
 import { vi } from 'vitest';
-import { BiometricPlugin } from './biometric-plugin';
-
-vi.mock('@capgo/capacitor-native-biometric', () => ({
-  AccessControl: { BIOMETRY_ANY: 2 },
-  NativeBiometric: {
-    isAvailable: vi.fn(),
-    setCredentials: vi.fn(),
-    getSecureCredentials: vi.fn(),
-    deleteCredentials: vi.fn(),
-  },
-}));
+import { BiometricPlugin, NATIVE_BIOMETRIC } from './biometric-plugin';
 
 const TEXTS = { title: 'Huella', cancel: 'Cancelar' };
 const CREDENTIALS = { email: 'ana@ual.es', password: 'secret-password' };
 
 describe('BiometricPlugin', () => {
   let plugin: BiometricPlugin;
-  const native = vi.mocked(NativeBiometric);
+  // El plugin nativo, falso (ver NATIVE_BIOMETRIC)
+  const native = {
+    isAvailable: vi.fn(),
+    setCredentials: vi.fn(),
+    getSecureCredentials: vi.fn(),
+    deleteCredentials: vi.fn(),
+  };
 
   function onDevice(isNative: boolean): void {
     vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(isNative);
@@ -27,6 +22,9 @@ describe('BiometricPlugin', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    TestBed.configureTestingModule({
+      providers: [{ provide: NATIVE_BIOMETRIC, useValue: native }],
+    });
     plugin = TestBed.inject(BiometricPlugin);
   });
 
@@ -41,7 +39,7 @@ describe('BiometricPlugin', () => {
 
   it('asks the device for strong biometrics on Android', async () => {
     onDevice(true);
-    native.isAvailable.mockResolvedValue({ isAvailable: true } as never);
+    native.isAvailable.mockResolvedValue({ isAvailable: true });
 
     expect(await plugin.isAvailable()).toBe(true);
     expect(native.isAvailable).toHaveBeenCalledWith({ useFallback: false });

@@ -1,6 +1,17 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, InjectionToken } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { AccessControl, NativeBiometric } from '@capgo/capacitor-native-biometric';
+import {
+  AccessControl,
+  NativeBiometric,
+  type NativeBiometricPlugin,
+} from '@capgo/capacitor-native-biometric';
+
+// El plugin nativo, como token: los tests ponen uno falso (vi.mock de un
+// paquete no siempre se aplica con el empaquetado de los tests de Angular)
+export const NATIVE_BIOMETRIC = new InjectionToken<NativeBiometricPlugin>('NATIVE_BIOMETRIC', {
+  providedIn: 'root',
+  factory: () => NativeBiometric,
+});
 
 // Dónde guarda el sistema las credenciales de esta app (Keystore de Android)
 const CREDENTIALS_SERVER = 'carpooling-ual';
@@ -32,12 +43,14 @@ export interface BiometricPromptTexts {
 // servicio, se sustituye fácilmente en los tests
 @Injectable({ providedIn: 'root' })
 export class BiometricPlugin {
+  private readonly native = inject(NATIVE_BIOMETRIC);
+
   // Si el dispositivo tiene biometría fuerte configurada
   async isAvailable(): Promise<boolean> {
     if (!Capacitor.isNativePlatform()) {
       return false;
     }
-    const result = await NativeBiometric.isAvailable({ useFallback: false });
+    const result = await this.native.isAvailable({ useFallback: false });
     return result.isAvailable;
   }
 
@@ -45,7 +58,7 @@ export class BiometricPlugin {
   // false si quien usa la app cancela
   async save(credentials: BiometricCredentials, texts: BiometricPromptTexts): Promise<boolean> {
     try {
-      await NativeBiometric.setCredentials({
+      await this.native.setCredentials({
         server: CREDENTIALS_SERVER,
         username: credentials.email,
         password: credentials.password,
@@ -67,7 +80,7 @@ export class BiometricPlugin {
   // 'missing' si ya no las hay
   async read(texts: BiometricPromptTexts): Promise<BiometricReadResult> {
     try {
-      const credentials = await NativeBiometric.getSecureCredentials({
+      const credentials = await this.native.getSecureCredentials({
         server: CREDENTIALS_SERVER,
         title: texts.title,
         subtitle: texts.subtitle,
@@ -90,7 +103,7 @@ export class BiometricPlugin {
     if (!Capacitor.isNativePlatform()) {
       return;
     }
-    await NativeBiometric.deleteCredentials({ server: CREDENTIALS_SERVER });
+    await this.native.deleteCredentials({ server: CREDENTIALS_SERVER });
   }
 }
 
