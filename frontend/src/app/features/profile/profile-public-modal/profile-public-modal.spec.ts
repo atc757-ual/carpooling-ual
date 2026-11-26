@@ -103,4 +103,47 @@ describe('ProfilePublicModal', () => {
     component.close();
     expect(dismiss).toHaveBeenCalled();
   });
+
+  it('covers avatar name resolution, name input sanitization, bio validation, and submit error paths', async () => {
+    // Avatar name branches: null -> iniciales, known -> Sol, unknown -> Avatar
+    expect(component.selectedAvatarName()).toBeTruthy();
+    component.chooseAvatar('sun');
+    expect(component.selectedAvatarName()).toBe('Sol');
+    component.chooseAvatar('unknown-id');
+    expect(component.selectedAvatarName()).toBe('Avatar');
+
+    // Name input stripping symbols vs clean input
+    const inputEl = document.createElement('input');
+    inputEl.value = 'Ana123!';
+    component.handleNameInput({ target: inputEl } as unknown as Event, 'firstName');
+    expect(component.form.controls.firstName.value).toBe('Ana');
+
+    inputEl.value = 'Ana';
+    component.handleNameInput({ target: inputEl } as unknown as Event, 'firstName');
+    expect(component.form.controls.firstName.value).toBe('Ana');
+    expect(component.nameErrorKey('firstName')).toBeDefined();
+
+    // Bio validation: empty (valid), too short (<20, invalid), too long (>200, invalid)
+    component.form.controls.bio.setValue('');
+    expect(component.isBioInvalid).toBe(false);
+    component.form.controls.bio.setValue('Corto');
+    expect(component.isBioInvalid).toBe(true);
+    await component.handleSubmit();
+    expect(updateMe).not.toHaveBeenCalled();
+
+    component.form.controls.bio.setValue('a'.repeat(205));
+    expect(component.isBioInvalid).toBe(true);
+
+    // Valid empty bio sends null and handles API error
+    component.form.controls.bio.setValue('');
+    updateMe.mockRejectedValueOnce(new Error('network fail'));
+    await component.handleSubmit();
+    expect(showError).toHaveBeenCalled();
+    expect(component.isSaving()).toBe(false);
+
+    // Fallback when component.user is null
+    component.user = null;
+    component.ngOnInit();
+    expect(component.initials()).toBe('AG');
+  });
 });
