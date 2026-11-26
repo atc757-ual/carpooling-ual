@@ -61,13 +61,22 @@ describe('Combobox', () => {
     expect(host.choose).toHaveBeenCalledWith('c');
   });
 
-  it('chooses the first one with Tab and moves the focus to what comes next', async () => {
-    expect(press('Tab').defaultPrevented).toBe(true);
-    expect(host.choose).toHaveBeenCalledWith('a');
+  it('chooses the first one with Tab and moves the focus to what comes next', () => {
+    const next = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    (document.activeElement as HTMLElement | null)?.blur();
 
-    // El foco pasa en un setTimeout del componente: se espera a que llegue
-    // (con el CI cargado, un solo setTimeout del test no siempre basta)
-    await vi.waitFor(() => expect(document.activeElement?.textContent).toBe('Siguiente'));
+    // El foco pasa en un setTimeout del componente: con reloj falso se dispara
+    // de forma determinista sin depender de la carga del CI
+    vi.useFakeTimers();
+    try {
+      expect(press('Tab').defaultPrevented).toBe(true);
+      expect(host.choose).toHaveBeenCalledWith('a');
+
+      vi.advanceTimersByTime(0);
+      expect(document.activeElement).toBe(next);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('lets Enter submit and Tab leave without choosing once closed with Escape', () => {
