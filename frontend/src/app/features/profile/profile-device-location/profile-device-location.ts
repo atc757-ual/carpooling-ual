@@ -48,6 +48,7 @@ const DEVICE_ERRORS: Readonly<Record<LocationFailure, string>> = lazyLabels({
           <form (submit)="$event.preventDefault(); handleAllowDevice()">
             <ion-button
               class="profile-setting__action"
+              fill="outline"
               type="submit"
               size="small"
               [attr.aria-label]="'profile.location.allowAria' | transloco"
@@ -78,9 +79,13 @@ const DEVICE_ERRORS: Readonly<Record<LocationFailure, string>> = lazyLabels({
     }
 
     .profile-setting__action {
-      --background: var(--color-warning-subtle);
-      --background-hover: var(--color-warning-subtle);
-      --color: var(--color-warning-text);
+      --background: transparent;
+      --background-hover: var(--color-primary-subtle);
+      --background-activated: var(--color-primary-subtle);
+      --color: var(--color-primary);
+      --border-color: var(--color-primary);
+      --border-style: solid;
+      --border-width: 1px;
       --border-radius: var(--radius-s);
       --box-shadow: none;
       height: 2rem;
@@ -91,6 +96,12 @@ const DEVICE_ERRORS: Readonly<Record<LocationFailure, string>> = lazyLabels({
       &:hover {
         opacity: 0.9;
       }
+    }
+
+    .status--accepted {
+      background: var(--color-surface);
+      border-color: var(--color-success);
+      color: var(--color-success);
     }
   `,
 })

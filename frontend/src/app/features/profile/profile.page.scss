@@ -358,11 +358,15 @@ ion-list.profile__legal-list {
   }
 }
 
-// Verificar el teléfono: botón amarillo/ámbar de acción pendiente (como Notificaciones y Ubicación)
+// Verificar el teléfono: botón outline de acción pendiente
 .profile__verify {
-  --background: var(--color-warning-subtle);
-  --background-hover: var(--color-warning-subtle);
-  --color: var(--color-warning-text);
+  --background: transparent;
+  --background-hover: var(--color-primary-subtle);
+  --background-activated: var(--color-primary-subtle);
+  --color: var(--color-primary);
+  --border-color: var(--color-primary);
+  --border-style: solid;
+  --border-width: 1px;
   --border-radius: var(--radius-s);
   --box-shadow: none;
   height: var(--box-size-s);
@@ -377,6 +381,12 @@ ion-list.profile__legal-list {
   &:hover {
     opacity: 0.9;
   }
+}
+
+.status--accepted {
+  background: var(--color-surface);
+  border-color: var(--color-success);
+  color: var(--color-success);
 }
 
 // Idioma y tema: el nombre y, debajo, una línea que invita a elegir
