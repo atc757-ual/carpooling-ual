@@ -148,4 +148,28 @@ describe('RequestLifecycleScheduler', () => {
     ).toBe(0);
     expect(notify).not.toHaveBeenCalled();
   });
+
+  it('covers handleCron logging, concurrent lock empty result, and default date args', async () => {
+    const due = {
+      id: 'req-1',
+      tripId: soon.id,
+      status: 'pending',
+    } as SeatRequest;
+    const { scheduler, find } = schedulerWith([due]);
+    jest.spyOn(scheduler, 'expirePendingRequests').mockResolvedValueOnce(2);
+    await scheduler.handleCron();
+
+    jest.spyOn(scheduler, 'expirePendingRequests').mockResolvedValueOnce(0);
+    await scheduler.handleCron();
+    jest.restoreAllMocks();
+
+    // Concurrent update: second find with pessimistic_write returns empty array
+    find.mockReset().mockResolvedValueOnce([due]).mockResolvedValueOnce([]);
+    expect(await scheduler.expirePendingRequests(now)).toBe(0);
+
+    // Default now parameter on remindPendingRequests and expirePendingRequests
+    find.mockReset().mockResolvedValue([]);
+    expect(await scheduler.remindPendingRequests()).toBe(0);
+    expect(await scheduler.expirePendingRequests()).toBe(0);
+  });
 });

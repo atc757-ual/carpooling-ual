@@ -197,5 +197,28 @@ describe('ProfilePhoneModal', () => {
 
     await component.close();
     expect(dismiss).toHaveBeenCalled();
+
+    // Invalid phone form when phone changed (savePhone returns false early)
+    component.phoneForm.controls.phone.setValue('12');
+    updateMe.mockClear();
+    await component.handleStartVerification();
+    expect(updateMe).not.toHaveBeenCalled();
+
+    // Non-lockout error in handleConfirmCode
+    component.isLocked.set(false);
+    component.codeForm.controls.code.setValue('654321');
+    confirmPhoneVerification.mockRejectedValueOnce(new ApiError('INVALID_CODE', 400));
+    await component.handleConfirmCode();
+    expect(component.isLocked()).toBe(false);
+
+    // Fallback to auth.currentUser() when user Input is null and has no phone
+    vi.spyOn(TestBed.inject(AuthService), 'currentUser').mockReturnValue({
+      ...mockUser,
+      phone: null,
+    });
+    const fallbackComp = TestBed.createComponent(ProfilePhoneModal).componentInstance;
+    fallbackComp.ngOnInit();
+    expect(fallbackComp.formattedCurrentPhone()).toBeNull();
+    expect(fallbackComp.isPhoneChanged()).toBe(true);
   });
 });

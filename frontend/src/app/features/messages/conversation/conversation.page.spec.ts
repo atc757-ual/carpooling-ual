@@ -577,4 +577,34 @@ describe('ConversationPage', () => {
     await render();
     expect(page.conversation()).toEqual(CONVERSATION);
   });
+
+  it('covers empty/null conversation fallbacks, composing enter, and options without event', async () => {
+    await render();
+
+    // Composing enter does not send
+    chat['send'].mockClear();
+    page.handleDraft('Hola');
+    const composingEnter = new KeyboardEvent('keydown', { key: 'Enter', isComposing: true });
+    page.handleEnter(composingEnter);
+    expect(chat['send']).not.toHaveBeenCalled();
+
+    // Null draft and handleOpenOptions without event
+    page.handleDraft(null);
+    expect(page.draft()).toBe('');
+    await page.handleSendText();
+    page.handleOpenOptions();
+    expect(page.isOptionsOpen()).toBe(true);
+
+    // Null conversation fallbacks
+    page.conversation.set(null);
+    expect(page.isDriverOnTrip()).toBe(false);
+    expect(page.canWrite()).toBe(false);
+    expect(page.originName()).toBe('Origen');
+    expect(page.destinationName()).toBe('Destino');
+    expect(page.departureTime()).toBe('');
+    expect(page.partnerName()).toBe('');
+    expect(page.partnerAvatarKey()).toBeNull();
+    expect(page.partnerLabel()).toBe('');
+    expect(page.statusLabel()).toBe('');
+  });
 });

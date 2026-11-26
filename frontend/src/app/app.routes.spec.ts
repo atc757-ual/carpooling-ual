@@ -1,10 +1,23 @@
 import { provideAppTransloco } from './core/i18n/testing-transloco';
 import { TestBed } from '@angular/core/testing';
-import { CanActivateFn, provideRouter, UrlTree } from '@angular/router';
+import { CanActivateFn, provideRouter, Route, UrlTree } from '@angular/router';
 import { routes } from './app.routes';
 import { AuthService } from './core/services/auth/auth.service';
 import { LegalDocumentsService } from './core/services/users/legal-documents.service';
 import { ApiError, NETWORK_ERROR } from './core/models/api-error.model';
+
+function collectLazyLoaders(routeList: readonly Route[]): (() => unknown)[] {
+  const loaders: (() => unknown)[] = [];
+  for (const route of routeList) {
+    if (route.loadComponent) {
+      loaders.push(route.loadComponent);
+    }
+    if (route.children) {
+      loaders.push(...collectLazyLoaders(route.children));
+    }
+  }
+  return loaders;
+}
 
 describe('application routes', () => {
   it('opens Search with a passenger profile, and Publish for a driver only', () => {
@@ -48,6 +61,25 @@ describe('application routes', () => {
         'settings',
       ].sort(),
     );
+  });
+
+  it('allows access to account-created only when logged in', () => {
+    const accountCreatedRoute = routes.find(({ path }) => path === 'account-created');
+    const guard = accountCreatedRoute?.canActivate?.[0] as CanActivateFn;
+    const runGuard = (isLoggedIn: boolean): unknown => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideAppTransloco(),
+          provideRouter([]),
+          { provide: AuthService, useValue: { isLoggedIn: () => isLoggedIn } },
+        ],
+      });
+      return TestBed.runInInjectionContext(() => guard({} as never, {} as never));
+    };
+
+    expect(runGuard(true)).toBe(true);
+    expect((runGuard(false) as UrlTree).toString()).toBe('/auth/welcome');
   });
 
   it('allows access to legal-update only when logged in with pending documents', async () => {
@@ -100,4 +132,13 @@ describe('application routes', () => {
     expect(await prefsRoute?.loadComponent?.()).toBeDefined();
     expect(await settingsRoute?.loadComponent?.()).toBeDefined();
   });
+
+  it('resolves all lazy loadComponent callbacks across app and admin routes', async () => {
+    const loaders = collectLazyLoaders(routes);
+    expect(loaders.length).toBeGreaterThan(25);
+    const loaded = await Promise.all(loaders.map((load) => load()));
+    for (const component of loaded) {
+      expect(component).toBeDefined();
+    }
+  }, 30_000);
 });

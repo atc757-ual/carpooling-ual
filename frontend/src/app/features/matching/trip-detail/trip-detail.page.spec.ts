@@ -263,12 +263,15 @@ describe('TripDetailPage', () => {
   it('does not find the trip without a search or when it is not in the results', async () => {
     expect((await render('t1', null)).textContent).toContain('No encontramos este viaje');
     const pageNoTrip = fixture.componentInstance;
+    expect(pageNoTrip.headingTitle()).toBe('');
     expect(pageNoTrip.stops()).toEqual([]);
     expect(pageNoTrip.pickup()).toBeNull();
     expect(pageNoTrip.mapEnds()).toBeNull();
     expect(pageNoTrip.seatSummary()).toBe('');
     expect(pageNoTrip.facts()).toEqual([]);
     expect(pageNoTrip.driverFirstName()).toBe('');
+    expect(pageNoTrip.seats()).toBe(1);
+    expect(pageNoTrip.headerBadge().kind).toBe('accepted');
     pageNoTrip.ionViewDidEnter();
     pageNoTrip.ionViewWillLeave();
     await pageNoTrip.handleRequest();
@@ -322,7 +325,19 @@ describe('TripDetailPage', () => {
     expect(page.stops()[2].detail).toContain(PARKING_P1.name);
     expect(page.mapEnds()?.origin.isApproximate).toBe(true);
 
-    // Switch search to from-campus with null originName and empty locality
+    // Also cover null destinationName fallback in stops() and mapEnds()
+    page.tripData.set({
+      ...page.tripData.value()!,
+      trip: {
+        ...page.tripData.value()!.trip,
+        originName: PARKING_P1.name,
+        destinationName: null,
+      },
+    });
+    expect(page.stops()[2].name).toBe('Campus UAL');
+    expect(page.mapEnds()?.destination.label).toBeTruthy();
+
+    // Switch search to from-campus where originName matches searchedParking and locality is empty
     const state = TestBed.inject(TripSearchStateService);
     state.set({
       ...SEARCH,
@@ -331,9 +346,24 @@ describe('TripDetailPage', () => {
     });
     state.setResults([{ ...RESULT, freeSeats: 1 }]);
     expect(page.stops()).toHaveLength(2);
-    expect(page.pickup()?.label).toBe(PARKING_P1.name);
     expect(page.mapEnds()?.destination.isApproximate).toBe(true);
     expect(page.headerBadge().kind).toBe('pending');
+
+    // Also cover from-campus with null originName
+    page.tripData.set({
+      ...page.tripData.value()!,
+      trip: {
+        ...page.tripData.value()!.trip,
+        originName: null,
+      },
+    });
+    expect(page.pickup()?.label).toBe(PARKING_P1.name);
+
+    // Cover headerBadge for pending and accepted requests
+    page.myRequest.set(seatRequest('pending'));
+    expect(page.headerBadge().kind).toBe('pending');
+    page.myRequest.set(seatRequest('accepted'));
+    expect(page.headerBadge().kind).toBe('accepted');
 
     // Seat summary fallback when tripData value is cleared
     page.tripData.set(undefined);

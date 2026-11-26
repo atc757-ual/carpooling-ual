@@ -478,4 +478,38 @@ describe('PassengerRequestDetailPage', () => {
     expect(share.mock.calls[0][0].url).toBe('https://carpooling.example/seguir/tok1');
     expect(share.mock.calls[1][0].url).toBeUndefined();
   });
+
+  it('covers when(), board code visibility without trip, lifecycle hooks, and liveShare error', async () => {
+    await render(seatRequest('accepted'), { ...TRIP, status: 'confirmed' });
+    const page = fixture.componentInstance;
+
+    expect(page.when()).toContain('·');
+    expect(page.statusKind()).toBe('accepted');
+
+    page.ionViewDidEnter();
+    expect(page.isPageVisible()).toBe(true);
+    page.ionViewWillLeave();
+    expect(page.isPageVisible()).toBe(false);
+    page.ionViewDidLeave();
+    expect(page.isPageVisible()).toBe(false);
+
+    // liveShare.start failure falls back to sharing without url
+    vi.spyOn(TestBed.inject(TripLiveShareService), 'start').mockRejectedValueOnce(
+      new Error('fail'),
+    );
+    const share = vi.spyOn(TestBed.inject(TripShareService), 'share').mockResolvedValue('shared');
+    await page.handleShare(seatRequest('accepted'), { ...TRIP, status: 'confirmed' });
+    expect(share).toHaveBeenCalledWith(expect.objectContaining({ url: undefined }));
+
+    // Null trip/request fallbacks
+    page.tripResource.set(undefined as never);
+    expect(page.isBoardCodeVisible()).toBe(false);
+    expect(page.when()).toBe('');
+    expect(page.statusLabel()).toBe('');
+    expect(page.statusKind()).toBe('neutral');
+
+    page.requestResource.set(undefined as never);
+    page.ionViewWillEnter();
+    expect(page.isPageVisible()).toBe(true);
+  });
 });

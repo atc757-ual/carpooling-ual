@@ -396,4 +396,48 @@ describe('PassengerLiveTripPage', () => {
     expect(ridePhase(request({ boardedAt: 'x' }), TRIP)).toBe('on_board');
     expect(ridePhase(request(), TRIP)).toBe('waiting');
   });
+
+  it('covers fallback names, null trip guards, lifecycle hooks, and liveShare failure', async () => {
+    await render(
+      request({
+        pickupName: null,
+        pickupLocation: null,
+        direction: 'to-campus',
+        boardedAt: '2099-01-15T06:45:00.000Z',
+      }),
+      {
+        ...TRIP,
+        vehicle: null,
+        driver: { ...TRIP.driver, name: '' },
+      } as unknown as Trip,
+    );
+
+    expect(page.driverName()).toBeTruthy();
+    expect(page.pickupName()).toBeTruthy();
+    expect(page.pickupLocation()).toBeNull();
+    expect(page.safetyShareText()).toBeTruthy();
+    expect(page.arriveCard()).toBe('early');
+
+    page.ionViewWillLeave();
+    expect(page.isPageVisible()).toBe(false);
+    page.ionViewWillEnter();
+    expect(page.isPageVisible()).toBe(true);
+
+    // LiveShare failure still shares text without url
+    const liveShare = TestBed.inject(TripLiveShareService);
+    vi.spyOn(liveShare, 'start').mockRejectedValueOnce(new Error('share err'));
+    const share = vi.spyOn(TestBed.inject(TripShareService), 'share').mockResolvedValue('shared');
+    await page.handleShareTrip();
+    expect(share).toHaveBeenCalledWith(expect.objectContaining({ url: undefined }));
+
+    // When trip and request are cleared
+    page.tripResource.set(undefined as never);
+    expect(page.safetyShareText()).toBe('');
+    expect(page.canCallDriver()).toBe(false);
+    page.handleCallDriver();
+    await page.handleShareTrip();
+
+    page.requestResource.set(undefined as never);
+    await (page as unknown as { arrive: () => Promise<void> }).arrive();
+  });
 });
