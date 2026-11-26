@@ -177,4 +177,25 @@ describe('SharedTripPage', () => {
 
     expect(TestBed.inject(Meta).getTag('name="robots"')).toBeNull();
   });
+
+  it('handles in_progress trip without route or position, and loading state before response', async () => {
+    getShared.mockResolvedValue(
+      sharedTrip({
+        tripStatus: 'in_progress',
+        passengerState: 'on_board',
+        position: null,
+        route: null,
+      }),
+    );
+
+    await render();
+    const page = fixture.componentInstance;
+
+    expect(page.isOpen()).toBe(true);
+    expect(page.isLive()).toBe(false);
+    expect(page.mapEnds()).toBeNull();
+    expect(page.carPoint()).toBeNull();
+    expect(page.isStale()).toBe(false);
+    expect(page.errorMessage()).toBeNull();
+  });
 });

@@ -42,6 +42,7 @@ const ROUTE = {
   geometry: null,
   source: 'osrm' as const,
   tripStatus: 'published' as const,
+  estimatedArrivalAt: null,
 };
 
 describe('DriverTripRoute', () => {
@@ -127,5 +128,125 @@ describe('DriverTripRoute', () => {
     fixture.componentRef.setInput('trip', { ...TRIP, vehicleId: 'v2' });
     await fixture.whenStable();
     expect(getTrip).toHaveBeenCalledTimes(2);
+  });
+
+  it('builds route stops and pickup points for predefined stops and on-route accepted requests', async () => {
+    const { buildDriverRouteStops } = await import('./driver-route-stops');
+    const { DriverService } = await import('../../../core/services/drivers/driver.service');
+
+    // Direct unit coverage of buildDriverRouteStops with predefined stops (0, 1, 2, 3+ passengers)
+    const stopsWithPredefined = buildDriverRouteStops(
+      {
+        departureAt: '2099-01-15T07:00:00.000Z',
+        originName: null,
+        destinationName: null,
+        stops: [
+          {
+            id: 's1',
+            position: 1,
+            name: 'Parada 1',
+            estimatedAt: '2099-01-15T07:10:00.000Z',
+            location: { type: 'Point', coordinates: [-2.5, 36.8] },
+          },
+          {
+            id: 's2',
+            position: 2,
+            name: 'Parada 2',
+            estimatedAt: '2099-01-15T07:20:00.000Z',
+            location: { type: 'Point', coordinates: [-2.45, 36.82] },
+          },
+        ],
+      },
+      [
+        {
+          id: 'r1',
+          stopId: 's1',
+          passenger: { id: 'p1', name: 'Ana García' },
+        } as never,
+        {
+          id: 'r2',
+          stopId: 's1',
+          passenger: { id: 'p2', name: 'Leo Martín' },
+        } as never,
+        {
+          id: 'r3',
+          stopId: 's1',
+          passenger: { id: 'p3', name: 'Pía López' },
+        } as never,
+      ],
+      ROUTE,
+    );
+    expect(stopsWithPredefined[0].name).toBe('Salida');
+    expect(stopsWithPredefined[1].detail).toContain('Ana, Leo y Pía');
+
+    // On-route accepted pickups with and without pickupName / pickupAt
+    const stopsOnRoute = buildDriverRouteStops(
+      {
+        departureAt: '2099-01-15T07:00:00.000Z',
+        originName: 'Almería',
+        destinationName: 'UAL',
+        stops: [],
+      },
+      [
+        {
+          id: 'r1',
+          pickupName: 'Auditorio',
+          pickupAt: '2099-01-15T07:15:00.000Z',
+          passenger: { id: 'p1', name: 'Ana' },
+        } as never,
+        {
+          id: 'r2',
+          pickupName: null,
+          pickupAt: null,
+          passenger: { id: 'p2', name: 'Leo' },
+        } as never,
+      ],
+      null,
+    );
+    expect(stopsOnRoute).toHaveLength(4);
+
+    // Component pickupPoints with predefined stops vs accepted requests vs cancelled trip
+    await render(() => Promise.resolve(ROUTE));
+    const driverSvc = TestBed.inject(DriverService);
+    vi.spyOn(driverSvc, 'listTripRequests').mockResolvedValue([
+      {
+        id: 'r1',
+        status: 'accepted',
+        pickupAt: '2099-01-15T07:15:00.000Z',
+        pickupLocation: { type: 'Point', coordinates: [-2.5, 36.8] },
+        passenger: { id: 'p1', name: 'Ana' },
+      } as never,
+      {
+        id: 'r2',
+        status: 'completed',
+        pickupAt: '2099-01-15T07:10:00.000Z',
+        pickupLocation: { type: 'Point', coordinates: [-2.55, 36.79] },
+        passenger: { id: 'p2', name: 'Leo' },
+      } as never,
+    ]);
+
+    fixture.componentRef.setInput('trip', { ...TRIP, status: 'confirmed' });
+    await fixture.whenStable();
+    expect(fixture.componentInstance.pickupPoints()).toHaveLength(2);
+
+    fixture.componentRef.setInput('trip', {
+      ...TRIP,
+      originName: null,
+      destinationName: null,
+      status: 'cancelled',
+      stops: [
+        {
+          id: 's1',
+          position: 1,
+          name: 'Centro',
+          estimatedAt: '2099-01-15T07:10:00.000Z',
+          location: { type: 'Point', coordinates: [-2.5, 36.8] },
+        },
+      ],
+    });
+    await fixture.whenStable();
+    expect(fixture.componentInstance.origin().label).toBe('Salida');
+    expect(fixture.componentInstance.destination().label).toBe('Destino');
+    expect(fixture.componentInstance.pickupPoints()).toHaveLength(1);
   });
 });

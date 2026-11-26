@@ -143,4 +143,59 @@ describe('ProfilePhoneModal', () => {
     expect(component.step()).toBe('number');
     expect(component.isSaving()).toBe(false);
   });
+
+  it('covers prefix changes, resend code, confirm code lockout, save errors, and close', async () => {
+    const { ApiError } = await import('../../../core/models/api-error.model');
+
+    // Prefix and pasted international phone changes
+    component.phoneForm.controls.phonePrefix.setValue('+33');
+    component.phoneForm.controls.phone.setValue('+34612345678');
+    expect(component.phoneForm.controls.phonePrefix.value).toBe('+34');
+
+    // Save phone failure aborts startVerification
+    component.phoneForm.controls.phone.setValue('699 887 766');
+    updateMe.mockRejectedValueOnce(new Error('save error'));
+    requestPhoneVerification.mockClear();
+    await component.handleStartVerification();
+    expect(requestPhoneVerification).not.toHaveBeenCalled();
+    expect(showError).toHaveBeenCalled();
+
+    // requestPhoneVerification failure in handleStartVerification
+    component.phoneForm.controls.phone.setValue('612 345 678');
+    requestPhoneVerification.mockRejectedValueOnce(new Error('sms error'));
+    await component.handleStartVerification();
+    expect(showError).toHaveBeenCalled();
+
+    // Resend code success and error
+    await component.handleResendCode();
+    expect(showSuccess).toHaveBeenCalled();
+    requestPhoneVerification.mockRejectedValueOnce(new Error('resend fail'));
+    await component.handleResendCode();
+    expect(showError).toHaveBeenCalled();
+
+    // Confirm code guard when invalid, and TOO_MANY_ATTEMPTS lockout
+    component.codeForm.controls.code.setValue('');
+    await component.handleConfirmCode();
+    expect(confirmPhoneVerification).not.toHaveBeenCalled();
+
+    component.codeForm.controls.code.setValue('123456');
+    confirmPhoneVerification.mockRejectedValueOnce(new ApiError('TOO_MANY_ATTEMPTS', 429));
+    await component.handleConfirmCode();
+    expect(component.isLocked()).toBe(true);
+
+    // Guard when locked
+    confirmPhoneVerification.mockClear();
+    await component.handleConfirmCode();
+    expect(confirmPhoneVerification).not.toHaveBeenCalled();
+
+    // Guard when saving in handleRemovePhone, and close()
+    component.isSaving.set(true);
+    updateMe.mockClear();
+    await component.handleRemovePhone();
+    expect(updateMe).not.toHaveBeenCalled();
+    component.isSaving.set(false);
+
+    await component.close();
+    expect(dismiss).toHaveBeenCalled();
+  });
 });

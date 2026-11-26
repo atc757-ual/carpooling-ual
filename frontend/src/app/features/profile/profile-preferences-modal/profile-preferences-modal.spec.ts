@@ -122,4 +122,23 @@ describe('ProfilePreferencesModal', () => {
     component.close();
     expect(dismiss).toHaveBeenCalledWith(null, 'cancel');
   });
+
+  it('covers pets toggle, selected checks, default tolerances, and submit error path', async () => {
+    expect(component.isSelected('pets', 'none')).toBe(true);
+    component.toggleOption('pets', 'small');
+    expect(component.pets()).toBe('small');
+    expect(component.isSelected('pets', 'small')).toBe(true);
+
+    // Re-init with null user to cover null preference & invalid tolerance fallback
+    component.user = null;
+    component.ngOnInit();
+    expect(component.conversation()).toBeNull();
+    expect(component.timeTolerance()).toBe(15);
+
+    // Error handling in handleSubmit
+    updateMe.mockRejectedValueOnce(new Error('save failed'));
+    await component.handleSubmit();
+    expect(showError).toHaveBeenCalled();
+    expect(component.isSaving()).toBe(false);
+  });
 });

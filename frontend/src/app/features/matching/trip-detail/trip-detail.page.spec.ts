@@ -262,7 +262,81 @@ describe('TripDetailPage', () => {
 
   it('does not find the trip without a search or when it is not in the results', async () => {
     expect((await render('t1', null)).textContent).toContain('No encontramos este viaje');
+    const pageNoTrip = fixture.componentInstance;
+    expect(pageNoTrip.stops()).toEqual([]);
+    expect(pageNoTrip.pickup()).toBeNull();
+    expect(pageNoTrip.mapEnds()).toBeNull();
+    expect(pageNoTrip.seatSummary()).toBe('');
+    expect(pageNoTrip.facts()).toEqual([]);
+    expect(pageNoTrip.driverFirstName()).toBe('');
+    pageNoTrip.ionViewDidEnter();
+    pageNoTrip.ionViewWillLeave();
+    await pageNoTrip.handleRequest();
+    await pageNoTrip.handleCancel();
+
     TestBed.resetTestingModule();
     expect((await render('t2', SEARCH)).textContent).toContain('No encontramos este viaje');
+  });
+
+  it('covers approximate locations, missing origin/destination names, single free seat, and autoAccept', async () => {
+    await render('t1', {
+      ...SEARCH,
+      direction: 'to-campus',
+      place: { ...ROQUETAS, locality: '' },
+    });
+    const page = fixture.componentInstance;
+
+    // Update tripData with null originName/destinationName, approximate location, and autoAccept
+    page.tripData.set({
+      trip: {
+        id: 't1',
+        '@type': 'Trip',
+        departureAt: '2026-10-27T07:40:00.000Z',
+        offeredSeats: 3,
+        availableSeats: 1,
+        maxDetourMin: 10,
+        status: 'published',
+        startedAt: null,
+        origin: { type: 'Point', coordinates: [-2.5, 36.8] },
+        destination: { type: 'Point', coordinates: [-2.4, 36.83] },
+        originName: null,
+        destinationName: 'Otro destino distinto',
+        isLocationApproximate: true,
+        autoAccept: true,
+        vehicleId: 'v1',
+        vehicle: { brand: 'Seat', model: 'Ibiza', color: 'white' },
+        driver: {
+          id: 'd1',
+          name: 'Lucía Cortés',
+          avatarKey: null,
+          preferences: undefined,
+          tripCount: 0,
+          rating: null,
+        },
+      } as never,
+      route: null as never,
+    });
+
+    expect(page.isAutoAccept()).toBe(true);
+    expect(page.stops()[0].detail).toContain('aproximada');
+    expect(page.stops()[2].detail).toContain(PARKING_P1.name);
+    expect(page.mapEnds()?.origin.isApproximate).toBe(true);
+
+    // Switch search to from-campus with null originName and empty locality
+    const state = TestBed.inject(TripSearchStateService);
+    state.set({
+      ...SEARCH,
+      direction: 'from-campus',
+      place: { ...ROQUETAS, locality: '' },
+    });
+    state.setResults([{ ...RESULT, freeSeats: 1 }]);
+    expect(page.stops()).toHaveLength(2);
+    expect(page.pickup()?.label).toBe(PARKING_P1.name);
+    expect(page.mapEnds()?.destination.isApproximate).toBe(true);
+    expect(page.headerBadge().kind).toBe('pending');
+
+    // Seat summary fallback when tripData value is cleared
+    page.tripData.set(undefined);
+    expect(page.seatSummary()).toBeTruthy();
   });
 });
