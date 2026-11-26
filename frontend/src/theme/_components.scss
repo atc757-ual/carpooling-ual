@@ -1805,6 +1805,21 @@ ion-toggle {
   }
 }
 
+// Cuatro botones en una fila estrecha (el conductor en el móvil): en dos
+// filas de dos, cada uno con el icono y el texto en línea
+@container live-actions (max-width: 26rem) {
+  .live-actions__row:has(> :nth-child(4)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    > .icon-btn--labeled.icon-btn--stacked {
+      width: auto;
+
+      @include inline-action;
+    }
+  }
+}
+
 // En una columna estrecha (tabletas), con 16px debajo, que en el móvil pone
 // la hoja
 .live-actions--compact {

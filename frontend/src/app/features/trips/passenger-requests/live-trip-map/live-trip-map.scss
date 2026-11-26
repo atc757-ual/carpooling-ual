@@ -99,18 +99,6 @@
 }
 
 @include bp.up(md) {
-  // La línea de estado bajo el mapa («El coche está en el mapa»…), solo para el
-  // lector de pantalla: la cabecera del rumbo ya lo dice a la vista y así el
-  // mapa y «Otras acciones» caben sin desplazarse (como .visually-hidden)
-  .trip-live-map__status {
-    position: absolute;
-    overflow: hidden;
-    width: 1px;
-    height: 1px;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
   // El mapa y, encima, abajo a la derecha, «Actualizado hace…»
   .trip-live-map__frame {
     position: relative;
