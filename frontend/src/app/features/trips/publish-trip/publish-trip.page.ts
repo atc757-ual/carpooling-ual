@@ -4,6 +4,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   OnInit,
@@ -55,6 +56,7 @@ import { CelebrationService } from '../../../core/services/ui/celebration.servic
 import { PermissionPromptsService } from '../../../core/services/push/permission-prompts.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
+import { PublishDraftService } from '../../../core/services/trips/publish-draft.service';
 import { DatetimeField } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { RouteTimeline } from '../../../shared/components/ui/route-timeline/route-timeline';
 import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
@@ -155,6 +157,7 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
 // 1 y 2 y qué pasa después en el 3 y el 4
 @Component({
   selector: 'app-publish-trip',
+  host: { '(window:beforeunload)': 'handleBeforeUnload($event)' },
   imports: [
     Co2Source,
     NgTemplateOutlet,
@@ -199,6 +202,7 @@ export class PublishTripPage implements OnInit {
   private readonly router = inject(Router);
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly celebration = inject(CelebrationService);
+  private readonly publishDraft = inject(PublishDraftService);
   private readonly nextTrip = viewChild(NextTripCard);
   private readonly initialDeparture = getDefaultArrival();
 
@@ -280,6 +284,20 @@ export class PublishTripPage implements OnInit {
     }
     return Math.min(this.requestedStep(), this.furthestStep(), reachable);
   });
+
+  // Un viaje a medio rellenar: algo distinto de como empezó el formulario o
+  // pasado el primer paso, y sin publicar. Se compara el valor y no «dirty»:
+  // varios campos (cómo recoges, las paradas) cambian por código. Se perdería
+  // al recargar, al cerrar la pestaña o al cerrar sesión (al cambiar de
+  // pestaña no: Ionic guarda la pantalla)
+  private readonly startingValue = signal(JSON.stringify(this.tripForm.getRawValue()));
+  private readonly isFormChanged = computed(() => {
+    this.tripValue();
+    return JSON.stringify(this.tripForm.getRawValue()) !== this.startingValue();
+  });
+  readonly hasUnsavedChanges = computed(
+    () => !this.published() && (this.isFormChanged() || this.step() > 1),
+  );
 
   // Con el origen (o destino) y el parking elegidos, «Siguiente» se activa
   readonly isRouteComplete = computed(() => {
@@ -540,6 +558,10 @@ export class PublishTripPage implements OnInit {
   });
 
   constructor() {
+    // Para el aviso de cerrar sesión; al salir de la pantalla, ya no hay borrador
+    effect(() => this.publishDraft.hasUnsavedTrip.set(this.hasUnsavedChanges()));
+    inject(DestroyRef).onDestroy(() => this.publishDraft.hasUnsavedTrip.set(false));
+
     // Mientras no se tocan, la vuelta sale 6 h después de llegar y lleva las
     // mismas plazas que la ida
     const { time, seats, returnTime, returnSeats } = this.tripForm.controls;
@@ -608,6 +630,7 @@ export class PublishTripPage implements OnInit {
         autoAccept: false,
         declaration: false,
       });
+      this.markAsStartingValue();
       this.furthestStep.set(1);
       this.hasDeclared.set(false);
       this.publishingStatus.set(null);
@@ -635,6 +658,14 @@ export class PublishTripPage implements OnInit {
     declared: checkmarkCircle,
     suspended: alertCircleOutline,
   };
+
+  // Al recargar o cerrar la pestaña con un viaje a medio rellenar, el aviso del
+  // navegador (su texto no se puede cambiar)
+  handleBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+    }
+  }
 
   // Ionic guarda la pantalla: al volver a la pestaña, el próximo viaje se pide
   // de nuevo
@@ -827,7 +858,13 @@ export class PublishTripPage implements OnInit {
   async handlePublishAnother(): Promise<void> {
     this.published.set(null);
     this.tripForm.patchValue(getDefaultArrival());
+    // El punto de partida del nuevo: sin cambios que perder hasta tocar algo
+    this.markAsStartingValue();
     await this.goToStep(1);
+  }
+
+  private markAsStartingValue(): void {
+    this.startingValue.set(JSON.stringify(this.tripForm.getRawValue()));
   }
 
   // Guarda con el botón cargando; los errores, en un aviso, sin perder lo escrito

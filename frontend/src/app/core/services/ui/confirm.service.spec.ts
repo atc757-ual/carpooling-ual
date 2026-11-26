@@ -38,6 +38,22 @@ describe('ConfirmService', () => {
       expect.objectContaining({
         componentProps: expect.objectContaining({
           header: '¿Cerrar sesión?',
+          points: [],
+        }),
+      }),
+    );
+  });
+
+  // Con un viaje a medio rellenar en Publicar, una línea avisa de que se pierde
+  it('warns that the trip being published will be lost', async () => {
+    const confirm = setUp('confirm');
+
+    await confirmLogout(confirm, true);
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        componentProps: expect.objectContaining({
+          points: ['Se perderá el viaje que estabas publicando.'],
         }),
       }),
     );

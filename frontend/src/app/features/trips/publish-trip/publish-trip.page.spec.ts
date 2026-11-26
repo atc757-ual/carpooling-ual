@@ -16,6 +16,7 @@ import { FaqsService } from '../../../core/services/help/faqs.service';
 import { LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
+import { PublishDraftService } from '../../../core/services/trips/publish-draft.service';
 import { CelebrationService } from '../../../core/services/ui/celebration.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { stubIntersectionObserver } from '../../matching/trip-search.testing';
@@ -203,6 +204,50 @@ describe('PublishTripPage', () => {
     // El origen y el vehículo se rellenan solos: sigue en el paso 1
     fillTrip({ withVehicle: true });
     expect(page.step()).toBe(1);
+  });
+
+  // Al recargar o cerrar la pestaña, y al cerrar sesión, se avisa solo si hay
+  // algo que perder: un cambio (también los que se hacen por código) o un paso
+  // más allá del primero, sin publicar
+  it('warns before leaving only with a trip half filled in', async () => {
+    await openPage();
+    const draft = TestBed.inject(PublishDraftService);
+    const leave = (): boolean => {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+
+    expect(page.hasUnsavedChanges()).toBe(false);
+    expect(leave()).toBe(false);
+
+    page.tripForm.controls.pickupMode.setValue('stops');
+    TestBed.tick();
+    expect(leave()).toBe(true);
+    expect(draft.hasUnsavedTrip()).toBe(true);
+
+    // Deshecho, como si no se hubiera tocado
+    page.tripForm.controls.pickupMode.setValue('on_route');
+    TestBed.tick();
+    expect(leave()).toBe(false);
+    expect(draft.hasUnsavedTrip()).toBe(false);
+  });
+
+  it('has nothing to lose once published, nor when starting another trip', async () => {
+    await openPage();
+    fillTrip({ withVehicle: true });
+    await page.goToStep(2);
+    expect(page.hasUnsavedChanges()).toBe(true);
+
+    await page.goToStep(3);
+    await submit();
+    expect(page.step()).toBe(4);
+    expect(page.hasUnsavedChanges()).toBe(false);
+
+    await page.handlePublishAnother();
+    await harness.fixture.whenStable();
+    expect(page.step()).toBe(1);
+    expect(page.hasUnsavedChanges()).toBe(false);
   });
 
   it('asks again for the next trip when coming back to the tab', async () => {
