@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, IsNull, Not, Repository } from 'typeorm';
 import { UserProfilesService } from '../users/user-profiles.service';
+import { UsersService } from '../users/users.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { InvalidRefreshTokenError } from './errors/invalid-refresh-token.error';
 
@@ -41,6 +42,7 @@ export class RefreshTokensService implements OnModuleInit {
     @InjectRepository(RefreshToken)
     private readonly refreshTokensRepository: Repository<RefreshToken>,
     private readonly userProfiles: UserProfilesService,
+    private readonly usersService: UsersService,
     configService: ConfigService,
   ) {
     this.refreshTtlMs =
@@ -59,6 +61,11 @@ export class RefreshTokensService implements OnModuleInit {
         await this.revokeAllOfUser(manager, change.userId);
       }
     });
+    // Lo mismo cuando la cuenta deja de poder usarse: la baja del usuario o
+    // la inhabilitación por un administrador
+    this.usersService.onUserDeactivating((manager, userId) =>
+      this.revokeAllOfUser(manager, userId),
+    );
   }
 
   // Login: abre una sesión nueva (familia nueva) con su tope

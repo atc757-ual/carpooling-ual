@@ -11,6 +11,7 @@ import { toUserRatingsSummary, UserSummary } from '../users/user-summary';
 import { EmailAlreadyRegisteredError } from '../users/errors/email-already-registered.error';
 import { UsersService } from '../users/users.service';
 import { EmailVerificationService } from './email-verification.service';
+import { AccountDisabledError } from './errors/account-disabled.error';
 import { AdminAlreadyExistsError } from './errors/admin-already-exists.error';
 import { EmailDomainNotAllowedError } from './errors/email-domain-not-allowed.error';
 import { EmailNotVerifiedError } from './errors/email-not-verified.error';
@@ -70,6 +71,13 @@ export const BCRYPT_COST = 10;
 // Se genera al arrancar (una vez, ~130 ms) para no guardar ningún hash en el
 // código, y cambia en cada arranque
 const DUMMY_PASSWORD_HASH = hashSync(randomUUID(), BCRYPT_COST);
+
+// La cuenta existe, no se ha dado de baja y no está inhabilitada
+function isUsable(user: User | null): user is User {
+  return (
+    user !== null && user.deactivatedAt === null && user.disabledAt === null
+  );
+}
 
 // Contraseña generada para el primer administrador: 15 bytes aleatorios en
 // base64url = 20 caracteres (unos 120 bits, imposible de adivinar)
@@ -179,6 +187,11 @@ export class AuthService {
     if (user.emailVerifiedAt === null) {
       throw new EmailNotVerifiedError();
     }
+    // Inhabilitada por un administrador (RF-25): se le dice para que sepa
+    // por qué no puede entrar
+    if (user.disabledAt !== null) {
+      throw new AccountDisabledError();
+    }
 
     return this.buildSession(
       user,
@@ -192,9 +205,10 @@ export class AuthService {
   // renovación)
   async refresh(refreshToken: string): Promise<AuthSession> {
     const rotated = await this.refreshTokensService.rotate(refreshToken);
-    // Si la cuenta ya no existe o ha sido desactivada, el token no sirve
+    // Si la cuenta ya no existe, ha sido desactivada o inhabilitada, el
+    // token no sirve
     const user = await this.usersService.findById(rotated.userId);
-    if (user?.deactivatedAt !== null) {
+    if (!isUsable(user)) {
       throw new InvalidRefreshTokenError();
     }
     return this.buildSession(user, rotated.refreshToken);
@@ -205,11 +219,11 @@ export class AuthService {
     await this.refreshTokensService.revoke(refreshToken);
   }
 
-  // Usuario del token (GET /api/auth/me). Si ya no existe o está desactivado,
-  // el token no sirve
+  // Usuario del token (GET /api/auth/me). Si ya no existe, está desactivado o
+  // inhabilitado, el token no sirve
   async getAuthenticatedUser(userId: string): Promise<AuthenticatedUser> {
     const user = await this.usersService.findById(userId);
-    if (user?.deactivatedAt !== null) {
+    if (!isUsable(user)) {
       throw new InvalidAccessTokenError();
     }
     return this.toAuthenticatedUser(user);

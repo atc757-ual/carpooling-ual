@@ -160,6 +160,16 @@ export class User {
   })
   deactivatedAt: Date | null = null;
 
+  // Cuándo la inhabilitó un administrador (RF-25), o null. Reversible: no
+  // puede iniciar sesión ni renovar tokens hasta que la rehabilite
+  @Column({
+    name: 'disabled_at',
+    type: 'timestamptz',
+    nullable: true,
+    default: null,
+  })
+  disabledAt: Date | null = null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

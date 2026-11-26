@@ -24,6 +24,8 @@ import { PassengerProfile } from './entities/passenger-profile.entity';
 import { UserConsent } from './entities/user-consent.entity';
 import { User } from './entities/user.entity';
 import { Vehicle } from './entities/vehicle.entity';
+import { AccountAccessController } from './account-access.controller';
+import { AccountAccessService } from './account-access.service';
 import { UsersController } from './users.controller';
 import { UserProfilesService } from './user-profiles.service';
 import { UsersService } from './users.service';
@@ -51,6 +53,7 @@ import { VehiclesService } from './vehicles.service';
   ],
   controllers: [
     UsersController,
+    AccountAccessController,
     VehiclesController,
     AvatarsController,
     LegalDocumentsController,
@@ -60,6 +63,7 @@ import { VehiclesService } from './vehicles.service';
   ],
   providers: [
     UsersService,
+    AccountAccessService,
     VehiclesService,
     UserProfilesService,
     AvatarsService,
