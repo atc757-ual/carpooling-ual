@@ -158,7 +158,8 @@ ion-card.live-alert.live-alert[class] {
   // Sin el margen propio del mapa: ya lo da la tarjeta
   --live-trip-map-padding: 0px; // con unidad: va dentro de calc()
   --live-trip-map-height: calc(100dvh - var(--tab-bar-height) - 12rem); // 192px de cabecera
-  --live-trip-map-height-desktop: 31.25rem; // 500px
+  // 420px: con «Otras acciones» debajo, cabe todo sin desplazarse
+  --live-trip-map-height-desktop: 26.25rem; // 420px
 }
 
 @include bp.down(md) {

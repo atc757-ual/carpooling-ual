@@ -169,6 +169,16 @@ ion-modal.live-sheet.live-sheet {
       border-left: var(--border-width-s) solid var(--color-border-subtle);
     }
 
+    // Más compacta: 8px arriba y abajo en cada sección y el texto en el alto
+    // que ocupe (una línea), sin reservar dos
+    ion-card-content {
+      padding-block: var(--space-s);
+    }
+
+    .section-item__subtitle {
+      min-height: 0;
+    }
+
     // Sin el título de cada sección a la vista (la tarjeta es más baja y el
     // texto y el botón ya dicen qué es): queda para el lector de pantalla,
     // que nombra cada sección con él (como .visually-hidden)
