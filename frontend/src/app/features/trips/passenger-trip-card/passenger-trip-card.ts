@@ -11,6 +11,7 @@ import { formatRoute } from '../my-trips/my-trips-summary';
 import { PassengerTrip } from '../my-trips/trip-entries';
 import { passengerRequestLabel, TripsTab } from '../my-trips/trip-tabs';
 import { tripWayOf } from '../trip-way';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Un viaje del pasajero en Tus viajes: su solicitud con su viaje. Toda la
 // tarjeta lleva a su detalle (donde se cancela) y dice el siguiente paso; en
@@ -29,7 +30,7 @@ export class PassengerTripCard {
   readonly route = computed(() => formatRoute(this.item().trip));
   // «Ida al campus» o «Vuelta a casa», encima del trayecto
   readonly way = computed(() => tripWayOf(this.item().trip));
-  readonly statusLabel = computed(() =>
+  readonly statusLabel = localizedComputed(() =>
     passengerRequestLabel(this.item().request, this.item().trip),
   );
   readonly isPending = computed(
@@ -42,7 +43,7 @@ export class PassengerTripCard {
   );
 
   // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
-  readonly linkLabel = computed(() => {
+  readonly linkLabel = localizedComputed(() => {
     const day = formatDateLabel(new Date(this.item().trip.departureAt).toLocaleDateString('sv-SE'));
     return translate('screens.passengerTripCard.linkLabel', {
       day,
@@ -53,13 +54,13 @@ export class PassengerTripCard {
   });
 
   // Su papel arriba: «Viajas» o, si terminó, «Viajaste»
-  readonly roleLabel = computed(() =>
+  readonly roleLabel = localizedComputed(() =>
     translate(this.item().trip.status === 'finished' ? 'labels.role.rode' : 'labels.role.riding'),
   );
 
   // Qué falta: «Esperando respuesta de Lucía», «Confirmada: te recoge a las
   // 08:10». Sin siguiente paso en las demás pestañas
-  readonly nextStep = computed(() => {
+  readonly nextStep = localizedComputed(() => {
     const { request, trip } = this.item();
     if (this.tab() !== 'upcoming') {
       return null;
@@ -74,7 +75,7 @@ export class PassengerTripCard {
   });
 
   // «Conduce Lucía Cortés · 2 plazas · Matrícula 1234BCD» (la matrícula, al confirmarla)
-  readonly details = computed(() => {
+  readonly details = localizedComputed(() => {
     const { request, trip } = this.item();
     // El código delante: «VJ-0042 · Conduce Mario · 1 plaza»
     const parts = [

@@ -24,6 +24,7 @@ import { getErrorMessage } from '../../../../shared/utils/error-message.util';
 import { HELP_CENTER_PATH, topicIcon } from '../help-center.util';
 import { injectFaqLang, showHeadingWhileVisible } from '../help-page.util';
 import { HelpSupportCard } from '../help-support-card/help-support-card';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 const SKELETON_ROWS = [1, 2, 3];
 
@@ -75,7 +76,7 @@ export class HelpFaqPage {
     return found ? { name: found.name, icon: topicIcon(found.icon) } : null;
   });
   readonly isLoading = computed(() => this.faq.isLoading() && !this.faq.hasValue());
-  readonly errorMessage = computed(() => {
+  readonly errorMessage = localizedComputed(() => {
     const error = this.faq.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });

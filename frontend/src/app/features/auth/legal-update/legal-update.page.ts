@@ -33,6 +33,7 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 import { openLegalModal } from '../../../shared/components/modals/legal-modal/legal-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { ProfileDeleteModal } from '../../profile/profile-delete-modal/profile-delete-modal';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Se ha publicado una versión nueva de las condiciones de uso o de la
 // política de privacidad: se lee y se acepta antes de seguir. Quien no la
@@ -80,7 +81,7 @@ export class LegalUpdatePage {
   });
   readonly isAccepting = signal(false);
   readonly acceptError = signal<string | null>(null);
-  readonly loadError = computed(() => {
+  readonly loadError = localizedComputed(() => {
     const error = this.documents.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });

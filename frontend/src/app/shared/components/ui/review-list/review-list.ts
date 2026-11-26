@@ -6,6 +6,7 @@ import { dateTimeFormat } from '../../../../core/i18n/app-locale';
 import { getInitials } from '../../../../features/matching/trip-driver/trip-driver';
 import { RatingMedals } from '../rating-medals/rating-medals';
 import { formatReviewCount } from '../rating-summary/rating-summary';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 // Lo que necesita cada fila (la reseña de un conductor no lleva viaje)
 export interface ReviewListItem {
@@ -46,7 +47,7 @@ export class ReviewList {
   readonly hasMore = computed(() => this.items().length < this.total());
   readonly showsAllSeen = computed(() => this.total() > REVIEW_PAGE_SIZE);
   // «9 valoraciones», en el cierre (como en el resumen)
-  readonly totalText = computed(() => formatReviewCount(this.total()));
+  readonly totalText = localizedComputed(() => formatReviewCount(this.total()));
 
   private readonly listEnd = viewChild<ElementRef<HTMLElement>>('listEnd');
 

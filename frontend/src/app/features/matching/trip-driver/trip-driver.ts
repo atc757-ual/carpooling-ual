@@ -8,6 +8,7 @@ import { numberFormat } from '../../../core/i18n/app-locale';
 import { ParticipantLink } from '../../../shared/components/ui/participant-link/participant-link';
 import { getInitials } from '../../../shared/utils/person-name.util';
 import { RATING_ICON } from '../../../shared/utils/rating.util';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 const RATING_FORMAT = () =>
   numberFormat({
@@ -55,7 +56,7 @@ export class TripDriver {
   });
 
   // «42 viajes» o «Nuevo conductor»
-  readonly details = computed(() => {
+  readonly details = localizedComputed(() => {
     const { tripCount, rating } = this.driver();
     if (rating === undefined) {
       return translate('labels.newDriver');

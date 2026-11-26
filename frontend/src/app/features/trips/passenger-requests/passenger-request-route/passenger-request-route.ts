@@ -41,6 +41,7 @@ import { formatTime } from '../../../matching/trip-results';
 import { formatRouteArrival } from '../../route-arrival';
 import { numberFormat } from '../../../../core/i18n/app-locale';
 import { LoadingState } from '../../../../shared/components/ui/loading-state/loading-state';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 // Con la plaza en curso o ya terminada (bajado)
 const SEAT_HOLDER_STATUSES: ReadonlySet<SeatRequestStatus> = new Set(['accepted', 'completed']);
@@ -141,7 +142,7 @@ export class PassengerRequestRoute {
     };
   });
 
-  readonly pickupName = computed(() => {
+  readonly pickupName = localizedComputed(() => {
     const request = this.request();
     const trip = this.trip();
     return (
@@ -153,7 +154,7 @@ export class PassengerRequestRoute {
     );
   });
 
-  readonly stops = computed<RouteStop[]>(() => {
+  readonly stops = localizedComputed<RouteStop[]>(() => {
     const request = this.request();
     const trip = this.trip();
     const arrival = formatRouteArrival(trip.departureAt, this.route());
@@ -181,7 +182,7 @@ export class PassengerRequestRoute {
     return result;
   });
 
-  readonly facts = computed(() => {
+  readonly facts = localizedComputed(() => {
     const request = this.request();
     const trip = this.trip();
     return [

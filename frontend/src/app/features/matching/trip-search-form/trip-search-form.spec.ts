@@ -15,7 +15,7 @@ import {
   ROQUETAS,
   stubIntersectionObserver,
 } from '../trip-search.testing';
-import { getDefaultTime, shiftTime, TripSearchForm } from './trip-search-form';
+import { earliestTime, getDefaultTime, shiftTime, TripSearchForm } from './trip-search-form';
 
 const SEARCH: TripSearch = {
   place: ROQUETAS,
@@ -66,6 +66,28 @@ describe('TripSearchForm', () => {
     expect(margin).toBe(20);
     expect(seats).toBe(1);
     expect(date).toBe(`${today.getFullYear()}-${month}-${day}`);
+  });
+
+  // Hoy, la rueda no ofrece horas pasadas y una pasada sube a la primera
+  // posible; otro día, todas valen
+  it('does not keep a past time today, and allows any time another day', () => {
+    const minTime = (): string | undefined =>
+      (form as unknown as { minTime: () => string | undefined }).minTime();
+    const today = form.form.controls.date.value;
+
+    expect(minTime()).toBe(`${today}T${earliestTime(today)}`);
+    form.form.controls.time.setValue('00:00');
+    TestBed.tick();
+    expect(form.form.controls.time.value).toBe(earliestTime(today));
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextDay = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+    form.form.controls.date.setValue(nextDay);
+    form.form.controls.time.setValue('00:00');
+    TestBed.tick();
+    expect(minTime()).toBeUndefined();
+    expect(form.form.controls.time.value).toBe('00:00');
   });
 
   it('clears the search and what was chosen', () => {
@@ -283,6 +305,16 @@ describe('TripSearchForm', () => {
 
     expect(form.form.controls.place.value).toBeNull();
     expect(form.isToCampus()).toBe(true);
+  });
+});
+
+describe('earliestTime', () => {
+  const now = new Date(2026, 10, 26, 10, 32);
+
+  it('is the time now, rounded up to 5 minutes, only today', () => {
+    expect(earliestTime('2026-11-26', now)).toBe('10:35');
+    expect(earliestTime('2026-11-27', now)).toBeNull();
+    expect(earliestTime(undefined, now)).toBeNull();
   });
 });
 

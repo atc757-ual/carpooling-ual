@@ -1,4 +1,5 @@
 import { afterNextRender, DestroyRef, Directive, ElementRef, inject, signal } from '@angular/core';
+import { scrollBehavior } from '../utils/motion.util';
 
 // Lo que avanza cada flecha: casi lo que se ve, para no perder el hilo
 const SCROLL_STEP_RATIO = 0.8;
@@ -41,7 +42,7 @@ export class ScrollEdges {
   scrollStep(direction: -1 | 1): void {
     this.element.scrollBy({
       left: direction * this.element.clientWidth * SCROLL_STEP_RATIO,
-      behavior: 'smooth',
+      behavior: scrollBehavior(),
     });
   }
 }

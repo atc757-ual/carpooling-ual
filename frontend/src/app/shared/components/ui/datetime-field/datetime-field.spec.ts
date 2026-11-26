@@ -12,13 +12,19 @@ import { DatetimeField, DatetimePresentation, formatDateLabel } from './datetime
 @Component({
   imports: [ReactiveFormsModule, DatetimeField],
   template: `
-    <app-datetime-field [formControl]="value" [label]="label()" [presentation]="presentation()" />
+    <app-datetime-field
+      [formControl]="value"
+      [label]="label()"
+      [presentation]="presentation()"
+      [min]="min()"
+    />
   `,
 })
 class Host {
   readonly value = new FormControl('2026-10-27', { nonNullable: true });
   readonly label = signal('Fecha');
   readonly presentation = signal<DatetimePresentation>('date');
+  readonly min = signal<string | undefined>(undefined);
 }
 
 describe('DatetimeField', () => {
@@ -59,6 +65,31 @@ describe('DatetimeField', () => {
     TestBed.tick();
 
     expect((root.querySelector('ion-modal') as HTMLIonModalElement).isOpen).toBe(true);
+  });
+
+  // Con un límite con fecha, la rueda recibe la hora con esa fecha (para que
+  // Ionic desactive las anteriores ese día); el formulario, siempre «HH:mm»
+  it('gives the wheel the date of the limit and keeps the time as HH:mm', () => {
+    const api = field as unknown as {
+      timePickerValue: () => string | undefined;
+      handleTimeChange: (value: string | string[] | null | undefined) => void;
+    };
+    host.presentation.set('time');
+    host.value.setValue('11:05');
+    TestBed.tick();
+    expect(api.timePickerValue()).toBe('11:05');
+
+    host.min.set('2026-11-26T10:35');
+    TestBed.tick();
+    expect(api.timePickerValue()).toBe('2026-11-26T11:05');
+
+    api.handleTimeChange('2026-11-26T12:40');
+    expect(host.value.value).toBe('12:40');
+    api.handleTimeChange('09:15:00');
+    expect(host.value.value).toBe('09:15');
+    api.handleTimeChange(null);
+    api.handleTimeChange(['10:00']);
+    expect(host.value.value).toBe('09:15');
   });
 
   it('shows the time as it is, and nothing without a value', () => {

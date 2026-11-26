@@ -105,6 +105,7 @@ import { VehicleColorsStore } from '../../../core/services/catalogs/vehicle-colo
 import { ProfilePreferencesModal } from '../../profile/profile-preferences-modal/profile-preferences-modal';
 import { appLocale } from '../../../core/i18n/app-locale';
 import { lazyList } from '../../../core/i18n/lazy-labels';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Plazo mínimo para publicar; el valor inicial se redondea al siguiente
 // intervalo de 5 min para mantener al menos una hora de antelación.
@@ -342,7 +343,7 @@ export class PublishTripPage implements OnInit {
     const { time = '', returnTime = '' } = this.tripValue();
     return this.hasReturnTrip() && isReturnBeforeArrival(time, returnTime);
   });
-  readonly returnSummary = computed(() => {
+  readonly returnSummary = localizedComputed(() => {
     const { returnTime = '', returnSeats = 1 } = this.tripValue();
     if (!this.hasReturnTrip()) {
       return null;
@@ -372,14 +373,14 @@ export class PublishTripPage implements OnInit {
     () =>
       this.canRepeat() && Boolean(this.tripValue().isRepeating) && this.repeatDates().length === 0,
   );
-  readonly repeatSummary = computed(() => {
+  readonly repeatSummary = localizedComputed(() => {
     const dates = this.repeatDates();
     return dates.length > 0
       ? translate('publish.repeat.reviewDates', { dates: dates.map(formatDateLabel).join(', ') })
       : null;
   });
   // Cómo recoge, en una línea del resumen (desde el campus todos suben allí)
-  readonly pickupSummary = computed(() => {
+  readonly pickupSummary = localizedComputed(() => {
     const { isToCampus = true, pickupMode, maxDetourM, stops = [] } = this.tripValue();
     if (!isToCampus) {
       return null;
@@ -418,7 +419,7 @@ export class PublishTripPage implements OnInit {
     const until = this.publishingStatus()?.publishingSuspendedUntil;
     return until && new Date(until).getTime() > Date.now() ? until : null;
   });
-  readonly publishingSuspendedUntilLabel = computed(() => {
+  readonly publishingSuspendedUntilLabel = localizedComputed(() => {
     const until = this.publishingSuspendedUntil();
     return until ? new Date(until).toLocaleDateString(appLocale()) : '';
   });
@@ -536,7 +537,7 @@ export class PublishTripPage implements OnInit {
       : null;
   });
 
-  readonly dateLabel = computed(() => formatDateLabel(this.tripValue().date ?? ''));
+  readonly dateLabel = localizedComputed(() => formatDateLabel(this.tripValue().date ?? ''));
   // Tus preferencias de viaje (del Perfil), en la revisión: las ven los pasajeros
   readonly myPreferences = computed(() =>
     this.travelPreferences.format(this.auth.currentUser()?.preferences),

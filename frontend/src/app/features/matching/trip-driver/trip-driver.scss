@@ -79,6 +79,14 @@
   font-family: inherit;
   cursor: pointer;
 
+  // Se ve de 20px y se toca en 24px (franja invisible arriba y abajo, como el
+  // chip de invertir la ruta): el tamaño mínimo de WCAG 2.5.8
+  &::after {
+    position: absolute;
+    inset: -0.125rem 0; // 2px
+    content: '';
+  }
+
   &:hover {
     background: var(--color-surface-subtle);
   }

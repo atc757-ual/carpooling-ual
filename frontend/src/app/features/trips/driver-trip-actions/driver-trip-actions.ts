@@ -44,6 +44,7 @@ import { Translate } from '../../../core/i18n/translate';
 import { buildSeatsShareText } from '../trip-share-text';
 import { withDeclarations } from '../with-declarations';
 import { openVehicleTripsModal } from '../vehicle-trips-modal/vehicle-trips-modal';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Solo en estos se puede cancelar
 const OPEN_STATUSES: ReadonlySet<TripStatus> = new Set(['published', 'confirmed']);
@@ -119,7 +120,7 @@ export class DriverTripActions {
   // Una sola línea bajo «Iniciar viaje», solo si aún no se puede: «Disponible
   // desde las 08:50» o, publicado, hasta que alguien tenga plaza. Lo que
   // supone iniciarlo lo explica la confirmación
-  readonly startHint = computed(() => {
+  readonly startHint = localizedComputed(() => {
     const { status } = this.trip();
     if (status === 'published') {
       return translate('screens.driverTripActions.podrasIniciarloCuandoAceptes');
@@ -182,7 +183,7 @@ export class DriverTripActions {
 
   // Hasta cuándo se cancela sin penalización, antes del botón (como al pasajero): con
   // pasajeros, nada hasta 20 min antes de la salida; sin ellos, nunca cuenta
-  readonly cancelCost = computed(() => {
+  readonly cancelCost = localizedComputed(() => {
     const trip = this.trip();
     if (this.cancellationIsLate()) {
       return null;
