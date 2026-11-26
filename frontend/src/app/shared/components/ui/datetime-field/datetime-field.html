@@ -1,40 +1,36 @@
 <span [id]="labelId" class="text-label text-label--strong">{{ label() }}</span>
+<!-- Botón propio (no ion-datetime-button) para poder leer «Hoy» o «Mañana»,
+     igual en el móvil y en el escritorio -->
+<button
+  #trigger
+  type="button"
+  class="datetime-field__box"
+  [attr.aria-labelledby]="labelId + ' ' + pickerId + '-value'"
+  aria-haspopup="dialog"
+  [disabled]="control.disabled"
+  (click)="handleOpen(trigger)"
+>
+  <ion-icon [icon]="icon()" aria-hidden="true" />
+  <span [id]="pickerId + '-value'" class="datetime-field__value">{{ displayValue() }}</span>
+</button>
 @if (isDesktop()) {
-  <!-- Escritorio: el campo nativo del navegador (se escribe o se elige en su
-       calendario), con el aspecto de los demás campos y, como en el móvil, su
-       icono a la izquierda: abre el calendario o el reloj del navegador -->
-  <span class="datetime-field__native-wrap">
-    <ion-icon
-      class="datetime-field__native-icon"
-      [icon]="icon()"
-      aria-hidden="true"
-      (click)="openNativePicker(native)"
-    />
-    <input
-      #native
-      class="datetime-field__box datetime-field__native"
-      [type]="presentation()"
-      [formControl]="control"
-      [min]="min() ?? null"
-      [max]="max() ?? null"
-      [step]="presentation() === 'time' ? timeStepSeconds : null"
-      [attr.aria-labelledby]="labelId"
-    />
-  </span>
-} @else {
-  <!-- Móvil: botón propio (no ion-datetime-button) para poder leer «Hoy» o
-       «Mañana», y la hoja que sube desde abajo, con la muesca (estilos del tema) -->
-  <button
-    type="button"
-    class="datetime-field__box"
-    [attr.aria-labelledby]="labelId + ' ' + pickerId + '-value'"
-    aria-haspopup="dialog"
-    [disabled]="control.disabled"
-    (click)="isOpen.set(true)"
+  <!-- Escritorio: el calendario o las ruedas en un desplegable bajo el campo -->
+  <ion-popover
+    class="datetime-popover"
+    side="bottom"
+    alignment="start"
+    [showBackdrop]="false"
+    [keepContentsMounted]="true"
+    [isOpen]="isOpen()"
+    [event]="anchor()"
+    (didDismiss)="isOpen.set(false)"
   >
-    <ion-icon [icon]="icon()" aria-hidden="true" />
-    <span [id]="pickerId + '-value'" class="datetime-field__value">{{ displayValue() }}</span>
-  </button>
+    <ng-template>
+      <ng-container [ngTemplateOutlet]="pickerContent" />
+    </ng-template>
+  </ion-popover>
+} @else {
+  <!-- Móvil: la hoja que sube desde abajo, con la muesca (estilos del tema) -->
   <ion-modal
     class="datetime-modal"
     [keepContentsMounted]="true"
@@ -47,7 +43,7 @@
   </ion-modal>
 }
 
-<!-- El calendario o las ruedas de la hora de Ionic (móvil) -->
+<!-- El calendario o las ruedas de la hora de Ionic -->
 <ng-template #pickerContent>
   @if (presentation() === 'date') {
     <ion-datetime
@@ -60,9 +56,14 @@
       [firstDayOfWeek]="1"
       [min]="min()"
       [max]="max()"
-      [showDefaultButtons]="true"
+      [showDefaultButtons]="!isDesktop()"
+      (ionChange)="handleDatePicked()"
     >
-      <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
+      <!-- En el escritorio, como un desplegable: al pulsar el día se elige y se
+           cierra, sin «Cancelar» ni «Aceptar» -->
+      @if (!isDesktop()) {
+        <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
+      }
     </ion-datetime>
   } @else {
     <ion-datetime
@@ -81,16 +82,17 @@
 </ng-template>
 
 <ng-template #actions let-picker>
+  <!-- La acción primero, a la izquierda, y volver atrás después (guía, «Botones») -->
   <div slot="buttons" class="datetime-actions">
-    <button type="button" class="datetime-actions__button" (click)="picker.cancel(true)">
-      {{ cancelLabel() }}
-    </button>
     <button
       type="button"
       class="datetime-actions__button datetime-actions__button--primary"
       (click)="picker.confirm(true)"
     >
       {{ acceptLabel() }}
+    </button>
+    <button type="button" class="datetime-actions__button" (click)="picker.cancel(true)">
+      {{ cancelLabel() }}
     </button>
   </div>
 </ng-template>

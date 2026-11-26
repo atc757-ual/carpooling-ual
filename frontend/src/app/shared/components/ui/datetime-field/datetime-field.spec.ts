@@ -50,6 +50,17 @@ describe('DatetimeField', () => {
     expect((root.querySelector('ion-modal') as HTMLIonModalElement).isOpen).toBe(true);
   });
 
+  // En el móvil, la hoja la cierra su «Aceptar», no el día elegido
+  it('keeps the sheet open when a day is picked on a phone', () => {
+    root.querySelector<HTMLButtonElement>('button.datetime-field__box')?.click();
+    TestBed.tick();
+
+    root.querySelector('ion-datetime')?.dispatchEvent(new CustomEvent('ionChange'));
+    TestBed.tick();
+
+    expect((root.querySelector('ion-modal') as HTMLIonModalElement).isOpen).toBe(true);
+  });
+
   it('shows the time as it is, and nothing without a value', () => {
     host.presentation.set('time');
     host.value.setValue('07:40');
@@ -166,35 +177,37 @@ describe('DatetimeField on a desktop browser', () => {
     vi.unstubAllGlobals();
   });
 
-  it('uses the native field of the browser, with its value and limits', () => {
+  // El mismo botón que en el móvil; el selector, en un desplegable bajo él
+  it('opens the picker in a dropdown under the button, without a backdrop', () => {
     const root = render(false);
-    const input = root.querySelector<HTMLInputElement>('input.datetime-field__native');
+    const button = root.querySelector<HTMLButtonElement>('button.datetime-field__box')!;
+    const popover = root.querySelector('ion-popover') as HTMLIonPopoverElement;
 
-    expect(input?.type).toBe('date');
-    expect(input?.value).toBe('2026-10-27');
     expect(root.querySelector('ion-modal')).toBeNull();
+    expect(popover.showBackdrop).toBe(false);
+
+    button.click();
+    TestBed.tick();
+
+    expect(popover.isOpen).toBe(true);
+    expect((popover.event as { target: HTMLElement }).target).toBe(button);
   });
 
-  // El icono a la izquierda, como en el móvil: abre el selector del navegador
-  it('opens the picker of the browser from its icon on the left', () => {
+  it('closes the dropdown when a day is picked', () => {
     const root = render(false);
-    const input = root.querySelector<HTMLInputElement>('input.datetime-field__native')!;
-    const showPicker = vi.fn();
-    input.showPicker = showPicker;
+    root.querySelector<HTMLButtonElement>('button.datetime-field__box')!.click();
+    TestBed.tick();
 
-    root.querySelector<HTMLElement>('.datetime-field__native-icon')?.click();
-    expect(showPicker).toHaveBeenCalledTimes(1);
+    root.querySelector('ion-datetime')!.dispatchEvent(new CustomEvent('ionChange'));
+    TestBed.tick();
 
-    // Sin showPicker, el foco en el campo, que se puede escribir
-    input.showPicker = undefined as unknown as () => void;
-    root.querySelector<HTMLElement>('.datetime-field__native-icon')?.click();
-    expect(document.activeElement).toBe(input);
+    expect((root.querySelector('ion-popover') as HTMLIonPopoverElement).isOpen).toBe(false);
   });
 
-  it('keeps the Ionic picker in the installed app, whatever the width', () => {
+  it('keeps the sheet in the installed app, whatever the width', () => {
     const root = render(true);
 
-    expect(root.querySelector('input.datetime-field__native')).toBeNull();
-    expect(root.querySelector('button.datetime-field__box')).not.toBeNull();
+    expect(root.querySelector('ion-popover')).toBeNull();
+    expect(root.querySelector('ion-modal')).not.toBeNull();
   });
 });
