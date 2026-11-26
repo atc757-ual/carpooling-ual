@@ -156,14 +156,14 @@
 
                   <!-- Solo para decidir una pendiente: de los aceptados, en su perfil -->
                   @if (request.status === 'pending' && passengerPreferences(request).length > 0) {
-                    <div
+                    <ul
                       class="driver-trip__preferences"
                       [attr.aria-label]="'myTrips.preferenciasDelPasajero' | transloco"
                     >
                       @for (pref of passengerPreferences(request); track pref) {
-                        <span class="driver-trip__preference-tag">{{ pref }}</span>
+                        <li class="driver-trip__preference-tag">{{ pref }}</li>
                       }
-                    </div>
+                    </ul>
                   }
                 </div>
               </li>

@@ -31,12 +31,13 @@
           <span>{{ rating }}</span>
         </button>
       } @else {
-        <span
-          class="trip-driver__rating"
-          [attr.aria-label]="'driverReviews.ratingAria' | transloco: { rating }"
-        >
+        <!-- Un span no admite aria-label: el lector lee el texto oculto -->
+        <span class="trip-driver__rating">
           <ion-icon class="trip-driver__medal" [icon]="medalIcon" aria-hidden="true" />
-          <span>{{ rating }}</span>
+          <span aria-hidden="true">{{ rating }}</span>
+          <span class="visually-hidden">{{
+            'driverReviews.ratingAria' | transloco: { rating }
+          }}</span>
         </span>
       }
     }

@@ -122,13 +122,15 @@
                     <h2 id="ride-code-title" class="text-subtitle">
                       {{ 'live.codigoRecogida' | transloco }}
                     </h2>
-                    <div
-                      class="ride__code-digits"
-                      [attr.aria-label]="request.boardCode.split('').join(' ')"
-                    >
+                    <!-- El lector lee los dígitos uno a uno (texto oculto):
+                         un div sin rol no admite aria-label -->
+                    <div class="ride__code-digits">
                       @for (digit of request.boardCode.split(''); track $index) {
                         <span aria-hidden="true">{{ digit }}</span>
                       }
+                      <span class="visually-hidden">{{
+                        request.boardCode.split('').join(' ')
+                      }}</span>
                     </div>
                     <p class="text-caption text-color-muted">
                       {{ 'live.tellCode' | transloco: { name: driverName() } }}

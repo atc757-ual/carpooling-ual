@@ -199,14 +199,10 @@
                       >
                         <ion-icon [icon]="previousIcon" aria-hidden="true" />
                       </ion-button>
-                      <span
-                        class="notifications__page-number"
-                        [attr.aria-label]="'notifications.currentPage' | transloco"
-                        >{{
-                          'notifications.pageOf'
-                            | transloco: { page: pageNumber(), count: pageCount() }
-                        }}</span
-                      >
+                      <span class="notifications__page-number">{{
+                        'notifications.pageOf'
+                          | transloco: { page: pageNumber(), count: pageCount() }
+                      }}</span>
                       <ion-button
                         class="notifications__page-arrow"
                         type="button"

@@ -46,39 +46,3 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-// Escritorio: el campo nativo, con el borde, el alto y la letra de los demás,
-// y su icono del calendario o del reloj, en gris como los de los campos
-.datetime-field__native-wrap {
-  position: relative;
-  display: block;
-}
-
-// El icono a la izquierda, como en el móvil (el del navegador va detrás del
-// valor y no se puede mover: se oculta); al pulsarlo abre su selector
-.datetime-field__native-icon {
-  position: absolute;
-  top: 50%;
-  left: var(--space-base);
-  z-index: var(--z-raised);
-  color: var(--color-text-muted);
-  font-size: var(--icon-size-base);
-  cursor: pointer;
-  transform: translateY(-50%);
-}
-
-.datetime-field__native {
-  // El hueco del icono: 16px de margen, 20px de icono y 8px hasta el valor
-  padding-left: calc(var(--space-base) + 1.25rem + var(--space-s)); // 20px
-  cursor: text;
-
-  &::-webkit-calendar-picker-indicator {
-    display: none;
-  }
-
-  &:focus-visible {
-    outline: none;
-    border-color: var(--color-link);
-    box-shadow: 0 0 0 var(--border-width-s) var(--color-link);
-  }
-}

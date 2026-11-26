@@ -105,10 +105,10 @@
         <span
           class="bubble__status"
           [class.bubble__status--read]="message.readByAll"
-          [attr.aria-label]="statusAriaLabel(message)"
           [title]="statusAriaLabel(message)"
         >
           <span aria-hidden="true">{{ message.readByAll ? '✓✓' : '✓' }}</span>
+          <span class="visually-hidden">{{ statusAriaLabel(message) }}</span>
         </span>
       }
     </span>

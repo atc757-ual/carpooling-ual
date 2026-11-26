@@ -225,6 +225,25 @@ ion-modal.datetime-modal {
   --border-radius: var(--radius-s);
 }
 
+// En el escritorio, el mismo calendario o ruedas en un desplegable bajo el
+// campo, con el ancho del calendario (Ionic lo hace de 250px y lo recorta),
+// opaco y con el borde de los menús
+ion-popover.datetime-popover {
+  --width: fit-content;
+  --min-width: 20rem; // 320px
+  --background: var(--color-surface);
+  --border-radius: var(--radius-s);
+  --box-shadow: var(--shadow-l);
+
+  &::part(content) {
+    border: var(--border-width-s) solid var(--color-border);
+  }
+
+  ion-datetime {
+    --background: var(--color-surface);
+  }
+}
+
 ion-datetime {
   --background: var(--ion-background-color);
   --background-rgb: var(--ion-background-color-rgb);

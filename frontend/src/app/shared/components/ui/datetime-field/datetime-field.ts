@@ -9,7 +9,7 @@ import {
   NG_VALUE_ACCESSOR,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { IonDatetime, IonIcon, IonModal } from '@ionic/angular';
+import { IonDatetime, IonIcon, IonModal, IonPopover } from '@ionic/angular';
 import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { calendarOutline, timeOutline } from 'ionicons/icons';
 import { toIsoDate } from '../../../utils/date.util';
@@ -19,7 +19,7 @@ export type DatetimePresentation = 'date' | 'time';
 
 // De 5 en 5 minutos
 const MINUTE_VALUES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-// Desde aquí, el campo nativo del navegador (escritorio)
+// Desde aquí, el desplegable bajo el campo (escritorio)
 const DESKTOP_QUERY = '(min-width: 768px)';
 // Para que cada campo tenga sus propios id (en Inicio y Buscar puede haber
 // dos formularios a la vez, y con el mismo id un botón abriría el selector
@@ -50,17 +50,15 @@ export function formatDateLabel(
   return formatter.format(new Date(`${isoDate}T00:00:00`));
 }
 
-// Fecha o hora (guía, «Campos»), con la etiqueta encima. En escritorio, el
-// campo nativo del navegador: se escribe o se elige en su calendario, sin
-// ventanas de la app (la hora, de 5 en 5 minutos). En el móvil, un botón con
-// el valor y su icono («Hoy», «Mañana» o «jue, 30 oct») que abre una hoja
-// desde abajo con el calendario de Ionic en español (lunes primero) o las
-// ruedas de la hora en 24 h, de 5 en 5 minutos, con «Cancelar» y «Aceptar» de
-// la app (los de Ionic van en mayúsculas y no se pueden cambiar). Valor:
-// «2026-10-27» o «08:00»
+// Fecha o hora (guía, «Campos»), con la etiqueta encima. Un botón con el valor
+// y su icono («Hoy», «Mañana» o «jue, 30 oct») que abre el calendario de Ionic
+// (lunes primero) o las ruedas de la hora en 24 h, de 5 en 5 minutos, con
+// «Cancelar» y «Aceptar» de la app (los de Ionic van en mayúsculas y no se
+// pueden cambiar): en el móvil, en una hoja desde abajo; en el escritorio, en
+// un desplegable bajo el campo. Valor: «2026-10-27» o «08:00»
 @Component({
   selector: 'app-datetime-field',
-  imports: [NgTemplateOutlet, ReactiveFormsModule, IonDatetime, IonIcon, IonModal],
+  imports: [NgTemplateOutlet, ReactiveFormsModule, IonDatetime, IonIcon, IonModal, IonPopover],
   templateUrl: './datetime-field.html',
   styleUrl: './datetime-field.scss',
   providers: [
@@ -114,11 +112,9 @@ export class DatetimeField implements ControlValueAccessor {
   protected readonly acceptLabel = computed(() => {
     return (this.translation() ? this.transloco?.translate('common.accept') : null) ?? 'Aceptar';
   });
-  // En el navegador de escritorio, el campo nativo (se escribe o se elige en
-  // su calendario, sin ventanas de la app); en el móvil, la hoja de Ionic.
-  // Sigue al ancho si cambia el tamaño de la ventana. En la app instalada
-  // (Capacitor), siempre Ionic, también en tabletas: los selectores de Android
-  // e iOS no respetan los 5 minutos ni los límites de fecha
+  // En el navegador de escritorio, el desplegable; en el móvil, la hoja. Sigue
+  // al ancho si cambia el tamaño de la ventana. En la app instalada
+  // (Capacitor), siempre la hoja, también en tabletas
   private readonly desktopQuery = Capacitor.isNativePlatform()
     ? undefined
     : this.document.defaultView?.matchMedia?.(DESKTOP_QUERY);
@@ -130,10 +126,11 @@ export class DatetimeField implements ControlValueAccessor {
       : EMPTY,
     { initialValue: this.desktopQuery?.matches ?? false },
   );
-  // La hoja del móvil, abierta al pulsar el botón
+  // La hoja del móvil o el desplegable del escritorio, abiertos al pulsar el botón
   protected readonly isOpen = signal(false);
-  // El paso de la hora nativa: 5 minutos, en segundos
-  protected readonly timeStepSeconds = 5 * 60;
+  // El elemento bajo el que se abre el desplegable: el botón (Ionic lo toma
+  // del target del «evento»; con el clic sería el icono si se pulsa encima)
+  protected readonly anchor = signal<{ target: HTMLElement } | undefined>(undefined);
 
   private onChange: (value: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;
@@ -146,17 +143,17 @@ export class DatetimeField implements ControlValueAccessor {
     });
   }
 
-  // Escritorio: el icono abre el calendario o el reloj del navegador (sin
-  // showPicker, el foco en el campo, que se puede escribir)
-  protected openNativePicker(native: HTMLInputElement): void {
-    if (native.disabled) {
-      return;
+  protected handleOpen(trigger: HTMLElement): void {
+    this.anchor.set({ target: trigger });
+    this.isOpen.set(true);
+  }
+
+  // Escritorio: el día elegido cierra el desplegable (en el móvil cierra la
+  // hoja su «Aceptar»)
+  protected handleDatePicked(): void {
+    if (this.isDesktop()) {
+      this.isOpen.set(false);
     }
-    if (typeof native.showPicker === 'function') {
-      native.showPicker();
-      return;
-    }
-    native.focus();
   }
 
   writeValue(value: string | null): void {

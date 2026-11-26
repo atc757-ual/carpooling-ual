@@ -27,8 +27,8 @@
       "logout": "Log out",
       "logoutShort": "Log out",
       "liveTrip": "Live",
-      "liveTripOpen": "Open the trip in progress",
-      "liveTripNone": "No trip in progress",
+      "liveTripOpen": "Open the live trip",
+      "liveTripNone": "No live trip",
       "adminShort": "Admin",
       "newMessages": "(new messages)",
       "notifications": "Notifications",
@@ -220,6 +220,7 @@
     }
   },
   "location": {
+    "mapAria": "Map: {{ title }}",
     "gotIt": "Got it",
     "introTitle": "We fill in the address with your location",
     "introPermission": "When you tap «Continue», if you haven't given permission yet, your browser or phone will ask for it.",
@@ -342,7 +343,6 @@
     "range": "{{ from }}–{{ to }} of {{ total }}",
     "shown": "{{ shown }} of {{ total }}",
     "previousPage": "Previous page",
-    "currentPage": "Current page",
     "pageOf": "{{ page }} of {{ count }}",
     "nextPage": "Next page",
     "unreadSummary": "You have {{ count }} unread",

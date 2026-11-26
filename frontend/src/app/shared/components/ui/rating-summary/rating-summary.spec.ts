@@ -37,7 +37,7 @@ describe('RatingSummary', () => {
     expect(root.textContent).toContain('5 valoraciones');
     const bars = root.querySelectorAll('.rating-summary__bar');
     expect(bars).toHaveLength(5);
-    expect(bars[0].getAttribute('aria-label')).toBe('5 de 5: 3');
+    expect(bars[0].querySelector('.visually-hidden')?.textContent).toBe('5 de 5: 3');
     expect(component.bars()[0]).toMatchObject({ label: '5 · Excelente', percent: 60 });
     // Cada barra con el tono de su nota (más intenso cuanto más alta)
     const fills = root.querySelectorAll('.rating-summary__fill');
