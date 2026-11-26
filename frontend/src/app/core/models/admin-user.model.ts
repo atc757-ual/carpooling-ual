@@ -8,6 +8,7 @@ export const ADMIN_USER_STATUSES = [
   'open_incidents',
   'suspended',
   'profile_deactivated',
+  'disabled',
   'deleted',
 ] as const;
 export type AdminUserStatus = (typeof ADMIN_USER_STATUSES)[number];

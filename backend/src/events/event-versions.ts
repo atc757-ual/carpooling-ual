@@ -9,6 +9,8 @@ export const EVENT_VERSIONS: Readonly<Record<DomainEventType, number>> = {
   'user.email_verified': 1,
   'user.phone_verified': 1,
   'user.deactivated': 1,
+  'user.disabled': 1,
+  'user.enabled': 1,
   'user.profile_activated': 1,
   'user.profile_deactivated': 1,
   'user.updated': 1,

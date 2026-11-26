@@ -62,25 +62,58 @@
                   </span>
                 </span>
               </span>
-              <ion-button
-                class="detail__profile-action"
-                fill="clear"
-                size="small"
-                [color]="row.isActive ? 'danger' : 'success'"
-                [attr.aria-label]="row.actionText + ' el perfil de ' + row.label"
-                (click)="handleProfile(row)"
-              >
-                <ion-icon
-                  slot="start"
-                  [icon]="row.isActive ? icons.deactivate : icons.activate"
-                  aria-hidden="true"
-                />
-                {{ row.actionText }}
-              </ion-button>
+              <!-- Su propio perfil de administrador no se lo puede retirar -->
+              @if (row.canChange) {
+                <ion-button
+                  class="detail__profile-action"
+                  fill="clear"
+                  size="small"
+                  [color]="row.isActive ? 'danger' : 'success'"
+                  [attr.aria-label]="row.actionText + ' el perfil de ' + row.label"
+                  (click)="handleProfile(row)"
+                >
+                  <ion-icon
+                    slot="start"
+                    [icon]="row.isActive ? icons.deactivate : icons.activate"
+                    aria-hidden="true"
+                  />
+                  {{ row.actionText }}
+                </ion-button>
+              } @else {
+                <span class="text-body-s admin-detail__muted">Tu cuenta</span>
+              }
             </li>
           }
         </ul>
       </ion-card>
+
+      <!-- Acceso a la cuenta: las cuentas no se borran; inhabilitarla deja
+           fuera al usuario y se puede deshacer. No en la propia ni en una
+           cuenta dada de baja -->
+      @if (access(); as access) {
+        <ion-card class="admin-detail__card" role="region" aria-labelledby="detail-access">
+          <h2 id="detail-access" class="admin-list__title admin-detail__title">
+            <ion-icon [icon]="icons.access" aria-hidden="true" />Acceso a la cuenta
+          </h2>
+          <div class="detail__row">
+            <p class="text-body-s admin-detail__muted">{{ access.text }}</p>
+            <ion-button
+              class="detail__profile-action"
+              fill="clear"
+              size="small"
+              [color]="access.isDisabled ? 'success' : 'danger'"
+              (click)="handleAccess(access.isDisabled)"
+            >
+              <ion-icon
+                slot="start"
+                [icon]="access.isDisabled ? icons.activate : icons.deactivate"
+                aria-hidden="true"
+              />
+              {{ access.isDisabled ? 'Rehabilitar cuenta' : 'Inhabilitar cuenta' }}
+            </ion-button>
+          </div>
+        </ion-card>
+      }
 
       <!-- Suspensión y cancelaciones tardías de los últimos 30 días -->
       <ion-card class="admin-detail__card" role="region" aria-labelledby="detail-suspension">

@@ -43,6 +43,11 @@
   color: var(--color-warning-text);
 }
 
+.detail__chip--danger {
+  background: var(--color-danger-subtle);
+  color: var(--color-danger-text);
+}
+
 // Cada perfil: su icono en un círculo (gris si no está activo) y sus datos
 .detail__profile {
   display: flex;

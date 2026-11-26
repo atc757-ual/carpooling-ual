@@ -127,7 +127,7 @@ export class AuthController {
   @ApiErrorResponses({
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
     [HttpStatus.UNAUTHORIZED]: ['INVALID_CREDENTIALS'],
-    [HttpStatus.FORBIDDEN]: ['EMAIL_NOT_VERIFIED'],
+    [HttpStatus.FORBIDDEN]: ['EMAIL_NOT_VERIFIED', 'ACCOUNT_DISABLED'],
     [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_LOGIN_ATTEMPTS'],
   })
   async login(@Body() dto: LoginDto): Promise<AccessTokenResource> {

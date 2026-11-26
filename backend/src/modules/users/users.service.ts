@@ -227,6 +227,20 @@ export class UsersService {
     });
   }
 
+  // Avisa a los suscriptores de que la cuenta deja de poder usarse: al darse
+  // de baja o al inhabilitarla un administrador (AccountAccessService).
+  // Bloquean si tiene viajes activos, cancelan sus solicitudes pendientes y
+  // cierran sus sesiones, en la transacción de quien llama
+  async notifyDeactivating(
+    manager: EntityManager,
+    userId: string,
+  ): Promise<void> {
+    for (const listener of this.deactivatingListeners) {
+      const step = listener(manager, userId);
+      await step; // NOSONAR: ejecución secuencial dentro de la misma transacción
+    }
+  }
+
   // Elimina (desactiva) la cuenta en una sola transacción: avisa antes a los
   // suscriptores (que bloquean si tiene viajes activos y cancelan sus
   // solicitudes pendientes), marca deactivated_at, retira los consentimientos
@@ -242,10 +256,7 @@ export class UsersService {
     if (user?.deactivatedAt !== null) {
       throw new UserNotFoundError(userId);
     }
-    for (const listener of this.deactivatingListeners) {
-      const step = listener(manager, userId);
-      await step; // NOSONAR: ejecución secuencial dentro de la misma transacción
-    }
+    await this.notifyDeactivating(manager, userId);
     const deactivatedAt = new Date();
     await manager.update(User, { id: userId }, { deactivatedAt });
     await this.consentsService.revokeGrantedOnAccountDeletion(

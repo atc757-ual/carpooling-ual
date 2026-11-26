@@ -1,5 +1,4 @@
 import { translate } from '@jsverse/transloco';
-import { medal, medalOutline } from 'ionicons/icons';
 import { appLocale } from '../../core/i18n/app-locale';
 
 // Valoraciones de 1 a 5 (RF-22), una escala de reconocimiento: todas sus notas
@@ -10,8 +9,7 @@ export const RATING_MAX = 5;
 
 // La medalla de la nota: rellena (la media, las de una reseña) y vacía (las
 // que faltan hasta 5)
-export const RATING_ICON = medal;
-export const RATING_ICON_EMPTY = medalOutline;
+export { medal as RATING_ICON, medalOutline as RATING_ICON_EMPTY } from 'ionicons/icons';
 
 // «Correcto» … «Excelente» para una nota de 1 a 5 (redondeada)
 export function ratingName(rating: number): string {

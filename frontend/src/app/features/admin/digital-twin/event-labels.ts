@@ -22,6 +22,8 @@ const EVENT_ENTITIES: Readonly<Record<string, EventEntity>> = {
       profile_activated: 'Perfil activado',
       profile_deactivated: 'Perfil desactivado',
       deactivated: 'Cuenta desactivada',
+      disabled: 'Cuenta inhabilitada',
+      enabled: 'Cuenta rehabilitada',
     },
   },
   consent: {

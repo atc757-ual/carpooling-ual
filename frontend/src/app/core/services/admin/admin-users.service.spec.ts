@@ -55,6 +55,16 @@ describe('AdminUsersService', () => {
     put.flush({});
     await change;
 
+    const access = adminUsers.setAccountAccess('u1', {
+      isDisabled: true,
+      reason: 'Reported twice',
+    });
+    const accessPut = http.expectOne('/api/users/u1/account-access');
+    expect(accessPut.request.method).toBe('PUT');
+    expect(accessPut.request.body).toEqual({ isDisabled: true, reason: 'Reported twice' });
+    accessPut.flush(null, { status: 204, statusText: 'No Content' });
+    await access;
+
     const lift = adminUsers.liftSuspension('u1', { role: 'passenger', reason: 'Strike day' });
     const post = http.expectOne('/api/admin/users/u1/suspensions/passenger/lift');
     expect(post.request.body).toEqual({ reason: 'Strike day' });

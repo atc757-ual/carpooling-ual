@@ -4,7 +4,7 @@ import { Profile } from '../../../core/models/user.model';
 // Textos de la lista de usuarios del panel. Funciones puras para probarlas
 // sin pantalla
 
-export type ChipTone = 'success' | 'info' | 'warning' | 'neutral';
+export type ChipTone = 'success' | 'info' | 'warning' | 'danger' | 'neutral';
 
 export interface StatusChip {
   label: string;
@@ -23,6 +23,7 @@ export const STATUS_LABELS: Record<AdminUserStatus, string> = {
   open_incidents: 'Con incidencias abiertas',
   suspended: 'Suspendido',
   profile_deactivated: 'Perfil desactivado',
+  disabled: 'Cuenta inhabilitada',
   deleted: 'Cuenta eliminada',
 };
 
@@ -32,6 +33,7 @@ export const STATUS_TONES: Record<AdminUserStatus, ChipTone> = {
   open_incidents: 'warning',
   suspended: 'warning',
   profile_deactivated: 'neutral',
+  disabled: 'danger',
   deleted: 'neutral',
 };
 
