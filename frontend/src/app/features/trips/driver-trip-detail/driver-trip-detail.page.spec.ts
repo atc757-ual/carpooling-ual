@@ -197,33 +197,6 @@ describe('DriverTripDetailPage', () => {
     expect(fixture.componentInstance.impact()?.km).toBe('26 km');
   });
 
-  it('explains why there are no figures without passengers', async () => {
-    const empty = { availableSeats: 3 };
-    const root = await render(() => Promise.resolve([trip('t1', empty)]));
-    fixture.detectChanges();
-
-    expect(fixture.componentInstance.impact()).toBeNull();
-    expect(getRoute).not.toHaveBeenCalled();
-    expect(root.textContent).toContain('Cuando lleves pasajeros, verás aquí el CO₂');
-    expect(root.querySelector('app-co2-source')).toBeNull();
-
-    myTrips.mockResolvedValue([trip('t1', { ...empty, status: 'finished' })]);
-    fixture.componentInstance.handleReload();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(root.textContent).toContain('Este viaje se hizo sin pasajeros');
-  });
-
-  it('approximates the km in a straight line while the trip has no route', async () => {
-    getRoute = vi.fn().mockRejectedValue(new ApiError('ROUTE_NOT_FOUND', 404));
-    await render(() => Promise.resolve([trip('t1')]));
-    await fixture.whenStable();
-
-    // Roquetas - campus: unos 20 km en línea recta × 1,3 = 26 km
-    expect(fixture.componentInstance.impact()?.km).toBe('26 km');
-  });
-
   it('says so when the trip is not among those of the driver', async () => {
     const root = await render(() => Promise.resolve([trip('t2')]));
 

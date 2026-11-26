@@ -19,14 +19,14 @@
         [attr.aria-label]="'myTrips.accionesImpactoDelViaje' | transloco"
       >
         @if (statusNotice(); as notice) {
-          <div class="notice notice--icon notice--{{ notice.tone }}" role="status">
+          <output class="notice notice--icon notice--{{ notice.tone }}">
             <ion-icon [icon]="notice.icon" aria-hidden="true" />
             <span>
               @for (key of notice.keys; track key) {
                 {{ key | transloco }}
               }
             </span>
-          </div>
+          </output>
         }
         @if (!isClosed()) {
           <app-driver-trip-actions [trip]="trip" (changed)="handleReload()" />
