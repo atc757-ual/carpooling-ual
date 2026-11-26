@@ -600,63 +600,67 @@
               }
             </section>
 
-            <!-- Una sola sección (sin línea entre las pastillas y lo que
-                 muestran): qué ver, en pastillas, con el SOS siempre a la vista
-                 en la esquina, y debajo lo elegido (como el pasajero) -->
-            @if (!hasActionRows()) {
-              <div
-                class="driver-live-trip__choice"
-                [class.driver-live-trip__choice--desktop]="sheet.isDesktop()"
-              >
-                <!-- Móvil: las acciones en una fila de botones, cada una con su
-                       nombre debajo y el SOS al final -->
-                <div class="live-actions" [class.live-actions--compact]="sheet.isDesktop()">
-                  <div class="live-actions__row">
-                    @if (!showFinishAlert()) {
-                      <button
-                        type="button"
-                        class="icon-btn icon-btn--labeled icon-btn--stacked"
-                        [attr.aria-label]="'live.terminarViaje2' | transloco"
-                        [disabled]="isFinishing()"
-                        (click)="handleFinish()"
-                      >
-                        <ion-icon [icon]="confirmFinishIcon" aria-hidden="true" />
-                        <span class="icon-btn__label" aria-hidden="true">{{
-                          'live.terminar' | transloco
-                        }}</span>
-                      </button>
-                    }
-                    <button
-                      type="button"
-                      class="icon-btn icon-btn--labeled icon-btn--stacked"
-                      [attr.aria-label]="'live.compartirViajeConAlguien' | transloco"
-                      (click)="handleShareTrip()"
-                    >
-                      <ion-icon [icon]="shareIcon" aria-hidden="true" />
-                      <span class="icon-btn__label" aria-hidden="true">{{
-                        'live.compartir' | transloco
-                      }}</span>
-                    </button>
-                    <button
-                      type="button"
-                      class="icon-btn icon-btn--labeled icon-btn--stacked"
-                      [attr.aria-label]="'live.reportarAbreFormulario' | transloco"
-                      (click)="handleReport()"
-                    >
-                      <ion-icon [icon]="reportIcon" aria-hidden="true" />
-                      <span class="icon-btn__label" aria-hidden="true">{{
-                        'live.reportar' | transloco
-                      }}</span>
-                    </button>
-                    <ng-container
-                      [ngTemplateOutlet]="sosButton"
-                      [ngTemplateOutletContext]="{ $implicit: true }"
-                    />
-                  </div>
-                </div>
-              </div>
+            <!-- La fila de botones, en la hoja del móvil (en tableta y
+                 escritorio va debajo del mapa) -->
+            @if (!sheet.isDesktop()) {
+              <ng-container [ngTemplateOutlet]="actionRow" />
             }
           }
+        </ng-template>
+
+        <!-- La fila de botones: en el móvil, en la hoja; en tableta, debajo del mapa -->
+        <ng-template #actionRow>
+          <div
+            class="driver-live-trip__choice"
+            [class.driver-live-trip__choice--desktop]="sheet.isDesktop()"
+          >
+            <!-- Móvil: las acciones en una fila de botones, cada una con su
+                 nombre debajo y el SOS al final -->
+            <div class="live-actions" [class.live-actions--compact]="sheet.isDesktop()">
+              <div class="live-actions__row">
+                @if (!showFinishAlert()) {
+                  <button
+                    type="button"
+                    class="icon-btn icon-btn--labeled icon-btn--stacked"
+                    [attr.aria-label]="'live.terminarViaje2' | transloco"
+                    [disabled]="isFinishing()"
+                    (click)="handleFinish()"
+                  >
+                    <ion-icon [icon]="confirmFinishIcon" aria-hidden="true" />
+                    <span class="icon-btn__label" aria-hidden="true">{{
+                      'live.terminar' | transloco
+                    }}</span>
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="icon-btn icon-btn--labeled icon-btn--stacked"
+                  [attr.aria-label]="'live.compartirViajeConAlguien' | transloco"
+                  (click)="handleShareTrip()"
+                >
+                  <ion-icon [icon]="shareIcon" aria-hidden="true" />
+                  <span class="icon-btn__label" aria-hidden="true">{{
+                    'live.compartir' | transloco
+                  }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn icon-btn--labeled icon-btn--stacked"
+                  [attr.aria-label]="'live.reportarAbreFormulario' | transloco"
+                  (click)="handleReport()"
+                >
+                  <ion-icon [icon]="reportIcon" aria-hidden="true" />
+                  <span class="icon-btn__label" aria-hidden="true">{{
+                    'live.reportar' | transloco
+                  }}</span>
+                </button>
+                <ng-container
+                  [ngTemplateOutlet]="sosButton"
+                  [ngTemplateOutletContext]="{ $implicit: true }"
+                />
+              </div>
+            </div>
+          </div>
         </ng-template>
 
         <!-- «Otras acciones» en escritorio ancho: debajo del mapa, en la columna
@@ -798,6 +802,8 @@
             </ion-card>
             @if (hasActionRows()) {
               <ng-container [ngTemplateOutlet]="otherActions" />
+            } @else if (sheet.isDesktop()) {
+              <ng-container [ngTemplateOutlet]="actionRow" />
             }
           </div>
 
