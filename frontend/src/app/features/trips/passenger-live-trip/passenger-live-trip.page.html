@@ -197,7 +197,7 @@
                   >
                     <ion-card-content>
                       <!-- El título y el texto y, a su derecha, «He llegado» como botón
-                           de icono que se despliega con su texto -->
+                           con su icono y su texto -->
                       <div class="section-item">
                         <div class="section-item__text">
                           @switch (variant) {
@@ -230,8 +230,7 @@
                         <form (submit)="handleArrive($event)">
                           <button
                             type="submit"
-                            class="icon-btn icon-btn--reveal"
-                            appRevealOnTouch
+                            class="icon-btn icon-btn--labeled"
                             [attr.aria-label]="'live.llegadoBajado' | transloco"
                             [disabled]="isArriving()"
                           >
@@ -281,8 +280,7 @@
                         </div>
                       </div>
                       <a
-                        class="icon-btn icon-btn--reveal"
-                        appRevealOnTouch
+                        class="icon-btn icon-btn--labeled icon-btn--stacked"
                         [routerLink]="['/tabs/messages', trip.id]"
                         [attr.aria-label]="'live.enviarMensajeConductor' | transloco"
                       >
@@ -293,8 +291,7 @@
                       </a>
                       <button
                         type="button"
-                        class="icon-btn icon-btn--reveal"
-                        appRevealOnTouch
+                        class="icon-btn icon-btn--labeled icon-btn--stacked"
                         [disabled]="!canCallDriver()"
                         [attr.aria-label]="callDriverLabel()"
                         (click)="handleCallDriver()"
@@ -315,7 +312,6 @@
                 <div
                   class="ride__choice"
                   [class.ride__choice--desktop]="sheet.isDesktop()"
-                  [class.icon-btns-open]="hasActionRows()"
                   [class.sections-divided]="hasActionRows()"
                 >
                   @if (hasActionRows()) {
@@ -358,19 +354,14 @@
                       </ion-card>
                     </section>
                   } @else {
-                    <!-- Móvil: las acciones en una fila de botones (el primer toque
-                         los despliega y explica debajo qué hacen; el segundo actúa) -->
+                    <!-- Móvil: las acciones en una fila de botones, cada una con su
+                         nombre debajo y el SOS al final -->
                     <div class="live-actions" [class.live-actions--compact]="sheet.isDesktop()">
-                      <p class="live-actions__hint" aria-live="polite">
-                        {{ revealedHint() ?? ('live.tapHint' | transloco) }}
-                      </p>
                       <div class="live-actions__row">
                         @if (arriveCard() === 'early') {
                           <button
                             type="button"
-                            class="icon-btn icon-btn--reveal"
-                            appRevealOnTouch
-                            [appRevealHint]="'live.marcaloHasBajadoAntes' | transloco"
+                            class="icon-btn icon-btn--labeled icon-btn--stacked"
                             [attr.aria-label]="'live.llegadoBajado' | transloco"
                             [disabled]="isArriving()"
                             (click)="handleArrive()"
@@ -383,9 +374,7 @@
                         }
                         <button
                           type="button"
-                          class="icon-btn icon-btn--reveal"
-                          appRevealOnTouch
-                          [appRevealHint]="'live.enviaViajeAlguienConfianza' | transloco"
+                          class="icon-btn icon-btn--labeled icon-btn--stacked"
                           [attr.aria-label]="'live.compartirViajeConAlguien' | transloco"
                           (click)="handleShareTrip()"
                         >
@@ -396,9 +385,7 @@
                         </button>
                         <button
                           type="button"
-                          class="icon-btn icon-btn--reveal"
-                          appRevealOnTouch
-                          [appRevealHint]="'live.getOffSafely' | transloco"
+                          class="icon-btn icon-btn--labeled icon-btn--stacked"
                           [attr.aria-label]="'live.reportarBajarmeRegistrarUna' | transloco"
                           (click)="isReportingIncident.set(true)"
                         >
@@ -407,25 +394,24 @@
                             'live.reportar' | transloco
                           }}</span>
                         </button>
-                        <ng-container [ngTemplateOutlet]="sosButton" />
+                        <ng-container
+                          [ngTemplateOutlet]="sosButton"
+                          [ngTemplateOutletContext]="{ $implicit: true }"
+                        />
                       </div>
                     </div>
                   }
                 </div>
 
                 <!-- 112: el teléfono único de emergencias en Europa -->
-                <ng-template #sosButton>
+                <ng-template #sosButton let-isStacked>
                   <a
-                    class="icon-btn icon-btn--reveal icon-btn--danger"
-                    appRevealOnTouch
-                    [appRevealHint]="'live.hayUnaEmergenciaLlama' | transloco"
+                    class="icon-btn icon-btn--labeled icon-btn--danger"
+                    [class.icon-btn--stacked]="isStacked"
                     href="tel:112"
                     [attr.aria-label]="'live.sosLlamar112' | transloco"
                   >
-                    <ion-icon class="icon-btn__open-icon" [icon]="callIcon" aria-hidden="true" />
-                    <span class="icon-btn__short" aria-hidden="true">{{
-                      'live.sos' | transloco
-                    }}</span>
+                    <ion-icon [icon]="callIcon" aria-hidden="true" />
                     <span class="icon-btn__label" aria-hidden="true">{{
                       'live.llamar112' | transloco
                     }}</span>

@@ -53,7 +53,6 @@ import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { buildLiveShareText } from '../trip-share-text';
-import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { ParticipantEmail } from '../../../shared/components/ui/participant-email/participant-email';
@@ -123,7 +122,6 @@ function arriveErrorKey(code: string): string {
     PassengerIncidentModal,
     PassengerRequestActions,
     RatingBar,
-    RevealOnTouch,
     TripReviewForm,
     TranslocoPipe,
   ],
@@ -261,7 +259,6 @@ export class PassengerLiveTripPage {
     return this.isNearDestination() ? 'near' : 'early';
   });
   // Móvil: qué hace el botón desplegado de la fila de acciones
-  protected readonly revealedHint = revealedHint;
   protected readonly shareIcon = paperPlaneOutline;
   protected readonly reportIcon = documentTextOutline;
 

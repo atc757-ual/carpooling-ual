@@ -65,7 +65,6 @@ import {
 } from '../live-trip-hero.util';
 import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
 import { DragScroll } from '../../../shared/directives/drag-scroll.directive';
-import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { buildLiveShareText } from '../trip-share-text';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
@@ -109,7 +108,6 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     DragScroll,
     LiveTripSafety,
     PassengerIncidentModal,
-    RevealOnTouch,
     LiveTripSheet,
     TripReviewCard,
     RouterLink,
@@ -553,7 +551,6 @@ export class DriverLiveTripPage {
   // está llegando al destino; antes, en la fila de acciones (móvil) o a la vista
   readonly showFinishAlert = computed(() => this.isReadyToFinish() || this.isNearDestination());
   // Móvil: qué hace el botón desplegado de la fila de acciones
-  protected readonly revealedHint = revealedHint;
   protected readonly shareIcon = paperPlaneOutline;
 
   // Compartir el viaje con alguien de confianza (el menú del sistema)

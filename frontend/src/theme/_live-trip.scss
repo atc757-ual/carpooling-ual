@@ -85,22 +85,13 @@ ion-modal.live-sheet.live-sheet {
     margin: 0;
   }
 
-  // La fila de botones de acciones (tabletas) no es un ion-card: su tarjeta,
-  // con el SOS en la esquina dentro de su relleno
+  // La fila de botones de acciones (tabletas) no es un ion-card: su tarjeta
   .live-column.live-column .live-actions {
     padding: var(--space-base);
     border: var(--border-width-s) solid var(--color-card-border);
     border-radius: var(--radius-s);
     background: var(--color-surface);
     box-shadow: var(--shadow-card);
-  }
-
-  .live-column.live-column
-    .live-actions--compact:not(.live-actions--sos-inline)
-    .live-actions__row
-    > .icon-btn--danger {
-    top: var(--space-base);
-    right: var(--space-base);
   }
 
   // Las secciones a la vista («Terminar viaje», «Viaje seguro»…): cada una en

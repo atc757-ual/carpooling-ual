@@ -3,7 +3,6 @@ import { Component, inject, input, signal } from '@angular/core';
 import { IonIcon, ModalController } from '@ionic/angular';
 import { documentTextOutline } from 'ionicons/icons';
 import { ToastService } from '../../../core/services/ui/toast.service';
-import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
 
 // Hasta cuándo se puede reportar un viaje ya realizado (la API lo admite
@@ -27,7 +26,7 @@ export function isAfterTripReportOpen(
 // de la tarjeta de acciones, bajo «Este viaje ya terminó»
 @Component({
   selector: 'app-after-trip-report',
-  imports: [IonIcon, RevealOnTouch, TranslocoPipe],
+  imports: [IonIcon, TranslocoPipe],
   template: `
     <div class="section-item">
       <div class="section-item__text">
@@ -43,8 +42,7 @@ export function isAfterTripReportOpen(
       @if (!isSent()) {
         <button
           type="button"
-          class="icon-btn icon-btn--reveal"
-          appRevealOnTouch
+          class="icon-btn icon-btn--labeled"
           [attr.aria-label]="'screens.afterTripReport.reportAria' | transloco"
           (click)="handleReport()"
         >

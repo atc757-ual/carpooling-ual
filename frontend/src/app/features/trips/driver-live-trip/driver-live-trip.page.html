@@ -445,7 +445,7 @@
                                 } @else {
                                   <button
                                     type="button"
-                                    class="icon-btn icon-btn--reveal icon-btn--revealed icon-btn--danger-outline pickup-slide__no-show"
+                                    class="icon-btn icon-btn--labeled icon-btn--danger-outline pickup-slide__no-show"
                                     [attr.aria-disabled]="
                                       isActive && canMarkNoShow(request) ? null : 'true'
                                     "
@@ -491,7 +491,7 @@
                             @if (request.status === 'completed') {
                               <button
                                 type="button"
-                                class="icon-btn"
+                                class="icon-btn icon-btn--labeled icon-btn--stacked"
                                 disabled
                                 [attr.aria-label]="
                                   'live.droppedNoChat'
@@ -499,11 +499,14 @@
                                 "
                               >
                                 <ion-icon [icon]="chatIcon" aria-hidden="true" />
+                                <span class="icon-btn__label" aria-hidden="true">{{
+                                  'live.enviarMensaje' | transloco
+                                }}</span>
                               </button>
                             } @else if (isLater) {
                               <button
                                 type="button"
-                                class="icon-btn"
+                                class="icon-btn icon-btn--labeled icon-btn--stacked"
                                 disabled
                                 [attr.aria-label]="
                                   'live.messageTo'
@@ -511,11 +514,13 @@
                                 "
                               >
                                 <ion-icon [icon]="chatIcon" aria-hidden="true" />
+                                <span class="icon-btn__label" aria-hidden="true">{{
+                                  'live.enviarMensaje' | transloco
+                                }}</span>
                               </button>
                             } @else {
                               <a
-                                class="icon-btn icon-btn--reveal"
-                                appRevealOnTouch
+                                class="icon-btn icon-btn--labeled icon-btn--stacked"
                                 [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
                                 [attr.aria-label]="
                                   'live.messageTo'
@@ -530,8 +535,7 @@
                             }
                             <button
                               type="button"
-                              class="icon-btn icon-btn--reveal"
-                              appRevealOnTouch
+                              class="icon-btn icon-btn--labeled icon-btn--stacked"
                               [disabled]="
                                 request.status === 'completed' ||
                                 isLater ||
@@ -553,15 +557,11 @@
                             <!-- «No se presentó» va junto a las casillas del código -->
                             @if (request.boardedAt && request.status === 'accepted') {
                               <!-- A bordo: «Ha bajado» cierra su plaza (con el coche
-                                 parado). Redondo como los demás; al pasar o
-                                 enfocarlo (y mientras guarda) se estira con el
-                                 texto. En el móvil, el primer toque lo estira y
-                                 el segundo confirma -->
+                                 parado). Como el chat y llamar: el icono con
+                                 su nombre debajo -->
                               <button
                                 type="button"
-                                class="icon-btn icon-btn--reveal"
-                                appRevealOnTouch
-                                [class.icon-btn--busy]="isDroppingOff(request.id)"
+                                class="icon-btn icon-btn--labeled icon-btn--stacked"
                                 [disabled]="isDroppingOff(request.id)"
                                 [attr.aria-label]="
                                   'live.droppedOffAria'
@@ -616,7 +616,6 @@
             <div
               class="driver-live-trip__choice"
               [class.driver-live-trip__choice--desktop]="sheet.isDesktop()"
-              [class.icon-btns-open]="hasActionRows()"
               [class.sections-divided]="hasActionRows()"
             >
               @if (hasActionRows()) {
@@ -645,22 +644,14 @@
                   </ion-card>
                 </section>
               } @else {
-                <!-- Móvil: las acciones en una fila de botones (el primer toque
-                     los despliega y explica debajo qué hacen; el segundo actúa) -->
-                <div
-                  class="live-actions live-actions--sos-inline"
-                  [class.live-actions--compact]="sheet.isDesktop()"
-                >
-                  <p class="live-actions__hint" aria-live="polite">
-                    {{ revealedHint() ?? ('live.tapHint' | transloco) }}
-                  </p>
+                <!-- Móvil: las acciones en una fila de botones, cada una con su
+                     nombre debajo y el SOS al final -->
+                <div class="live-actions" [class.live-actions--compact]="sheet.isDesktop()">
                   <div class="live-actions__row">
                     @if (!showFinishAlert()) {
                       <button
                         type="button"
-                        class="icon-btn icon-btn--reveal"
-                        appRevealOnTouch
-                        [appRevealHint]="'live.hazloCuandoHayanBajado' | transloco"
+                        class="icon-btn icon-btn--labeled icon-btn--stacked"
                         [attr.aria-label]="'live.terminarViaje2' | transloco"
                         [disabled]="isFinishing()"
                         (click)="handleFinish()"
@@ -673,9 +664,7 @@
                     }
                     <button
                       type="button"
-                      class="icon-btn icon-btn--reveal"
-                      appRevealOnTouch
-                      [appRevealHint]="'live.enviaViajeAlguienConfianza' | transloco"
+                      class="icon-btn icon-btn--labeled icon-btn--stacked"
                       [attr.aria-label]="'live.compartirViajeConAlguien' | transloco"
                       (click)="handleShareTrip()"
                     >
@@ -686,9 +675,7 @@
                     </button>
                     <button
                       type="button"
-                      class="icon-btn icon-btn--reveal"
-                      appRevealOnTouch
-                      [appRevealHint]="'live.puedesSeguirReportaloRevisara' | transloco"
+                      class="icon-btn icon-btn--labeled icon-btn--stacked"
                       [attr.aria-label]="'live.reportarAbreFormulario' | transloco"
                       (click)="isReportingIncident.set(true)"
                     >
@@ -697,7 +684,10 @@
                         'live.reportar' | transloco
                       }}</span>
                     </button>
-                    <ng-container [ngTemplateOutlet]="sosButton" />
+                    <ng-container
+                      [ngTemplateOutlet]="sosButton"
+                      [ngTemplateOutletContext]="{ $implicit: true }"
+                    />
                   </div>
                 </div>
               }
@@ -720,8 +710,7 @@
                          texto siempre a la vista, como «No se presentó» -->
                     <button
                       type="button"
-                      class="icon-btn icon-btn--reveal icon-btn--revealed"
-                      [class.icon-btn--busy]="isFinishing()"
+                      class="icon-btn icon-btn--labeled"
                       [disabled]="isFinishing()"
                       (click)="handleFinish()"
                     >
@@ -751,8 +740,7 @@
                     </div>
                     <button
                       type="button"
-                      class="icon-btn icon-btn--reveal"
-                      appRevealOnTouch
+                      class="icon-btn icon-btn--labeled"
                       [attr.aria-label]="'live.enviarReporteAbreFormulario' | transloco"
                       (click)="isReportingIncident.set(true)"
                     >
@@ -765,17 +753,15 @@
                 </ion-card-content>
               </ion-card>
             </ng-template>
-            <ng-template #sosButton>
+            <ng-template #sosButton let-isStacked>
               <!-- 112: el teléfono único de emergencias en Europa -->
               <a
-                class="icon-btn icon-btn--reveal icon-btn--danger"
-                appRevealOnTouch
-                [appRevealHint]="'live.hayUnaEmergenciaLlama' | transloco"
+                class="icon-btn icon-btn--labeled icon-btn--danger"
+                [class.icon-btn--stacked]="isStacked"
                 href="tel:112"
                 [attr.aria-label]="'live.sosLlamar112' | transloco"
               >
-                <ion-icon class="icon-btn__open-icon" [icon]="callIcon" aria-hidden="true" />
-                <span class="icon-btn__short" aria-hidden="true">{{ 'live.sos' | transloco }}</span>
+                <ion-icon [icon]="callIcon" aria-hidden="true" />
                 <span class="icon-btn__label" aria-hidden="true">{{
                   'live.llamar112' | transloco
                 }}</span>

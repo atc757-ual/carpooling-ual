@@ -3,7 +3,6 @@ import { IonCard, IonCardContent, IonIcon } from '@ionic/angular';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { paperPlaneOutline } from 'ionicons/icons';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
-import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.directive';
 
 // «Viaje seguro» en el viaje en curso, como las demás tarjetas de la hoja.
 // Conductor y pasajero: compartir el viaje con alguien de confianza (el menú
@@ -11,7 +10,7 @@ import { RevealOnTouch } from '../../../shared/directives/reveal-on-touch.direct
 // pastillas de cada pantalla
 @Component({
   selector: 'app-live-trip-safety',
-  imports: [IonCard, IonCardContent, IonIcon, RevealOnTouch, TranslocoPipe],
+  imports: [IonCard, IonCardContent, IonIcon, TranslocoPipe],
   templateUrl: './live-trip-safety.html',
   styleUrl: './live-trip-safety.scss',
 })
