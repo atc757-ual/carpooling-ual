@@ -7,7 +7,13 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { NavigationEnd, NavigationStart, Router } from '@angular/router';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+} from '@angular/router';
 import { IonModal } from '@ionic/angular';
 
 // Desde este ancho, la app usa el diseño de escritorio (columnas 8 + 4)
@@ -59,6 +65,11 @@ export function injectIsOnUrl(pattern: RegExp): Signal<boolean> {
   const subscription = router.events.subscribe((event) => {
     if (event instanceof NavigationStart || event instanceof NavigationEnd) {
       isOn.set(pattern.test(event.url));
+    }
+    // Cancelada (p. ej. un aviso de salir sin guardar) o con error: se sigue
+    // donde se estaba, no en la dirección que se pidió
+    if (event instanceof NavigationCancel || event instanceof NavigationError) {
+      isOn.set(pattern.test(router.url));
     }
   });
   inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
@@ -131,8 +142,14 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
       void modal.setCurrentBreakpoint(topBreakpoint());
     }
   };
+  // Al volver a la página (Ionic la guarda al cambiar de pestaña): si la hoja
+  // se cerró al salir, se vuelve a abrir (el [isOpen] puede no haber cambiado
+  // y entonces Ionic no la presenta solo)
   const enter = (): void => {
     isLeaving = false;
+    if (modal && isOpen()) {
+      void modal.present();
+    }
   };
   const close = async (): Promise<void> => {
     isLeaving = true;
