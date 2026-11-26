@@ -125,7 +125,7 @@ export class UserProfilesService {
         where: { id: userId },
         lock: { mode: 'pessimistic_write' },
       });
-      if (user === null || user.deactivatedAt !== null) {
+      if (user?.deactivatedAt !== null) {
         throw new UserNotFoundError(userId);
       }
       if (profile === 'admin' && !isActive) {
