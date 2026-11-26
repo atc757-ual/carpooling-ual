@@ -120,13 +120,15 @@ export class TripRoutesService {
       return saved;
     }
     // Con paradas (recogida en puntos), la ruta pasa por todas; con recogidas
-    // aceptadas, por ellas. En los dos casos la directa se mantiene
+    // aceptadas, por ellas. La directa (la del CO₂ evitado) es sin ellas: aquí
+    // la guardada falta o es estimada, así que se pide aparte a OSRM (no se
+    // toma la que pasa por las paradas, que exageraría la distancia)
     const via = await this.viaPoints(trip.id);
+    const direct = await this.plan(trip.origin, trip.destination);
     const plan =
       via.length === 0
-        ? await this.plan(trip.origin, trip.destination)
+        ? direct
         : (await this.planVia(trip.origin, via, trip.destination)).route;
-    const direct = directRouteOf(via.length === 0 ? null : saved, plan);
     await this.routesRepository.upsert(
       { tripId: trip.id, ...plan, ...directColumns(direct) },
       ['tripId'],

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { Logger } from '@nestjs/common';
-import type { ReplicaMetrics } from '../simulation-metrics';
+import type { ReplicaMetrics, SimulationOutput } from '../simulation-metrics';
 import type { ScenarioConfig } from '../scenario-config';
 import type { SimulationJob, SimulationRunListener } from './simulation-runner';
 import { runJob, WorkerMessage } from './simulation-worker';
@@ -51,10 +51,14 @@ type ListenerMocks = {
 
 function listener(): ListenerMocks {
   return {
-    onStarted: jest.fn(() => Promise.resolve()),
-    onProgress: jest.fn(() => Promise.resolve()),
-    onFinished: jest.fn(() => Promise.resolve()),
-    onFailed: jest.fn(() => Promise.resolve()),
+    onStarted: jest.fn<Promise<void>, [string]>(() => Promise.resolve()),
+    onProgress: jest.fn<Promise<void>, [string, number]>(() =>
+      Promise.resolve(),
+    ),
+    onFinished: jest.fn<Promise<void>, [string, SimulationOutput]>(() =>
+      Promise.resolve(),
+    ),
+    onFailed: jest.fn<Promise<void>, [string, string]>(() => Promise.resolve()),
   };
 }
 

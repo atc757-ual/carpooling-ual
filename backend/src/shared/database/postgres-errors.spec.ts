@@ -2,7 +2,11 @@ import { QueryFailedError } from 'typeorm';
 import { isUniqueViolation } from './postgres-errors';
 
 function queryError(code: string, constraint: string): QueryFailedError {
-  return new QueryFailedError('INSERT ...', [], { code, constraint });
+  return new QueryFailedError(
+    'INSERT ...',
+    [],
+    Object.assign(new Error('duplicate'), { code, constraint }),
+  );
 }
 
 describe('isUniqueViolation', () => {

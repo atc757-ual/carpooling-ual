@@ -3,6 +3,9 @@ import { markLanguageLoaded, trackLanguage } from './app-locale';
 import { localizedComputed } from './localized-computed';
 
 describe('localizedComputed', () => {
+  // El idioma cargado es del módulo: otro spec (p. ej. el de LanguageService)
+  // puede dejarlo en inglés, así que se fija antes y se deja como estaba
+  beforeEach(() => markLanguageLoaded('es'));
   afterEach(() => markLanguageLoaded('es'));
 
   // Las pestañas que Ionic deja montadas no se vuelven a crear: sus textos

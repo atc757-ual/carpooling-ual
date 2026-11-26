@@ -35,6 +35,20 @@ describe('buildPhoneVerificationCodeSms', () => {
     );
   });
 
+  it('is written in English for an English-speaking user, also in a single GSM-7 SMS', () => {
+    const { text } = buildPhoneVerificationCodeSms({
+      to: '+34600123456',
+      code: '123456',
+      expiresInMinutes: CODE_TTL_MINUTES,
+      otpDomain: 'carpooling.ual.es',
+      language: 'en',
+    });
+
+    expect(text).toContain('Carpooling UAL: your verification code is 123456.');
+    expect(text.length).toBeLessThanOrEqual(GSM_7_MAX_LENGTH);
+    expect([...text].every((ch) => GSM_7_BASIC_CHARSET.has(ch))).toBe(true);
+  });
+
   it('fits in a single GSM-7 SMS (<= 160 chars, only GSM-7 basic characters and no Spanish acute accents)', () => {
     const { text } = buildPhoneVerificationCodeSms({
       to: '+34600123456',

@@ -23,9 +23,9 @@
       "origin": "Origin",
       "destination": "Destination",
       "yourDriver": "your driver",
-      "footer": "You get this email because you ride with Carpooling UAL.",
+      "footer": "You get this email because you travel with Carpooling UAL.",
       "confirmed": {
-        "subject": "You have a seat on {{ driver }}'s ride",
+        "subject": "You have a seat on {{ driver }}'s trip",
         "title": "{{ driver }} has confirmed your seat.",
         "leaves": "It leaves on {{ when }}.",
         "pickup": "You are picked up at {{ place }} at {{ time }}.",
@@ -34,8 +34,8 @@
         "button": "See your seat"
       },
       "finished": {
-        "subject": "Your ride with {{ driver }} is over",
-        "title": "Your ride with {{ driver }} is over.",
+        "subject": "Your trip with {{ driver }} is over",
+        "title": "Your trip with {{ driver }} is over.",
         "thanks": "Thanks for sharing a car.",
         "rate": "Rate {{ driver }}: it helps the community. You have 7 days.",
         "button": "Rate {{ driver }}"
@@ -51,16 +51,16 @@
         "other": "another reason"
       },
       "urgent": {
-        "subject": "Urgent incident {{ code }} on a ride in progress",
-        "title": "Incident {{ code }} was reported during a ride in progress.",
-        "what": "It is about {{ category }}, on the ride {{ route }}.",
+        "subject": "Urgent incident {{ code }} on a trip in progress",
+        "title": "Incident {{ code }} was reported during a trip in progress.",
+        "what": "It is about {{ category }}, on the trip {{ route }}.",
         "open": "Open it in the admin panel to handle it:",
         "button": "Open in the panel",
         "footer": "You receive this email because you manage Carpooling UAL."
       },
       "reviewed": {
-        "subject": "We have dealt with your report {{ code }}",
-        "title": "We have dealt with your report {{ code }}.",
+        "subject": "We have resolved your report {{ code }}",
+        "title": "We have resolved your report {{ code }}.",
         "answer": "Our reply:",
         "open": "You can also see it in Help and support:",
         "button": "See my report",
@@ -74,12 +74,12 @@
       "body": "Open it to accept or decline it."
     },
     "passenger_joined": {
-      "title": "Someone joined your ride",
+      "title": "Someone joined your trip",
       "body": "You accepted them automatically: see where you pick them up."
     },
     "request_cancelled": {
       "title": "A request was cancelled",
-      "body": "A seat on your ride is free again."
+      "body": "A seat on your trip is free again."
     },
     "request_accepted": {
       "title": "Your request was accepted",
@@ -87,38 +87,38 @@
     },
     "request_rejected": {
       "title": "Your request wasn't accepted",
-      "body": "You can look for another ride in the app."
+      "body": "You can look for another trip in the app."
     },
     "trip_cancelled": {
-      "title": "The ride was cancelled",
-      "body": "You can look for another ride in the app."
+      "title": "The trip was cancelled",
+      "body": "You can look for another trip in the app."
     },
     "trip_started": {
       "title": "Your driver is on the way",
       "body": "Follow the car on the map."
     },
     "trip_completed": {
-      "title": "Your ride is over",
+      "title": "Your trip is over",
       "body": "Rate your driver: it helps the community."
     },
     "trip_auto_finished": {
-      "title": "We closed your ride",
-      "body": "An hour had passed since the arrival: rate your passengers."
+      "title": "We closed your trip",
+      "body": "An hour had passed since arrival: rate your passengers."
     },
     "trip_vehicle_changed": {
       "title": "Your driver is using a different car",
-      "body": "Check the new car so you can spot it at pickup."
+      "body": "Check the new car so you can spot it at pick-up."
     },
     "pending_requests_reminder": {
       "title": "You have requests to answer",
       "body": "Answer them up to 10 min before departure or they will expire."
     },
     "trip_expired": {
-      "title": "Your ride ended up with no passengers",
+      "title": "Your trip ended up with no passengers",
       "body": "We closed it: you can publish another one whenever you like."
     },
     "trip_start_reminder": {
-      "title": "It's time for your ride",
+      "title": "It's time for your trip",
       "body": "Start it: otherwise it will be cancelled after 10 min."
     },
     "incident_reported": {
@@ -138,12 +138,12 @@
       "body": "We may email you to help you."
     },
     "incident_reviewed": {
-      "title": "We have dealt with your report",
+      "title": "We have resolved your report",
       "body": "See our reply in Help and support."
     },
     "chat_message": {
       "title": "{{ name }} wrote to you",
-      "body": "Open the ride chat to read it."
+      "body": "Open the trip chat to read it."
     }
   }
 }
