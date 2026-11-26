@@ -28,6 +28,8 @@ import {
 } from './trip-entries';
 import { emptyTextKey, isTripsTab, tripsTabs, TripsTab } from './trip-tabs';
 import { LanguageService } from '../../../core/services/ui/language.service';
+import { prefersReducedMotion } from '../../../shared/utils/motion.util';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 interface LiveBannerData {
   trip: TripEnds;
@@ -183,7 +185,7 @@ export class MyTripsPage {
       );
     return tabEntries(entries, this.tab());
   });
-  readonly dayGroups = computed(() => groupByDay(this.tabEntries()));
+  readonly dayGroups = localizedComputed(() => groupByDay(this.tabEntries()));
 
   // El viaje en curso, para destacarlo arriba (el que conduce, si los hubiera de los dos)
   readonly liveBanner = computed<LiveBannerData | null>(() => {
@@ -225,7 +227,7 @@ export class MyTripsPage {
   });
 
   // Qué hacer cuando no hay próximos, según los papeles que tiene
-  readonly emptyHint = computed(() => {
+  readonly emptyHint = localizedComputed(() => {
     if (this.canRide() && this.canDrive()) {
       return translate('screens.myTrips.buscaViajeEncajeRuta');
     }
@@ -252,7 +254,7 @@ export class MyTripsPage {
   // Otra página: arriba de la lista para leerla desde el principio
   handlePageChange(offset: number): void {
     this.offsets.update((offsets) => ({ ...offsets, [this.tab()]: offset }));
-    void this.content()?.scrollToTop(300);
+    void this.content()?.scrollToTop(prefersReducedMotion() ? 0 : 300);
   }
 
   handleRetry(): void {

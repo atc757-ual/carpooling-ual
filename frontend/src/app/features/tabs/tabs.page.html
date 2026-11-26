@@ -199,6 +199,11 @@
       </div>
     }
   </div>
+  <!-- En el móvil, con migas la franja no se ve: el título de la pantalla
+       sigue siendo su encabezado principal, solo para el lector (WCAG 1.3.1) -->
+  @if (heading.breadcrumbs) {
+    <h1 class="visually-hidden ion-hide-md-up">{{ heading.title | transloco }}</h1>
+  }
 }
 
 <!-- Solo cambia lo de dentro. La barra de pestañas, solo en el móvil (en

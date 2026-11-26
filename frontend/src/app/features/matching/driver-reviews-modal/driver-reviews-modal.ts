@@ -16,6 +16,7 @@ import { ScrollHintButton } from '../../../shared/components/ui/scroll-hint/scro
 import { ScrollHint } from '../../../shared/directives/scroll-hint.directive';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { getFirstName } from '../trip-driver/trip-driver';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Las valoraciones de quien conduce, al pulsar su nota en un resultado o en el
 // detalle del viaje: la media, cuántas hay de cada nota y la lista
@@ -49,7 +50,7 @@ export class DriverReviewsModal implements OnInit {
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
 
-  readonly title = computed(() =>
+  readonly title = localizedComputed(() =>
     translate('labels.reviewsOf', { name: getFirstName(this.driverName) }),
   );
   // La nota, si ya tiene media (sin reseñas, el aviso de que aún no tiene)

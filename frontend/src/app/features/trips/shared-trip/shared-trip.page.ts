@@ -38,6 +38,7 @@ import {
   isPositionStale,
   routeEnds,
 } from './shared-trip.utils';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 const POLL_MS = 10_000;
 const OPEN_STATUSES = new Set(['confirmed', 'in_progress']);
@@ -88,7 +89,7 @@ export class SharedTripPage {
       ),
   });
   readonly trip = computed(() => (this.shared.hasValue() ? this.shared.value() : null));
-  readonly errorMessage = computed(() => {
+  readonly errorMessage = localizedComputed(() => {
     const error = this.shared.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });

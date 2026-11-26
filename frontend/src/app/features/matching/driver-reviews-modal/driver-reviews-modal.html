@@ -5,9 +5,10 @@
      mientras queda lista por debajo -->
 <div class="modal-body driver-reviews" appScrollHint #hint="scrollHint">
   @if (isLoading() && reviews().length === 0) {
-    <div class="driver-reviews__loading">
-      <ion-spinner name="crescent" [attr.aria-label]="'driverReviews.loading' | transloco" />
-    </div>
+    <output class="driver-reviews__loading">
+      <ion-spinner name="crescent" aria-hidden="true" />
+      <span class="visually-hidden">{{ 'driverReviews.loading' | transloco }}</span>
+    </output>
   } @else {
     @if (errorMessage(); as message) {
       <div class="notice notice--danger" role="alert">

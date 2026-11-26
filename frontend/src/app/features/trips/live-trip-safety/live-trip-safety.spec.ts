@@ -36,7 +36,7 @@ describe('LiveTripSafety', () => {
     const root = render({ shareText: SHARE_TEXT });
 
     root
-      .querySelector<HTMLElement>('[aria-label="Compartir el viaje con alguien de confianza"]')
+      .querySelector<HTMLElement>('[aria-label="Compartir viaje con alguien de confianza"]')
       ?.click();
 
     expect(share).toHaveBeenCalledWith({

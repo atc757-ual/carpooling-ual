@@ -74,13 +74,15 @@
     transform: rotate(90deg);
   }
 
+  // Al pulsar o pasar el ratón, subrayado y no otro azul: el azul más claro
+  // se quedaba en 4,38:1 sobre el fondo azul claro (WCAG 1.4.3)
   &:active {
-    color: var(--color-primary-hover);
+    text-decoration: underline;
   }
 
   @media (hover: hover) {
     &:hover {
-      color: var(--color-primary-hover);
+      text-decoration: underline;
     }
   }
 

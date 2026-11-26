@@ -177,10 +177,8 @@
         <!-- Activo solo con los campos correctos y la casilla marcada -->
         <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
           @if (isSubmitting()) {
-            <ion-spinner
-              name="crescent"
-              [attr.aria-label]="'auth.register.submitting' | transloco"
-            />
+            <ion-spinner name="crescent" aria-hidden="true" />
+            <span class="visually-hidden">{{ 'auth.register.submitting' | transloco }}</span>
           } @else {
             {{ 'auth.register.submit' | transloco }}
           }

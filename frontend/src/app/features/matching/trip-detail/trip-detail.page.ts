@@ -54,6 +54,7 @@ import { pickupFact, toRequestPickup } from '../trip-pickup';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Solicitudes que ya no siguen: se puede volver a pedir plaza
 const CLOSED_REQUEST_STATUSES: ReadonlySet<SeatRequestStatus> = new Set([
@@ -114,7 +115,7 @@ export class TripDetailPage {
   });
 
   // «Mañana · 23:20 · Ida al campus»
-  readonly headingTitle = computed(() => {
+  readonly headingTitle = localizedComputed(() => {
     const trip = this.trip();
     if (!trip) {
       return '';
@@ -137,7 +138,7 @@ export class TripDetailPage {
     },
   });
 
-  readonly stops = computed<RouteStop[]>(() => {
+  readonly stops = localizedComputed<RouteStop[]>(() => {
     const trip = this.trip();
     const data = this.tripData.value();
     const search = this.searchState.search();
@@ -226,7 +227,7 @@ export class TripDetailPage {
     };
   });
 
-  readonly seatSummary = computed(() => {
+  readonly seatSummary = localizedComputed(() => {
     const trip = this.trip();
     if (!trip) {
       return '';
@@ -237,7 +238,7 @@ export class TripDetailPage {
       : formatFreeSeats(trip.freeSeats);
   });
 
-  readonly facts = computed(() => {
+  readonly facts = localizedComputed(() => {
     const trip = this.trip();
     if (!trip) {
       return [];
@@ -264,7 +265,7 @@ export class TripDetailPage {
   });
 
   readonly seats = computed(() => this.searchState.search()?.seats ?? 1);
-  readonly requestedSeats = computed(() => formatSeats(this.seats()));
+  readonly requestedSeats = localizedComputed(() => formatSeats(this.seats()));
   readonly isAutoAccept = computed(() => this.tripData.value()?.trip.autoAccept === true);
 
   readonly myRequest = resource({
@@ -287,7 +288,7 @@ export class TripDetailPage {
   });
   readonly isSending = signal(false);
 
-  readonly headerBadge = computed(() => {
+  readonly headerBadge = localizedComputed(() => {
     const request = this.request();
     if (request?.status === 'pending') {
       return {

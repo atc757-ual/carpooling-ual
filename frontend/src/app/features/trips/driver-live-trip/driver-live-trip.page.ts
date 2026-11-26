@@ -48,6 +48,7 @@ import {
 } from '../../../shared/utils/desktop-query.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
+import { scrollBehavior } from '../../../shared/utils/motion.util';
 import { isCampusName } from '../../matching/campus';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
@@ -368,7 +369,7 @@ export class DriverLiveTripPage {
       // Con la posición exacta en pantalla (offsetLeft redondea a píxeles
       // enteros y dejaba 1px de la tarjeta anterior junto al borde)
       const offset = slide.getBoundingClientRect().left - carousel.getBoundingClientRect().left;
-      carousel.scrollTo?.({ left: carousel.scrollLeft + offset, behavior: 'smooth' });
+      carousel.scrollTo?.({ left: carousel.scrollLeft + offset, behavior: scrollBehavior() });
     }
   }
 

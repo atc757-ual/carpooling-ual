@@ -73,6 +73,7 @@ import {
   quickReplyText,
 } from '../chat-texts';
 import { ConversationAvatar } from '../conversation-avatar/conversation-avatar';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Cada cuánto se piden los mensajes nuevos con la conversación a la vista
 export const CHAT_POLL_INTERVAL_MS = 5_000;
@@ -173,10 +174,10 @@ export class ConversationPage {
   });
   // Con un separador por día («Hoy», «Ayer», «3 nov»): los de la conversación
   // y, aparte, los del chat común anterior (solo lectura)
-  readonly messageGroups = computed(() =>
+  readonly messageGroups = localizedComputed(() =>
     groupMessagesByDay(this.messages().filter(({ isShared }) => !isShared)),
   );
-  readonly sharedGroups = computed(() =>
+  readonly sharedGroups = localizedComputed(() =>
     groupMessagesByDay(this.messages().filter(({ isShared }) => isShared)),
   );
   readonly canWrite = computed(() => this.conversation()?.isOpen ?? false);
@@ -194,7 +195,9 @@ export class ConversationPage {
   protected readonly sendIcon = send;
   protected readonly reportIcon = alertCircleOutline;
   protected readonly optionsIcon = ellipsisVertical;
-  protected readonly optionsLabel = translate('screens.conversation.masOpciones');
+  protected readonly optionsLabel = localizedComputed(() =>
+    translate('screens.conversation.masOpciones'),
+  );
   protected readonly callIcon = callOutline;
   protected readonly originIcon = ellipseOutline;
   protected readonly destinationIcon = locationOutline;

@@ -1,5 +1,6 @@
 {
   "common": {
+    "quoted": "“{{ text }}”",
     "co2Source": {
       "label": "Source:",
       "title": "Spanish Ministry for the Ecological Transition"
@@ -142,14 +143,14 @@
       "other": "You have {{ count }} requests waiting for an answer."
     },
     "carTitle": "Got a car?",
-    "carText": "Driving to campus? Offer a ride and share your car.",
+    "carText": "Driving to campus? Publish a trip and share your car.",
     "impact": "Estimate: sharing a car on this <b>{{ km }}\u00a0km</b> trip can save up to <b>{{ co2 }}\u00a0kg of CO₂</b>.",
     "impactHint": "Choose where you leave from and we'll tell you how much sharing the route can save.",
     "date": "Date",
     "margin": "Time flexibility",
     "seats": "Seats",
     "newSearch": "New search",
-    "submit": "Find a ride",
+    "submit": "Find a trip",
     "atCampus": "You're on campus. Heading home?",
     "swap": "Switch direction",
     "swapLabel": "Switch the direction of the trip",
@@ -173,32 +174,32 @@
     "hint": "They only filter the list: a driver who didn't set that preference won't show up.",
     "clear": "Clear filters",
     "show": {
-      "one": "Show 1 ride",
-      "other": "Show {{ count }} rides"
+      "one": "Show 1 trip",
+      "other": "Show {{ count }} trips"
     }
   },
   "searchResults": {
     "edit": "Edit search",
     "yourSearch": "Your search",
-    "searching": "Finding rides…",
+    "searching": "Finding trips…",
     "searchingHint": "We're looking for matches for your search.",
-    "error": "We couldn't search for rides",
+    "error": "We couldn't search for trips",
     "alreadyRequested": "Seat requested",
     "alreadyRequestedIn": {
-      "one": "On 1 ride from this search.",
-      "other": "On {{ count }} rides from this search."
+      "one": "On 1 trip from this search.",
+      "other": "On {{ count }} trips from this search."
     },
     "myTripsLink": "Your trips ›",
-    "empty": "No rides for that time yet",
+    "empty": "No trips for that time yet",
     "emptyHint": "Try another time or widen the margin. We won't change your search without telling you.",
     "widen": "Widen margin to ± {{ margin }} min",
     "change": "Change the search",
-    "sortLabel": "Sort rides",
+    "sortLabel": "Sort trips",
     "sortBy": "Sort by",
     "bestMatch": "Best match",
     "earliest": "Earliest arrival",
-    "filteredEmpty": "No rides with those filters",
-    "noSearch": "You haven't searched for a ride yet",
+    "filteredEmpty": "No trips with those filters",
+    "noSearch": "You haven't searched for a trip yet",
     "summaryLabel": "Summary of your search",
     "yourRoute": "Your route",
     "preferenceMatch": "Matches your preferences",
@@ -289,7 +290,7 @@
     "accepted": "{{ driver }} accepted your request.",
     "acceptedHint": "You have {{ seats }} on this trip.",
     "rejected": "Your request wasn't accepted.",
-    "rejectedHint": "You can look for another ride or ask again if there are seats left.",
+    "rejectedHint": "You can look for another trip or ask again if there are seats left.",
     "cancelled": "You cancelled your request.",
     "cancelledHint": "You can ask again if there are seats left.",
     "expired": "Your request expired.",
@@ -304,11 +305,11 @@
     "closed": "Requests closed 10 minutes before departure.",
     "viewRequest": "View your request",
     "cancel": "Cancel request",
-    "cancelHint": "This frees up {{ seats }} for other riders.",
+    "cancelHint": "This frees up {{ seats }} for other passengers.",
     "driverAndCar": "Driver and car",
     "plate": "Plate",
     "notFound": "We couldn't find this trip",
-    "notFoundHint": "It may no longer be available. Go back to Search to see the rides that fit your route.",
+    "notFoundHint": "It may no longer be available. Go back to Search to see the trips that fit your route.",
     "backToSearch": "Back to Search",
     "breadcrumb": "Trip details"
   },
@@ -320,20 +321,20 @@
     "filterLegend": "Filter by category",
     "all": "All",
     "categories": {
-      "travel": "Rides",
+      "travel": "Trips",
       "account": "Account",
       "incident": "Incidents"
     },
     "loading": "Loading notifications…",
     "loadError": "We couldn't load your notifications",
     "empty": "No notifications in this category",
-    "emptyHint": "Important updates about your rides and your account will show up here.",
+    "emptyHint": "Important updates about your trips and your account will show up here.",
     "loadMoreError": "We couldn't load more notifications.",
     "read": "Read",
     "unread": "Unread",
     "readHidden": "(read)",
     "unreadHidden": "(unread)",
-    "tripDeparture": "Ride departure",
+    "tripDeparture": "Trip departure",
     "incidentLabel": "Incident reported",
     "incidentDetail": "Needs review by the admin team",
     "reviewing": "{{ name }} is reviewing it",
@@ -350,28 +351,28 @@
     "allCaughtUp": "You're all caught up",
     "types": {
       "request_received": "Someone asked for a seat",
-      "passenger_joined": "Someone joined your ride",
+      "passenger_joined": "Someone joined your trip",
       "request_accepted": "Your request was accepted",
       "request_rejected": "Your request wasn't accepted",
       "request_cancelled": "A request was cancelled",
-      "request_conflict_cancelled": "Your request was cancelled because you got a seat on another ride",
-      "trip_cancelled": "The ride was cancelled",
-      "passenger_left": "A passenger left the ride",
+      "request_conflict_cancelled": "Your request was cancelled because you got a seat on another trip",
+      "trip_cancelled": "The trip was cancelled",
+      "passenger_left": "A passenger left the trip",
       "trip_started": "Your driver is on the way",
       "incident_reported": "There's a new incident",
-      "incident_reminder": "An incident has been waiting for 24 h",
+      "incident_reminder": "An incident has been waiting for 24 hours",
       "incident_received": "We have received your report",
       "incident_in_review": "We are reviewing your report",
-      "incident_reviewed": "We have dealt with your report",
-      "review_requested": "Rate the ride",
+      "incident_reviewed": "We have resolved your report",
+      "review_requested": "Rate the trip",
       "request_expired": "Your request expired",
       "passenger_no_show": "A passenger didn't show up",
-      "trip_completed": "Your ride is over: rate it",
-      "trip_auto_finished": "We closed your ride: an hour had passed since the arrival",
+      "trip_completed": "Your trip is over: rate it",
+      "trip_auto_finished": "We closed your trip: an hour had passed since arrival",
       "trip_vehicle_changed": "Your driver is using a different car",
       "pending_requests_reminder": "You have requests to answer",
-      "trip_start_reminder": "It's time for your ride: start it",
-      "trip_expired": "Your ride ended up with no passengers",
+      "trip_start_reminder": "It's time for your trip: start it",
+      "trip_expired": "Your trip ended up with no passengers",
       "terms_updated": "We updated the Terms of use",
       "privacy_updated": "We updated the Privacy policy"
     }
@@ -601,7 +602,7 @@
       "delete": "Delete permanently",
       "deleted": "Your account has been deleted.",
       "farewellTitle": "We'll miss you around here",
-      "farewellDesc": "Thanks for being part of this community. Sharing rides brings people together, and you've been part of that.",
+      "farewellDesc": "Thanks for being part of this community. Sharing trips brings people together, and you've been part of that.",
       "keepAccount": "Keep my account",
       "kept": "Thanks for staying with us!"
     },
@@ -648,6 +649,7 @@
     }
   },
   "publish": {
+    "preparandoFormulario": "Getting the form ready…",
     "anadirVehiculo": "Add vehicle",
     "vehiculo": "Vehicle",
     "aunTienesVehiculos": "You don't have any vehicles yet",
@@ -665,7 +667,7 @@
     "hemosPodidoCargarTus": "We couldn't load your vehicles. Check your connection and try again.",
     "revisarDetalle": "Review details",
     "declaracionDelConductorAceptada": "Driver declaration accepted",
-    "tienesPermisoConducirVigor": "You hold a valid driving licence and the car has insurance and a valid MOT. You share costs, you don't charge for giving anyone a ride.",
+    "tienesPermisoConducirVigor": "You hold a valid driving licence and the car has insurance and a valid MOT. You share costs, you don't charge anyone for the trip.",
     "publicarViaje": "Publish trip",
     "enhorabuenaHasPublicadoViaje": "Congratulations! You've published a trip.",
     "aceptaremosSolasLasSolicitudes": "We'll accept the requests that fit on our own and let you know.",
@@ -707,8 +709,8 @@
     "publicarTambienVuelta": "Also publish the return trip",
     "otroViajeDesdeCampus": "Another trip from the campus to your origin, on the same day and with the same car. Afterwards you manage it separately.",
     "salidaVuelta": "Return departure",
-    "mismoNumeroPlazasIda": "Same number of seats there and back",
-    "plazasIdaVuelta": "Seats (there and back)",
+    "mismoNumeroPlazasIda": "Same number of seats outbound and return",
+    "plazasIdaVuelta": "Seats (outbound and return)",
     "ida": "There",
     "vuelta": "Back",
     "suspended": "You can't publish trips until {{ date }} because of late cancellations.",
@@ -739,7 +741,7 @@
       "until": "Until",
       "noDays": "Choose at least one day of the week.",
       "summary": "{{ count }} trips will be published, one each day.",
-      "summaryWithReturn": "{{ count }} trips will be published: there and back on {{ days }} days.",
+      "summaryWithReturn": "{{ count }} trips will be published: outbound and return on {{ days }} days.",
       "reviewDates": "Also: {{ dates }}",
       "published": "We have published {{ count }} trips.",
       "dateRejected": "No trip was published: {{ date }} is not possible (you already have 4 trips that day or it overlaps another one). Remove it and try again."
@@ -840,7 +842,7 @@
     "alreadyRated": "You already rated {{ name }}.",
     "expired": "The time to rate {{ name }} is over (7 days after arriving).",
     "question": "How was it with {{ name }}?",
-    "ofFive": "{{ rating }} of 5",
+    "ofFive": "{{ rating }} out of 5",
     "sending": "Sending…",
     "send": "Send rating"
   },
@@ -861,7 +863,7 @@
     "volverTusViajes": "Back to Your trips",
     "cargandoLosDatosDel": "Loading the trip details…",
     "pudimosCargarViaje": "We couldn't load the trip",
-    "puedesBuscarOtroViaje": "You can look for another ride, keeping your route and your time.",
+    "puedesBuscarOtroViaje": "You can look for another trip, keeping your route and your time.",
     "aunTienesPlazaAvisaremos": "You don't have a seat yet. We'll let you know in Notifications when they answer.",
     "solicitudSidoAceptada": "Your request has been accepted.",
     "viajeTerminado": "Your trip is over.",
@@ -875,7 +877,7 @@
     "canceladaPresentasteTiempo": "Cancelled: you didn't show up in time.",
     "conductorMarcoQuePresentaste": "The driver marked that you didn't show up at the pick-up point after waiting 5 minutes.",
     "solicitudEstaCancelada": "The request is cancelled.",
-    "puedesBuscarOtroViaje2": "You can look for another ride if you still need a seat.",
+    "puedesBuscarOtroViaje2": "You can look for another trip if you still need a seat.",
     "codigoRecogida": "Pick-up code",
     "subidaConfirmada": "Boarding confirmed!",
     "estasBordoDelVehiculo": "You're now on board the vehicle.",
@@ -887,7 +889,7 @@
     "seguirDirecto": "Follow live",
     "comparteUbicacion": "Share your location",
     "enviaViajeAlguienConfianza": "Send your trip to someone you trust.",
-    "compartirViajeConAlguien": "Share the trip with someone you trust",
+    "compartirViajeConAlguien": "Share trip with someone you trust",
     "compartirViaje": "Share trip",
     "algoMal": "Something wrong?",
     "bajateSitioSeguroReportalo": "Get off somewhere safe and report it.",
@@ -896,7 +898,7 @@
     "tusViajes": "Your trips",
     "solicitud": "Your request",
     "accionesSolicitud": "Your request actions",
-    "enviarReporteAbreFormulario": "Send a report: opens the incident form",
+    "enviarReporteAbreFormulario": "Send report: opens the incident form",
     "enviarReporte": "Send report",
     "cancelasAhoraContaraComo": "If you cancel now, it will count as a late cancellation",
     "con330Dias": "With 3 in 30 days, 7 days without being able to request a seat.",
@@ -927,7 +929,7 @@
     "continueTrip": "Continue the trip",
     "continueInTrip": "Stay on the trip",
     "travelled": "You rode",
-    "ratingLabel": "Rating {{ rating }} of 5. See ratings"
+    "ratingLabel": "Rated {{ rating }} out of 5. See ratings"
   },
   "help": {
     "title": "Help & support",
@@ -943,11 +945,11 @@
       "legend": "Which questions do you want to see?",
       "passenger": {
         "name": "Passenger",
-        "hint": "Find a ride"
+        "hint": "Find a trip"
       },
       "driver": {
         "name": "Driver",
-        "hint": "Offer a ride"
+        "hint": "Publish a trip"
       }
     },
     "emptyTitle": "We found nothing",
@@ -977,17 +979,17 @@
   "auth": {
     "layout": {
       "verifiedCommunity": "UAL Community · Verified Profiles",
-      "trustNoticeWelcome": "We verify your UAL email so you can ride with your community.",
+      "trustNoticeWelcome": "We verify your UAL email so you can travel with your community.",
       "trustNoticeForm": "We verify your institutional email to help keep our university community safe.",
       "eyebrow": "Every journey counts",
       "visualTitle": "Your campus, better connected.",
-      "visualDescription": "From home to campus, share rides with people heading the same way.",
+      "visualDescription": "From home to campus, share trips with people heading the same way.",
       "back": "Back",
       "language": "Language"
     },
     "welcome": {
       "title": "Welcome aboard",
-      "subtitle": "Share rides with your community. Sign in with your UAL email or join in a minute.",
+      "subtitle": "Share trips with your community. Sign in with your UAL email or join in a minute.",
       "createAccount": "Create an account",
       "alreadyHaveAccount": "I already have an account"
     },
@@ -1098,11 +1100,11 @@
     "accountCreated": {
       "title": "Account created successfully!",
       "verifiedTitle": "Email verified!",
-      "subtitle": "You’re part of Carpooling UAL. You’re ready to share rides.",
-      "verifiedSubtitle": "Your email is verified. You can now find or share a ride.",
+      "subtitle": "You’re part of Carpooling UAL. You’re ready to share trips.",
+      "verifiedSubtitle": "Your email is verified. You can now find or share a trip.",
       "stepProfile": "Complete your profile with your phone number and travel preferences.",
       "stepVehicle": "If you are a driver, add your vehicle to publish trips.",
-      "stepExplore": "Find a ride to campus or offer one in seconds.",
+      "stepExplore": "Find a trip to campus or publish one in seconds.",
       "exploreButton": "Start exploring",
       "laterButton": "Come back later",
       "laterNote": "Come back any time and sign in with your UAL email and password."
@@ -1178,7 +1180,7 @@
       "other": "You shared the trip with {{ count }} passengers"
     },
     "stepOf": "{{ number }} of {{ total }}",
-    "hasLlegadoGracias": "You've arrived · thanks for sharing the ride",
+    "hasLlegadoGracias": "You've arrived · thanks for sharing the trip",
     "yourReviewTo": "Your rating for {{ name }}",
     "graciasPorValoracion": "Thanks for your rating!",
     "verViaje": "See your trip",
@@ -1226,7 +1228,7 @@
     "thePickup": "the pick-up",
     "yourDestination": "your destination",
     "theDriver": "The driver",
-    "codeHelp": "Ask {{ name }} for their pickup code",
+    "codeHelp": "Ask {{ name }} for their pick-up code",
     "codeLater": "You will ask for their code at their stop",
     "codeAria": "Pick-up code for {{ name }}",
     "noShowIn": "“No-show” in {{ minutes }} min",
@@ -1242,11 +1244,12 @@
     "tapHint": "Tap a button to see what it does.",
     "hazloCuandoHayanBajado": "Do it once everyone has got off: they'll stop seeing where you are.",
     "finishWhenAllOff": "Once everyone has got off",
-    "compartirViajeConAlguien": "Share the trip with someone you trust",
+    "compartirViajeConAlguien": "Share trip with someone you trust",
     "compartir": "Share",
     "puedesSeguirReportaloRevisara": "If you can't continue, report it: an administrator will review it.",
-    "enviarReporteAbreFormulario": "Send a report: opens the incident form",
+    "enviarReporteAbreFormulario": "Send report: opens the incident form",
     "reportar": "Report",
+    "reportarAbreFormulario": "Report: opens the incident form",
     "algoMal": "Something wrong?",
     "enviarReporte": "Send report",
     "sosLlamar112": "SOS: call 112",
@@ -1268,7 +1271,7 @@
     "llegado2": "I've arrived",
     "conductorVehiculo": "Driver and vehicle",
     "conduce": "Driver:",
-    "enviarMensajeConductor": "Send a message to the driver",
+    "enviarMensajeConductor": "Send message to the driver",
     "getOffSafely": "Get off somewhere safe and report it.",
     "reportarBajarmeRegistrarUna": "Report: get off and log an incident",
     "mapaDirecto": "Live map",
@@ -1508,7 +1511,7 @@
     "elapsed": {
       "now": "Now",
       "minutes": "{{ minutes }} min ago",
-      "hours": "{{ hours }} h ago"
+      "hours": "{{ hours }}h ago"
     },
     "forms": {
       "useLocation": "Use my location",
@@ -1731,7 +1734,7 @@
     "profileDeviceLocation": {
       "ubicacionDispositivoPermitida": "Device location allowed.",
       "denied": "You've blocked location. Turn it on in the browser or phone settings.",
-      "unavailable": "We couldn't access your location. Check that it's turned on on the device.",
+      "unavailable": "We couldn't access your location. Check that location is turned on in your device settings.",
       "revoked": "We couldn't access your location. Please try again."
     },
     "profileLocation": {
@@ -2201,13 +2204,13 @@
   },
   "usualTrip": {
     "title": "My usual route",
-    "savePrompt": "Do you often make this trip? Save it and search it in one tap.",
+    "savePrompt": "Do you often make this trip? Save it and search for it in one tap.",
     "save": "Save route",
     "search": "Search",
-    "searchTo": "Search there",
-    "searchFrom": "Search back",
-    "to": "There · arrive at {{ time }}",
-    "from": "Back · leave at {{ time }}",
+    "searchTo": "Search outbound",
+    "searchFrom": "Search return",
+    "to": "Outbound · arrive at {{ time }}",
+    "from": "Return · leave at {{ time }}",
     "saveTitle": "My usual route",
     "editTitle": "Edit my route",
     "deviceOnly": "It is saved only on this device and deleted when you log out.",

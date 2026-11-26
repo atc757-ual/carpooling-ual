@@ -9,6 +9,7 @@ import { TripResult } from '../../../core/models/trip-result.model';
 import { getFirstName } from '../trip-driver/trip-driver';
 import { formatWalkingDistance } from '../../../shared/utils/distance.util';
 import { formatSeats } from '../../../shared/utils/seats.util';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Un viaje de los resultados (SearchTripCard de la guía): horas de salida y
 // llegada con las plazas libres («Última plaza» en píldora ámbar si solo queda
@@ -42,11 +43,11 @@ export class TripResultCard {
 
   readonly isLastSeat = computed(() => this.trip().freeSeats === 1);
   // «3 plazas»
-  readonly seatsLabel = computed(() => formatSeats(this.trip().freeSeats));
+  readonly seatsLabel = localizedComputed(() => formatSeats(this.trip().freeSeats));
 
   // Sin repetir la calle de la ruta: dónde y cuándo le recoge. En paradas, la
   // suya (andando); si no, el desvío y la hora de recogida (o de salida)
-  readonly pickupMetaLabel = computed(() => {
+  readonly pickupMetaLabel = localizedComputed(() => {
     const { pickupDetourMinutes, departureTime, pickupTime, pickupStop } = this.trip();
     if (pickupStop) {
       const walk = formatWalkingDistance(pickupStop.walkingDistanceM);
@@ -68,7 +69,7 @@ export class TripResultCard {
   });
 
   // Lo que lee el lector de pantalla del enlace (cubre toda la tarjeta)
-  readonly linkLabel = computed(() => {
+  readonly linkLabel = localizedComputed(() => {
     const { driver, departureTime, arrivalTime, origin, destination } = this.trip();
     const requested = this.isRequested()
       ? translate('screens.tripResultCard.alreadyRequested')

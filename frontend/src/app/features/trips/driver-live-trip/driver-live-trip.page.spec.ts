@@ -387,7 +387,7 @@ describe('DriverLiveTripPage', () => {
       'tel:112',
     );
 
-    root.querySelector<HTMLElement>('[aria-label^="Enviar un reporte"]')?.click();
+    root.querySelector<HTMLElement>('[aria-label$="abre el formulario de la incidencia"]')?.click();
     TestBed.tick();
     expect(root.querySelector('app-passenger-incident-modal')).not.toBeNull();
 

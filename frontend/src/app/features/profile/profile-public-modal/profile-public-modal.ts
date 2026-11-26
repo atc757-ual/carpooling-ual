@@ -31,6 +31,7 @@ import {
   stripNameSymbols,
 } from '../../../shared/utils/person-name.util';
 import { getInitials } from '../../matching/trip-driver/trip-driver';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 const BIO_MIN_LENGTH = 20;
 const BIO_MAX_LENGTH = 200;
@@ -88,7 +89,7 @@ export class ProfilePublicModal implements OnInit {
     ),
   );
 
-  readonly selectedAvatarName = computed(() => {
+  readonly selectedAvatarName = localizedComputed(() => {
     const key = this.selectedAvatarKey();
     if (!key) return translate('screens.profilePublicModal.inicialesPersonales');
     return this.avatarCatalog().find((a) => a.id === key)?.name ?? 'Avatar';

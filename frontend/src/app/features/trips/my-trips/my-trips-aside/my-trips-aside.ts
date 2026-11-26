@@ -24,6 +24,7 @@ import { UserImpact } from '../../../../core/models/my-trips.model';
 import { RoleRating } from '../../../../core/models/user.model';
 import { appLocale } from '../../../../core/i18n/app-locale';
 import { formatAmount } from '../../../matching/trip-impact';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 interface Suggestion {
   link: string;
@@ -73,7 +74,7 @@ export class MyTripsAside {
   });
 
   // «4,8 (12)» o, sin ninguna, «—»
-  readonly ratingText = computed(() => {
+  readonly ratingText = localizedComputed(() => {
     const rating = this.rating();
     const value = this.ratingValue();
     if (!rating || value === null) {
@@ -85,10 +86,10 @@ export class MyTripsAside {
     });
     return `${formatted} (${rating.ratingCount})`;
   });
-  readonly co2Text = computed(() => formatAmount(this.impact()?.co2Kg ?? 0, 'kg'));
+  readonly co2Text = localizedComputed(() => formatAmount(this.impact()?.co2Kg ?? 0, 'kg'));
   // Los km compartidos, cada papel por separado (solo los que tiene), con el
   // icono de su papel (el coche y la persona, como en Mi perfil)
-  readonly kmStats = computed(() => {
+  readonly kmStats = localizedComputed(() => {
     const impact = this.impact();
     const stats: { label: string; value: string; icon: string }[] = [];
     if (this.canDrive()) {
@@ -108,7 +109,7 @@ export class MyTripsAside {
     return stats;
   });
 
-  readonly suggestions = computed(() => {
+  readonly suggestions = localizedComputed(() => {
     const items: Suggestion[] = [];
     if (this.canDrive()) {
       items.push({

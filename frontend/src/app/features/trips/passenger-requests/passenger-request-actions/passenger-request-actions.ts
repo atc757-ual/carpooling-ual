@@ -42,6 +42,7 @@ import {
   isWithinLeadMinutes,
   PASSENGER_LATE_CANCELLATION_LEAD_MIN,
 } from '../../late-cancellation';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 // Columna de 4 en el detalle de la solicitud del pasajero: «Acciones de tu
 // solicitud» (chat, cancelar con lo que cuesta cancelar, desactivadas con su
@@ -118,7 +119,7 @@ export class PassengerRequestActions {
     );
   });
 
-  readonly cancelLabel = computed(() =>
+  readonly cancelLabel = localizedComputed(() =>
     this.request().status === 'accepted'
       ? translate('screens.passengerRequestActions.cancelarPlaza')
       : translate('screens.passengerRequestActions.cancelarSolicitud'),
@@ -137,7 +138,7 @@ export class PassengerRequestActions {
 
   // Lo que cuesta cancelar, antes del botón (si aún no es tardía): pendiente,
   // nada; con plaza, nada hasta 10 min antes de la salida
-  readonly cancelCost = computed(() => {
+  readonly cancelCost = localizedComputed(() => {
     if (!this.canCancel() || this.cancellationIsLate()) {
       return null;
     }
@@ -153,7 +154,7 @@ export class PassengerRequestActions {
     });
   });
 
-  readonly closedReason = computed(() => {
+  readonly closedReason = localizedComputed(() => {
     if (this.canCancel() || this.isTripInProgress()) {
       return null;
     }

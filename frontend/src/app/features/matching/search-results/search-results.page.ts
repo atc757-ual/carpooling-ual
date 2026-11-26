@@ -54,6 +54,7 @@ import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { TripSearchStateService } from '../trip-search-state.service';
 import { EmptyState } from '../../../shared/components/ui/empty-state/empty-state';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 type SearchSortOrder = 'arrival' | 'detour';
 
@@ -188,11 +189,11 @@ export class SearchResultsPage {
           .map((request) => request.trip.id),
       ),
   );
-  readonly resultsSummary = computed(() =>
+  readonly resultsSummary = localizedComputed(() =>
     describeResults(this.trips(), this.search()?.direction ?? 'to-campus'),
   );
   // Con filtros, «3 de 7 viajes»
-  readonly resultsCountLabel = computed(() => {
+  readonly resultsCountLabel = localizedComputed(() => {
     const count = this.trips().length;
     if (this.hasFilters()) {
       return translate(
@@ -205,7 +206,7 @@ export class SearchResultsPage {
       { count },
     );
   });
-  readonly resultsTimeWindow = computed(() =>
+  readonly resultsTimeWindow = localizedComputed(() =>
     timeWindowText(this.trips(), this.search()?.direction ?? 'to-campus'),
   );
   // Cómo encaja cada viaje con la búsqueda: el color de su fila
@@ -239,7 +240,7 @@ export class SearchResultsPage {
     }
     return trips.sort((left, right) => Date.parse(left.arrivalAt) - Date.parse(right.arrivalAt));
   });
-  readonly errorMessage = computed(() => {
+  readonly errorMessage = localizedComputed(() => {
     const error = this.results.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : '';
   });
@@ -259,7 +260,7 @@ export class SearchResultsPage {
   });
 
   // «Mañana · llegada 08:00 ± 15 min · 1 plaza»
-  readonly details = computed(() => {
+  readonly details = localizedComputed(() => {
     const search = this.search();
     if (!search) {
       return '';
@@ -272,7 +273,7 @@ export class SearchResultsPage {
     return `${formatDateLabel(search.date)} · ${time} ${search.time} ± ${search.margin} min · ${formatSeats(search.seats)}`;
   });
 
-  readonly searchFacts = computed(() => {
+  readonly searchFacts = localizedComputed(() => {
     const search = this.search();
     if (!search) {
       return [];

@@ -98,7 +98,8 @@
       <!-- Activo solo con un correo de la UAL y una contraseña de 8 o más -->
       <ion-button type="submit" expand="block" [disabled]="form.invalid || isSubmitting()">
         @if (isSubmitting()) {
-          <ion-spinner name="crescent" [attr.aria-label]="'auth.login.submitting' | transloco" />
+          <ion-spinner name="crescent" aria-hidden="true" />
+          <span class="visually-hidden">{{ 'auth.login.submitting' | transloco }}</span>
         } @else {
           {{ 'auth.login.submit' | transloco }}
         }
