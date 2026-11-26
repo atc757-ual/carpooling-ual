@@ -107,7 +107,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('app-tabs .bell-button').filter(':visible').click();
 
       cy.location('pathname').should('eq', '/tabs/notifications');
-      cy.contains('app-notifications', 'No tienes notificaciones').should('be.visible');
+      cy.contains('app-notifications', 'Aún no tienes notificaciones').should('be.visible');
     });
 
     it('shows Mensajes, still without conversations', () => {

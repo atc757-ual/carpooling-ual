@@ -10,7 +10,8 @@
 
 .next-trip {
   --next-trip-tone: var(--color-primary);
-  --next-trip-background: var(--color-primary-subtle);
+  --next-trip-background: var(--color-surface);
+  --next-trip-hover: var(--color-primary-subtle);
   --next-trip-icon: var(--color-link);
 
   display: flex;
@@ -23,21 +24,21 @@
   background: var(--next-trip-background);
   transition: background-color var(--motion-duration-fast) ease;
 
-  // Al pasar el ratón, el fondo algo más intenso en su tono
+  // Al pasar el ratón, un tinte muy suave del color del estado sobre el blanco
   &:has(.next-trip__link:hover) {
-    background: color-mix(in srgb, var(--next-trip-tone) 10%, var(--next-trip-background));
+    background: color-mix(in srgb, var(--next-trip-tone) 6%, var(--next-trip-background));
   }
 }
 
 .next-trip--pending {
   --next-trip-tone: var(--color-warning);
-  --next-trip-background: var(--color-warning-subtle);
+  --next-trip-hover: var(--color-warning-subtle);
   --next-trip-icon: var(--color-warning-text);
 }
 
 .next-trip--accepted {
   --next-trip-tone: var(--color-success);
-  --next-trip-background: var(--color-success-subtle);
+  --next-trip-hover: var(--color-success-subtle);
   --next-trip-icon: var(--color-success);
 }
 
