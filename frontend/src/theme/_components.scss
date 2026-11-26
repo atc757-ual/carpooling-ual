@@ -1667,16 +1667,19 @@ ion-toggle {
 
 // Una fila de acción (p. ej. «Terminar viaje», «Viaje seguro»): a la izquierda
 // el título y, debajo, la descripción en dos líneas (siempre dos, «…» si no
-// cabe); a la derecha, el botón centrado en vertical, a 16px
+// cabe); a la derecha, el botón centrado en vertical, a 16px. Si el texto
+// se quedaría con menos de 192px (una tarjeta estrecha), el botón baja
+// debajo, a la izquierda, en vez de apretar el título
 .section-item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-base);
+  gap: var(--space-s) var(--space-base);
 }
 
 .section-item__text {
   display: flex;
-  flex: 1;
+  flex: 1 1 12rem; // 192px
   flex-direction: column;
   gap: var(--space-xxs);
   min-width: 0;
