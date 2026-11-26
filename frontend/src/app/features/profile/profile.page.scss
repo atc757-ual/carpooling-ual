@@ -2,6 +2,7 @@
 
 .profile {
   align-items: stretch;
+
   ion-card {
     margin: 0;
     text-align: left;
@@ -12,8 +13,8 @@
   display: grid;
   gap: var(--space-base);
   grid-template-areas:
-    'aside'
-    'main';
+    'main'
+    'aside';
 
   @include bp.up(md) {
     grid-template-columns: 2fr 1fr;
@@ -34,7 +35,6 @@
 .profile__aside,
 .profile-card__content,
 .profile__center-info,
-.profile__pref-list,
 .profile__legal-list {
   display: flex;
   flex-direction: column;
@@ -44,14 +44,12 @@
 .profile__aside,
 .profile-card__content {
   gap: var(--space-base);
+
   form ion-button {
     margin: 0;
   }
 }
 
-// Título a la izquierda y acción a la derecha. ion-card-header es una columna
-// (column-reverse en iOS): sin flex-direction el botón caía debajo del título.
-// El título usa el tamaño común de las tarjetas (18 → 20px, theme/_components)
 .profile-card__header {
   display: flex;
   flex-direction: row;
@@ -61,8 +59,6 @@
   padding: var(--space-base) var(--space-base) var(--space-s);
   min-height: var(--control-height-l);
 
-  // 18px también en escritorio (el tema sube a 20px): en el Perfil, títulos
-  // de 18px y ningún otro texto por encima de 16px
   ion-card-title {
     margin: 0;
     font-size: var(--font-size-subtitle-s);
@@ -75,78 +71,20 @@
   }
 }
 
-.profile__row-three,
-.profile__setting-row,
-.profile__phone-row,
-.profile__pref-row {
-  display: flex;
-  align-items: center;
-}
-
-.profile__setting-row,
-.profile__phone-row,
-.profile__pref-row {
-  justify-content: space-between;
-}
-
-.profile__setting-row,
-.profile__pref-row,
-app-profile-push-setting {
-  // Separador a medio camino entre una fila y la siguiente (el hueco del
-  // contenedor es --space-base): antes quedaba pegado al texto de arriba
-  padding-bottom: var(--space-base);
-  border-bottom: 1px solid var(--color-border-subtle);
-
-  &:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-}
-
-// Ajustes (idioma, tema, avisos y ubicación del dispositivo) y Privacidad
-// (compartir ubicación y los documentos): filas de lista, como las de los
-// documentos, sin hueco entre ellas, con 8px de relleno, 44px de alto mínimo
-// y la línea fina debajo de cada una salvo la última
 .profile-card__content--rows {
   gap: 0;
-
-  > .profile__setting-row,
-  > .profile__location-row,
-  > app-profile-push-setting,
-  > app-profile-device-location {
-    min-height: var(--control-height-s);
-    padding: var(--space-s);
-    border-bottom: var(--border-width-s) solid var(--color-border-subtle);
-  }
-
-  > :last-child {
-    border-bottom: none;
-  }
-}
-
-// La nota de cada papel, a la derecha de su fila (ion-item, como las de
-// Privacidad), antes de la flecha
-.profile__review-score {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-// La medalla de la nota: todas las notas son buenas (escala de reconocimiento)
-.profile__review-medal {
-  color: var(--color-rating);
-  font-size: var(--icon-size-s);
-}
-
-app-profile-push-setting,
-app-profile-device-location {
-  display: block;
 }
 
 .profile__row-three {
+  display: flex;
+  align-items: center;
   gap: var(--space-base);
 }
+
 .profile__phone-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-s);
 
@@ -165,18 +103,6 @@ app-profile-device-location {
     color: var(--color-text-muted);
   }
 }
-// Preferencias más juntas: 8px por encima y por debajo de cada separador
-.profile__pref-list {
-  gap: var(--space-s);
-
-  .profile__pref-row {
-    padding-bottom: var(--space-s);
-
-    &:last-child {
-      padding-bottom: 0;
-    }
-  }
-}
 
 .profile__avatar {
   display: flex;
@@ -188,7 +114,7 @@ app-profile-device-location {
   border-radius: var(--radius-full);
   background: var(--color-primary-subtle);
   border: 1px solid var(--color-border-subtle);
-  font-size: var(--font-size-body); // 16px: ningún texto pasa de 16px
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   overflow: hidden;
@@ -246,27 +172,12 @@ fieldset.profile__bio-box,
   }
 }
 
-.profile__pref-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-xs) var(--space-s);
-  border-radius: var(--radius-full);
-  background: var(--color-surface-subtle);
-  color: var(--color-text);
-  font-size: var(--font-size-body-s);
-  font-weight: var(--font-weight-medium);
-  border: 1px solid var(--color-border-subtle);
-}
-
-// Sin el fondo ni el relleno de ion-list
 ion-list.profile__legal-list {
   padding: 0;
   background: transparent;
   gap: 0;
 }
 
-// Cada fila (documento legal, contraseña, ayuda, eliminar cuenta), un ion-item
-// sin bordes en todos lados y solo con el separador inferior
 .profile__legal-row {
   --background: var(--color-surface);
   --background-hover: var(--color-surface-subtle);
@@ -294,17 +205,6 @@ ion-list.profile__legal-list {
   }
 }
 
-.profile__logout {
-  align-self: stretch;
-  min-height: var(--control-height-base);
-  margin: 0;
-  --border-radius: var(--radius-base);
-  --background: var(--color-primary);
-  --background-hover: var(--color-primary-hover);
-  --background-activated: var(--color-primary-pressed);
-  --color: var(--color-on-primary);
-}
-
 .profile__legal-icon {
   flex: none;
   margin-inline-end: var(--space-s);
@@ -321,41 +221,15 @@ ion-list.profile__legal-list {
   white-space: normal;
 }
 
-.profile__legal-status {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  color: var(--color-success);
-
-  ion-icon {
-    flex: none;
-  }
-}
-
-.profile__pref-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-s);
-
-  ion-icon {
-    flex: none;
-    font-size: var(--icon-size-base);
-    color: var(--color-primary);
-  }
-}
-
-// El código, con un candado delante en vez de una palabra
-.profile__legal-hash {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  font-family: monospace;
-  font-size: var(--font-size-body-s);
-  line-height: 1.2;
-
-  ion-icon {
-    flex: none;
-  }
+.profile__logout {
+  align-self: stretch;
+  min-height: var(--control-height-base);
+  margin: 0;
+  --border-radius: var(--radius-base);
+  --background: var(--color-primary);
+  --background-hover: var(--color-primary-hover);
+  --background-activated: var(--color-primary-pressed);
+  --color: var(--color-on-primary);
 }
 
 // Verificar el teléfono: botón outline de acción pendiente
@@ -370,7 +244,7 @@ ion-list.profile__legal-list {
   --border-radius: var(--radius-s);
   --box-shadow: none;
   height: var(--box-size-s);
-  min-height: var(--box-size-s); // El tema da 48px a todos los ion-button
+  min-height: var(--box-size-s);
   margin: 0;
   font-weight: var(--font-weight-semibold);
 
@@ -387,54 +261,4 @@ ion-list.profile__legal-list {
   background: var(--color-surface);
   border-color: var(--color-success);
   color: var(--color-success);
-}
-
-// Idioma y tema: el nombre y, debajo, una línea que invita a elegir
-.profile__setting-text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--space-xxs);
-  min-width: 0;
-}
-
-// El selector del tema: la pastilla, en el tema (theme/_pill-switch.scss);
-// aquí, los iconos
-.theme-switch__option {
-  ion-icon {
-    font-size: var(--icon-size-base);
-  }
-
-  // Sin elegir: sol naranja (acento) y luna azul oscuro (el azul pulsado);
-  // los roles se aclaran en el modo oscuro para mantener el contraste
-  .icon-sun {
-    color: var(--color-accent);
-  }
-
-  .icon-moon {
-    color: var(--color-primary-pressed);
-  }
-}
-
-.theme-switch__option--active {
-  .icon-sun,
-  .icon-moon {
-    color: var(--color-on-primary);
-  }
-}
-
-:host-context(.theme-dark) {
-  .theme-switch__option--active ion-icon {
-    color: var(--color-on-selected);
-  }
-
-  .theme-switch__option:not(.theme-switch__option--active) .icon-moon {
-    color: var(--color-text-muted);
-  }
-}
-
-// Una versión vigente más nueva que la aceptada (cambio menor): en azul,
-// como un enlace, porque la fila abre el documento con sus novedades
-.profile__legal-update {
-  color: var(--color-link);
 }

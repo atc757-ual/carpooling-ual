@@ -4,43 +4,27 @@ import { provideRouter } from '@angular/router';
 import { ModalController, NavController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../core/i18n/testing-transloco';
-import { PreferencesPlugin } from '../../core/plugins/preferences-plugin';
 import { Profile, User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth/auth.service';
-import { DriverService } from '../../core/services/drivers/driver.service';
-import { LocationService } from '../../core/services/location/location.service';
-import { LocationConsentService } from '../../core/services/location/location-consent.service';
 import { UsersService } from '../../core/services/users/users.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
-import { ThemeService } from '../../core/services/ui/theme.service';
-import { PushNotificationsService } from '../../core/services/push/push-notifications.service';
 import { ProfilePage } from './profile.page';
-import { ProfileReviewsModal } from './profile-reviews-modal/profile-reviews-modal';
 
 describe('ProfilePage', () => {
   const logout = vi.fn().mockResolvedValue(undefined);
   const getMe = vi.fn();
-  const getMyConsents = vi.fn().mockResolvedValue({
-    current: { terms: null, privacy: null, location: null },
-    outdated: [],
-    history: [],
-  });
-  const setLocationConsent = vi.fn().mockResolvedValue({
-    current: { terms: null, privacy: null, location: { action: 'granted' } },
-    outdated: [],
-    history: [],
-  });
-  const checkPermission = vi.fn().mockResolvedValue('prompt');
 
   function render(
     profiles: Profile[] = ['passenger'],
     [firstName, lastName] = ['Ana', 'García'],
+    bio: string | null = 'Estudiante de informática',
   ): { root: HTMLElement; page: ProfilePage } {
     const user = signal({
       firstName,
       lastName,
       email: 'ana@ual.es',
       phone: '+34612345678',
+      bio,
       profiles,
     } as User);
     getMe.mockResolvedValue(user());
@@ -50,19 +34,7 @@ describe('ProfilePage', () => {
       providers: [
         provideIonicAngular(),
         provideRouter([]),
-        provideTestingTransloco({
-          es: {
-            profile: {
-              settings: 'Configuración',
-              language: 'Idioma',
-              theme: 'Tema',
-            },
-          },
-        }),
-        {
-          provide: PushNotificationsService,
-          useValue: { status: signal('off'), enable: vi.fn(), disable: vi.fn() },
-        },
+        provideTestingTransloco(),
         {
           provide: AuthService,
           useValue: {
@@ -72,38 +44,10 @@ describe('ProfilePage', () => {
             updateUser: vi.fn(),
           },
         },
-        { provide: DriverService, useValue: { listVehicles: vi.fn().mockResolvedValue([]) } },
         {
           provide: UsersService,
           useValue: {
             getMe,
-            getMyConsents,
-            setLocationConsent,
-          },
-        },
-        {
-          provide: LocationService,
-          useValue: {
-            checkPermission,
-            checkDevicePermission: vi.fn().mockResolvedValue('prompt'),
-          },
-        },
-        {
-          provide: LocationConsentService,
-          useValue: {
-            load: vi.fn().mockResolvedValue({
-              current: { terms: null, privacy: null, location: null },
-              outdated: [],
-              history: [],
-            }),
-            set: setLocationConsent,
-          },
-        },
-        {
-          provide: PreferencesPlugin,
-          useValue: {
-            get: vi.fn().mockResolvedValue(null),
-            set: vi.fn().mockResolvedValue(undefined),
           },
         },
       ],
@@ -120,16 +64,21 @@ describe('ProfilePage', () => {
   beforeEach(() => {
     logout.mockClear();
     getMe.mockClear();
-    getMyConsents.mockClear();
   });
 
-  it('shows the account with the initials and the phone', () => {
+  it('shows the account with the initials, email and bio', () => {
     const { root, page } = render();
 
     expect(page.initials()).toBe('AG');
     expect(root.textContent).toContain('Ana García');
     expect(root.textContent).toContain('ana@ual.es');
-    expect(root.textContent).toContain('+34 612 345 678');
+    expect(root.textContent).toContain('Estudiante de informática');
+  });
+
+  it('shows empty bio placeholder when user has no bio', () => {
+    const { root } = render(['passenger'], ['Ana', 'García'], null);
+
+    expect(root.querySelector('.profile__bio-empty')).not.toBeNull();
   });
 
   it('formats the name for display without changing the account value', () => {
@@ -137,44 +86,6 @@ describe('ProfilePage', () => {
 
     expect(root.querySelector('.profile__name')?.textContent?.trim()).toBe('Ana García');
     expect(page.user()?.lastName).toBe('GARCÍA');
-  });
-
-  it('shows the vehicles to everyone (the first one makes a driver)', () => {
-    expect(render(['passenger']).root.querySelector('app-profile-vehicles')).not.toBeNull();
-  });
-
-  it('opens the legal texts', async () => {
-    const { page } = render();
-    const present = vi.fn().mockResolvedValue(undefined);
-    const create = vi
-      .spyOn(TestBed.inject(ModalController), 'create')
-      .mockResolvedValue({ present } as unknown as HTMLIonModalElement);
-
-    await page.handleOpenLegal('privacy');
-
-    expect(create).toHaveBeenCalledWith(
-      expect.objectContaining({ componentProps: { document: 'privacy' } }),
-    );
-    expect(present).toHaveBeenCalled();
-  });
-
-  it('opens the received reviews in the role of the row', async () => {
-    const { page } = render();
-    const present = vi.fn().mockResolvedValue(undefined);
-    const create = vi
-      .spyOn(TestBed.inject(ModalController), 'create')
-      .mockResolvedValue({ present } as unknown as HTMLIonModalElement);
-
-    await page.handleOpenReviews('passenger');
-
-    expect(create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        component: ProfileReviewsModal,
-        cssClass: ['info-dialog', 'list-dialog'],
-        componentProps: { role: 'passenger' },
-      }),
-    );
-    expect(present).toHaveBeenCalled();
   });
 
   it('logs out after confirming it and goes back to the welcome screen', async () => {
@@ -193,58 +104,34 @@ describe('ProfilePage', () => {
     expect(navigate).toHaveBeenCalledWith('/auth/welcome');
   });
 
-  it('opens the edit public modal', async () => {
+  it('opens the edit public modal and refreshes when saved', async () => {
     const { page } = render();
     const present = vi.fn().mockResolvedValue(undefined);
-    const onDidDismiss = vi.fn().mockResolvedValue({ role: 'cancel' });
+    const onDidDismiss = vi.fn().mockResolvedValue({ role: 'saved' });
     const create = vi
       .spyOn(TestBed.inject(ModalController), 'create')
       .mockResolvedValue({ present, onDidDismiss } as unknown as HTMLIonModalElement);
 
+    getMe.mockClear();
     await page.handleEditPublic();
     expect(create).toHaveBeenCalled();
     expect(present).toHaveBeenCalled();
+    expect(getMe).toHaveBeenCalled();
+
+    onDidDismiss.mockResolvedValueOnce({ role: 'cancel' });
+    getMe.mockClear();
+    await page.handleEditPublic();
+    expect(getMe).not.toHaveBeenCalled();
   });
 
-  it('opens the edit preferences modal', async () => {
+  it('keeps local user state when getMe fails with an ApiError', async () => {
     const { page } = render();
-    const present = vi.fn().mockResolvedValue(undefined);
-    const onDidDismiss = vi.fn().mockResolvedValue({ role: 'cancel' });
-    const create = vi
-      .spyOn(TestBed.inject(ModalController), 'create')
-      .mockResolvedValue({ present, onDidDismiss } as unknown as HTMLIonModalElement);
+    const { ApiError, NETWORK_ERROR } = await import('../../core/models/api-error.model');
+    getMe.mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
 
-    await page.handleEditPreferences();
-    expect(create).toHaveBeenCalled();
-    expect(present).toHaveBeenCalled();
+    await expect(page.refreshData()).resolves.toBeUndefined();
   });
 
-  it('opens the phone management modal', async () => {
-    const { page } = render();
-    const present = vi.fn().mockResolvedValue(undefined);
-    const onDidDismiss = vi.fn().mockResolvedValue({ role: 'cancel' });
-    const create = vi
-      .spyOn(TestBed.inject(ModalController), 'create')
-      .mockResolvedValue({ present, onDidDismiss } as unknown as HTMLIonModalElement);
-
-    await page.handleManagePhone();
-    expect(create).toHaveBeenCalled();
-    expect(present).toHaveBeenCalled();
-  });
-
-  it('toggles theme via theme service', () => {
-    const { page } = render();
-    const themeSpy = vi.spyOn(TestBed.inject(ThemeService), 'toggle').mockResolvedValue();
-    page.handleToggleTheme();
-    expect(themeSpy).toHaveBeenCalled();
-  });
-
-  it('sets theme via theme service', () => {
-    const { page } = render();
-    const themeSpy = vi.spyOn(TestBed.inject(ThemeService), 'set').mockResolvedValue();
-    page.handleSetTheme(true);
-    expect(themeSpy).toHaveBeenCalledWith(true);
-  });
   it('opens the change password modal', async () => {
     const { page } = render();
     const present = vi.fn().mockResolvedValue(undefined);
@@ -269,10 +156,14 @@ describe('ProfilePage', () => {
     expect(present).toHaveBeenCalled();
   });
 
-  it('links to Help & support', () => {
+  it('links to trip preferences, settings & privacy, and Help & support', () => {
     const { root } = render();
 
-    const link = root.querySelector('ion-item.profile__legal-row[href]');
-    expect(link?.getAttribute('href')).toBe('/tabs/profile/help');
+    const links = Array.from(root.querySelectorAll('ion-item.profile__legal-row[href]')).map((el) =>
+      el.getAttribute('href'),
+    );
+    expect(links).toContain('/tabs/profile/preferences');
+    expect(links).toContain('/tabs/profile/settings');
+    expect(links).toContain('/tabs/profile/help');
   });
 });

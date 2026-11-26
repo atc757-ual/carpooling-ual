@@ -1,0 +1,103 @@
+<ion-content>
+  <div class="tab-page profile">
+    <div class="profile__layout">
+      <!-- Columna principal en escritorio (col-8): Vehículos y Preferencias -->
+      <div class="profile__main">
+        <!-- Vehículos (solo para conductor) -->
+        <app-profile-vehicles />
+
+        @if (user()) {
+          <!-- Bloque: Preferencias de viaje -->
+          <ion-card class="profile-card">
+            <ion-card-header class="profile-card__header">
+              <ion-card-title>{{ 'profile.travelPreferences' | transloco }}</ion-card-title>
+              <form (submit)="$event.preventDefault(); handleEditPreferences()">
+                <ion-button
+                  type="submit"
+                  class="edit-button"
+                  [attr.aria-label]="'profile.editPreferences' | transloco"
+                >
+                  <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
+                </ion-button>
+              </form>
+            </ion-card-header>
+            <ion-card-content class="profile-card__content">
+              <div class="profile__pref-list">
+                @for (item of preferencesItems(); track item.criterion) {
+                  <div class="profile__pref-row">
+                    <span class="profile__pref-label text-body">
+                      <ion-icon [icon]="item.icon" aria-hidden="true" />
+                      {{ item.criterion }}
+                    </span>
+                    @if (item.value) {
+                      <span class="profile__pref-badge">{{ item.value }}</span>
+                    } @else {
+                      <span class="text-body-s text-color-muted">{{
+                        'profile.emptyPreferences' | transloco
+                      }}</span>
+                    }
+                  </div>
+                }
+                <div class="profile__pref-row">
+                  <span class="profile__pref-label text-body">
+                    <ion-icon [icon]="toleranceIcon" aria-hidden="true" />
+                    {{ 'profile.timeTolerance' | transloco }}
+                  </span>
+                  <span class="profile__pref-badge">{{ timeToleranceLabel() }}</span>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        }
+      </div>
+
+      <!-- Columna lateral en escritorio (col-4): Reseñas -->
+      <div class="profile__aside">
+        @if (user()) {
+          <!-- Bloque: Reseñas -->
+          <ion-card class="profile-card">
+            <ion-card-header class="profile-card__header">
+              <ion-card-title>{{ 'profile.reviews' | transloco }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="profile-card__content">
+              @if (reviewRows().length > 0) {
+                <ion-list class="profile__legal-list" lines="none">
+                  @for (row of reviewRows(); track row.key) {
+                    <ion-item
+                      class="profile__legal-row"
+                      [button]="true"
+                      [detail]="true"
+                      (click)="handleOpenReviews(row.key)"
+                    >
+                      <ion-icon
+                        slot="start"
+                        class="profile__legal-icon"
+                        [icon]="row.icon"
+                        aria-hidden="true"
+                      />
+                      <ion-label class="text-body text-body--strong">{{ row.role }}</ion-label>
+                      <span slot="end" class="profile__review-score">
+                        <ion-icon
+                          class="profile__review-medal"
+                          [icon]="medalIcon"
+                          aria-hidden="true"
+                        />
+                        <span class="text-body">{{ row.average }}</span>
+                        <span class="text-color-muted">{{ row.count }}</span>
+                      </span>
+                    </ion-item>
+                  }
+                </ion-list>
+              } @else {
+                <p class="text-body text-color-muted">
+                  {{ 'profile.emptyReviews' | transloco }}
+                  {{ 'profile.reviewsSubtitle' | transloco }}
+                </p>
+              }
+            </ion-card-content>
+          </ion-card>
+        }
+      </div>
+    </div>
+  </div>
+</ion-content>
