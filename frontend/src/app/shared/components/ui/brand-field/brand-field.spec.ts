@@ -139,6 +139,44 @@ describe('BrandField', () => {
     expect(input().value).toBe('SEAT');
   });
 
+  it('covers keyboard selection, blur, returnToBrandList, disabled state, and null writeValue', async () => {
+    // Default onChange/onTouched before registering callbacks
+    sendInput('a');
+    (component as unknown as { handleBlur: () => void }).handleBlur();
+
+    const touched = vi.fn();
+    component.registerOnTouched(touched);
+
+    // Null writeValue
+    component.writeValue(null);
+    fixture.detectChanges();
+    expect(input().value).toBe('');
+
+    // Disabled state blocks activateSearch
+    component.setDisabledState(true);
+    input().click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.brand-field__dropdown')).toBeNull();
+
+    // Enable and use combobox keyboard callback to select a brand
+    component.setDisabledState(false);
+    input().click();
+    fixture.detectChanges();
+    (
+      component as unknown as {
+        combobox: { chooseActive: () => void };
+      }
+    ).combobox.chooseActive();
+    expect(touched).toHaveBeenCalled();
+
+    // Null query update and returnToBrandList from otherMode
+    (component as unknown as { chooseBrand: (b: string) => void }).chooseBrand('Otra');
+    (component as unknown as { updateQuery: (v: null) => void }).updateQuery(null);
+    (component as unknown as { returnToBrandList: () => void }).returnToBrandList();
+    expect((component as unknown as { otherMode: () => boolean }).otherMode()).toBe(false);
+    expect((component as unknown as { searchActive: () => boolean }).searchActive()).toBe(true);
+  });
+
   function input(): HTMLIonInputElement {
     return fixture.nativeElement.querySelector('ion-input') as HTMLIonInputElement;
   }

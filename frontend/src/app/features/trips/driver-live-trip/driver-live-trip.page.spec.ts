@@ -569,4 +569,63 @@ describe('DriverLiveTripPage', () => {
     expect(root.querySelectorAll('.pickups-head .pickup-arrow')).toHaveLength(2);
     expect(root.querySelector('.pickup-carousel__arrows')).toBeNull();
   });
+
+  it('covers carousel scroll, no-show cancellation/error, pickupPlace branches, and finish guards', async () => {
+    const pWithoutPickupAt = passenger('r1', 'Carlos Ruiz', null);
+    await render(
+      [{ ...TRIP, destinationName: 'Roquetas de Mar' }],
+      [pWithoutPickupAt],
+    );
+
+    expect(page.allOnBoard()).toBe(false);
+    expect(page.isToCampus()).toBe(false);
+    expect(page.destinationIcon()).toBeDefined();
+    expect(page.noShowWaitMinutes(pWithoutPickupAt)).toBeGreaterThanOrEqual(1);
+
+    // Carousel scroll with clientWidth > 0 and clientWidth === 0
+    page.handleCarouselScroll({
+      target: { clientWidth: 200, scrollLeft: 400 },
+    } as unknown as Event);
+    expect(page.carouselIndex()).toBe(2);
+    page.handleCarouselScroll({
+      target: { clientWidth: 0, scrollLeft: 400 },
+    } as unknown as Event);
+    expect(page.carouselIndex()).toBe(2);
+
+    // pickupPlace for from-campus and missing pickupName
+    const pickupPlace = (
+      page as unknown as { pickupPlace: (r: SeatRequest) => string }
+    ).pickupPlace.bind(page);
+    expect(pickupPlace({ ...pWithoutPickupAt, direction: 'from-campus' })).toBeTruthy();
+    expect(pickupPlace({ ...pWithoutPickupAt, direction: 'to-campus', pickupName: null })).toBeTruthy();
+
+    // handleNoShow cancelled and rejected
+    ask.mockResolvedValueOnce(false);
+    await page.handleNoShow('r1');
+    expect(driver['markNoShow']).not.toHaveBeenCalled();
+
+    ask.mockResolvedValueOnce(true);
+    driver['markNoShow'].mockRejectedValueOnce(new Error('no show error'));
+    await page.handleNoShow('r1');
+    expect(showErrorMock).toHaveBeenCalled();
+
+    // handleFinish and confirmFinish guard branches and failure
+    page.isFinishing.set(true);
+    await page.handleFinish();
+    await page.confirmFinish();
+    page.isFinishing.set(false);
+    await page.confirmFinish(); // finishCheck is null
+
+    page.finishCheck.set({ isFar: false, distance: 50, point: null });
+    driver['finishTrip'].mockRejectedValueOnce(new Error('finish error'));
+    await page.confirmFinish();
+    expect(page.justFinished()).toBe(false);
+
+    page.ionViewWillLeave();
+
+    // No trip fallback for getPickupReferenceMs and safetyShareText
+    page.tripResource.set(undefined as never);
+    expect(page.safetyShareText()).toBe('');
+    expect(page.canMarkNoShow(pWithoutPickupAt)).toBe(true);
+  });
 });

@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource, EntityManager, QueryFailedError } from 'typeorm';
 import { EventsService } from '../../events/events.service';
 import { RequestsService } from '../requests/requests.service';
 import { Trip } from '../trips/entities/trip.entity';
@@ -313,6 +313,159 @@ describe('ReputationService', () => {
           },
         ],
       });
+    });
+
+    it('returns empty when no candidate trips exist, and includes in-progress dropped-off trips for passengers', async () => {
+      requestsService.acceptedTripIdsOfPassenger.mockResolvedValue([]);
+      tripsService.findFinishedSinceForParticipant.mockResolvedValue([]);
+      expect(await service.listPendingForUser('passenger-1')).toEqual([]);
+
+      const inProgressTrip = finishedTrip({
+        status: 'in_progress',
+        finishedAt: null,
+      });
+      requestsService.completedTripIdsOfPassenger.mockResolvedValue(['trip-1']);
+      tripsService.getByIds.mockResolvedValue(
+        new Map([['trip-1', inProgressTrip]]),
+      );
+      requestsService.acceptedPassengersByTrip.mockResolvedValue(new Map());
+      reviewsRepository.find.mockResolvedValue([]);
+      usersService.getPublicProfiles.mockResolvedValueOnce(new Map());
+
+      const pending = await service.listPendingForUser('passenger-1');
+      expect(pending).toHaveLength(1);
+      expect(pending[0].myRole).toBe('passenger');
+      expect(pending[0].targets[0].name).toBe('');
+    });
+  });
+
+  describe('listForUser, publishExpiredForUser, and edge cases', () => {
+    it('registers user summary hook onModuleInit and publishes expired reviews', async () => {
+      let hook: ((userId: string) => Promise<void>) | undefined;
+      usersService.onBeforeUserSummary.mockImplementation(
+        (fn: (userId: string) => Promise<void>) => {
+          hook = fn;
+        },
+      );
+      service.onModuleInit();
+      expect(hook).toBeDefined();
+
+      const expiredReview = Object.assign(new Review(), {
+        id: 'rev-exp',
+        tripId: 'trip-1',
+        authorId: 'passenger-1',
+        targetId: 'driver-1',
+        targetRole: 'driver',
+        rating: 4,
+        publishedAt: null,
+      });
+      manager.query
+        .mockResolvedValueOnce([{ id: 'rev-exp' }])
+        .mockResolvedValueOnce([{ count: 0, average: null }]);
+      manager.find.mockResolvedValueOnce([expiredReview]);
+
+      await hook!('driver-1');
+      expect(usersService.setRoleRating).toHaveBeenCalledWith(
+        expect.anything(),
+        'driver-1',
+        'driver',
+        { averageRating: null, ratingCount: 0 },
+      );
+    });
+
+    it('lists received and given reviews with optional role filter and fallback metadata', async () => {
+      const review = Object.assign(new Review(), {
+        id: 'rev-1',
+        tripId: 'trip-missing',
+        authorId: 'unknown-author',
+        targetId: 'unknown-target',
+        targetRole: 'driver',
+        rating: 5,
+        createdAt: new Date('2026-10-31T10:00:00Z'),
+      });
+      reviewsRepository.findAndCount.mockResolvedValueOnce([[review], 1]);
+      tripsService.getByIds.mockResolvedValueOnce(new Map());
+      usersService.getPublicProfiles.mockResolvedValueOnce(new Map());
+
+      const received = await service.listForUser(
+        'driver-1',
+        { role: 'driver' },
+        { page: 1, limit: 10, offset: 0 },
+      );
+      expect(received.items).toHaveLength(1);
+      expect(received.items[0].trip.originName).toBeNull();
+      expect(received.items[0].author.name).toBe('');
+
+      reviewsRepository.findAndCount.mockResolvedValueOnce([[], 0]);
+      tripsService.getByIds.mockResolvedValueOnce(new Map());
+      const given = await service.listForUser(
+        'driver-1',
+        { direction: 'given' },
+        { page: 1, limit: 10, offset: 0 },
+      );
+      expect(given.items).toEqual([]);
+    });
+
+    it('covers already-published counterpart, driver reviewing unaccepted passenger, and unique violation', async () => {
+      tripStatus.lockTrip.mockResolvedValue(finishedTrip());
+
+      // Driver trying to review unaccepted passenger
+      requestsService.isAcceptedPassenger.mockResolvedValueOnce(false);
+      await expect(
+        service.createReview('driver-1', 'trip-1', {
+          targetId: 'passenger-1',
+          rating: 5,
+        }),
+      ).rejects.toBeInstanceOf(ReviewNotAllowedError);
+
+      // Passenger trying to review another passenger
+      await expect(
+        service.createReview('passenger-1', 'trip-1', {
+          targetId: 'passenger-2',
+          rating: 5,
+        }),
+      ).rejects.toBeInstanceOf(ReviewNotAllowedError);
+
+      // Driver reviewing accepted passenger when counterpart is already published
+      requestsService.isAcceptedPassenger.mockResolvedValue(true);
+      manager.findOne.mockResolvedValueOnce(
+        Object.assign(new Review(), {
+          id: 'rev-counter',
+          publishedAt: new Date(),
+          targetId: 'driver-1',
+          targetRole: 'driver',
+        }),
+      );
+      manager.query
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([{ count: 1, average: '5.00' }]);
+      const view = await service.createReview('driver-1', 'trip-1', {
+        targetId: 'passenger-1',
+        rating: 5,
+      });
+      expect(view.review.targetRole).toBe('passenger');
+
+      // Unique violation on saveNewReview vs unexpected DB error
+      manager.save.mockRejectedValueOnce(
+        new QueryFailedError('INSERT', [], {
+          code: '23505',
+          constraint: 'reviews_trip_author_target_key',
+        }),
+      );
+      await expect(
+        service.createReview('driver-1', 'trip-1', {
+          targetId: 'passenger-1',
+          rating: 5,
+        }),
+      ).rejects.toBeInstanceOf(ReviewAlreadyExistsError);
+
+      manager.save.mockRejectedValueOnce(new Error('db crash'));
+      await expect(
+        service.createReview('driver-1', 'trip-1', {
+          targetId: 'passenger-1',
+          rating: 5,
+        }),
+      ).rejects.toThrow('db crash');
     });
   });
 });

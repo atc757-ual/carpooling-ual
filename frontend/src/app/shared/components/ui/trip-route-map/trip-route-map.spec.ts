@@ -150,4 +150,52 @@ describe('TripRouteMap', () => {
     );
     expect(legend(root)).toContain('Coche: dónde va ahora');
   });
+
+  it('handles mobile dragging toggle on zoom, pre-existing leaflet id, and guard branches', async () => {
+    const leafletModule = await import('leaflet');
+    const browser = (
+      ((leafletModule as unknown as { default?: typeof leafletModule }).default ?? leafletModule)
+        .Browser as unknown as { mobile: boolean }
+    );
+    const origMobile = browser.mobile;
+    browser.mobile = true;
+
+    try {
+      fixture = TestBed.createComponent(TripRouteMap);
+      const instance = fixture.componentInstance as unknown as {
+        updateRoute: (r: TripRoute) => void;
+        drawMarkers: (m: unknown[]) => void;
+        map: { setZoom: (z: number) => void; getZoom: () => number } | null;
+      };
+      // Guard branches when leaflet/map are not yet initialized
+      instance.updateRoute(ROUTE);
+      instance.drawMarkers([]);
+
+      const canvas = fixture.nativeElement.querySelector(
+        '.trip-route-map__canvas',
+      ) as HTMLElement & {
+        _leaflet_id?: number;
+      };
+      canvas._leaflet_id = 999;
+
+      fixture.componentRef.setInput('route', ROUTE);
+      fixture.componentRef.setInput('origin', ORIGIN);
+      fixture.componentRef.setInput('destination', { ...DESTINATION, isApproximate: true });
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await vi.waitFor(() => expect(observe).toHaveBeenCalled());
+
+      const map = instance.map!;
+      const initialZoom = map.getZoom();
+      map.setZoom(initialZoom + 1);
+      map.setZoom(initialZoom);
+
+      fixture.componentInstance.ngOnDestroy();
+      canvas._leaflet_id = 999;
+      fixture.destroy();
+      expect(canvas._leaflet_id).toBeUndefined();
+    } finally {
+      browser.mobile = origMobile;
+    }
+  });
 });
