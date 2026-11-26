@@ -128,6 +128,20 @@ describe('DriverTripDetailPage', () => {
     expect(notice?.textContent).toContain('Cerrado automáticamente');
   });
 
+  it('names the role by how the trip went: drove, was driving or driving', async () => {
+    const roles = {
+      finished: 'labels.role.drove',
+      cancelled: 'labels.role.wasDriving',
+      expired: 'labels.role.wasDriving',
+      published: 'labels.role.driving',
+    } as const;
+    for (const [status, key] of Object.entries(roles)) {
+      TestBed.resetTestingModule();
+      await render(() => Promise.resolve([trip('t1', { status: status as DriverTrip['status'] })]));
+      expect(fixture.componentInstance.roleKey()).toBe(key);
+    }
+  });
+
   it('gives every closed trip its notice, in the colour of its status', async () => {
     const tones = { finished: 'success', cancelled: 'danger', expired: 'warning' } as const;
     for (const [status, tone] of Object.entries(tones)) {
