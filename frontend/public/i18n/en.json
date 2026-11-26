@@ -1009,6 +1009,28 @@
       "securityTitle": "Your access, protected",
       "securityDescription": "Never share your password or verification code. We will never ask for them in chat."
     },
+    "biometric": {
+      "loginButton": "Sign in with fingerprint",
+      "account": "As {{ email }}",
+      "loginTitle": "Sign in to Carpooling UAL",
+      "usePassword": "Use password",
+      "enableTitle": "Turn on fingerprint sign-in",
+      "unavailable": "Fingerprint sign-in is no longer on for this phone. Sign in with your password.",
+      "passwordChanged": "Your password has changed. Sign in with the new one and turn on fingerprint sign-in again.",
+      "offerTitle": "Sign in with your fingerprint next time?",
+      "offerMessage": "You will be able to sign in again without typing your password. It is stored encrypted on this phone and only used with your fingerprint.",
+      "offerConfirm": "Turn on fingerprint",
+      "offerLater": "Not now",
+      "enabled": "Fingerprint sign-in turned on.",
+      "enableFailed": "We could not turn on fingerprint sign-in. Try again next time you sign in.",
+      "settingTitle": "Sign in with fingerprint",
+      "settingOn": "On for this phone, for {{ email }}.",
+      "settingOff": "Offered when you sign in with your password on this phone.",
+      "disableTitle": "Turn off fingerprint sign-in?",
+      "disableMessage": "You will need to type your password to sign in on this phone. What was stored is deleted.",
+      "disable": "Turn off",
+      "disabled": "Fingerprint sign-in turned off."
+    },
     "register": {
       "title": "Create an account",
       "subtitle": "Join the University of Almería carpooling community.",

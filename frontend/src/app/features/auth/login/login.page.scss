@@ -25,3 +25,16 @@
     margin: 0;
   }
 }
+
+// «Entrar con huella» (app Android) y la cuenta con la que entra, debajo
+.login__biometric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  text-align: center;
+
+  ion-button,
+  p {
+    margin: 0;
+  }
+}

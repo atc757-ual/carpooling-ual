@@ -58,6 +58,7 @@ import { getInitials } from '../matching/trip-driver/trip-driver';
 import { PREFERENCE_ICONS, TIME_TOLERANCE_ICON } from './preference-icons';
 import { ProfileVehicles } from './profile-vehicles/profile-vehicles';
 import { ProfilePublicModal } from './profile-public-modal/profile-public-modal';
+import { BiometricSetting } from './biometric-setting/biometric-setting';
 import { ProfilePushSetting } from './profile-push-setting/profile-push-setting';
 import { ProfilePhoneShare } from './profile-phone-share/profile-phone-share';
 import { ProfileDeviceLocation } from './profile-device-location/profile-device-location';
@@ -90,6 +91,7 @@ interface ReviewRow {
 @Component({
   selector: 'app-profile',
   imports: [
+    BiometricSetting,
     ProfilePushSetting,
     ProfilePhoneShare,
     ProfileDeviceLocation,

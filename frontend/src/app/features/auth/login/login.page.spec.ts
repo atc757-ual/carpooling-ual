@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
@@ -5,6 +6,8 @@ import { vi } from 'vitest';
 import { provideTranslocoTestingSupport } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { BiometricLoginService } from '../../../core/services/auth/biometric-login.service';
+import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { AppContextService } from '../../../core/services/ui/app-context.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { LoginPage } from './login.page';
@@ -21,8 +24,22 @@ describe('LoginPage', () => {
   let setPendingVerificationEmail: ReturnType<typeof vi.fn>;
   let entryPath: ReturnType<typeof vi.fn>;
   let navigateByUrl: ReturnType<typeof vi.spyOn>;
+  const ask = vi.fn();
+  const enabledEmail = signal<string | null>(null);
+  const biometric = {
+    load: vi.fn(),
+    enabledEmail,
+    isEnabled: () => enabledEmail() !== null,
+    shouldOffer: vi.fn(),
+    enable: vi.fn(),
+    decline: vi.fn(),
+    login: vi.fn(),
+  };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+    enabledEmail.set(null);
+    biometric.shouldOffer.mockResolvedValue(false);
     showError = vi.fn().mockResolvedValue(undefined);
     showSuccess = vi.fn().mockResolvedValue(undefined);
     login = vi.fn().mockResolvedValue({ profiles: ['passenger'] });
@@ -37,6 +54,8 @@ describe('LoginPage', () => {
         provideTranslocoTestingSupport(),
         { provide: ToastService, useValue: { showError, showSuccess } },
         { provide: AppContextService, useValue: { entryPath } },
+        { provide: BiometricLoginService, useValue: biometric },
+        { provide: ConfirmService, useValue: { ask } },
         {
           provide: AuthService,
           useValue: { login, resendVerificationCode, setPendingVerificationEmail },
@@ -164,5 +183,75 @@ describe('LoginPage', () => {
 
     expect(password?.type).toBe('text');
     expect(toggle?.getAttribute('aria-label')).toBe('Ocultar contraseña');
+  });
+
+  describe('fingerprint sign-in', () => {
+    it('offers it after signing in with the password and turns it on', async () => {
+      biometric.shouldOffer.mockResolvedValue(true);
+      ask.mockResolvedValue(true);
+      biometric.enable.mockResolvedValue(true);
+
+      await submit();
+
+      expect(biometric.enable).toHaveBeenCalledWith(CREDENTIALS);
+      expect(showSuccess).toHaveBeenCalled();
+      expect(navigateByUrl).toHaveBeenCalledWith('/tabs');
+    });
+
+    it('remembers a refusal and still goes in when saving fails', async () => {
+      biometric.shouldOffer.mockResolvedValue(true);
+      ask.mockResolvedValueOnce(false);
+      await submit();
+      expect(biometric.decline).toHaveBeenCalledWith('ana@ual.es');
+      expect(biometric.enable).not.toHaveBeenCalled();
+
+      ask.mockResolvedValueOnce(true);
+      biometric.enable.mockRejectedValueOnce(new Error('Keystore failed'));
+      await submit();
+      expect(showError).toHaveBeenCalled();
+      expect(navigateByUrl).toHaveBeenCalledTimes(2);
+    });
+
+    it('shows the button with the account only when it is on', async () => {
+      const root = fixture.nativeElement as HTMLElement;
+      fixture.detectChanges();
+      expect(root.querySelector('.login__biometric')).toBeNull();
+
+      enabledEmail.set('ana@ual.es');
+      fixture.detectChanges();
+      expect(root.querySelector('.login__biometric')?.textContent).toContain('ana@ual.es');
+    });
+
+    it('signs in with the fingerprint and goes to the entry', async () => {
+      enabledEmail.set('ana@ual.es');
+      biometric.login.mockResolvedValue({ id: 'u1' });
+
+      await page.handleBiometricLogin();
+
+      expect(navigateByUrl).toHaveBeenCalledWith('/tabs');
+      expect(page.isSubmitting()).toBe(false);
+    });
+
+    it('stays when cancelled, and says so when it was turned off', async () => {
+      enabledEmail.set('ana@ual.es');
+      biometric.login.mockResolvedValue(null);
+      await page.handleBiometricLogin();
+      expect(navigateByUrl).not.toHaveBeenCalled();
+      expect(showError).not.toHaveBeenCalled();
+
+      enabledEmail.set(null);
+      await page.handleBiometricLogin();
+      expect(showError).toHaveBeenCalledTimes(1);
+    });
+
+    it('explains a changed password and other errors', async () => {
+      biometric.login.mockRejectedValueOnce(new ApiError('INVALID_CREDENTIALS', 401));
+      await page.handleBiometricLogin();
+      biometric.login.mockRejectedValueOnce(new ApiError('ACCOUNT_DISABLED', 403));
+      await page.handleBiometricLogin();
+
+      expect(showError).toHaveBeenCalledTimes(2);
+      expect(showError.mock.calls[0][0]).not.toBe(showError.mock.calls[1][0]);
+    });
   });
 });
