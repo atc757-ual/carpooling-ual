@@ -61,7 +61,8 @@ for (const viewport of VIEWPORTS) {
       openProfile(['driver']);
 
       cy.contains('app-profile', 'Lucía Cortés').should('be.visible');
-      cy.contains('app-profile', '+34 612 345 678');
+      cy.contains('app-profile ion-item', 'Configuración de mis viajes').click();
+      cy.location('pathname').should('eq', '/tabs/profile/preferences');
       cy.contains('app-profile-vehicles', '1234 BCD');
       cy.contains('app-profile-vehicles', 'SEAT León');
       cy.contains('app-profile-vehicles', 'Blanco · 3 plazas · Híbrido');
@@ -101,7 +102,10 @@ for (const viewport of VIEWPORTS) {
       });
       openProfile(['passenger']);
 
-      cy.contains('app-profile', 'Aceptada la v1.0 el 21 oct 2026');
+      cy.contains('app-profile ion-item', 'Configuración y privacidad').click();
+      cy.location('pathname').should('eq', '/tabs/profile/settings');
+      cy.contains('app-profile-settings-page', '+34 612 345 678');
+      cy.contains('app-profile-settings-page', 'Aceptada la v1.0 el 21 oct 2026');
       cy.contains('.profile__legal-update', 'Vigente: v1.1 · actualizada el 3 nov 2026')
         .should('contain', 'Ver novedades')
         .click();
@@ -118,6 +122,8 @@ for (const viewport of VIEWPORTS) {
       cy.intercept('DELETE', '/api/vehicles/v1', { statusCode: 204 }).as('remove');
       openProfile(['driver']);
 
+      cy.contains('app-profile ion-item', 'Configuración de mis viajes').click();
+      cy.location('pathname').should('eq', '/tabs/profile/preferences');
       cy.get('app-profile-vehicles [aria-label*="Eliminar"]').click();
       cy.contains('app-confirm-modal ion-button', 'Eliminar').click();
 
