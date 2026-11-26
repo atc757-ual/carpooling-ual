@@ -154,16 +154,16 @@ describe('ProfileSettingsPage', () => {
     page.consents.set({
       current: {
         terms: {
-          documentType: 'terms',
-          version: '1.0',
-          acceptedAt: '2026-10-01T10:00:00Z',
-          fingerprintSha256: 'a'.repeat(64),
+          action: 'granted',
+          documentVersion: '1.0',
+          recordedAt: '2026-10-01T10:00:00Z',
+          fingerprint: 'a'.repeat(64),
         },
         privacy: {
-          documentType: 'privacy',
-          version: '1.0',
-          acceptedAt: '2026-10-01T10:00:00Z',
-          fingerprintSha256: 'b'.repeat(64),
+          action: 'granted',
+          documentVersion: '1.0',
+          recordedAt: '2026-10-01T10:00:00Z',
+          fingerprint: 'b'.repeat(64),
         },
         location: null,
       },
