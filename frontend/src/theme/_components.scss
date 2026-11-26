@@ -1706,9 +1706,10 @@ ion-toggle {
 }
 
 // «En curso» en el móvil: las acciones del viaje en una fila de botones con
-// su nombre debajo (.icon-btn--stacked); el SOS, el último
+// su nombre debajo (.icon-btn--stacked); el SOS, el último. Sin margen
+// arriba: la fila va justo debajo de la tarjeta anterior
 .live-actions {
-  padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
+  padding-top: 0;
 }
 
 .live-actions__row {

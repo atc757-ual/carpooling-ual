@@ -168,5 +168,17 @@ ion-modal.live-sheet.live-sheet {
       border-top: 0;
       border-left: var(--border-width-s) solid var(--color-border-subtle);
     }
+
+    // Sin el título de cada sección a la vista (la tarjeta es más baja y el
+    // texto y el botón ya dicen qué es): queda para el lector de pantalla,
+    // que nombra cada sección con él (como .visually-hidden)
+    .section-item__title {
+      position: absolute;
+      overflow: hidden;
+      width: 1px;
+      height: 1px;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
 }

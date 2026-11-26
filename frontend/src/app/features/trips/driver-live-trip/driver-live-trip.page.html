@@ -745,16 +745,18 @@
           </ion-card>
         </ng-template>
         <ng-template #sosButton let-isStacked>
-          <!-- 112: el teléfono único de emergencias en Europa -->
+          <!-- 112: el teléfono único de emergencias en Europa. En la fila del móvil,
+             «SOS» (corto); en su tarjeta, «Llamar al 112» -->
           <a
             class="icon-btn icon-btn--labeled icon-btn--danger"
             [class.icon-btn--stacked]="isStacked"
             href="tel:112"
             [attr.aria-label]="'live.sosLlamar112' | transloco"
+            [title]="'live.llamar112' | transloco"
           >
             <ion-icon [icon]="callIcon" aria-hidden="true" />
             <span class="icon-btn__label" aria-hidden="true">{{
-              'live.llamar112' | transloco
+              (isStacked ? 'live.sos' : 'live.llamar112') | transloco
             }}</span>
           </a>
         </ng-template>
