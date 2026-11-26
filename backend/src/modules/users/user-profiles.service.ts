@@ -10,7 +10,6 @@ import { User } from './entities/user.entity';
 import { CannotChangeOwnAdminError } from './errors/cannot-change-own-admin.error';
 import { LastAdminError } from './errors/last-admin.error';
 import { ProfileDeactivatedByAdminError } from './errors/profile-deactivated-by-admin.error';
-import { ProfileNotFoundError } from './errors/profile-not-found.error';
 import { UserNotFoundError } from './errors/user-not-found.error';
 import { PROFILE_ENTITIES } from './profile-entities';
 import type { ProfileType, RegistrableProfile } from './profile-type';
@@ -110,16 +109,23 @@ export class UserProfilesService {
     return toAdminView(user);
   }
 
-  // Activa o desactiva un perfil. Para el de administrador, activar es
-  // asignarlo (se crea si no lo tenía) y desactivar es retirarlo. Idempotente:
-  // si ya estaba así, no cambia nada
+  // Activa o desactiva un perfil. Activar un perfil que el usuario no tenía es
+  // concederlo (se crea); para el de administrador, desactivar es retirarlo.
+  // Idempotente: si ya estaba así, no cambia nada
   async setProfileActive(
     adminId: string,
     change: AdminProfileChange,
   ): Promise<void> {
     const { userId, profile, isActive, reason } = change;
     await this.dataSource.transaction(async (manager) => {
-      if (!(await manager.existsBy(User, { id: userId }))) {
+      // Se bloquea la fila del usuario: dos administradores a la vez no
+      // pueden conceder el mismo perfil dos veces. Una cuenta dada de baja no
+      // se gestiona
+      const user = await manager.findOne(User, {
+        where: { id: userId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (user === null || user.deactivatedAt !== null) {
         throw new UserNotFoundError(userId);
       }
       if (profile === 'admin' && !isActive) {
@@ -135,10 +141,9 @@ export class UserProfilesService {
         if (!isActive) {
           return;
         }
-        if (profile !== 'admin') {
-          throw new ProfileNotFoundError(userId, profile);
-        }
-        await manager.save(manager.create(AdminProfile, { userId }));
+        // El de conductor no basta para publicar: el usuario tiene que
+        // aceptar la declaración y registrar su vehículo (driver-readiness.ts)
+        await manager.save(manager.create(entity, { userId }));
       } else if (current.isActive === isActive) {
         return;
       } else {

@@ -62,21 +62,26 @@
                   </span>
                 </span>
               </span>
-              <ion-button
-                class="detail__profile-action"
-                fill="clear"
-                size="small"
-                [color]="row.isActive ? 'danger' : 'success'"
-                [attr.aria-label]="row.actionText + ' el perfil de ' + row.label"
-                (click)="handleProfile(row)"
-              >
-                <ion-icon
-                  slot="start"
-                  [icon]="row.isActive ? icons.deactivate : icons.activate"
-                  aria-hidden="true"
-                />
-                {{ row.actionText }}
-              </ion-button>
+              <!-- Su propio perfil de administrador no se lo puede retirar -->
+              @if (row.canChange) {
+                <ion-button
+                  class="detail__profile-action"
+                  fill="clear"
+                  size="small"
+                  [color]="row.isActive ? 'danger' : 'success'"
+                  [attr.aria-label]="row.actionText + ' el perfil de ' + row.label"
+                  (click)="handleProfile(row)"
+                >
+                  <ion-icon
+                    slot="start"
+                    [icon]="row.isActive ? icons.deactivate : icons.activate"
+                    aria-hidden="true"
+                  />
+                  {{ row.actionText }}
+                </ion-button>
+              } @else {
+                <span class="text-body-s admin-detail__muted">Tu cuenta</span>
+              }
             </li>
           }
         </ul>

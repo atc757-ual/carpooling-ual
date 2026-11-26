@@ -30,10 +30,10 @@ import {
   personOutline,
   shieldOutline,
 } from 'ionicons/icons';
-import { AdminUserDetail } from '../../../core/models/admin-user.model';
 import { ApiError } from '../../../core/models/api-error.model';
 import { Profile } from '../../../core/models/user.model';
 import { AdminUsersService } from '../../../core/services/admin/admin-users.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { confirmWithReason } from '../../../shared/components/modals/reason-confirm-modal/reason-confirm-modal';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
@@ -44,68 +44,16 @@ import {
   formatDateTime,
   incidentLabel,
   initialsOf,
-  ratingLabel,
   requestStatusLabel,
   ROLE_LABELS,
   tripRoute,
   tripStatusLabel,
 } from './admin-user-detail-labels';
-import { PROFILE_LABELS, statusChips } from './admin-user-labels';
+import { statusChips } from './admin-user-labels';
+import { profileMessage, ProfileRow, profileRows, profileToast } from './admin-user-profiles';
 
 const USERS_PATH = '/admin/users';
 type Role = 'driver' | 'passenger';
-
-export interface ProfileRow {
-  profile: Profile;
-  label: string;
-  // Si la cuenta tiene el perfil (activo o no)
-  hasProfile: boolean;
-  isActive: boolean;
-  rating: string | null;
-  // «Activo», «Desactivado» o «No lo tiene»
-  stateText: string;
-  actionText: string;
-}
-
-// Textos de la acción: el de administrador se da o se quita; los demás se
-// activan o se desactivan
-const ACTION_TEXTS = {
-  admin: { active: 'Revocar', inactive: 'Conceder' },
-  other: { active: 'Inhabilitar', inactive: 'Habilitar' },
-} as const;
-
-function stateTextFor(hasProfile: boolean, isActive: boolean): string {
-  if (isActive) {
-    return 'Activo';
-  }
-  return hasProfile ? 'Desactivado' : 'No lo tiene';
-}
-
-function actionTextFor(profile: Profile, isActive: boolean): string {
-  const texts = profile === 'admin' ? ACTION_TEXTS.admin : ACTION_TEXTS.other;
-  return isActive ? texts.active : texts.inactive;
-}
-
-// Lo que se puede hacer con cada perfil: activar o desactivar los de
-// conductor y pasajero (si los tiene) y dar o quitar el de administrador
-export function profileRows(detail: AdminUserDetail): ProfileRow[] {
-  const byProfile = new Map(detail.profiles.map((status) => [status.profile, status]));
-  return (['driver', 'passenger', 'admin'] as const)
-    .filter((profile) => profile === 'admin' || byProfile.has(profile))
-    .map((profile) => {
-      const isActive = byProfile.get(profile)?.isActive ?? false;
-      const isAdmin = profile === 'admin';
-      return {
-        profile,
-        label: PROFILE_LABELS[profile],
-        hasProfile: byProfile.has(profile),
-        isActive,
-        rating: isAdmin ? null : ratingLabel(detail.ratings[profile]),
-        stateText: stateTextFor(byProfile.has(profile), isActive),
-        actionText: actionTextFor(profile, isActive),
-      };
-    });
-}
 
 // Detalle de un usuario en el panel (RF-25, CU-13), con las acciones del
 // administrador: cada una con su confirmación y su motivo (auditoría)
@@ -127,6 +75,7 @@ export function profileRows(detail: AdminUserDetail): ProfileRow[] {
 })
 export class AdminUserDetailPage {
   private readonly adminUsers = inject(AdminUsersService);
+  private readonly auth = inject(AuthService);
   private readonly modalController = inject(ModalController);
   private readonly toast = inject(ToastService);
   private readonly location = inject(Location);
@@ -147,7 +96,7 @@ export class AdminUserDetailPage {
   });
   readonly profiles = computed(() => {
     const user = this.user();
-    return user ? profileRows(user) : [];
+    return user ? profileRows(user, this.auth.currentUser()?.id) : [];
   });
   readonly suspensions = computed(() => {
     const suspensions = this.user()?.suspensions;
@@ -216,16 +165,14 @@ export class AdminUserDetailPage {
     const isDone = await confirmWithReason(this.modalController, {
       header: `¿${row.actionText} el perfil de ${row.label.toLowerCase()}?`,
       message: isLastProfile
-        ? `${profileMessage(row.profile, isActive, user.name)} Se quedará sin ningún perfil activo y no podrá usar la app.`
-        : profileMessage(row.profile, isActive, user.name),
+        ? `${profileMessage(row, user.name)} Se quedará sin ningún perfil activo y no podrá usar la app.`
+        : profileMessage(row, user.name),
       confirmText: `${row.actionText} perfil`,
       action: (reason) =>
         this.adminUsers.setProfileActive(user.id, { profile: row.profile, isActive, reason }),
     });
     if (isDone) {
-      void this.toast.showSuccess(
-        `Perfil de ${row.label.toLowerCase()} ${isActive ? 'habilitado' : 'inhabilitado'}.`,
-      );
+      void this.toast.showSuccess(profileToast(row));
       this.detail.reload();
     }
   }
@@ -250,15 +197,4 @@ export class AdminUserDetailPage {
   handleRetry(): void {
     this.detail.reload();
   }
-}
-
-function profileMessage(profile: Profile, isActive: boolean, name: string): string {
-  if (profile === 'admin') {
-    return isActive
-      ? `${name} podrá entrar en el panel de administración.`
-      : `${name} dejará de tener acceso al panel de administración.`;
-  }
-  return isActive
-    ? `${name} podrá volver a usar este perfil.`
-    : `${name} no podrá usar este perfil y se cerrarán sus sesiones abiertas.`;
 }
