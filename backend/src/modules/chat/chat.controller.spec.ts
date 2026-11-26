@@ -14,7 +14,6 @@ describe('ChatController', () => {
 
   const user: AccessTokenPayload = {
     sub: 'user-1',
-    email: 'user1@ual.es',
     profiles: ['driver'],
   };
 
@@ -39,17 +38,17 @@ describe('ChatController', () => {
 
   beforeEach(() => {
     chatService = {
-      listMessages: jest.fn(),
-      sendMessage: jest.fn(),
-      markRead: jest.fn(),
-      listContacts: jest.fn(),
+      list: jest.fn(),
+      send: jest.fn(),
+      contacts: jest.fn(),
     };
     conversationsService = {
       listForUser: jest.fn(),
       getForTrip: jest.fn(),
+      markRead: jest.fn(),
     };
     chatReportsService = {
-      reportChat: jest.fn(),
+      report: jest.fn(),
     };
 
     controller = new ChatController(

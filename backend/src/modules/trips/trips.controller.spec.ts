@@ -21,10 +21,11 @@ describe('TripsController', () => {
       listByDriver: jest.fn(),
     };
     lateCancellations = {
-      getDriverStatus: jest.fn(),
+      getPublishingStatus: jest.fn(),
     };
     viewerAccess = {
-      forViewer: jest.fn(),
+      tripFor: jest.fn(),
+      routeFor: jest.fn(),
     };
 
     controller = new TripsController(

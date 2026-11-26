@@ -11,7 +11,7 @@ import { PassengerNotBoardedError } from './errors/passenger-not-boarded.error';
 import { RequestNotFoundError } from './errors/request-not-found.error';
 import { RequestDropOffService } from './request-drop-off.service';
 import type { RequestChangesRecorder } from './request-changes';
-import type { RequestViewsService } from './request-views.service';
+import type { RequestView, RequestViewsService } from './request-views.service';
 
 // Cierre por pasajero: «Ha bajado» (conductor) y «He llegado» (pasajero)
 describe('RequestDropOffService', () => {
@@ -73,7 +73,9 @@ describe('RequestDropOffService', () => {
         work(manager as unknown as EntityManager),
     };
     const views = {
-      toView: jest.fn((request: SeatRequest) => Promise.resolve(request)),
+      toView: jest.fn((request: SeatRequest) =>
+        Promise.resolve({ request } as RequestView),
+      ),
     };
     service = new RequestDropOffService(
       dataSource as unknown as DataSource,
@@ -89,11 +91,11 @@ describe('RequestDropOffService', () => {
 
     const result = await service.dropOff('driver-1', 'req-1');
 
-    expect(result).toMatchObject({
+    expect(result.request).toMatchObject({
       status: 'completed',
       droppedOffBy: 'driver',
     });
-    expect(result.droppedOffAt).toBeInstanceOf(Date);
+    expect(result.request.droppedOffAt).toBeInstanceOf(Date);
     expect(changes.record).toHaveBeenCalledWith(
       manager,
       'request.completed',
@@ -108,7 +110,7 @@ describe('RequestDropOffService', () => {
 
     const result = await service.arrive('passenger-1', 'req-1');
 
-    expect(result).toMatchObject({
+    expect(result.request).toMatchObject({
       status: 'completed',
       droppedOffBy: 'passenger',
     });
@@ -123,7 +125,7 @@ describe('RequestDropOffService', () => {
 
     const result = await service.dropOff('driver-1', 'req-1');
 
-    expect(result).toMatchObject({
+    expect(result.request).toMatchObject({
       status: 'completed',
       droppedOffBy: 'passenger',
     });

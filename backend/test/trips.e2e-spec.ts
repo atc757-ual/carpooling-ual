@@ -194,11 +194,10 @@ describe('Trips API (e2e)', () => {
   describe('POST /api/trips (RF-04)', () => {
     it('publishes a trip with public vehicle details and no plate', async () => {
       const { token, vehicleId } = await readyDriver('ana');
-      const body = {
-        ...tripBody(vehicleId),
+      const body = tripBody(vehicleId, {
         originName: 'Almería centro',
         destinationName: 'Campus UAL · Parking P1 (Sur)',
-      } as { departureAt: string };
+      }) as { departureAt: string };
 
       const response = await api('post', '/trips', token)
         .send(body)

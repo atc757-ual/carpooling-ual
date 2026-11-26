@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { SmsConfig } from '../../config/sms.config';
+import type { AppLanguage } from '../../shared/i18n/app-language';
 import { SmsSender } from '../../shared/sms/sms-sender';
 import { UserNotFoundError } from '../users/errors/user-not-found.error';
 import type { UserSummary } from '../users/user-summary';
@@ -37,7 +38,7 @@ export class PhoneVerificationService {
     }
     const code = await this.emailCodes.issue(user.id, 'phone_verification');
     if (code !== null) {
-      await this.sendCode(user.phone, code);
+      await this.sendCode(user.phone, code, user.language);
     }
   }
 
@@ -62,7 +63,11 @@ export class PhoneVerificationService {
 
   // Si el envío falla, se registra en el log sin el teléfono (dato personal):
   // el usuario puede pedir otro código pasado el minuto
-  private async sendCode(phone: string, code: string): Promise<void> {
+  private async sendCode(
+    phone: string,
+    code: string,
+    language: AppLanguage,
+  ): Promise<void> {
     try {
       await this.smsSender.send(
         buildPhoneVerificationCodeSms({
@@ -70,6 +75,7 @@ export class PhoneVerificationService {
           code,
           expiresInMinutes: CODE_TTL_MINUTES,
           otpDomain: this.otpDomain,
+          language,
         }),
       );
     } catch (error) {
