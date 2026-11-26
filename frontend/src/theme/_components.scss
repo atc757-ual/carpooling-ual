@@ -1588,100 +1588,113 @@ ion-toggle {
   }
 }
 
-// Botón de icono que muestra su texto (.icon-btn.icon-btn--reveal con el texto
-// en .icon-btn__label): redondo como los demás; al pasar el ratón, enfocarlo
-// con el teclado, en el móvil con el primer toque (--revealed, de la
-// directiva appRevealOnTouch) o mientras guarda (--busy), se estira hacia la
-// izquierda con el texto. Con las dos clases, para ganar a .icon-btn (rejilla)
-.icon-btn.icon-btn--reveal {
-  display: inline-flex;
-  width: auto;
-  min-width: var(--control-height-s);
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding-inline: 0.6875rem; // 11px: el icono centrado en 44px
-  transition:
-    gap 160ms ease,
-    padding 160ms ease;
-
-  ion-spinner {
-    width: var(--icon-size-base);
-    height: var(--icon-size-base);
-  }
-
-  @media (any-hover: hover) {
-    &:hover:not(:disabled, [aria-disabled='true']) {
-      gap: var(--space-xs);
-      padding-inline: var(--space-s); // 8px, como arriba y abajo
-    }
-  }
-
-  &:focus-visible,
-  &.icon-btn--revealed,
-  &.icon-btn--busy,
-  .icon-btns-open & {
-    gap: var(--space-xs);
-    padding-inline: var(--space-s); // 8px, como arriba y abajo
-  }
-}
-
+// El texto de un botón de icono (.icon-btn--labeled): siempre a la vista. Los
+// botones que solo enseñaban el icono y se desplegaban al primer toque
+// obligaban a tocar dos veces (también el 112) y movían el botón bajo el dedo;
+// se quitaron tras la revisión de accesibilidad del 26/11/2026
 .icon-btn__label {
-  overflow: hidden;
-  max-width: 0;
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
-  transition: max-width var(--motion-duration-fast) ease;
-
-  @media (any-hover: hover) {
-    .icon-btn--reveal:hover:not(:disabled, [aria-disabled='true']) & {
-      max-width: 10rem; // 160px: cabe «Compartir ubicación»
-    }
-  }
-
-  .icon-btn--reveal:focus-visible &,
-  .icon-btn--revealed &,
-  .icon-btn--busy &,
-  .icon-btns-open & {
-    max-width: 10rem; // 160px
-  }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .icon-btn.icon-btn--reveal,
-  .icon-btn__label {
-    transition: none;
-  }
+.icon-btn--labeled ion-spinner {
+  width: var(--icon-size-s);
+  height: var(--icon-size-s);
 }
 
-// Con un texto corto que se ve siempre (.icon-btn__short, p. ej. «SOS») y que,
-// al estirarse, deja su sitio al largo (.icon-btn__label, «Llamar al 112»)
-.icon-btn__short {
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-bold);
-  white-space: nowrap;
-
-  @media (any-hover: hover) {
-    .icon-btn--reveal:hover:not(:disabled, [aria-disabled='true']) & {
-      display: none;
-    }
-  }
-
-  .icon-btn--reveal:focus-visible &,
-  .icon-btn--revealed &,
-  .icon-btns-open & {
-    display: none;
-  }
-}
-
-// Dentro de .icon-btns-open (p. ej. «En curso» en escritorio, donde hay
-// sitio), los botones van siempre desplegados con su texto
-
-// Plegado, con su texto corto: el icono y el texto con 4px entre ellos
-.icon-btn--reveal:has(.icon-btn__short) {
+// En una fila de varias acciones (p. ej. «En curso» en el móvil, o chat y
+// llamar junto a una persona): el icono arriba y su nombre debajo, como una barra de herramientas. Todas igual de anchas (72px; en la
+// fila de «En curso», el ancho repartido), sin que el texto empuje a las
+// vecinas, y con 48px de alto como mínimo
+.icon-btn--labeled.icon-btn--stacked {
+  flex: none;
+  flex-direction: column;
   gap: var(--space-xs);
-  padding-inline: var(--space-s);
+  width: 4.5rem; // 72px
+  min-height: var(--control-height-base);
+  padding: var(--space-xxs);
+  // Sin recuadro alrededor: el cuadro es el del icono (como un botón de
+  // imagen) y el nombre va debajo, suelto. Toda la casilla se pulsa
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text);
+
+  ion-icon {
+    box-sizing: content-box;
+    padding: 0.625rem; // 10px: el icono de 24px en un cuadro de 44px
+    border: var(--border-width-s) solid var(--color-border);
+    border-radius: var(--radius-s);
+    background: var(--color-surface);
+    color: var(--color-link);
+    font-size: var(--icon-size-base);
+    transition: background-color var(--motion-duration-fast) ease;
+  }
+
+  // Al pasar o pulsar, solo el cuadro del icono se pone azul claro
+  @media (any-hover: hover) {
+    &:hover:not(:disabled, [aria-disabled='true']) {
+      border-color: transparent;
+      background: transparent;
+
+      ion-icon {
+        border-color: var(--color-link);
+        background: var(--color-primary-subtle);
+      }
+    }
+  }
+
+  &:active:not(:disabled, [aria-disabled='true']) {
+    border-color: transparent;
+    background: transparent;
+
+    ion-icon {
+      border-color: var(--color-link);
+      background: var(--color-primary-subtle);
+    }
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    color: var(--color-text-disabled);
+
+    ion-icon {
+      color: var(--color-text-disabled);
+    }
+  }
+
+  // El 112: el cuadro del icono en rojo y el nombre en el rojo oscuro del texto
+  &.icon-btn--danger {
+    color: var(--color-danger-text);
+
+    ion-icon {
+      border-color: transparent;
+      background: var(--color-danger);
+      color: var(--color-on-danger);
+    }
+
+    @media (any-hover: hover) {
+      &:hover:not(:disabled, [aria-disabled='true']) ion-icon {
+        border-color: transparent;
+        background: var(--color-danger-text);
+      }
+    }
+
+    &:active:not(:disabled, [aria-disabled='true']) ion-icon {
+      border-color: transparent;
+      background: var(--color-danger-text);
+    }
+  }
+
+  // El nombre entero, en las líneas que haga falta (también con el texto
+  // ampliado al 200 %, WCAG 1.4.4): sin cortarse con «…»
+  .icon-btn__label {
+    max-width: 100%;
+    line-height: var(--line-height-caption);
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }
 
 // Secciones una debajo de otra separadas por una línea fina (p. ej. «En
@@ -1692,107 +1705,142 @@ ion-toggle {
   border-top: var(--border-width-s) solid var(--color-border-subtle);
 }
 
-// Icono que solo sale con el botón siempre desplegado (.icon-btns-open), p. ej.
-// el teléfono de «Llamar al 112» en escritorio
-.icon-btn__open-icon {
-  display: none;
-
-  .icon-btns-open & {
-    display: inline-block;
-  }
-}
-
-// «En curso» en el móvil: las acciones del viaje en una fila de botones de
-// icono (.icon-btn--reveal: el primer toque los despliega con su nombre y el
-// segundo actúa) y, encima, en 12px, qué hace el desplegado
+// «En curso» en el móvil: las acciones del viaje en una fila de botones con
+// su nombre debajo (.icon-btn--stacked); el SOS, el último. Sin margen
+// arriba: la fila va justo debajo de la tarjeta anterior
 .live-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
+  padding-top: 0;
+  container: live-actions / inline-size;
 }
 
 .live-actions__row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-s);
 
-  // El SOS, siempre al final de la fila, a la derecha
-  > .icon-btn--danger {
-    margin-left: auto;
+  > .icon-btn--stacked {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
   }
 }
 
-// En una columna estrecha (tabletas, donde los botones y el SOS no caben en
-// una línea): el SOS sube a la esquina de arriba a la derecha, junto a la
-// explicación, que ya le deja su hueco, y los demás quedan en su fila; con
-// 16px debajo, que en el móvil pone la hoja
+// Botón de la fila con el icono y el nombre en línea, dentro del botón y
+// con su recuadro (el SOS, todo en rojo con el texto en blanco)
+@mixin inline-action {
+  flex-direction: row;
+  gap: var(--space-xs);
+  min-height: var(--control-height-s);
+  padding: var(--space-xs) var(--space-s);
+  border-color: var(--color-border);
+  background: var(--color-surface);
+
+  ion-icon {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: var(--icon-size-s);
+  }
+
+  .icon-btn__label {
+    text-align: left;
+  }
+
+  @media (any-hover: hover) {
+    &:hover:not(:disabled, [aria-disabled='true']) {
+      border-color: var(--color-link);
+      background: var(--color-primary-subtle);
+
+      ion-icon {
+        background: transparent;
+      }
+    }
+  }
+
+  &:active:not(:disabled, [aria-disabled='true']) {
+    border-color: var(--color-link);
+    background: var(--color-primary-subtle);
+
+    ion-icon {
+      background: transparent;
+    }
+  }
+
+  // El SOS: todo el botón en rojo, con el icono y el texto en blanco
+  &.icon-btn--danger {
+    border-color: transparent;
+    background: var(--color-danger);
+    color: var(--color-on-danger);
+
+    ion-icon {
+      background: transparent;
+    }
+
+    @media (any-hover: hover) {
+      &:hover:not(:disabled, [aria-disabled='true']) {
+        border-color: transparent;
+        background: var(--color-danger-text);
+      }
+    }
+
+    &:active:not(:disabled, [aria-disabled='true']) {
+      border-color: transparent;
+      background: var(--color-danger-text);
+    }
+  }
+}
+
+// Con sitio, cada botón con el icono y el nombre en línea; si no, el icono
+// con el nombre debajo, para no cortar el texto. Con tres botones o menos
+// caben desde una fila de 320px; con cuatro (el conductor), desde 416px
+@container live-actions (min-width: 20rem) {
+  .live-actions__row:not(:has(> :nth-child(4))) > .icon-btn--labeled.icon-btn--stacked {
+    @include inline-action;
+  }
+}
+
+@container live-actions (min-width: 26rem) {
+  .live-actions__row > .icon-btn--labeled.icon-btn--stacked {
+    @include inline-action;
+  }
+}
+
+// Cuatro botones en una fila estrecha (el conductor en el móvil): en dos
+// filas de dos, cada uno con el icono y el texto en línea
+@container live-actions (max-width: 26rem) {
+  .live-actions__row:has(> :nth-child(4)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    > .icon-btn--labeled.icon-btn--stacked {
+      width: auto;
+
+      @include inline-action;
+    }
+  }
+}
+
+// En una columna estrecha (tabletas), con 16px debajo, que en el móvil pone
+// la hoja
 .live-actions--compact {
-  position: relative;
   padding-bottom: var(--space-base);
-
-  .live-actions__row > .icon-btn--danger {
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
-
-  // El SOS se queda en «SOS» (ni al tocarlo, ni con el foco, ni al pasar el
-  // ratón): desplegado taparía la explicación, que ya dice qué hace
-  .icon-btn--danger.icon-btn--reveal.icon-btn--reveal {
-    gap: 0;
-  }
-
-  .icon-btn--danger.icon-btn--reveal .icon-btn__label {
-    max-width: 0;
-  }
-
-  .icon-btn--danger.icon-btn--reveal .icon-btn__short {
-    display: inline;
-  }
-
-  // Con pocos botones (el conductor: tres y el SOS), el SOS cabe en la fila:
-  // a su nivel, al final y a la derecha; la explicación, a todo el ancho
-  &.live-actions--sos-inline {
-    .live-actions__row > .icon-btn--danger {
-      position: static;
-    }
-
-    .live-actions__hint {
-      max-width: none;
-    }
-  }
-}
-
-// Dos líneas como máximo y sin llegar a la altura del SOS (44px y 8px de hueco
-// a la derecha); la altura de dos líneas, fija, para que la fila no salte
-.live-actions__hint {
-  display: -webkit-box;
-  overflow: hidden;
-  max-width: calc(100% - 3.25rem); // 52px
-  min-height: 2rem; // 32px: dos líneas
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-caption); // 12px
-  line-height: var(--line-height-caption);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
 }
 
 // Una fila de acción (p. ej. «Terminar viaje», «Viaje seguro»): a la izquierda
-// el título y, debajo, la descripción en dos líneas (siempre dos, «…» si no
-// cabe); a la derecha, el botón centrado en vertical, a 16px
+// el título y, debajo, la descripción entera (como mínimo el alto de dos
+// líneas, para que las tarjetas no salten); a la derecha, el botón centrado en vertical, a 16px. Si el texto
+// se quedaría con menos de 192px (una tarjeta estrecha), el botón baja
+// debajo, a la izquierda, en vez de apretar el título
 .section-item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-base);
+  gap: var(--space-s) var(--space-base);
 }
 
 .section-item__text {
   display: flex;
-  flex: 1;
+  flex: 1 1 12rem; // 192px
   flex-direction: column;
   gap: var(--space-xxs);
   min-width: 0;
@@ -1817,19 +1865,39 @@ ion-toggle {
 }
 
 .section-item__subtitle {
-  display: -webkit-box;
-  overflow: hidden;
-  min-height: 2rem; // 32px: siempre dos líneas
+  min-height: 2rem; // 32px: el alto de dos líneas
   margin: 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-caption); // 12px
   line-height: var(--line-height-caption);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
 }
 
 .section-item > :not(.section-item__text) {
   flex: none;
   margin: 0;
+}
+
+// En escritorio, el botón siempre debajo del texto y a todo el ancho de la
+// tarjeta (44px de alto): se ve como la acción de la tarjeta y no se aprieta
+// con el título. En el móvil sigue a la derecha
+@include bp.up(md) {
+  .section-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-s);
+  }
+
+  // En columna, la base de 192px del texto sería una altura
+  .section-item__text {
+    flex: none;
+  }
+
+  .section-item > :not(.section-item__text),
+  .section-item > form > .icon-btn {
+    width: 100%;
+  }
+
+  .section-item .icon-btn--labeled {
+    min-height: var(--control-height-s);
+  }
 }

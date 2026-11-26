@@ -10,6 +10,7 @@ import {
   IonIcon,
   IonInputOtp,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular';
 import {
   businessOutline,
@@ -17,7 +18,6 @@ import {
   checkmarkCircle,
   chatbubblesOutline,
   checkmarkCircleOutline,
-  paperPlaneOutline,
   chevronBackOutline,
   chevronForwardOutline,
   documentTextOutline,
@@ -53,6 +53,7 @@ import { isCampusName } from '../../matching/campus';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { ReviewTarget, TripReviewCard } from '../trip-review/trip-review-card';
 import { checkFinish, completeFinish, FinishCheck, formatDistance } from '../finish-trip.util';
+import { askFinishTrip, openIncidentDialog } from '../live-trip-dialogs';
 import { LiveTripMap, LiveTripStatus } from '../passenger-requests/live-trip-map/live-trip-map';
 import {
   headingTo,
@@ -63,9 +64,8 @@ import {
   LiveTripSheet,
   stageIndex,
 } from '../live-trip-hero.util';
-import { LiveTripSafety } from '../live-trip-safety/live-trip-safety';
+import { LiveTripOtherActions, LiveTripQuickActions } from '../live-trip-safety/live-trip-safety';
 import { DragScroll } from '../../../shared/directives/drag-scroll.directive';
-import { RevealOnTouch, revealedHint } from '../../../shared/directives/reveal-on-touch.directive';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { buildLiveShareText } from '../trip-share-text';
 import { PassengerIncidentModal } from '../passenger-requests/passenger-incident-modal/passenger-incident-modal';
@@ -107,9 +107,9 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     LiveTripHero,
     LiveTripMap,
     DragScroll,
-    LiveTripSafety,
+    LiveTripOtherActions,
+    LiveTripQuickActions,
     PassengerIncidentModal,
-    RevealOnTouch,
     LiveTripSheet,
     TripReviewCard,
     RouterLink,
@@ -128,6 +128,7 @@ export class DriverLiveTripPage {
   private readonly driver = inject(DriverService);
   private readonly tracking = inject(DriverTrackingService);
   private readonly confirm = inject(ConfirmService);
+  private readonly modalController = inject(ModalController);
   private readonly toast = inject(ToastService);
   private readonly tripShare = inject(TripShareService);
   private readonly tripCall = inject(TripCallService);
@@ -518,15 +519,24 @@ export class DriverLiveTripPage {
   }
 
   // «Terminar viaje»: mira a qué distancia está del destino y pregunta en la
-  // última tarjeta (no en otra ventana)
+  // última tarjeta (móvil) o en una ventana (escritorio, live-trip-dialogs)
   async handleFinish(): Promise<void> {
     const trip = this.trip();
     if (!trip || this.isFinishing()) {
       return;
     }
     this.isFinishing.set(true);
-    this.finishCheck.set(await checkFinish(this.location, trip));
+    const check = await checkFinish(this.location, trip);
+    this.finishCheck.set(check);
     this.isFinishing.set(false);
+    if (this.sheet.isDesktop()) {
+      const isConfirmed = await askFinishTrip(this.confirm, check, this.translate);
+      if (isConfirmed) {
+        await this.confirmFinish();
+      } else {
+        this.cancelFinish();
+      }
+    }
   }
 
   async confirmFinish(): Promise<void> {
@@ -553,8 +563,6 @@ export class DriverLiveTripPage {
   // está llegando al destino; antes, en la fila de acciones (móvil) o a la vista
   readonly showFinishAlert = computed(() => this.isReadyToFinish() || this.isNearDestination());
   // Móvil: qué hace el botón desplegado de la fila de acciones
-  protected readonly revealedHint = revealedHint;
-  protected readonly shareIcon = paperPlaneOutline;
 
   // Compartir el viaje con alguien de confianza (el menú del sistema)
   async handleShareTrip(): Promise<void> {
@@ -567,6 +575,21 @@ export class DriverLiveTripPage {
   // Reportar una incidencia: el formulario sustituye al resto de la hoja; al
   // enviarla se cancela el viaje (RF-23) y vuelve a Tus viajes
   readonly isReportingIncident = signal(false);
+  // En el móvil, el formulario en la hoja; en escritorio, en una ventana
+  async handleReport(): Promise<void> {
+    const trip = this.trip();
+    if (!trip) {
+      return;
+    }
+    if (!this.sheet.isDesktop()) {
+      this.isReportingIncident.set(true);
+      return;
+    }
+    const props = { tripId: trip.id, isDriver: true };
+    if (await openIncidentDialog(this.modalController, props)) {
+      await this.handleIncidentReported();
+    }
+  }
   async handleIncidentReported(): Promise<void> {
     await this.toast.showSuccess(this.translate('live.toast.incidentDriver'));
     await this.leaveFinished();

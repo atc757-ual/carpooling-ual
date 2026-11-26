@@ -1,16 +1,18 @@
+import { provideAppTransloco } from '../../core/i18n/testing-transloco';
 import { Component, signal, TemplateRef, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
+import { locationOutline } from 'ionicons/icons';
 import { vi } from 'vitest';
 import type { LiveSheetController } from '../../shared/utils/desktop-query.util';
-import { LiveTripSheet } from './live-trip-hero.util';
+import { LiveTripHero, LiveTripSheet } from './live-trip-hero.util';
 
 @Component({ template: '<ng-template #content><p>Detalles</p></ng-template>' })
 class ContentHost {
   readonly content = viewChild.required<TemplateRef<unknown>>('content');
 }
 
-// La hoja inferior de «En curso»: la flecha «Ver más» y el ajuste al contenido
+// La hoja inferior de «En curso»: el ajuste de su parada de arriba al contenido
 describe('LiveTripSheet', () => {
   function fakeSheet(isDesktop: boolean) {
     return {
@@ -27,7 +29,6 @@ describe('LiveTripSheet', () => {
       close: vi.fn(),
       expand: vi.fn(),
       fitToContent: vi.fn(),
-      expandStep: vi.fn(),
     } satisfies LiveSheetController;
   }
 
@@ -42,23 +43,10 @@ describe('LiveTripSheet', () => {
     return fixture.componentInstance;
   }
 
-  it('hides the «Ver más» arrow while touching and brings it back once released', () => {
-    vi.useFakeTimers();
-    const component = render(fakeSheet(true));
-
-    component.isTouching.set(true);
-    component.handleRelease();
-    expect(component.isTouching()).toBe(true);
-    vi.advanceTimersByTime(400);
-    expect(component.isTouching()).toBe(false);
-    vi.useRealTimers();
-  });
-
-  it('fits the top stop to the content and shows the arrow when it does not fit', () => {
+  it('fits the top stop to the content, also with its padding', () => {
     const sheet = fakeSheet(true);
     const component = render(sheet);
     const body = { offsetHeight: 500 } as HTMLElement;
-    const content = { offsetHeight: 800 } as HTMLElement;
     const fit = (component as unknown as { fit(b: HTMLElement, c: HTMLElement): void }).fit.bind(
       component,
     );
@@ -66,15 +54,30 @@ describe('LiveTripSheet', () => {
     fit(body, { offsetHeight: 0 } as HTMLElement);
     expect(sheet.fitToContent).not.toHaveBeenCalled();
 
-    fit(body, content);
+    fit(body, { offsetHeight: 800 } as HTMLElement);
     const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
-    const needed = 500 + 1.5 * rem;
-    expect(sheet.fitToContent).toHaveBeenCalledWith(needed / 800);
-    // A media pantalla (45 % de 800 = 360px) el contenido no cabe: la flecha sale
-    expect(component.visiblePx()).toBe(360);
-    expect(component.hasMoreBelow()).toBe(true);
+    expect(sheet.fitToContent).toHaveBeenCalledWith((500 + 1.5 * rem) / 800);
+  });
 
-    sheet.breakpoint.set(1);
-    expect(component.hasMoreBelow()).toBe(false);
+  it('shows the ETA badge and stale-position warning in the hero card when provided', () => {
+    TestBed.configureTestingModule({
+      providers: [provideAppTransloco(), provideIonicAngular()],
+    });
+    const fixture = TestBed.createComponent(LiveTripHero);
+    fixture.componentRef.setInput('title', 'Rumbo al campus');
+    fixture.componentRef.setInput('eta', 'Sin posición');
+    fixture.componentRef.setInput('icon', locationOutline);
+    fixture.componentRef.setInput('place', 'Campus UAL');
+    fixture.componentRef.setInput('stages', [{ label: 'En ruta', state: 'current' }]);
+    fixture.componentRef.setInput('warning', 'El conductor no envía su ubicación.');
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const tag = root.querySelector('.live-hero__tag');
+    expect(tag?.textContent).toContain('Sin posición');
+    expect(tag?.classList.contains('live-hero__tag--warning')).toBe(true);
+    expect(root.querySelector('.live-hero__warning')?.textContent).toContain(
+      'El conductor no envía su ubicación.',
+    );
   });
 });

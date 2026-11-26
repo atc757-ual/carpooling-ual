@@ -58,37 +58,30 @@ ion-card.live-alert.live-alert[class] {
 
 @include live-column.alert-layout;
 
-// El código de recogida en el móvil: el título y, debajo, a quién decírselo,
-// a la izquierda; las cuatro casillas a la derecha, centradas en su alto
+// El código de recogida: el título, a quién decírselo y, debajo, las cuatro
+// casillas, todo a la izquierda (en el móvil, casillas de 44px)
+.ride__panel ion-card-content.ride__code {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  .ride__code-digits {
+    margin-top: var(--space-xs);
+  }
+}
+
 @include bp.down(md) {
-  .ride__panel ion-card-content.ride__code {
-    display: grid;
-    grid-template-areas:
-      'title digits'
-      'hint digits';
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: var(--space-base);
-    row-gap: var(--space-xs);
-    align-items: center;
+  .ride__panel ion-card-content.ride__code .ride__code-digits {
+    grid-template-columns: repeat(4, var(--control-height-s)); // 44px
+    gap: var(--space-xs);
 
-    h2 {
-      grid-area: title;
-      align-self: end;
-    }
-
-    p {
-      grid-area: hint;
-      align-self: start;
-    }
-
-    .ride__code-digits {
-      grid-area: digits;
-      grid-template-columns: repeat(4, var(--control-height-s)); // 44px
-      gap: var(--space-xs);
-
-      span {
-        height: var(--control-height-base); // 48px
-      }
+    span {
+      height: var(--control-height-base); // 48px
     }
   }
 }
@@ -165,7 +158,8 @@ ion-card.live-alert.live-alert[class] {
   // Sin el margen propio del mapa: ya lo da la tarjeta
   --live-trip-map-padding: 0px; // con unidad: va dentro de calc()
   --live-trip-map-height: calc(100dvh - var(--tab-bar-height) - 12rem); // 192px de cabecera
-  --live-trip-map-height-desktop: 31.25rem; // 500px
+  // 420px: con «Otras acciones» debajo, cabe todo sin desplazarse
+  --live-trip-map-height-desktop: 26.25rem; // 420px
 }
 
 @include bp.down(md) {

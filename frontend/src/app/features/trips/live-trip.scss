@@ -55,6 +55,20 @@
   gap: var(--space-s);
 }
 
+// Sin posición reciente: la etiqueta y su explicación, en ámbar
+.live-hero__tag--warning.live-hero__tag--warning {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning-text);
+}
+
+.live-hero__warning {
+  margin: 0;
+  color: var(--color-warning-text);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-caption);
+}
+
 .live-hero__tag {
   flex: none;
   padding: var(--space-xs) var(--space-s);
@@ -155,45 +169,4 @@
   flex-direction: column;
   gap: 0;
   min-width: 0;
-}
-
-// Al pie de lo que se ve de la hoja, cuando el contenido sigue por debajo:
-// un degradado bajo desde el fondo de la hoja y una flecha gris hacia abajo
-// (pulsarla sube la hoja a la siguiente parada). Va fijo (slot="fixed"), a la
-// altura que se ve (top) y sube con su propio alto
-.live-sheet__more {
-  position: absolute;
-  right: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  padding-top: var(--space-s);
-  background: linear-gradient(to bottom, transparent, var(--color-surface) 70%);
-  transition: opacity var(--motion-duration-fast) ease;
-
-  // Mientras se toca la hoja (arrastrar o desplazar), fuera al momento
-  &--hidden {
-    opacity: 0;
-  }
-  pointer-events: none;
-  transform: translateY(-100%);
-}
-
-.live-sheet__more-btn {
-  display: grid;
-  place-items: center;
-  width: var(--box-size-s);
-  height: var(--icon-size-s);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-border-strong); // gris claro: una pista, no un botón más
-  font-size: var(--icon-size-s); // El icono
-  pointer-events: auto;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--border-width-m) solid var(--color-focus-ring);
-    outline-offset: var(--focus-ring-offset);
-  }
 }

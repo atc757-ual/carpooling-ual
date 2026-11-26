@@ -7,7 +7,13 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { NavigationEnd, NavigationStart, Router } from '@angular/router';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+} from '@angular/router';
 import { IonModal } from '@ionic/angular';
 
 // Desde este ancho, la app usa el diseño de escritorio (columnas 8 + 4)
@@ -60,6 +66,11 @@ export function injectIsOnUrl(pattern: RegExp): Signal<boolean> {
     if (event instanceof NavigationStart || event instanceof NavigationEnd) {
       isOn.set(pattern.test(event.url));
     }
+    // Cancelada (p. ej. un aviso de salir sin guardar) o con error: se sigue
+    // donde se estaba, no en la dirección que se pidió
+    if (event instanceof NavigationCancel || event instanceof NavigationError) {
+      isOn.set(pattern.test(router.url));
+    }
   });
   inject(DestroyRef).onDestroy(() => subscription.unsubscribe());
   return isOn.asReadonly();
@@ -103,7 +114,6 @@ export interface LiveSheetController {
   close(): Promise<void>;
   expand(): void;
   fitToContent(contentFraction: number): void;
-  expandStep(): void;
 }
 
 // La hoja inferior móvil de las pantallas «En curso»: no se cierra al
@@ -131,8 +141,14 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
       void modal.setCurrentBreakpoint(topBreakpoint());
     }
   };
+  // Al volver a la página (Ionic la guarda al cambiar de pestaña): si la hoja
+  // se cerró al salir, se vuelve a abrir (el [isOpen] puede no haber cambiado
+  // y entonces Ionic no la presenta solo)
   const enter = (): void => {
     isLeaving = false;
+    if (modal && isOpen()) {
+      void modal.present();
+    }
   };
   const close = async (): Promise<void> => {
     isLeaving = true;
@@ -141,13 +157,6 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
   const expand = (): void => {
     isExpanded = true;
     void modal?.setCurrentBreakpoint(topBreakpoint());
-  };
-  // «Ver más»: sube a la siguiente parada
-  const expandStep = (): void => {
-    const next = breakpoints.find((stop) => stop > breakpoint() + 0.001);
-    if (next !== undefined) {
-      void modal?.setCurrentBreakpoint(next);
-    }
   };
   // Si el contenido cambia de alto, la parada de arriba lo sigue; si la hoja
   // estaba en ella (o más arriba de lo que ahora ocupa), baja o sube con él
@@ -185,6 +194,5 @@ export function injectLiveSheet(pattern: RegExp): LiveSheetController {
     close,
     expand,
     fitToContent,
-    expandStep,
   };
 }

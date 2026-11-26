@@ -238,7 +238,9 @@ describe('PassengerRequestDetailPage', () => {
 
     expect(root.querySelector('app-live-trip-map')).toBeNull();
     expect(root.textContent).toContain('Lucía ha empezado el viaje');
-    expect(root.querySelector('[aria-label="Seguir el viaje en directo"]')).not.toBeNull();
+    expect(
+      root.querySelector('[aria-label="Seguir en directo: abre el viaje en curso"]'),
+    ).not.toBeNull();
     expect(
       root.querySelector('[aria-label="Reportar: bajarme y registrar una incidencia"]'),
     ).not.toBeNull();

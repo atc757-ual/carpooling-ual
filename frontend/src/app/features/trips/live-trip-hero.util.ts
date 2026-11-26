@@ -1,17 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
-import {
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  input,
-  signal,
-  TemplateRef,
-  viewChild,
-} from '@angular/core';
+import { Component, effect, ElementRef, input, TemplateRef, viewChild } from '@angular/core';
 import { IonCard, IonCardContent, IonContent, IonIcon, IonModal } from '@ionic/angular';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { chevronDownOutline } from 'ionicons/icons';
 import { Translate } from '../../core/i18n/translate';
 import { LiveSheetController } from '../../shared/utils/desktop-query.util';
 import type { LiveTripStatus } from './passenger-requests/live-trip-map/live-trip-map';
@@ -103,13 +93,20 @@ export function liveEtaText(
         <div class="live-hero__head">
           <h2 class="live-hero__title">{{ title() }}</h2>
           @if (eta(); as tag) {
-            <span class="live-hero__tag">{{ tag }}</span>
+            <span class="live-hero__tag" [class.live-hero__tag--warning]="warning()">{{
+              tag
+            }}</span>
           }
         </div>
         <p class="live-hero__text">
           <ion-icon [icon]="icon()" aria-hidden="true" />
           <span class="live-hero__place">{{ place() }}</span>
         </p>
+        <!-- Sin posición reciente: lo dice aquí, en ámbar y sin recuadro, en vez
+             de un aviso aparte encima del mapa -->
+        @if (warning(); as text) {
+          <p class="live-hero__warning">{{ text }}</p>
+        }
         <ol class="live-journey" [attr.aria-label]="'live.hero.stagesLabel' | transloco">
           @for (stage of stages(); track stage.label) {
             <li
@@ -132,14 +129,13 @@ export class LiveTripHero {
   readonly icon = input.required<string>();
   readonly place = input.required<string>();
   readonly stages = input.required<readonly JourneyStage[]>();
+  // Qué pasa si no llegan posiciones (más de 1 min), o null
+  readonly warning = input<string | null>(null);
 }
-
-// Lo que tarda la hoja en llegar a su parada al soltarla
-const RELEASE_MS = 400;
 
 @Component({
   selector: 'app-live-trip-sheet',
-  imports: [NgTemplateOutlet, IonContent, IonIcon, IonModal, TranslocoPipe],
+  imports: [NgTemplateOutlet, IonContent, IonModal, TranslocoPipe],
   styleUrl: './live-trip.scss',
   template: `
     @if (!sheet().isDesktop()) {
@@ -154,9 +150,6 @@ const RELEASE_MS = 400;
         [handle]="true"
         handleBehavior="cycle"
         (ionBreakpointDidChange)="sheet().breakpoint.set($event.detail.breakpoint)"
-        (pointerdown)="isTouching.set(true)"
-        (pointerup)="handleRelease()"
-        (pointercancel)="handleRelease()"
       >
         <ng-template>
           <ion-content>
@@ -167,26 +160,6 @@ const RELEASE_MS = 400;
             >
               <ng-container [ngTemplateOutlet]="content()" />
             </section>
-            <!-- Si el contenido sigue por debajo de lo que se ve: un degradado
-                 y una flecha gris hacia abajo, que sube la hoja a la siguiente
-                 parada -->
-            @if (hasMoreBelow()) {
-              <div
-                slot="fixed"
-                class="live-sheet__more"
-                [class.live-sheet__more--hidden]="isTouching()"
-                [style.top.px]="visiblePx()"
-              >
-                <button
-                  type="button"
-                  class="live-sheet__more-btn"
-                  [attr.aria-label]="'live.seeMore' | transloco"
-                  (click)="sheet().expandStep()"
-                >
-                  <ion-icon [icon]="moreIcon" aria-hidden="true" />
-                </button>
-              </div>
-            }
           </ion-content>
         </ng-template>
       </ion-modal>
@@ -199,17 +172,6 @@ export class LiveTripSheet {
 
   private readonly modal = viewChild(IonModal);
   private readonly body = viewChild<ElementRef<HTMLElement>>('body');
-  // Lo que necesita el contenido y lo que mide la hoja entera (px); lo que se
-  // ve depende de la parada en la que está
-  private readonly neededPx = signal(0);
-  private readonly sheetPx = signal(0);
-  readonly visiblePx = computed(() => Math.round(this.sheet().breakpoint() * this.sheetPx()));
-  readonly hasMoreBelow = computed(() => this.neededPx() > this.visiblePx() + 8);
-  protected readonly moreIcon = chevronDownOutline;
-  // Mientras se toca la hoja (arrastrar o desplazar) la flecha se oculta al
-  // momento; al soltar vuelve cuando la hoja ya ha llegado a su parada
-  readonly isTouching = signal(false);
-  private releaseTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     effect(() => this.sheet().setModal(this.modal()));
@@ -228,11 +190,6 @@ export class LiveTripSheet {
     });
   }
 
-  handleRelease(): void {
-    clearTimeout(this.releaseTimer);
-    this.releaseTimer = setTimeout(() => this.isTouching.set(false), RELEASE_MS);
-  }
-
   // Lo que ocupa el contenido con el relleno de la hoja (8px arriba, bajo el
   // asa, y 16px abajo: 1,5rem, en live-trip.scss), en fracción de su alto
   private fit(body: HTMLElement, content: HTMLElement): void {
@@ -241,8 +198,6 @@ export class LiveTripSheet {
     }
     const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
     const needed = body.offsetHeight + 1.5 * rem;
-    this.neededPx.set(needed);
-    this.sheetPx.set(content.offsetHeight);
     this.sheet().fitToContent(needed / content.offsetHeight);
   }
 }

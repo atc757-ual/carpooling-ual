@@ -26,7 +26,6 @@ import { SeatRequestsService } from '../../../../core/services/requests/seat-req
 import { ConfirmService } from '../../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
 import { getErrorMessage } from '../../../../shared/utils/error-message.util';
-import { RevealOnTouch } from '../../../../shared/directives/reveal-on-touch.directive';
 import { getFirstName } from '../../../matching/trip-driver/trip-driver';
 import { formatTime } from '../../../matching/trip-results';
 import { TripSearchStateService } from '../../../matching/trip-search-state.service';
@@ -59,7 +58,6 @@ import { localizedComputed } from '../../../../core/i18n/localized-computed';
     IonCardTitle,
     IonIcon,
     IonSpinner,
-    RevealOnTouch,
     TranslocoPipe,
   ],
   templateUrl: './passenger-request-actions.html',

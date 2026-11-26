@@ -244,8 +244,10 @@ for (const viewport of VIEWPORTS) {
       cy.contains(live, 'Ya no queda nadie por llevar');
       cy.contains(`${live} ion-button`, 'Terminar viaje').click();
       // Aún en Almería centro, a unos 5 km del campus: avisa en la misma hoja
-      cy.contains(live, 'del destino');
-      cy.contains(`${live} ion-button`, 'Terminar igualmente').click();
+      // (móvil) o en una ventana (escritorio)
+      const finishAsk = isDesktop ? 'app-confirm-modal' : live;
+      cy.contains(finishAsk, 'del destino');
+      cy.contains(`${finishAsk} ion-button`, 'Terminar igualmente').click();
 
       cy.wait('@finish')
         .its('request.body.position.coordinates')

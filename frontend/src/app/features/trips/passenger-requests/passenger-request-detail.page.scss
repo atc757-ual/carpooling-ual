@@ -118,10 +118,14 @@
   list-style: none;
 }
 
+// Como las tarjetas de una acción (.section-item): el botón, con su texto, a
+// la derecha; debajo si al texto le quedarían menos de 192px y, en
+// escritorio, siempre debajo y a todo el ancho
 .passenger-detail__item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-base);
+  gap: var(--space-s) var(--space-base);
   padding-block: var(--space-s);
 
   & + & {
@@ -131,7 +135,7 @@
 
 .passenger-detail__item-text {
   display: flex;
-  flex: 1;
+  flex: 1 1 12rem; // 192px
   flex-direction: column;
   gap: var(--space-xxs);
   min-width: 0;
@@ -218,5 +222,22 @@
   // La columna de 4: una tarjeta por objetivo, 16px entre ellas
   .passenger-detail__aside {
     gap: var(--space-base);
+  }
+}
+
+// En escritorio, como .section-item: el botón debajo y a todo el ancho
+@include bp.up(md) {
+  .passenger-detail__item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .passenger-detail__item-text {
+    flex: none;
+  }
+
+  .passenger-detail__item > .icon-btn {
+    width: 100%;
+    min-height: var(--control-height-s);
   }
 }

@@ -1,14 +1,6 @@
 <section class="trip-live-map" aria-labelledby="live-map-title">
-  <!-- Sin posición reciente: el aviso encima del mapa (en el móvil, donde el
-       mapa ocupa la pantalla, no se pinta: lo dice la etiqueta de minutos) -->
-  @if (latestPosition() && isStale()) {
-    <output class="notice notice--warning trip-live-map__stale">
-      <span>
-        {{ (isDriver() ? 'live.map.staleDriver' : 'live.map.stalePassenger') | transloco }}
-      </span>
-    </output>
-  }
-
+  <!-- Sin posición reciente: lo dice la cabecera del rumbo (app-live-trip-hero),
+       no un aviso encima del mapa -->
   <div class="trip-live-map__frame">
     <header class="trip-live-map__heading">
       <!-- El título, solo para el lector de pantalla: el mapa ya se explica solo -->

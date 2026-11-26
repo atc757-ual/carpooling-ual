@@ -223,12 +223,14 @@
                       </div>
                       @if (trip.status === 'in_progress') {
                         <a
-                          class="icon-btn"
+                          class="icon-btn icon-btn--labeled"
                           [attr.aria-label]="'request.seguirViajeDirecto' | transloco"
-                          [title]="'request.seguirDirecto' | transloco"
                           [routerLink]="['/tabs/trips/ride', request.id]"
                         >
                           <ion-icon [icon]="liveIcon" aria-hidden="true" />
+                          <span class="icon-btn__label" aria-hidden="true">{{
+                            'request.seguirDirecto' | transloco
+                          }}</span>
                         </a>
                       }
                     </li>
@@ -243,12 +245,14 @@
                       </div>
                       <button
                         type="button"
-                        class="icon-btn"
+                        class="icon-btn icon-btn--labeled"
                         [attr.aria-label]="'request.compartirViajeConAlguien' | transloco"
-                        [title]="'request.compartirViaje' | transloco"
                         (click)="handleShare(request, trip)"
                       >
                         <ion-icon [icon]="shareIcon" aria-hidden="true" />
+                        <span class="icon-btn__label" aria-hidden="true">{{
+                          'request.compartirViaje' | transloco
+                        }}</span>
                       </button>
                     </li>
                     @if (trip.status === 'in_progress') {
@@ -263,12 +267,14 @@
                         </div>
                         <button
                           type="button"
-                          class="icon-btn"
+                          class="icon-btn icon-btn--labeled"
                           [attr.aria-label]="'request.reportarBajarmeRegistrarUna' | transloco"
-                          [title]="'request.reportar' | transloco"
                           (click)="actions()?.openIncidentModal()"
                         >
                           <ion-icon [icon]="alertIcon" aria-hidden="true" />
+                          <span class="icon-btn__label" aria-hidden="true">{{
+                            'request.reportar' | transloco
+                          }}</span>
                         </button>
                       </li>
                     }
