@@ -14,6 +14,7 @@ import { ConfirmService } from '../../../core/services/ui/confirm.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
+import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { AvatarsService } from '../../../core/services/users/avatars.service';
 import { TripReviewsService } from '../../../core/services/users/trip-reviews.service';
@@ -123,6 +124,12 @@ describe('PassengerRequestDetailPage', () => {
         },
         { provide: AvatarsService, useValue: { getGraphic: () => Promise.resolve(null) } },
         { provide: ToastService, useValue: { showError, showSuccess, showInfo } },
+        {
+          provide: TripLiveShareService,
+          useValue: {
+            start: vi.fn().mockResolvedValue('https://carpooling.example/seguir/tok1'),
+          },
+        },
         {
           provide: ChatService,
           useValue: {
@@ -455,7 +462,10 @@ describe('PassengerRequestDetailPage', () => {
     await render(seatRequest('accepted'));
     const share = vi.spyOn(TestBed.inject(TripShareService), 'share').mockResolvedValue('shared');
 
-    await fixture.componentInstance.handleShare(seatRequest('accepted'), TRIP);
+    await fixture.componentInstance.handleShare(seatRequest('accepted'), {
+      ...TRIP,
+      status: 'confirmed',
+    });
     await fixture.componentInstance.handleShare(seatRequest('accepted', { vehiclePlate: null }), {
       ...TRIP,
       vehicle: null,
@@ -465,5 +475,7 @@ describe('PassengerRequestDetailPage', () => {
     expect(first).toContain('Lucía');
     expect(first).toContain('1234BCD');
     expect(second).not.toContain('1234BCD');
+    expect(share.mock.calls[0][0].url).toBe('https://carpooling.example/seguir/tok1');
+    expect(share.mock.calls[1][0].url).toBeUndefined();
   });
 });

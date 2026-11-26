@@ -1387,7 +1387,8 @@
     "liveTrip": "{{ route }}, salida a las {{ time }}",
     "liveDriver": "Voy conduciendo un viaje compartido de la UAL: {{ trip }}.",
     "livePassenger": "Voy en un viaje compartido de la UAL: {{ trip }}. Conduce {{ name }}{{ car }}.",
-    "plate": "matrícula {{ plate }}"
+    "plate": "matrícula {{ plate }}",
+    "linkCopied": "Enlace copiado"
   },
   "sharedTrip": {
     "carpoolingUal": "Carpooling UAL",
