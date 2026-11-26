@@ -773,6 +773,7 @@
                 : (trip.destinationName ?? ('live.yourDestination' | transloco))
             "
             [stages]="stages()"
+            [warning]="liveStatus()?.isStale ? ('live.map.staleDriver' | transloco) : null"
           />
         </ng-template>
 

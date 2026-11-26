@@ -121,9 +121,13 @@
               @if (phase() === 'waiting' && request.boardCode) {
                 <ion-card class="ride__panel" role="region" aria-labelledby="ride-code-title">
                   <ion-card-content class="ride__code">
+                    <!-- El título, a quién decírselo y, debajo, las cuatro cifras -->
                     <h2 id="ride-code-title" class="text-subtitle">
                       {{ 'live.codigoRecogida' | transloco }}
                     </h2>
+                    <p class="text-caption text-color-muted">
+                      {{ 'live.tellCode' | transloco: { name: driverName() } }}
+                    </p>
                     <!-- El lector lee los dígitos uno a uno (texto oculto):
                          un div sin rol no admite aria-label -->
                     <div class="ride__code-digits">
@@ -134,9 +138,6 @@
                         request.boardCode.split('').join(' ')
                       }}</span>
                     </div>
-                    <p class="text-caption text-color-muted">
-                      {{ 'live.tellCode' | transloco: { name: driverName() } }}
-                    </p>
                   </ion-card-content>
                 </ion-card>
               }
@@ -437,6 +438,7 @@
                   : (trip.destinationName ?? ('live.yourDestination' | transloco))
               "
               [stages]="stages()"
+              [warning]="liveStatus()?.isStale ? ('live.map.stalePassenger' | transloco) : null"
             />
           </ng-template>
 

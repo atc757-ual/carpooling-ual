@@ -98,14 +98,6 @@
   margin: 0;
 }
 
-// El aviso de «sin posición reciente», encima del mapa, con 8px de relleno; en
-// el móvil (mapa a pantalla completa) se oculta, como la línea de estado
-.trip-live-map__stale {
-  display: var(--live-trip-map-status-display, flex);
-  margin: 0 0 var(--space-s);
-  padding: var(--space-s);
-}
-
 @include bp.up(md) {
   // El mapa y, encima, abajo a la derecha, «Actualizado hace…»
   .trip-live-map__frame {

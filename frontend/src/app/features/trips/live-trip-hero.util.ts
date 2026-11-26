@@ -103,13 +103,20 @@ export function liveEtaText(
         <div class="live-hero__head">
           <h2 class="live-hero__title">{{ title() }}</h2>
           @if (eta(); as tag) {
-            <span class="live-hero__tag">{{ tag }}</span>
+            <span class="live-hero__tag" [class.live-hero__tag--warning]="warning()">{{
+              tag
+            }}</span>
           }
         </div>
         <p class="live-hero__text">
           <ion-icon [icon]="icon()" aria-hidden="true" />
           <span class="live-hero__place">{{ place() }}</span>
         </p>
+        <!-- Sin posición reciente: lo dice aquí, en ámbar y sin recuadro, en vez
+             de un aviso aparte encima del mapa -->
+        @if (warning(); as text) {
+          <p class="live-hero__warning">{{ text }}</p>
+        }
         <ol class="live-journey" [attr.aria-label]="'live.hero.stagesLabel' | transloco">
           @for (stage of stages(); track stage.label) {
             <li
@@ -132,6 +139,8 @@ export class LiveTripHero {
   readonly icon = input.required<string>();
   readonly place = input.required<string>();
   readonly stages = input.required<readonly JourneyStage[]>();
+  // Qué pasa si no llegan posiciones (más de 1 min), o null
+  readonly warning = input<string | null>(null);
 }
 
 // Lo que tarda la hoja en llegar a su parada al soltarla
