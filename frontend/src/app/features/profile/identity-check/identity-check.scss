@@ -13,20 +13,11 @@
 }
 
 .identity-check__notice {
-  align-items: flex-start;
-
+  // Del color del borde de su aviso (--notice-tone, del tema)
   ion-icon {
     flex-shrink: 0;
-    margin-top: var(--space-xxs);
+    color: var(--notice-tone);
     font-size: var(--icon-size-base);
-  }
-
-  &.notice--info ion-icon {
-    color: var(--color-link);
-  }
-
-  &.notice--danger ion-icon {
-    color: var(--color-danger);
   }
 }
 

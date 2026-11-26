@@ -77,20 +77,88 @@ ion-modal.live-sheet.live-sheet {
 }
 
 // Escritorio: cada columna (.live-column, con el mixin card de
-// features/trips/_live-desktop-column.scss), una sola tarjeta con las de
-// dentro planas. La clase dos veces, como en la hoja
+// features/trips/_live-desktop-column.scss), una pila de tarjetas: sin el
+// margen de Ionic, que ya pone el hueco de la columna. La clase dos veces,
+// como en la hoja
 @include bp.up(md) {
-  .live-column.live-column {
+  .live-column.live-column ion-card {
+    margin: 0;
+  }
+
+  // La fila de botones de acciones (tabletas) no es un ion-card: su tarjeta,
+  // con el SOS en la esquina dentro de su relleno
+  .live-column.live-column .live-actions {
+    padding: var(--space-base);
+    border: var(--border-width-s) solid var(--color-card-border);
+    border-radius: var(--radius-s);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  .live-column.live-column
+    .live-actions--compact:not(.live-actions--sos-inline)
+    .live-actions__row
+    > .icon-btn--danger {
+    top: var(--space-base);
+    right: var(--space-base);
+  }
+
+  // Las secciones a la vista («Terminar viaje», «Viaje seguro»…): cada una en
+  // su tarjeta, con el hueco de la columna y sin la línea que las separaba
+  .live-column.live-column .sections-divided {
+    gap: var(--space-base);
+  }
+
+  .live-column.live-column .sections-divided.sections-divided > * + * {
+    border-top: 0;
+  }
+
+  // Todos los títulos de las tarjetas, como los de tarjeta (20px): en la hoja
+  // del móvil, algunos van a 16px («Recogidas», «Viaje seguro»)
+  .live-column.live-column.live-column ion-card h2,
+  .live-column.live-column .live-group__title {
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-subtitle-m);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-subtitle);
+  }
+
+  // Secciones relacionadas (.live-group: «Tu ruta», «Otras acciones»): una
+  // sola tarjeta con su título y sus secciones planas debajo, con el título de
+  // cada una como subtítulo de 16px y una línea gris clara entre ellas, como
+  // las filas de una lista (ion-item)
+  .live-column.live-column .live-group {
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+    border: var(--border-width-s) solid var(--color-card-border);
+    border-radius: var(--radius-s);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+
+    > * {
+      display: block;
+    }
+
     ion-card {
-      margin: 0;
       border: 0;
       border-radius: 0;
       box-shadow: none;
     }
 
-    ion-card ion-card-header[class],
-    ion-card ion-card-content[class] {
-      padding-inline: 0;
+    // Tras el título, sin línea; entre sección y sección, sí
+    > :not(.live-group__title) + :not(.live-group__title) {
+      border-top: var(--border-width-s) solid var(--color-border-subtle);
     }
+
+    ion-card h2 {
+      font-size: var(--font-size-body); // 16px
+    }
+  }
+
+  .live-column.live-column .live-group__title {
+    margin: 0;
+    padding: var(--space-base) var(--space-base) 0;
+    color: var(--color-text);
   }
 }

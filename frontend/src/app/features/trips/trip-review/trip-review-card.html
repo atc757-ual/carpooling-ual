@@ -29,13 +29,19 @@
           }
         </section>
       } @else {
-        <!-- Al acabar, como el resumen del pasajero: el título en gris, una
-           fila por persona (centradas y estrechas) y, si valoró a alguien
-           aquí, el agradecimiento -->
-        <section class="trip-review-card__done" aria-labelledby="trip-review-done-title">
-          <h3 id="trip-review-done-title" class="text-caption text-color-muted">
-            {{ 'tripReview.tusValoraciones' | transloco }}
-          </h3>
+        <!-- Al acabar: una fila por persona (a lo ancho de la tarjeta) y, si valoró a
+           alguien aquí, el agradecimiento. «Tus valoraciones» es el título de
+           la tarjeta; sin tarjeta propia (en el panel de viaje terminado), va
+           aquí como etiqueta -->
+        <section
+          class="trip-review-card__done"
+          [attr.aria-labelledby]="isCarded() ? 'trip-review-card-title' : 'trip-review-done-title'"
+        >
+          @if (!isCarded()) {
+            <h3 id="trip-review-done-title" class="text-label text-label--strong">
+              {{ 'tripReview.tusValoraciones' | transloco }}
+            </h3>
+          }
           <ul class="trip-review-card__summary">
             @for (section of sections(); track section.target.id) {
               <li class="trip-review-card__summary-row">
@@ -43,9 +49,9 @@
                 @if (section.view.kind === 'given' && section.view.review; as review) {
                   <span class="trip-review-card__summary-verdict">
                     <app-rating-medals [rating]="review.rating" />
-                    <span class="text-caption"
-                      >{{ review.rating }} · {{ ratingName(review.rating) }}</span
-                    >
+                    <span class="text-caption text-color-muted">{{
+                      ratingName(review.rating)
+                    }}</span>
                   </span>
                 } @else if (skipped().has(section.target.id)) {
                   <span class="text-caption text-color-muted">{{
@@ -80,11 +86,14 @@
 </ng-template>
 
 @if (isStepped() && isCarded()) {
-  <!-- En su tarjeta (detalle del viaje): el título y «1 de 2» a la derecha -->
+  <!-- En su tarjeta (detalle del viaje): el título y «1 de 2» a la derecha;
+       al acabar, «Tus valoraciones» -->
   <ion-card class="trip-review-card">
     <ion-card-header>
       <div class="trip-review-card__head">
-        <ion-card-title>{{ title() }}</ion-card-title>
+        <ion-card-title id="trip-review-card-title">{{
+          isDone() ? ('tripReview.tusValoraciones' | transloco) : title()
+        }}</ion-card-title>
         @if (currentStep(); as step) {
           @if (step.total > 1) {
             <span class="text-caption text-color-muted">{{
@@ -136,9 +145,9 @@
                     </p>
                     <span class="trip-review-card__verdict">
                       <app-rating-medals [rating]="review.rating" />
-                      <span class="text-caption"
-                        >{{ review.rating }} · {{ ratingName(review.rating) }}</span
-                      >
+                      <span class="text-caption text-color-muted">{{
+                        ratingName(review.rating)
+                      }}</span>
                     </span>
                   </div>
                 } @else {

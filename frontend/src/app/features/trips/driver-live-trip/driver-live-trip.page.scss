@@ -111,25 +111,30 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   box-sizing: border-box;
+  // Cada recogida, en su recuadro con relleno para que el texto no toque el
+  // borde. Las que aún no tocan, con el borde gris y atenuadas; la que toca,
+  // en azul; la de quien va en el coche, en verde, y la de quien ya se bajó,
+  // en gris
+  padding: var(--space-s);
+  border: var(--border-width-s) solid var(--color-border-strong);
   gap: var(--space-s);
-  // Sin borde ni relleno (ya va dentro de la tarjeta «Recogidas»): la que
-  // toca se ve en los puntos de abajo; la de quien va en el coche, por su
-  // fondo azul claro, y la de quien ya se bajó, en gris
   border-radius: var(--radius-s);
   background: var(--color-surface);
   opacity: 0.6;
   scroll-snap-align: start;
 
+  // La que toca (donde se escribe el código): en azul claro con el borde azul
   &--active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-subtle);
     opacity: 1;
   }
 
-  // En el coche: en azul claro con el borde azul, con relleno para que el
-  // texto no toque el borde
+  // En el coche: en verde claro con el borde verde (ya recogido), para no
+  // confundirla con la que toca
   &--done {
-    padding: var(--space-s);
-    border: var(--border-width-s) solid var(--color-primary);
-    background: var(--color-primary-subtle);
+    border-color: var(--color-success);
+    background: var(--color-success-subtle);
     opacity: 1;
   }
 
@@ -160,17 +165,49 @@
   }
 }
 
+// Las casillas a la izquierda y, al extremo derecho, «No se presentó» (o el
+// spinner mientras se valida), siempre en una línea: es el contenedor de
+// las consultas de abajo, que encogen el botón y las casillas si no caben
 .pickup-slide__code {
   display: flex;
+  min-width: 0;
+  align-items: center;
   gap: var(--space-s);
+  container-type: inline-size;
+}
 
-  ion-button {
-    flex: none;
-    margin: 0;
+// «Pide a Alex su código de recogida», pegado a las casillas
+.pickup-slide__code-help {
+  margin: 0 0 var(--space-xs);
+}
+
+.pickup-slide__no-show,
+.pickup-slide__spinner {
+  margin-inline-start: auto;
+}
+
+// El spinner, en el sitio del botón (44px): la fila no se mueve
+ion-spinner.pickup-slide__spinner {
+  flex: none;
+  width: var(--control-height-s);
+  height: 1.5rem; // 24px
+  color: var(--color-link);
+}
+
+// «No se presentó» con su texto si cabe; si la fila no llega a 384px, solo
+// el icono (lleva su aria-label)
+@container (max-width: 24rem) {
+  .icon-btn.icon-btn--reveal.pickup-slide__no-show {
+    gap: 0;
+    padding-inline: 0.6875rem; // 11px: el icono centrado en 44px
+
+    .icon-btn__label {
+      max-width: 0;
+    }
   }
 }
 
-// Chat, llamar y «No se presentó»: en fila, a la derecha del nombre
+// Chat, llamar y, ya a bordo, «Ha bajado»: en fila, a la derecha del nombre
 .pickup-slide__actions {
   display: flex;
   grid-column: 2;
@@ -272,36 +309,59 @@
   }
 }
 
-.driver-live-trip__code-input {
-  flex: 1;
-  width: 100%;
-  min-width: 0;
-  min-height: var(--control-height-s);
-  padding: var(--space-xs) var(--space-s);
-  border: var(--border-width-s) solid var(--color-border);
-  border-radius: var(--radius-s);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-subtitle);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.3em;
-  text-align: center;
+// El código de embarque: 4 casillas como las del código del correo
+// (code-input), de 44px de alto, sin el relleno de Ionic y con la cifra en la
+// letra de los títulos. Con la clase del tamaño en el selector, para ganar a
+// :host(.input-otp-size-small) de Ionic
+ion-input-otp.driver-live-trip__code.input-otp-size-small {
+  // Al escribir, el azul del foco (el código no se valida aquí: sin el verde)
+  --highlight-color-valid: var(--color-link);
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  --height: var(--control-height-s); // 44px
+  // Cada casilla, de 44px como mucho; si la fila no da para todo, encoge
+  // (hasta 32px) para dejar sitio al botón de 44px: el ancho de la fila
+  // (100cqi) menos el botón, el hueco hasta él y los 3 huecos entre casillas
+  --width: clamp(2rem, calc((100cqi - 2.75rem - 0.5rem - 1.5rem) / 4), 2.75rem);
+  --min-width: var(--width);
+  --border-radius: var(--radius-s);
+  // Casillas en blanco sobre el azul claro de la recogida que toca
+  --background: var(--color-surface);
 
-  // El texto de ayuda, sin separar las letras. A 16px y no a 14: el campo se
-  // enfoca con la ayuda puesta, y con menos de 16px Safari en iPhone amplía
-  // la pantalla al tocarlo
-  &:placeholder-shown {
-    font-family: inherit;
-    font-size: var(--font-size-body);
-    font-weight: inherit;
-    letter-spacing: normal;
+  flex: none;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-subtitle-m);
+  font-weight: var(--font-weight-semibold);
+
+  // Las casillas, a la izquierda (Ionic las centra), alineadas con el nombre
+  // (8px entre ellas, el hueco que cuenta --width)
+  ::ng-deep .input-otp-group {
+    justify-content: flex-start;
+    gap: var(--space-s);
   }
 
-  &:focus-visible {
-    border-color: var(--color-primary);
-    outline: var(--border-width-m) solid var(--color-focus-ring);
-    outline-offset: var(--focus-ring-offset);
+  // Cada casilla: borde gris de 1px; la del foco, azul y de 2px (su input es
+  // HTML interno del componente: ::ng-deep, limitado a esta pantalla)
+  ::ng-deep .native-input {
+    border-width: var(--border-width-s);
+    border-color: var(--color-border-strong);
+
+    &:focus {
+      border-width: var(--border-width-m);
+      border-color: var(--color-link);
+    }
+  }
+
+  // Desactivadas (la recogida aún no toca): fondo gris claro y el borde gris
+  // también (el de Ionic casi no se ve)
+  &.input-otp-disabled {
+    --background: var(--color-surface-subtle);
+
+    ::ng-deep .native-input {
+      border-color: var(--color-border);
+    }
   }
 }
 

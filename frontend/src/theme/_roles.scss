@@ -83,6 +83,9 @@
   // Valoraciones (medallas): dorado, distinto del azul de la interfaz. El
   // 700 en claro (el 500 no llega a 3:1 sobre blanco)
   --color-rating: #{$yellow-700};
+  // La escala de valorar: blanco sobre el dorado (5:1) y su fondo suave
+  --color-on-rating: #{$neutral-0};
+  --color-rating-subtle: #{$yellow-50};
 
   // Degradados
   --gradient-brand: #{$gradient-brand};
@@ -154,6 +157,8 @@
   --color-on-warning: #{$neutral-950};
 
   --color-rating: #{$yellow-400};
+  --color-on-rating: #{$neutral-950};
+  --color-rating-subtle: #{$yellow-900};
 
   --shadow-s: 0 1px 2px rgb(0 0 0 / 40%);
   --shadow-base: 0 4px 12px rgb(0 0 0 / 50%);

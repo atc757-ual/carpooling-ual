@@ -7,13 +7,10 @@
 // Avisos de la guía; en este modal solo el último paso y los errores van en
 // rojo
 .profile-delete-modal__notice {
-  align-items: flex-start;
-
   ion-icon {
     flex-shrink: 0;
-    margin-top: var(--space-xxs);
+    color: var(--notice-tone); // el del borde de su aviso
     font-size: var(--icon-size-base);
-    color: var(--color-danger);
   }
 }
 

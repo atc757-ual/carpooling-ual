@@ -1,54 +1,94 @@
-<ion-card class="driver-actions">
-  <!-- Cancelado o terminado, sin título: ya no hay acciones, solo el aviso -->
-  @if (isOpen() || isInProgress()) {
+<!-- Hasta tres tarjetas, cada una solo si tiene algo: lo principal (iniciar y
+     cancelar o, en curso, abrirlo y terminarlo), ajustarlo mientras está
+     publicado (compartir plazas y cambiar de coche) y, terminado, «¿Algo fue
+     mal?». El aviso de cómo acabó el viaje lo pone el detalle, encima -->
+
+@if (isOpen() || isInProgress()) {
+  <ion-card class="driver-actions">
     <ion-card-header>
       <ion-card-title>{{ 'myTrips.accionesDelViaje' | transloco }}</ion-card-title>
     </ion-card-header>
-  }
-  <ion-card-content>
-    @if (isInProgress()) {
-      <div class="notice notice--info">
-        <ion-icon [icon]="locationIcon" aria-hidden="true" />
-        <span>{{ 'myTrips.compartiendoUbicacionConTus' | transloco }}</span>
-      </div>
-      <ion-button expand="block" [routerLink]="livePath()">{{
-        'myTrips.abrirViaje' | transloco
-      }}</ion-button>
-      <form (submit)="$event.preventDefault(); handleFinish()">
-        <ion-button type="submit" expand="block" fill="outline" [disabled]="isChangingStatus()">
-          @if (isChangingStatus()) {
-            <ion-spinner slot="start" name="crescent" aria-hidden="true" />
-          }
-          {{ (isChangingStatus() ? 'myTrips.finishing' : 'myTrips.finish') | transloco }}
-        </ion-button>
-      </form>
-    }
-
-    @if (isOpen()) {
-      <!-- Iniciar y, solo si aún no se puede, cuándo se podrá. El motivo va
-           también dentro del botón, oculto, para el lector de pantalla:
-           aria-describedby no llega al botón nativo de ion-button (shadow
-           DOM). Lo que supone iniciar, en la confirmación -->
-      <div class="driver-actions__block">
-        <form (submit)="$event.preventDefault(); handleStart()">
-          <ion-button type="submit" expand="block" [disabled]="!canStart() || isChangingStatus()">
+    <ion-card-content>
+      @if (isInProgress()) {
+        <div class="notice notice--info">
+          <ion-icon [icon]="locationIcon" aria-hidden="true" />
+          <span>{{ 'myTrips.compartiendoUbicacionConTus' | transloco }}</span>
+        </div>
+        <ion-button expand="block" [routerLink]="livePath()">{{
+          'myTrips.abrirViaje' | transloco
+        }}</ion-button>
+        <form (submit)="$event.preventDefault(); handleFinish()">
+          <ion-button type="submit" expand="block" fill="outline" [disabled]="isChangingStatus()">
             @if (isChangingStatus()) {
               <ion-spinner slot="start" name="crescent" aria-hidden="true" />
             }
-            {{ (isChangingStatus() ? 'myTrips.starting' : 'myTrips.start') | transloco }}
-            @if (startHint(); as hint) {
-              <span class="visually-hidden">. {{ hint }}</span>
-            }
+            {{ (isChangingStatus() ? 'myTrips.finishing' : 'myTrips.finish') | transloco }}
           </ion-button>
         </form>
-        <!-- Si aún no se puede iniciar, cuándo se podrá: una línea bajo el botón -->
-        @if (startHint(); as hint) {
-          <p class="driver-actions__hint text-caption text-color-muted" aria-hidden="true">
-            {{ hint }}
-          </p>
-        }
-      </div>
+      } @else {
+        <!-- Iniciar y, solo si aún no se puede, cuándo se podrá. El motivo va
+             también dentro del botón, oculto, para el lector de pantalla:
+             aria-describedby no llega al botón nativo de ion-button (shadow
+             DOM). Lo que supone iniciar, en la confirmación -->
+        <div class="driver-actions__block">
+          <form (submit)="$event.preventDefault(); handleStart()">
+            <ion-button type="submit" expand="block" [disabled]="!canStart() || isChangingStatus()">
+              @if (isChangingStatus()) {
+                <ion-spinner slot="start" name="crescent" aria-hidden="true" />
+              }
+              {{ (isChangingStatus() ? 'myTrips.starting' : 'myTrips.start') | transloco }}
+              @if (startHint(); as hint) {
+                <span class="visually-hidden">. {{ hint }}</span>
+              }
+            </ion-button>
+          </form>
+          <!-- Si aún no se puede iniciar, cuándo se podrá: una línea bajo el botón -->
+          @if (startHint(); as hint) {
+            <p class="driver-actions__hint text-caption text-color-muted" aria-hidden="true">
+              {{ hint }}
+            </p>
+          }
+        </div>
 
+        <!-- Cancelar: con borde azul y fondo blanco (la guía: lo destructivo, sin
+             rojo). Antes, hasta cuándo es sin penalización o, ya tardía, el aviso -->
+        <div class="driver-actions__block">
+          @if (cancellationIsLate()) {
+            <output class="notice notice--warning">
+              <ion-icon [icon]="warningIcon" aria-hidden="true" />
+              <span>{{ 'myTrips.cancelasAhoraContaraComo' | transloco }}</span>
+            </output>
+          } @else if (cancelCost(); as cost) {
+            <div class="notice notice--info driver-actions__cancel-cost">
+              <span>{{ cost }}</span>
+            </div>
+          }
+          <ion-button
+            type="button"
+            expand="block"
+            fill="outline"
+            [disabled]="isCancelling() || isChangingStatus()"
+            (click)="handleCancel()"
+          >
+            {{ (isCancelling() ? 'myTrips.cancelling' : 'myTrips.cancelTrip') | transloco }}
+            @if (cancellationIsLate()) {
+              <span class="visually-hidden">{{
+                'myTrips.contaraComoCancelacionTardia' | transloco
+              }}</span>
+            }
+          </ion-button>
+        </div>
+      }
+    </ion-card-content>
+  </ion-card>
+}
+
+@if (isOpen()) {
+  <ion-card class="driver-actions">
+    <ion-card-header>
+      <ion-card-title>{{ 'myTrips.gestionarViaje' | transloco }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
       <!-- Anunciar las plazas libres en los grupos de clase (menú del sistema
            o WhatsApp), mientras el viaje admite solicitudes -->
       @if (canShareSeats()) {
@@ -66,49 +106,16 @@
           {{ 'profile.vehicleTrips.changeAction' | transloco }}
         </ion-button>
       </form>
+    </ion-card-content>
+  </ion-card>
+}
 
-      <!-- Cancelar: con borde azul y fondo blanco (la guía: lo destructivo, sin
-           rojo). Antes, hasta cuándo es sin penalización o, ya tardía, el aviso -->
-      <div class="driver-actions__block">
-        @if (cancellationIsLate()) {
-          <output class="notice notice--warning">
-            <ion-icon [icon]="warningIcon" aria-hidden="true" />
-            <span>{{ 'myTrips.cancelasAhoraContaraComo' | transloco }}</span>
-          </output>
-        } @else if (cancelCost(); as cost) {
-          <div class="notice notice--info driver-actions__cancel-cost">
-            <span>{{ cost }}</span>
-          </div>
-        }
-        <ion-button
-          type="button"
-          expand="block"
-          fill="outline"
-          [disabled]="isCancelling() || isChangingStatus()"
-          (click)="handleCancel()"
-        >
-          {{ (isCancelling() ? 'myTrips.cancelling' : 'myTrips.cancelTrip') | transloco }}
-          @if (cancellationIsLate()) {
-            <span class="visually-hidden">{{
-              'myTrips.contaraComoCancelacionTardia' | transloco
-            }}</span>
-          }
-        </ion-button>
-      </div>
-    }
-
-    <!-- Cancelado o terminado: sin botones, solo por qué. Terminado, debajo,
-         reportarlo (7 días, sin cancelar nada) -->
-    @if (closedReason(); as reason) {
-      <div class="notice notice--info notice--icon">
-        <ion-icon [icon]="closedIcon()" aria-hidden="true" />
-        <span>{{ reason }}</span>
-      </div>
-      @if (isReportOpen()) {
-        <app-after-trip-report [tripId]="trip().id" [isDriver]="true" />
-      }
-    } @else if (isReportOpen()) {
+<!-- Terminado: reportarlo (7 días, sin cancelar nada), en su tarjeta sin
+     título (el título es el de «¿Algo fue mal?») -->
+@if (isReportOpen()) {
+  <ion-card class="driver-actions">
+    <ion-card-content>
       <app-after-trip-report [tripId]="trip().id" [isDriver]="true" />
-    }
-  </ion-card-content>
-</ion-card>
+    </ion-card-content>
+  </ion-card>
+}

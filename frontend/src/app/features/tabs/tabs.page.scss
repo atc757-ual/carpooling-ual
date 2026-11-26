@@ -99,8 +99,17 @@ ion-tab-button {
   text-decoration: none;
   // Los 4px del borde inferior van transparentes en todas y solo los pinta la
   // activa: así todas miden lo mismo y el menú no se mueve al cambiar de una a
-  // otra. Al pasar el ratón no cambia nada
+  // otra
   border-bottom: var(--border-width-xl) solid transparent;
+
+  // Al pasar el ratón, para que se vea que se puede pulsar: el texto en el
+  // azul de los enlaces y la raya en gris (la activa la tiene en azul)
+  @media (any-hover: hover) {
+    &:hover:not(.top-nav__link--active) {
+      border-bottom-color: var(--color-border-strong);
+      color: var(--color-link);
+    }
+  }
 
   &:focus-visible {
     outline: var(--focus-ring);

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
+import { FaqContext } from '../../../../core/models/admin-faq.model';
 import { HelpFaq } from '../../../../core/models/faq.model';
 import { FaqsService } from '../../../../core/services/help/faqs.service';
 import { ActiveModeService } from '../../../../core/services/users/active-mode.service';
@@ -21,7 +22,7 @@ const FAQ: HelpFaq = {
 describe('QuickFaqs', () => {
   let list: ReturnType<typeof vi.fn>;
 
-  async function render(): Promise<ComponentFixture<QuickFaqs>> {
+  async function render(context: FaqContext = 'search'): Promise<ComponentFixture<QuickFaqs>> {
     list = vi.fn().mockResolvedValue([FAQ]);
     TestBed.configureTestingModule({
       imports: [QuickFaqs],
@@ -34,16 +35,26 @@ describe('QuickFaqs', () => {
       ],
     });
     const fixture = TestBed.createComponent(QuickFaqs);
-    fixture.componentRef.setInput('context', 'search');
+    fixture.componentRef.setInput('context', context);
     await fixture.whenStable();
     return fixture;
   }
 
-  it('asks for the quick questions of the screen, for the active mode', async () => {
-    const root = (await render()).nativeElement as HTMLElement;
+  // Las de cada pantalla son de su papel, aunque el modo activo sea el otro
+  it('asks for the quick questions of the screen, for the role of the screen', async () => {
+    const root = (await render('search')).nativeElement as HTMLElement;
 
-    expect(list).toHaveBeenCalledWith({ lang: 'es', audience: 'driver', context: 'search' });
+    expect(list).toHaveBeenCalledWith({ lang: 'es', audience: 'passenger', context: 'search' });
     expect(root.textContent).toContain('¿Qué es el margen horario?');
+
+    TestBed.resetTestingModule();
+    await render('publish');
+    expect(list).toHaveBeenCalledWith({ lang: 'es', audience: 'driver', context: 'publish' });
+  });
+
+  it('follows the active mode in Help & support', async () => {
+    await render('support');
+    expect(list).toHaveBeenCalledWith({ lang: 'es', audience: 'driver', context: 'support' });
   });
 
   it('links to Help & support and says so when it is pressed', async () => {

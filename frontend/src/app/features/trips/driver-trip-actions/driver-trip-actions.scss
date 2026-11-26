@@ -1,3 +1,11 @@
+// El aviso de cancelado o terminado y la tarjeta, apilados con 16px entre
+// ellos (el hueco de la columna)
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
 .driver-actions {
   margin: 0;
 }

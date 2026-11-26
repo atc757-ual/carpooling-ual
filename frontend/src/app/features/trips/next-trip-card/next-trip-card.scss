@@ -100,3 +100,10 @@
   color: var(--next-trip-icon);
   font-size: var(--icon-size-s);
 }
+
+// El icono del papel (coche o persona), del color del estado de la tarjeta
+// (verde confirmado, ámbar pendiente) en vez del de su papel: sobre el fondo
+// de color, el azul o el morado no casan. El papel ya se lee en el texto
+.role-tag ion-icon {
+  color: var(--next-trip-icon);
+}

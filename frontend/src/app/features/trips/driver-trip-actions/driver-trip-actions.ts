@@ -21,14 +21,7 @@ import {
   ModalController,
 } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
-import {
-  carOutline,
-  checkmarkCircleOutline,
-  closeCircleOutline,
-  locationOutline,
-  shareSocialOutline,
-  warningOutline,
-} from 'ionicons/icons';
+import { carOutline, locationOutline, shareSocialOutline, warningOutline } from 'ionicons/icons';
 import { ApiError } from '../../../core/models/api-error.model';
 import { DriverTrip, TripStatus } from '../../../core/models/driver.model';
 import { DriverTrackingService } from '../../../core/services/drivers/driver-tracking.service';
@@ -137,24 +130,6 @@ export class DriverTripActions {
         })
       : null;
   });
-  // Cancelado o terminado: sin acciones, solo el motivo
-  readonly closedReason = computed(() => {
-    switch (this.trip().status) {
-      case 'cancelled':
-        return translate('screens.driverTripActions.esteViajeCancelo');
-      case 'finished':
-        if (this.trip().finishedBy === 'system') {
-          return null;
-        }
-        return translate('screens.driverTripActions.esteViajeYaTermino');
-      default:
-        return null;
-    }
-  });
-  // El icono del aviso: hecho o cancelado
-  readonly closedIcon = computed(() =>
-    this.trip().status === 'finished' ? checkmarkCircleOutline : closeCircleOutline,
-  );
   // «¿Algo fue mal?», solo en los 7 días siguientes a terminar
   readonly isReportOpen = computed(() => isAfterTripReportOpen(this.trip()));
   readonly isChangingStatus = signal(false);

@@ -1,12 +1,12 @@
-// Sin caja propia: en la columna de Buscar cuenta solo la tarjeta. Sin
-// trayecto ni búsqueda no pinta nada y, así, tampoco deja el hueco doble
-// entre «Tu próximo viaje» y la búsqueda
+// Sin caja propia: en la columna lateral cuenta solo la tarjeta. Sin
+// trayecto ni búsqueda no pinta nada y, así, tampoco deja un hueco doble
+// encima de «¿Tienes coche?»
 :host {
   display: contents;
 }
 
-// Encima de la búsqueda: el título, el trayecto, cuándo y los botones en una
-// fila (se parten si no caben)
+// El título con su icono y el lápiz, el trayecto, los días y una fila para la
+// ida y otra para la vuelta
 .usual-trip {
   margin: 0;
 }
@@ -19,6 +19,26 @@
   p {
     margin: 0;
   }
+}
+
+// El icono, el título y, pegados a la derecha, editar y borrar (16px entre
+// ellos: así sus franjas táctiles de 44px no se solapan)
+.usual-trip__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.usual-trip__tools {
+  display: flex;
+  margin-inline-start: auto;
+  gap: var(--space-base); // 16px
+}
+
+.usual-trip__icon {
+  flex: none;
+  color: var(--color-primary);
+  font-size: var(--icon-size-base);
 }
 
 .usual-trip__title {
@@ -34,12 +54,31 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.usual-trip__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-s);
+// Ida y vuelta: el texto a la izquierda y «Buscar» pegado a la derecha, con
+// una línea fina entre las dos
+.usual-trip__legs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
+.usual-trip__leg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  padding-block: var(--space-s);
+  border-top: var(--border-width-s) solid var(--color-border-subtle);
+
+  // Los dos «Buscar» pequeños (32px; se tocan en 44px) y del mismo ancho
   ion-button {
+    flex: none;
+    min-width: 5rem; // 80px
     margin: 0;
   }
+}
+
+// «Guardar trayecto»: a todo el ancho de la tarjeta, sin el margen de Ionic
+.usual-trip__content > form ion-button {
+  margin: 0;
 }

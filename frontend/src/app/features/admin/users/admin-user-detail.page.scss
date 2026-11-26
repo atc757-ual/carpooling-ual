@@ -85,6 +85,18 @@
   font-weight: var(--font-weight-semibold);
 }
 
+// Los perfiles, como las filas de una lista (ion-item): una línea gris clara
+// entre ellos y 12px a cada lado de la línea
+.admin-detail__list.detail__profiles {
+  gap: 0;
+
+  > li + li {
+    margin-top: calc(var(--space-s) + var(--space-xs)); // 12px
+    padding-top: calc(var(--space-s) + var(--space-xs)); // 12px
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
+}
+
 .detail__row {
   display: flex;
   flex-wrap: wrap;

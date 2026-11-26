@@ -100,27 +100,6 @@
   }
 }
 
-// Tabletas: las flechas, sobre el carrusel (un ancla de altura 0 justo antes),
-// en la esquina de arriba a la derecha de la tarjeta, en la línea del nombre;
-// el nombre deja su hueco
-.pickup-carousel__arrows {
-  position: relative;
-  z-index: var(--z-raised);
-  height: 0;
-
-  // 16px: el hueco de 8px entre el ancla y el carrusel y el relleno de 8px de
-  // la tarjeta del pasajero; a la derecha, su relleno
-  .pickups-head__arrows {
-    position: absolute;
-    top: calc(var(--space-s) * 2);
-    right: var(--space-s);
-  }
-
-  + .pickup-carousel .pickup-slide__who {
-    padding-right: 4.5rem; // 72px: las dos flechas (32px) y sus huecos
-  }
-}
-
 // «1 de 2 en el coche · 1 se ha bajado», siempre en una línea («…» si no cabe)
 .pickups-head__text p {
   overflow: hidden;

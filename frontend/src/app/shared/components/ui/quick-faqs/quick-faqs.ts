@@ -5,13 +5,21 @@ import { IonButton, IonCard, IonSkeletonText } from '@ionic/angular';
 import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { EMPTY } from 'rxjs';
 import { FaqContext } from '../../../../core/models/admin-faq.model';
-import { FaqLang } from '../../../../core/models/faq.model';
+import { FaqLang, HelpAudience } from '../../../../core/models/faq.model';
 import { FaqsService } from '../../../../core/services/help/faqs.service';
 import { ActiveModeService } from '../../../../core/services/users/active-mode.service';
 import { FaqCard } from '../faq-card/faq-card';
 
 export const HELP_CENTER_PATH = '/tabs/profile/help';
 const SKELETON_ROWS = [1, 2, 3];
+// Las preguntas de cada pantalla son de su papel, tenga el usuario ese
+// perfil o no (quien solo es pasajero también mira Publicar): las de
+// Publicar, de conductor, y las de Buscar, de pasajero. Ayuda y soporte
+// sigue el modo con el que viaja
+const CONTEXT_AUDIENCES: Partial<Record<FaqContext, HelpAudience>> = {
+  search: 'passenger',
+  publish: 'driver',
+};
 
 // Las preguntas rápidas de una pantalla (Buscar, Publicar o Ayuda y soporte):
 // las que el panel marcó para ella, del modo activo del usuario (y las de los
@@ -43,7 +51,7 @@ export class QuickFaqs {
   readonly faqs = resource({
     params: () => ({
       lang: this.lang(),
-      audience: this.activeMode.mode() ?? undefined,
+      audience: CONTEXT_AUDIENCES[this.context()] ?? this.activeMode.mode() ?? undefined,
       context: this.context(),
     }),
     loader: ({ params }) => this.faqsService.list(params),

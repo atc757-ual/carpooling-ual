@@ -26,8 +26,8 @@ import {
 } from '@ionic/angular';
 import {
   carOutline,
+  checkmarkCircleOutline,
   closeCircleOutline,
-  informationCircleOutline,
   leafOutline,
   peopleOutline,
 } from 'ionicons/icons';
@@ -46,6 +46,16 @@ import { DriverTripRoute } from '../driver-trip-route/driver-trip-route';
 import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
 import { occupiedSeats } from '../my-trips/my-trips-summary';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
+import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
+
+const FINISHED_KEY = 'screens.driverTripActions.esteViajeYaTermino';
+
+// El aviso de cómo acabó el viaje: sus frases, su icono y su color
+interface StatusNotice {
+  keys: string[];
+  icon: string;
+  tone: 'success' | 'danger' | 'warning';
+}
 
 // El detalle de un viaje publicado. En escritorio, columna de 8 con el
 // recorrido (mapa, paradas, datos y vehículo) y los pasajeros (plazas,
@@ -58,6 +68,7 @@ import { LoadingState } from '../../../shared/components/ui/loading-state/loadin
   imports: [
     Co2Source,
     LoadingState,
+    QuickFaqs,
     RouterLink,
     IonBreadcrumb,
     IonBreadcrumbs,
@@ -187,11 +198,55 @@ export class DriverTripDetailPage {
 
   protected readonly carIcon = carOutline;
   protected readonly leafIcon = leafOutline;
-  protected readonly infoIcon = informationCircleOutline;
 
-  readonly isAutoFinished = computed(
-    () => this.trip()?.status === 'finished' && this.trip()?.finishedBy === 'system',
-  );
+  // Cancelado o expirado: sin nada que hacer ni que contar (la columna de 4
+  // solo con el aviso, publicar otro viaje y las preguntas)
+  readonly isClosed = computed(() => {
+    const status = this.trip()?.status;
+    return status === 'cancelled' || status === 'expired';
+  });
+
+  // El aviso de cómo acabó el viaje, arriba de la columna de 4 y del color de
+  // su estado, como la etiqueta de la cabecera: terminado en verde (con el
+  // motivo si lo cerró el sistema), cancelado en rojo y sin pasajeros en
+  // ámbar con el coche, como su nota de impacto
+  readonly statusNotice = computed<StatusNotice | null>(() => {
+    const trip = this.trip();
+    switch (trip?.status) {
+      case 'finished':
+        return {
+          keys:
+            trip.finishedBy === 'system'
+              ? [FINISHED_KEY, 'myTrips.cerradoAutomaticamenteHabiaPasado']
+              : [FINISHED_KEY],
+          icon: checkmarkCircleOutline,
+          tone: 'success',
+        };
+      case 'cancelled':
+        return {
+          keys: ['screens.driverTripActions.esteViajeCancelo'],
+          icon: closeCircleOutline,
+          tone: 'danger',
+        };
+      case 'expired':
+        return {
+          keys: ['screens.driverTripActions.esteViajeSinPasajeros'],
+          icon: carOutline,
+          tone: 'warning',
+        };
+      default:
+        return null;
+    }
+  });
+
+  // El papel en el título: «Condujiste» si se hizo, «Ibas a conducir» si se
+  // canceló o caducó y «Conduces» si está por hacer o en curso
+  readonly roleKey = computed(() => {
+    if (this.trip()?.status === 'finished') {
+      return 'labels.role.drove';
+    }
+    return this.isClosed() ? 'labels.role.wasDriving' : 'labels.role.driving';
+  });
 
   // Con el viaje en curso, el mismo aviso que en Tus viajes, que lleva a En curso
   readonly liveBanner = computed(() => {
