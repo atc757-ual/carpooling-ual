@@ -491,7 +491,7 @@
                             @if (request.status === 'completed') {
                               <button
                                 type="button"
-                                class="icon-btn icon-btn--labeled icon-btn--stacked"
+                                class="icon-btn"
                                 disabled
                                 [attr.aria-label]="
                                   'live.droppedNoChat'
@@ -499,14 +499,11 @@
                                 "
                               >
                                 <ion-icon [icon]="chatIcon" aria-hidden="true" />
-                                <span class="icon-btn__label" aria-hidden="true">{{
-                                  'live.enviarMensaje' | transloco
-                                }}</span>
                               </button>
                             } @else if (isLater) {
                               <button
                                 type="button"
-                                class="icon-btn icon-btn--labeled icon-btn--stacked"
+                                class="icon-btn"
                                 disabled
                                 [attr.aria-label]="
                                   'live.messageTo'
@@ -514,13 +511,11 @@
                                 "
                               >
                                 <ion-icon [icon]="chatIcon" aria-hidden="true" />
-                                <span class="icon-btn__label" aria-hidden="true">{{
-                                  'live.enviarMensaje' | transloco
-                                }}</span>
                               </button>
                             } @else {
                               <a
-                                class="icon-btn icon-btn--labeled icon-btn--stacked"
+                                class="icon-btn"
+                                [title]="'live.enviarMensaje' | transloco"
                                 [routerLink]="['/tabs/messages', trip.id, request.passenger.id]"
                                 [attr.aria-label]="
                                   'live.messageTo'
@@ -528,14 +523,15 @@
                                 "
                               >
                                 <ion-icon [icon]="chatIcon" aria-hidden="true" />
-                                <span class="icon-btn__label" aria-hidden="true">{{
-                                  'live.enviarMensaje' | transloco
-                                }}</span>
                               </a>
                             }
                             <button
                               type="button"
-                              class="icon-btn icon-btn--labeled icon-btn--stacked"
+                              class="icon-btn"
+                              [title]="
+                                'common.tripCall.callTo'
+                                  | transloco: { name: firstName(request.passenger.name) }
+                              "
                               [disabled]="
                                 request.status === 'completed' ||
                                 isLater ||
@@ -547,21 +543,15 @@
                               (click)="handleCallPassenger(request.passenger)"
                             >
                               <ion-icon [icon]="callIcon" aria-hidden="true" />
-                              <span class="icon-btn__label" aria-hidden="true">
-                                {{
-                                  'common.tripCall.callTo'
-                                    | transloco: { name: firstName(request.passenger.name) }
-                                }}
-                              </span>
                             </button>
                             <!-- «No se presentó» va junto a las casillas del código -->
                             @if (request.boardedAt && request.status === 'accepted') {
                               <!-- A bordo: «Ha bajado» cierra su plaza (con el coche
-                                 parado). Como el chat y llamar: el icono con
-                                 su nombre debajo -->
+                                 parado). Con su texto (el icono no basta para
+                                 saber qué hace), a la altura del chat y llamar -->
                               <button
                                 type="button"
-                                class="icon-btn icon-btn--labeled icon-btn--stacked"
+                                class="icon-btn icon-btn--labeled pickup-slide__drop-off"
                                 [disabled]="isDroppingOff(request.id)"
                                 [attr.aria-label]="
                                   'live.droppedOffAria'

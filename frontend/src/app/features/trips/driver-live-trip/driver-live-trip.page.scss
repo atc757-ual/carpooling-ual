@@ -216,6 +216,11 @@ ion-spinner.pickup-slide__spinner {
   gap: var(--space-xs);
 }
 
+// «Ha bajado», con su texto, a la altura del chat y llamar (44px)
+.icon-btn.pickup-slide__drop-off {
+  height: var(--control-height-s);
+}
+
 // Los puntos: uno por pasajero, el que se ve más largo y en azul
 .pickup-dots {
   display: flex;

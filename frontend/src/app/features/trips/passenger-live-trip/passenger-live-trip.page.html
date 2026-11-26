@@ -280,26 +280,22 @@
                         </div>
                       </div>
                       <a
-                        class="icon-btn icon-btn--labeled icon-btn--stacked"
+                        class="icon-btn"
+                        [title]="'live.enviarMensaje' | transloco"
                         [routerLink]="['/tabs/messages', trip.id]"
                         [attr.aria-label]="'live.enviarMensajeConductor' | transloco"
                       >
                         <ion-icon [icon]="chatIcon" aria-hidden="true" />
-                        <span class="icon-btn__label" aria-hidden="true">{{
-                          'live.enviarMensaje' | transloco
-                        }}</span>
                       </a>
                       <button
                         type="button"
-                        class="icon-btn icon-btn--labeled icon-btn--stacked"
+                        class="icon-btn"
+                        [title]="'common.tripCall.callTo' | transloco: { name: driverName() }"
                         [disabled]="!canCallDriver()"
                         [attr.aria-label]="callDriverLabel()"
                         (click)="handleCallDriver()"
                       >
                         <ion-icon [icon]="callIcon" aria-hidden="true" />
-                        <span class="icon-btn__label" aria-hidden="true">
-                          {{ 'common.tripCall.callTo' | transloco: { name: driverName() } }}
-                        </span>
                       </button>
                     </div>
                   </ion-card-content>
