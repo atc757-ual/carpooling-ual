@@ -80,13 +80,15 @@ for (const viewport of VIEWPORTS) {
       cy.location('pathname').should('be.oneOf', ['/tabs/search', '/tabs/publish']);
     });
 
-    // El total va en el nombre accesible; a la vista, solo un punto
+    // El total va en el nombre accesible; a la vista, solo un punto.
+    // Ionic mueve el aria-label al elemento nativo del shadow DOM (un enlace, por el
+    // routerLink) y vacía el del host
     it('counts the unread ones on the bell', () => {
-      cy.get('app-tabs .bell-button')
-        .filter(':visible')
-        .should('have.attr', 'aria-label', 'Notificaciones, 1 sin leer')
-        .find('.bell-button__badge')
-        .should('exist');
+      cy.get('app-tabs .bell-button').filter(':visible').as('bell');
+      cy.get('@bell')
+        .find('.button-native', { includeShadowDom: true })
+        .should('have.attr', 'aria-label', 'Notificaciones, 1 sin leer');
+      cy.get('@bell').find('.bell-button__badge').should('exist');
     });
 
     it('opens one: marks it as read and goes to my trips', () => {
