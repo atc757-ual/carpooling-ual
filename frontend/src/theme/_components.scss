@@ -1712,3 +1712,28 @@ ion-toggle {
   flex: none;
   margin: 0;
 }
+
+// En escritorio, el botón siempre debajo del texto y a todo el ancho de la
+// tarjeta (44px de alto): se ve como la acción de la tarjeta y no se aprieta
+// con el título. En el móvil sigue a la derecha
+@include bp.up(md) {
+  .section-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-s);
+  }
+
+  // En columna, la base de 192px del texto sería una altura
+  .section-item__text {
+    flex: none;
+  }
+
+  .section-item > :not(.section-item__text),
+  .section-item > form > .icon-btn {
+    width: 100%;
+  }
+
+  .section-item .icon-btn--labeled {
+    min-height: var(--control-height-s);
+  }
+}
