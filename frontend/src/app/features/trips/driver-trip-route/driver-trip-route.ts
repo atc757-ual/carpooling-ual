@@ -21,6 +21,7 @@ import {
 } from '../../../shared/components/ui/trip-route-map/trip-route-map';
 import { getFirstName } from '../../matching/trip-driver/trip-driver';
 import { buildDriverRouteStops } from './driver-route-stops';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // Viajes cuyas recogidas aceptadas se pintan en el recorrido
 const STATUSES_WITH_PICKUPS = new Set<TripStatus>(['published', 'confirmed', 'in_progress']);
@@ -93,7 +94,7 @@ export class DriverTripRoute {
       .sort((a, b) => Date.parse(a.pickupAt ?? '') - Date.parse(b.pickupAt ?? '')),
   );
   // En el mapa: las paradas del viaje o, en el camino, el punto de cada uno
-  readonly pickupPoints = computed<RoutePoint[]>(() =>
+  readonly pickupPoints = localizedComputed<RoutePoint[]>(() =>
     this.trip().stops.length > 0
       ? this.trip().stops.map(({ location, name }) => ({
           coordinates: location.coordinates,
@@ -101,7 +102,7 @@ export class DriverTripRoute {
         }))
       : this.acceptedPickupPoints(),
   );
-  private readonly acceptedPickupPoints = computed<RoutePoint[]>(() =>
+  private readonly acceptedPickupPoints = localizedComputed<RoutePoint[]>(() =>
     this.acceptedPickups().flatMap(({ pickupLocation, passenger }) =>
       pickupLocation
         ? [
@@ -126,12 +127,12 @@ export class DriverTripRoute {
   }));
 
   // Sale a su hora y llega, más o menos, tras la duración de la ruta
-  readonly stops = computed<RouteStop[]>(() =>
+  readonly stops = localizedComputed<RouteStop[]>(() =>
     buildDriverRouteStops(this.trip(), this.acceptedPickups(), this.route()),
   );
 
   // «12,4 km», «18 min», «hasta 10 min»
-  readonly facts = computed(() => {
+  readonly facts = localizedComputed(() => {
     const route = this.route();
     return [
       {

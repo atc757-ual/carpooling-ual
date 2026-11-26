@@ -46,10 +46,10 @@
       <!-- Historial del chat anterior del viaje (compartido): solo lectura, sin ✓ -->
       @if (sharedGroups().length > 0) {
         <section class="conversation__shared" aria-labelledby="conversation-shared-title">
-          <h3 id="conversation-shared-title" class="conversation__shared-title text-caption">
+          <h2 id="conversation-shared-title" class="conversation__shared-title text-caption">
             <ion-icon [icon]="closedIcon" aria-hidden="true" />
             {{ 'conversation.legacy' | transloco }}
-          </h3>
+          </h2>
           <ol
             class="conversation__messages"
             [attr.aria-label]="'conversation.legacyMessages' | transloco"
@@ -180,7 +180,13 @@
      hora con quien conduce -->
 <ng-template #tripTitle>
   <span class="conversation__heading-info">
-    <span class="conversation__route text-label text-label--strong">
+    <!-- En el móvil va en la franja fija en lugar del título de la pantalla:
+         ahí la ruta es el encabezado principal (en escritorio lo es el título) -->
+    <span
+      class="conversation__route text-label text-label--strong"
+      [attr.role]="inPageHeading() ? 'heading' : null"
+      [attr.aria-level]="inPageHeading() ? 1 : null"
+    >
       <span class="conversation__place">
         <ion-icon class="conversation__place-icon" [icon]="originIcon" aria-hidden="true" />
         <span class="conversation__place-name">{{ originName() }}</span>
@@ -245,8 +251,8 @@
   <ion-button
     class="conversation__options"
     fill="clear"
-    [attr.aria-label]="optionsLabel"
-    [title]="optionsLabel"
+    [attr.aria-label]="optionsLabel()"
+    [title]="optionsLabel()"
     (click)="handleOpenOptions($event)"
   >
     <ion-icon slot="icon-only" [icon]="optionsIcon" aria-hidden="true" />

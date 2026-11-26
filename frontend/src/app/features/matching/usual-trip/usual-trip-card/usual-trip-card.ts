@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonButton, IonCard, IonCardContent, IonIcon, ModalController } from '@ionic/angular';
 import { translate, TranslocoPipe } from '@jsverse/transloco';
@@ -12,6 +12,7 @@ import { TripSearchStateService } from '../../trip-search-state.service';
 import { usualTripFromSearch, usualTripSearch } from '../usual-trip';
 import { UsualTripModal } from '../usual-trip-modal/usual-trip-modal';
 import { UsualTripService } from '../usual-trip.service';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 // «lunes, miércoles y viernes» (las horas van en la fila de la ida y la vuelta)
 export function usualTripDays(trip: UsualTrip): string {
@@ -45,7 +46,7 @@ export class UsualTripCard {
   readonly isLoaded = this.usualTrips.isLoaded;
   // Sin trayecto guardado: la búsqueda que se puede guardar
   readonly search = this.searchState.search;
-  readonly days = computed(() => {
+  readonly days = localizedComputed(() => {
     const trip = this.trip();
     return trip ? usualTripDays(trip) : '';
   });

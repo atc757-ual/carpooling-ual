@@ -36,6 +36,7 @@ import {
   injectHelpIncidentLink,
   injectHelpIncidentsPriority,
 } from './help-incidents/help-incidents-priority';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 const SKELETON_ROWS = [1, 2, 3, 4];
 // Las que caben en el desplegable del buscador
@@ -120,7 +121,7 @@ export class HelpCenterPage {
       (this.topics.isLoading() && !this.topics.hasValue()) ||
       (this.faqs.isLoading() && !this.faqs.hasValue()),
   );
-  readonly errorMessage = computed(() => {
+  readonly errorMessage = localizedComputed(() => {
     const error = this.topics.error() ?? this.faqs.error() ?? this.results.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });

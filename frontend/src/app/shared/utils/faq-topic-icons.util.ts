@@ -4,6 +4,7 @@ import {
   closeCircleOutline,
   helpCircleOutline,
   lockClosedOutline,
+  medalOutline,
   navigateOutline,
   personCircleOutline,
   searchOutline,
@@ -21,6 +22,8 @@ const TOPIC_ICONS: Readonly<Record<string, string>> = {
   'close-circle-outline': closeCircleOutline,
   'help-circle-outline': helpCircleOutline,
   'lock-closed-outline': lockClosedOutline,
+  // La de las valoraciones: la escala es de medallas (RF-22)
+  'medal-outline': medalOutline,
   'navigate-outline': navigateOutline,
   'person-circle-outline': personCircleOutline,
   'search-outline': searchOutline,

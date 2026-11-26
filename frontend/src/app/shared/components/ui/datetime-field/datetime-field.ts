@@ -14,6 +14,7 @@ import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
 import { calendarOutline, timeOutline } from 'ionicons/icons';
 import { toIsoDate } from '../../../utils/date.util';
 import { appLanguage } from '../../../../core/i18n/app-locale';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 export type DatetimePresentation = 'date' | 'time';
 
@@ -74,7 +75,8 @@ export class DatetimeField implements ControlValueAccessor {
 
   readonly label = input.required<string>();
   readonly presentation = input<DatetimePresentation>('date');
-  // Límites de la fecha (ISO); sin efecto en la hora
+  // Límites (ISO). En la fecha, «2026-11-26»; en la hora, con la fecha del día
+  // en que valen («2026-11-26T10:35»): ese día, la rueda desactiva las anteriores
   readonly min = input<string>();
   readonly max = input<string>();
 
@@ -92,7 +94,7 @@ export class DatetimeField implements ControlValueAccessor {
   // El valor como signal, para el texto del botón
   private readonly value = signal('');
   private readonly document = inject(DOCUMENT);
-  protected readonly displayValue = computed(() => {
+  protected readonly displayValue = localizedComputed(() => {
     const value = this.value();
     if (!value) {
       return '';
@@ -101,7 +103,18 @@ export class DatetimeField implements ControlValueAccessor {
     return this.presentation() === 'date' ? formatDateLabel(value, new Date(), lang) : value;
   });
 
-  protected readonly pickerLocale = computed(() =>
+  // La hora para la rueda: con la fecha del límite si la tiene, para que Ionic
+  // desactive las anteriores ese día; sin límite, tal cual («07:40»)
+  protected readonly timePickerValue = computed(() => {
+    const time = this.value();
+    const day = this.min()?.includes('T') ? this.min()?.slice(0, 10) : undefined;
+    if (!time) {
+      return undefined;
+    }
+    return day ? `${day}T${time}` : time;
+  });
+
+  protected readonly pickerLocale = localizedComputed(() =>
     this.transloco?.getActiveLang() === 'en' ? 'en-GB' : 'es-ES',
   );
 
@@ -146,6 +159,18 @@ export class DatetimeField implements ControlValueAccessor {
   protected handleOpen(trigger: HTMLElement): void {
     this.anchor.set({ target: trigger });
     this.isOpen.set(true);
+  }
+
+  // La hora elegida, siempre como «HH:mm» (la rueda la da con fecha si la
+  // tiene); un valor vacío o una lista no cambian nada
+  protected handleTimeChange(value: string | string[] | null | undefined): void {
+    if (typeof value !== 'string' || value === '') {
+      return;
+    }
+    const time = value.includes('T') ? value.slice(11, 16) : value.slice(0, 5);
+    if (time !== this.control.value) {
+      this.control.setValue(time);
+    }
   }
 
   // Escritorio: el día elegido cierra el desplegable (en el móvil cierra la

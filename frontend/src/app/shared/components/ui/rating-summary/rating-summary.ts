@@ -4,6 +4,7 @@ import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { numberFormat } from '../../../../core/i18n/app-locale';
 import { DriverRating } from '../../../../core/models/driver-review.model';
 import { RATING_ICON, RATING_MAX, ratingName } from '../../../utils/rating.util';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 const RATING_FORMAT = () =>
   numberFormat({
@@ -43,9 +44,9 @@ export class RatingSummary {
     const average = this.rating().average;
     return average === null ? null : RATING_FORMAT().format(average);
   });
-  readonly countText = computed(() => formatReviewCount(this.rating().count));
+  readonly countText = localizedComputed(() => formatReviewCount(this.rating().count));
   // Cada nota con su parte de la barra (en % del total)
-  readonly bars = computed(() => {
+  readonly bars = localizedComputed(() => {
     const { count, distribution } = this.rating();
     return distribution.map((row) => ({
       ...row,

@@ -1,4 +1,5 @@
 import { afterNextRender, DestroyRef, Directive, ElementRef, inject, signal } from '@angular/core';
+import { scrollBehavior } from '../utils/motion.util';
 
 // Lo que baja la píldora: casi lo que se ve, para no perder el hilo
 const SCROLL_STEP_RATIO = 0.8;
@@ -46,7 +47,7 @@ export class ScrollHint {
   scrollDown(): void {
     this.element.scrollBy({
       top: this.element.clientHeight * SCROLL_STEP_RATIO,
-      behavior: 'smooth',
+      behavior: scrollBehavior(),
     });
   }
 }

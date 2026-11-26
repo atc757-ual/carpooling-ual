@@ -22,8 +22,6 @@
 
 <ion-content>
   <div class="tab-page search-results">
-    <h1 class="visually-hidden">{{ 'searchResults.yourSearch' | transloco }}</h1>
-
     <div class="search-results__list">
       @if (search(); as search) {
         @if (results.isLoading()) {

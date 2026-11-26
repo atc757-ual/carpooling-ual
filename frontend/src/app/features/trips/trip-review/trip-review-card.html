@@ -136,7 +136,7 @@
                   <div class="trip-review-card__given">
                     <p class="trip-review-card__comment text-body-s">
                       @if (review.comment) {
-                        «{{ review.comment }}»
+                        {{ 'common.quoted' | transloco: { text: review.comment } }}
                       } @else {
                         <span class="text-color-muted">{{
                           'tripReview.sinComentario' | transloco

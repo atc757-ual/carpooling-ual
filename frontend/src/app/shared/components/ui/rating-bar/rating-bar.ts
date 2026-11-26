@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { formatRating, RATING_MAX } from '../../../utils/rating.util';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 // La nota de 1 a 5 como una barra de 5 puntos (la misma escala que al
 // valorar): se rellenan los puntos hasta la nota, el último en parte si la
@@ -33,5 +34,5 @@ export class RatingBar {
       Math.round(Math.min(1, Math.max(0, rating - index)) * 100),
     );
   });
-  readonly label = computed(() => formatRating(this.rating()));
+  readonly label = localizedComputed(() => formatRating(this.rating()));
 }

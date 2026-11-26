@@ -36,6 +36,7 @@ import {
   normalizePlate,
   plateSign,
 } from '../../../shared/utils/plate-country.util';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 // La matrícula, con el formato de su país (el del campo «País de la matrícula»)
 const plateOfCountryValidator: ValidatorFn = (control: AbstractControl) => {
@@ -83,7 +84,7 @@ export class VehicleForm {
   readonly submitLabel = input(translate('screens.vehicleForm.guardarVehiculo'));
   readonly saved = output<Vehicle>();
   // Al editar: el nombre y la matrícula, de solo lectura (null al registrar)
-  readonly summary = computed(() => {
+  readonly summary = localizedComputed(() => {
     const vehicle = this.vehicle();
     return vehicle
       ? {

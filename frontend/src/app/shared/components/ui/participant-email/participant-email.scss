@@ -66,9 +66,10 @@
   white-space: nowrap;
 }
 
-// Desactivado: sin enlace, en el gris de los textos desactivados
+// Desactivado: sin enlace, en el gris de los detalles. No en el de los
+// controles desactivados: es un texto que se lee (≥ 4,5:1, WCAG 1.4.3)
 .participant-email--disabled {
-  color: var(--color-text-disabled);
+  color: var(--color-text-muted);
 
   &:hover .participant-email__address {
     text-decoration: none;

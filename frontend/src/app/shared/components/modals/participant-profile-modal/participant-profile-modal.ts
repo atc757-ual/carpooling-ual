@@ -14,6 +14,7 @@ import { EmptyState } from '../../ui/empty-state/empty-state';
 import { LoadingState } from '../../ui/loading-state/loading-state';
 import { getFirstName, getInitials } from '../../../utils/person-name.util';
 import { ModalHeader } from '../modal-header/modal-header';
+import { localizedComputed } from '../../../../core/i18n/localized-computed';
 
 export type ParticipantRole = 'driver' | 'passenger';
 
@@ -110,18 +111,18 @@ export class ParticipantProfileModal {
     loader: ({ params }) => this.avatars.getGraphic(params),
   });
 
-  readonly title = computed(() =>
+  readonly title = localizedComputed(() =>
     translate('participantProfile.title', {
       name: getFirstName(this.person()?.name ?? this.name),
     }),
   );
   readonly initials = computed(() => getInitials(this.person()?.name ?? ''));
-  readonly rating = computed(() => {
+  readonly rating = localizedComputed(() => {
     const person = this.person();
     return person ? formatParticipantRating(person, this.role) : '';
   });
   readonly preferences = computed(() => this.travelPreferences.format(this.person()?.preferences));
-  readonly errorMessage = computed(() => {
+  readonly errorMessage = localizedComputed(() => {
     const error = this.profile.error();
     return error ? getErrorMessage(ApiError.fromHttpError(error)) : null;
   });

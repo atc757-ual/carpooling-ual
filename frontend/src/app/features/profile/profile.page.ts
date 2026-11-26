@@ -69,6 +69,8 @@ import { ProfileReviewsModal } from './profile-reviews-modal/profile-reviews-mod
 import { reviewRoleIcon, reviewRoleLabel } from './profile-review-roles';
 import { ReviewTargetRole } from '../../core/services/users/trip-reviews.service';
 import { rethrowUnlessApiError } from '../../core/models/api-error.model';
+import { localizedComputed } from '../../core/i18n/localized-computed';
+import { numberFormat } from '../../core/i18n/app-locale';
 
 interface PreferenceRow {
   criterion: string;
@@ -157,7 +159,7 @@ export class ProfilePage implements OnInit {
   readonly timeToleranceLabel = computed(() => `± ${this.user()?.timeToleranceMin ?? 15} min`);
 
   // Solo los papeles con reseñas: quien no conduce no ve «Conductor»
-  readonly reviewRows = computed<ReviewRow[]>(() => {
+  readonly reviewRows = localizedComputed<ReviewRow[]>(() => {
     const ratings = this.user()?.ratings;
     return [
       { key: 'driver' as const, rating: ratings?.driver },
@@ -168,7 +170,9 @@ export class ProfilePage implements OnInit {
         key,
         role: reviewRoleLabel(key),
         icon: reviewRoleIcon(key),
-        average: (rating?.averageRating ?? 0).toFixed(1).replace('.', ','),
+        average: numberFormat({ minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(
+          rating?.averageRating ?? 0,
+        ),
         value: rating?.averageRating ?? 0,
         count: `(${rating?.ratingCount ?? 0})`,
       }));
@@ -186,7 +190,7 @@ export class ProfilePage implements OnInit {
       return { terms, privacy };
     },
   });
-  readonly legalDocs = computed<LegalDocRow[]>(() => {
+  readonly legalDocs = localizedComputed<LegalDocRow[]>(() => {
     const current = this.consents()?.current;
     const versions = this.legalVersions.hasValue() ? this.legalVersions.value() : undefined;
     return [

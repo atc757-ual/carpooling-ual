@@ -8,6 +8,7 @@ import { WeekdayPicker } from '../../../shared/components/ui/weekday-picker/week
 import { toIsoDate } from '../../../shared/utils/date.util';
 import { addDays, weekdayOf } from '../../../shared/utils/weekdays.util';
 import { defaultRepeatUntil, latestRepeatDate, repeatDatesFor } from './repeat-days';
+import { localizedComputed } from '../../../core/i18n/localized-computed';
 
 export interface RepeatDaysControls {
   isRepeating: FormControl<boolean>;
@@ -46,7 +47,7 @@ export class RepeatDaysField {
   readonly minUntil = computed(() => addDays(this.firstDate(), 1));
   readonly maxUntil = latestRepeatDate(toIsoDate(new Date()));
   readonly dates = computed(() => repeatDatesFor(this.firstDate(), this.chosen(), this.until()));
-  readonly summary = computed(() =>
+  readonly summary = localizedComputed(() =>
     this.dates().length > 0 ? repeatSummary(this.dates().length, this.hasReturn()) : null,
   );
 
