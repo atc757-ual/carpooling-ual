@@ -220,6 +220,7 @@
     }
   },
   "location": {
+    "mapAria": "Mapa: {{ title }}",
     "gotIt": "Entendido",
     "introTitle": "Rellenamos la dirección con tu ubicación",
     "introPermission": "Al pulsar «Continuar», si aún no has dado permiso, tu navegador o el móvil te lo pedirán.",
@@ -342,7 +343,6 @@
     "range": "{{ from }}–{{ to }} de {{ total }}",
     "shown": "{{ shown }} de {{ total }}",
     "previousPage": "Página anterior",
-    "currentPage": "Página actual",
     "pageOf": "{{ page }} de {{ count }}",
     "nextPage": "Página siguiente",
     "unreadSummary": "Tienes {{ count }} sin leer",

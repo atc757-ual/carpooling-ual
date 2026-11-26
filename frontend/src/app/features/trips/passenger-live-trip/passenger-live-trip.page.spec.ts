@@ -126,7 +126,12 @@ describe('PassengerLiveTripPage', () => {
 
     expect(page.phase()).toBe('waiting');
     expect(page.heroTitle()).toBe('Esperando a Lucía');
-    expect(root.querySelectorAll('.ride__code-digits span')).toHaveLength(4);
+    expect(root.querySelectorAll('.ride__code-digits span[aria-hidden="true"]')).toHaveLength(4);
+    // El lector, los dígitos uno a uno (texto oculto: un div no admite aria-label)
+    expect(root.querySelector('.ride__code-digits .visually-hidden')?.textContent).toMatch(
+      /^\d( \d){3}$/,
+    );
+    expect(root.querySelector('.ride__code-digits')?.hasAttribute('aria-label')).toBe(false);
     expect(root.textContent).toContain('Conduce');
     expect(root.textContent).toContain('Seat Ibiza');
     // En curso, el nombre sin abrir el perfil (sería una ventana sobre la hoja)

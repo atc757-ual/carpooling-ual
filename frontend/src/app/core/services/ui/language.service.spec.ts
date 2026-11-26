@@ -67,6 +67,16 @@ describe('LanguageService', () => {
     expect(localStorage.getItem('carpooling_language')).toBe('en');
   });
 
+  // WCAG 3.1.1: el lector de pantalla lee con la voz del idioma de la página
+  it('sets the language of the page', () => {
+    setupModule();
+    const service = TestBed.inject(LanguageService);
+    service.setLanguage('en');
+    expect(document.documentElement.lang).toBe('en');
+    service.setLanguage('es');
+    expect(document.documentElement.lang).toBe('es');
+  });
+
   it('toggles language between es and en', () => {
     setupModule();
     const service = TestBed.inject(LanguageService);

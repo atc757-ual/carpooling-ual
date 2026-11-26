@@ -11,12 +11,11 @@
     </div>
     <ul class="rating-summary__bars">
       @for (bar of bars(); track bar.rating) {
-        <li
-          class="rating-summary__bar"
-          [attr.aria-label]="
+        <li class="rating-summary__bar">
+          <!-- Lo que lee el lector (un li no admite aria-label): «5 de 5: 3» -->
+          <span class="visually-hidden">{{
             ('tripReview.ofFive' | transloco: { rating: bar.rating }) + ': ' + bar.count
-          "
-        >
+          }}</span>
           <span class="rating-summary__bar-label text-caption" aria-hidden="true">{{
             bar.label
           }}</span>

@@ -71,12 +71,15 @@
     <ion-button
       class="header-action logout-button"
       fill="clear"
-      [attr.aria-label]="'common.nav.logout' | transloco"
+      [attr.aria-label]="'common.nav.logoutShort' | transloco"
+      [title]="'common.nav.logout' | transloco"
       (click)="handleLogout()"
     >
       <span class="header-action__icon">
         <ion-icon [icon]="logoutIcon" aria-hidden="true" />
       </span>
+      <!-- El nombre accesible es el texto que se ve («Salir»), como pide
+           WCAG 2.5.3; «Cerrar sesión» queda en el title -->
       <span class="header-action__label" aria-hidden="true">{{
         'common.nav.logoutShort' | transloco
       }}</span>

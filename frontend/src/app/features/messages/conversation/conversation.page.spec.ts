@@ -530,15 +530,15 @@ describe('ConversationPage', () => {
     // Primer mensaje propio: enviado (✓)
     const statusM1 = bubbles[0].querySelector('.bubble__status');
     expect(statusM1).not.toBeNull();
-    expect(statusM1?.textContent?.trim()).toBe('✓');
-    expect(statusM1?.getAttribute('aria-label')).toBe('Enviado');
+    expect(statusM1?.querySelector('[aria-hidden="true"]')?.textContent?.trim()).toBe('✓');
+    expect(statusM1?.querySelector('.visually-hidden')?.textContent).toBe('Enviado');
     expect(statusM1?.classList).not.toContain('bubble__status--read');
 
     // Segundo mensaje propio: leído (✓✓)
     const statusM2 = bubbles[1].querySelector('.bubble__status');
     expect(statusM2).not.toBeNull();
-    expect(statusM2?.textContent?.trim()).toBe('✓✓');
-    expect(statusM2?.getAttribute('aria-label')).toBe('Leído');
+    expect(statusM2?.querySelector('[aria-hidden="true"]')?.textContent?.trim()).toBe('✓✓');
+    expect(statusM2?.querySelector('.visually-hidden')?.textContent).toBe('Leído');
     expect(statusM2?.classList).toContain('bubble__status--read');
 
     // Mensaje de otro participante: sin indicador de lectura propio

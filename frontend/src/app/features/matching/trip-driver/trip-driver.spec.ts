@@ -39,9 +39,7 @@ describe('TripDriver', () => {
     expect(text(root, '.trip-driver__avatar')).toBe('LC');
     expect(text(root, '.trip-driver__name')).toBe('Lucía Cortés');
     expect(root.textContent).toContain('42 viajes');
-    expect(root.querySelector('.trip-driver__rating')?.getAttribute('aria-label')).toBe(
-      'Valoración 4,8 de 5',
-    );
+    expect(text(root, '.trip-driver__rating .visually-hidden')).toBe('Valoración 4,8 de 5');
   });
 
   it('turns the name into a link to the profile when they share a trip', () => {

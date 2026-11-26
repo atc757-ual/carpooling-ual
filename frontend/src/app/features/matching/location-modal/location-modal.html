@@ -121,7 +121,13 @@
 
         <!-- Solo ver un lugar: el mapa con el pin fijo -->
         @case ('view') {
-          <div #map class="location__map" [attr.aria-label]="'Mapa: ' + title"></div>
+          <!-- role="region" (no "img"): con nombre y sin ocultar los botones del zoom -->
+          <div
+            #map
+            class="location__map"
+            role="region"
+            [attr.aria-label]="'location.mapAria' | transloco: { title }"
+          ></div>
         }
 
         <!-- Sin permiso: cómo darlo, o escribir la dirección -->

@@ -130,11 +130,14 @@ ion-card.driver-trip ion-card-content {
   margin-left: auto;
 }
 
+// Una lista (con su nombre para el lector), sin viñetas ni sangría
 .driver-trip__preferences {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-xs);
-  margin-top: var(--space-xxs);
+  margin: var(--space-xxs) 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 .driver-trip__auto-accept-notice {

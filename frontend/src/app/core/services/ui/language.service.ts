@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { DOCUMENT, inject, Injectable, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { setAppLocale } from '../../i18n/app-locale';
 
@@ -10,6 +10,7 @@ const LANGUAGE_STORAGE_KEY = 'carpooling_language';
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
   private readonly transloco = inject(TranslocoService);
+  private readonly document = inject(DOCUMENT);
 
   readonly currentLanguage = signal<AppLanguage>(this.detectInitialLanguage());
 
@@ -62,5 +63,7 @@ export class LanguageService {
   private applyLanguage(lang: AppLanguage): void {
     setAppLocale(lang);
     this.transloco.setActiveLang(lang);
+    // El idioma de la página, para que el lector de pantalla use la voz que toca
+    this.document.documentElement.lang = lang;
   }
 }
