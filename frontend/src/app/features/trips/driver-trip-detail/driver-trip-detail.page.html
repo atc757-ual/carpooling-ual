@@ -6,77 +6,98 @@
         @if (liveBanner(); as live) {
           <app-live-trip-banner [trip]="live.trip" [detail]="live.detail" [link]="live.link" />
         }
-        @if (isAutoFinished()) {
-          <div class="notice notice--info driver-detail__auto-notice" role="alert">
-            <ion-icon [icon]="infoIcon" aria-hidden="true" />
-            <span
-              >{{ 'screens.driverTripActions.esteViajeYaTermino' | transloco }}
-              {{ 'myTrips.cerradoAutomaticamenteHabiaPasado' | transloco }}</span
-            >
-          </div>
-        }
         <app-driver-trip-route [trip]="trip" />
         <app-driver-trip-passengers [trip]="trip" (changed)="handleReload()" />
       </div>
 
-      <!-- Columna de 4 en escritorio; debajo en el móvil -->
+      <!-- Columna de 4 en escritorio; debajo en el móvil. Arriba, sin tarjeta y
+           del color de su estado, cómo acabó el viaje (terminado, cancelado o
+           sin pasajeros). Cancelado o expirado: publicar otro viaje y las
+           preguntas -->
       <aside
         class="driver-detail__aside live-column"
         [attr.aria-label]="'myTrips.accionesImpactoDelViaje' | transloco"
       >
-        <app-driver-trip-actions [trip]="trip" (changed)="handleReload()" />
-
-        <!-- Viaje terminado: valorar a cada pasajero o ver la valoración -->
-        @if (reviewTargets().length > 0) {
-          <app-trip-review-card
-            [title]="'myTrips.valoraTusPasajeros' | transloco"
-            [tripId]="trip.id"
-            [targets]="reviewTargets()"
-            targetRole="passenger"
-            [isStepped]="true"
-            [isCarded]="true"
-          />
+        @if (statusNotice(); as notice) {
+          <div class="notice notice--icon notice--{{ notice.tone }}" role="status">
+            <ion-icon [icon]="notice.icon" aria-hidden="true" />
+            <span>
+              @for (key of notice.keys; track key) {
+                {{ key | transloco }}
+              }
+            </span>
+          </div>
         }
+        @if (!isClosed()) {
+          <app-driver-trip-actions [trip]="trip" (changed)="handleReload()" />
 
-        <ion-card class="driver-detail__impact">
-          <!-- La cifra ya dice que es estimada: junto al título, solo la fuente
-               (sin cifras, tampoco fuente) -->
-          <ion-card-header class="card-header--row">
-            <ion-card-title>{{ 'myTrips.impactoEsteViaje' | transloco }}</ion-card-title>
-            @if (impact()) {
-              <app-co2-source />
-            }
-          </ion-card-header>
-          <ion-card-content>
-            @if (impact(); as impact) {
-              <dl class="driver-detail__stats">
-                <div>
-                  <dt class="text-caption">{{ 'myTrips.ahorrado' | transloco }}</dt>
-                  <dd class="text-subtitle driver-detail__value">
-                    <ion-icon [icon]="leafIcon" aria-hidden="true" />{{ impact.co2 }}
-                  </dd>
-                </div>
-                <div>
-                  <dt class="text-caption">{{ 'myTrips.kmComoConductor' | transloco }}</dt>
-                  <dd class="text-subtitle driver-detail__value driver-detail__value--km">
-                    <ion-icon [icon]="carIcon" aria-hidden="true" />{{ impact.km }}
-                  </dd>
-                </div>
-              </dl>
-            } @else {
-              <!-- Sin pasajeros (aún, o el viaje se hizo sin ellos) o cancelado: por qué no hay cifras -->
-              @let note = impactNote();
-              <p class="text-body-s text-color-muted driver-detail__impact-note">
-                <ion-icon
-                  [class]="'driver-detail__note-icon--' + note.tone"
-                  [icon]="note.icon"
-                  aria-hidden="true"
-                />
-                <span>{{ note.key | transloco }}</span>
+          <!-- Viaje terminado: valorar a cada pasajero o ver la valoración -->
+          @if (reviewTargets().length > 0) {
+            <app-trip-review-card
+              [title]="'myTrips.valoraTusPasajeros' | transloco"
+              [tripId]="trip.id"
+              [targets]="reviewTargets()"
+              targetRole="passenger"
+              [isStepped]="true"
+              [isCarded]="true"
+            />
+          }
+
+          <ion-card class="driver-detail__impact">
+            <!-- La cifra ya dice que es estimada: junto al título, solo la fuente
+                 (sin cifras, tampoco fuente) -->
+            <ion-card-header class="card-header--row">
+              <ion-card-title>{{ 'myTrips.impactoEsteViaje' | transloco }}</ion-card-title>
+              @if (impact()) {
+                <app-co2-source />
+              }
+            </ion-card-header>
+            <ion-card-content>
+              @if (impact(); as impact) {
+                <dl class="driver-detail__stats">
+                  <div>
+                    <dt class="text-caption">{{ 'myTrips.ahorrado' | transloco }}</dt>
+                    <dd class="text-subtitle driver-detail__value">
+                      <ion-icon [icon]="leafIcon" aria-hidden="true" />{{ impact.co2 }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="text-caption">{{ 'myTrips.kmComoConductor' | transloco }}</dt>
+                    <dd class="text-subtitle driver-detail__value driver-detail__value--km">
+                      <ion-icon [icon]="carIcon" aria-hidden="true" />{{ impact.km }}
+                    </dd>
+                  </div>
+                </dl>
+              } @else {
+                <!-- Sin pasajeros (aún, o el viaje se hizo sin ellos) o cancelado: por qué no hay cifras -->
+                @let note = impactNote();
+                <p class="text-body-s text-color-muted driver-detail__impact-note">
+                  <ion-icon
+                    [class]="'driver-detail__note-icon--' + note.tone"
+                    [icon]="note.icon"
+                    aria-hidden="true"
+                  />
+                  <span>{{ note.key | transloco }}</span>
+                </p>
+              }
+            </ion-card-content>
+          </ion-card>
+        } @else {
+          <ion-card class="driver-detail__next">
+            <ion-card-header>
+              <ion-card-title>{{ 'myTrips.closedNext.title' | transloco }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <p class="text-body-s text-color-muted">
+                {{ 'myTrips.closedNext.text' | transloco }}
               </p>
-            }
-          </ion-card-content>
-        </ion-card>
+              <ion-button expand="block" routerLink="/tabs/publish">
+                {{ 'myTrips.closedNext.action' | transloco }}
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+          <app-quick-faqs context="publish" />
+        }
       </aside>
     } @else if (tripResource.isLoading()) {
       <app-loading-state [label]="'myTrips.cargandoViaje' | transloco" />
@@ -105,9 +126,7 @@
       <div class="driver-detail__title-row">
         <h1 class="driver-detail__title">
           <ion-icon class="driver-detail__role-icon" [icon]="carIcon" aria-hidden="true" />
-          {{
-            (trip.status === 'finished' ? 'labels.role.drove' : 'labels.role.driving') | transloco
-          }}
+          {{ roleKey() | transloco }}
           · {{ when() }}
         </h1>
         <span

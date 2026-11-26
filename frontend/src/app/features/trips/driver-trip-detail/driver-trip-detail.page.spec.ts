@@ -118,11 +118,23 @@ describe('DriverTripDetailPage', () => {
   it('explains that the system closed a trip that had already passed', async () => {
     const closed = { ...trip('t1'), status: 'finished' as const, finishedBy: 'system' as const };
     const root = await render(() => Promise.resolve([closed]));
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-    expect(fixture.componentInstance.isAutoFinished()).toBe(true);
-    expect(root.querySelector('.driver-detail__auto-notice')?.textContent).toContain(
-      'Este viaje ya terminó.',
-    );
+    // En verde, arriba de la columna de 4, con el motivo del cierre
+    const notice = root.querySelector('.driver-detail__aside > .notice');
+    expect(notice?.classList).toContain('notice--success');
+    expect(notice?.textContent).toContain('Este viaje ya terminó.');
+    expect(notice?.textContent).toContain('Cerrado automáticamente');
+  });
+
+  it('gives every closed trip its notice, in the colour of its status', async () => {
+    const tones = { finished: 'success', cancelled: 'danger', expired: 'warning' } as const;
+    for (const [status, tone] of Object.entries(tones)) {
+      TestBed.resetTestingModule();
+      await render(() => Promise.resolve([trip('t1', { status: status as DriverTrip['status'] })]));
+      expect(fixture.componentInstance.statusNotice()?.tone).toBe(tone);
+    }
   });
 
   it('estimates the impact by passenger, and says a cancelled trip saved nothing', async () => {
@@ -136,8 +148,39 @@ describe('DriverTripDetailPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
+    // Cancelado: sin impacto; la columna de 4, con su aviso y publicar otro
     expect(fixture.componentInstance.impact()).toBeNull();
-    expect(root.textContent).toContain('Este viaje no se realizó');
+    expect(root.querySelector('.driver-detail__impact')).toBeNull();
+    expect(root.querySelector('.driver-detail__aside > .notice--danger')?.textContent).toContain(
+      'Este viaje se canceló.',
+    );
+  });
+
+  it('explains why there are no figures without passengers', async () => {
+    const empty = { availableSeats: 3 };
+    const root = await render(() => Promise.resolve([trip('t1', empty)]));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.impact()).toBeNull();
+    expect(getRoute).not.toHaveBeenCalled();
+    expect(root.textContent).toContain('Cuando lleves pasajeros, verás aquí el CO₂');
+    expect(root.querySelector('app-co2-source')).toBeNull();
+
+    myTrips.mockResolvedValue([trip('t1', { ...empty, status: 'finished' })]);
+    fixture.componentInstance.handleReload();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Este viaje se hizo sin pasajeros');
+  });
+
+  it('approximates the km in a straight line while the trip has no route', async () => {
+    getRoute = vi.fn().mockRejectedValue(new ApiError('ROUTE_NOT_FOUND', 404));
+    await render(() => Promise.resolve([trip('t1')]));
+    await fixture.whenStable();
+
+    // Roquetas - campus: unos 20 km en línea recta × 1,3 = 26 km
+    expect(fixture.componentInstance.impact()?.km).toBe('26 km');
   });
 
   it('explains why there are no figures without passengers', async () => {

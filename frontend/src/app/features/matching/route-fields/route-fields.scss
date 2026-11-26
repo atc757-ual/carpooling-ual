@@ -41,28 +41,47 @@
   align-items: start;
 }
 
-// Enlace del móvil, en el color de los enlaces (como «Editar» en Buscar), con
-// 32px de alto para tocarlo bien
+// Chip del móvil, con los colores del botón de escritorio (fondo azul claro,
+// azul de los enlaces, esquinas de 8px) y el azul más oscuro al pulsarlo (y
+// al pasar el ratón, si lo hay). Se ve de 32px y se toca en 44px (franja
+// invisible arriba y abajo)
 .route-fields__swap-link {
+  position: relative;
   display: inline-flex;
   // A la derecha, también cuando no hay etiqueta (Publicar)
   margin-inline-start: auto;
   align-items: center;
   gap: var(--space-xs);
   min-height: var(--box-size-s);
-  padding: 0;
+  padding: 0 var(--space-s);
   border: 0;
   border-radius: var(--radius-s);
-  background: transparent;
+  background: var(--color-primary-subtle);
   color: var(--color-link);
   font: inherit;
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
 
+  &::after {
+    position: absolute;
+    inset: calc((var(--box-size-s) - var(--control-height-s)) / 2) 0;
+    content: '';
+  }
+
   ion-icon {
     font-size: var(--icon-size-s);
     transform: rotate(90deg);
+  }
+
+  &:active {
+    color: var(--color-primary-hover);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      color: var(--color-primary-hover);
+    }
   }
 
   &:focus-visible {

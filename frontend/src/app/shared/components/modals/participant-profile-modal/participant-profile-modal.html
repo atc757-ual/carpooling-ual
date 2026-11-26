@@ -62,15 +62,17 @@
       }
 
       <!-- La fila entera abre el correo -->
-      <ion-item lines="none" [href]="'mailto:' + person.email" [detail]="false">
+      <!-- La fila no se pulsa (sin hover en todo el bloque): el enlace es
+           solo el correo, subrayado, que abre el programa de correo -->
+      <ion-item lines="none">
         <ion-label class="ion-text-wrap">
           <h2 class="participant-profile__title text-caption text-color-muted">
             {{ 'participantProfile.contact' | transloco }}
           </h2>
-          <p class="participant-profile__email text-body-s">
+          <a class="participant-profile__email text-body-s" [href]="'mailto:' + person.email">
             <ion-icon [icon]="mailIcon" aria-hidden="true" />
-            <span>{{ person.email }}</span>
-          </p>
+            <span class="participant-profile__email-address">{{ person.email }}</span>
+          </a>
         </ion-label>
       </ion-item>
     </ion-list>

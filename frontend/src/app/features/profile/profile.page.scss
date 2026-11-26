@@ -332,26 +332,6 @@ ion-list.profile__legal-list {
   }
 }
 
-// Editar: botón cuadrado de 32px con fondo azul suave e icono de 20px
-.profile__edit {
-  --background: var(--color-primary-subtle);
-  --background-hover: var(--color-primary-subtle);
-  --color: var(--color-primary);
-  --border-radius: var(--radius-s);
-  --box-shadow: none;
-  --padding-start: 0;
-  --padding-end: 0;
-  width: var(--box-size-s); // Icono de 20px con 6px alrededor
-  min-width: var(--box-size-s);
-  height: var(--box-size-s);
-  min-height: var(--box-size-s); // El tema da 48px a todos los ion-button
-  margin: 0;
-
-  ion-icon {
-    font-size: var(--icon-size-base);
-  }
-}
-
 .profile__pref-label {
   display: inline-flex;
   align-items: center;

@@ -323,29 +323,36 @@
                         [ngTemplateOutletContext]="{ $implicit: 'early' }"
                       />
                     }
-                    <app-live-trip-safety [shareText]="safetyShareText()" />
-                    <app-passenger-request-actions
-                      [request]="request"
-                      [trip]="trip"
-                      [showChat]="false"
-                      [inlineIncident]="true"
-                      (incidentRequested)="isReportingIncident.set(true)"
-                    />
-                    <ion-card class="ride__panel" role="region" aria-labelledby="ride-sos-title">
-                      <ion-card-content>
-                        <div class="section-item">
-                          <div class="section-item__text">
-                            <h2 id="ride-sos-title" class="section-item__title">
-                              {{ 'live.emergencia' | transloco }}
-                            </h2>
-                            <p class="section-item__subtitle">
-                              {{ 'live.hayUnaEmergenciaLlama' | transloco }}
-                            </p>
+                    <!-- «Otras acciones», juntas en una tarjeta: compartir,
+                         reportar y la emergencia -->
+                    <section class="live-group" aria-labelledby="other-actions-title">
+                      <h2 id="other-actions-title" class="live-group__title">
+                        {{ 'live.otrasAcciones' | transloco }}
+                      </h2>
+                      <app-live-trip-safety [shareText]="safetyShareText()" />
+                      <app-passenger-request-actions
+                        [request]="request"
+                        [trip]="trip"
+                        [showChat]="false"
+                        [inlineIncident]="true"
+                        (incidentRequested)="isReportingIncident.set(true)"
+                      />
+                      <ion-card class="ride__panel" role="region" aria-labelledby="ride-sos-title">
+                        <ion-card-content>
+                          <div class="section-item">
+                            <div class="section-item__text">
+                              <h2 id="ride-sos-title" class="section-item__title">
+                                {{ 'live.emergencia' | transloco }}
+                              </h2>
+                              <p class="section-item__subtitle">
+                                {{ 'live.hayUnaEmergenciaLlama' | transloco }}
+                              </p>
+                            </div>
+                            <ng-container [ngTemplateOutlet]="sosButton" />
                           </div>
-                          <ng-container [ngTemplateOutlet]="sosButton" />
-                        </div>
-                      </ion-card-content>
-                    </ion-card>
+                        </ion-card-content>
+                      </ion-card>
+                    </section>
                   } @else {
                     <!-- Móvil: las acciones en una fila de botones (el primer toque
                          los despliega y explica debajo qué hacen; el segundo actúa) -->

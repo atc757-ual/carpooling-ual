@@ -28,7 +28,7 @@ describe('AutoAcceptField', () => {
     expect(root.querySelector('ion-toggle')?.textContent).toContain(
       'Aceptar solicitudes automáticamente',
     );
-    expect(root.textContent).toContain('Si no cabe, la solicitud te esperará');
+    expect(root.textContent).toContain('la solicitud te esperará para que decidas');
     expect(control.value).toBe(false);
   });
 

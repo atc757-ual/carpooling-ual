@@ -80,12 +80,6 @@ export class UsualTripModal implements OnInit {
     await this.modalController.dismiss(null, 'saved');
   }
 
-  async handleRemove(): Promise<void> {
-    await this.usualTrips.remove();
-    void this.toast.showSuccess(translate('usualTrip.removed'));
-    await this.modalController.dismiss(null, 'removed');
-  }
-
   close(): Promise<boolean> {
     return this.modalController.dismiss();
   }

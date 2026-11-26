@@ -4,7 +4,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { provideIonicAngular } from '@ionic/angular';
+import { IonInputOtp, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -299,13 +299,50 @@ describe('DriverLiveTripPage', () => {
   });
 
   it('keeps only up to 4 digits of what the driver types in the code field', async () => {
-    const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
-    const input = root.querySelector('.driver-live-trip__code-input') as HTMLInputElement;
+    await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
 
-    input.value = '48a2 19';
-    input.dispatchEvent(new Event('input'));
+    page.setBoardCode('r1', '48a2 19');
 
     expect(page.boardCode('r1')).toBe('4821');
+  });
+
+  it('validates on its own when the fourth digit is typed', async () => {
+    const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+    page.setBoardCode('r1', '4821');
+
+    root.querySelector('ion-input-otp')?.dispatchEvent(new CustomEvent('ionComplete'));
+    await Promise.resolve();
+
+    expect(driver['boardPassenger']).toHaveBeenCalledWith('r1', '4821');
+  });
+
+  it('does not validate an incomplete code nor twice at once', async () => {
+    await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+    page.setBoardCode('r1', '482');
+    await page.handleBoard('r1');
+    expect(driver['boardPassenger']).not.toHaveBeenCalled();
+
+    page.setBoardCode('r1', '4821');
+    const first = page.handleBoard('r1');
+    await page.handleBoard('r1');
+    await first;
+    expect(driver['boardPassenger']).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears the code and focuses the first box when it is wrong', async () => {
+    await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
+    vi.useFakeTimers();
+    driver['boardPassenger'].mockRejectedValueOnce(new Error('wrong code'));
+    const codeInput = { setFocus: vi.fn().mockResolvedValue(undefined) };
+    page.setBoardCode('r1', '1111');
+
+    await page.handleBoard('r1', codeInput as unknown as IonInputOtp);
+    vi.runAllTimers();
+
+    expect(page.boardCode('r1')).toBe('');
+    expect(page.isValidatingBoard('r1')).toBe(false);
+    expect(codeInput.setFocus).toHaveBeenCalledWith(0);
+    vi.useRealTimers();
   });
 
   it('marks no-show when confirmed after 5 minutes of grace period', async () => {
@@ -322,7 +359,7 @@ describe('DriverLiveTripPage', () => {
     const tripCall = TestBed.inject(TripCallService);
     const openPhoneSpy = vi.spyOn(tripCall, 'openPhone').mockImplementation(() => undefined);
 
-    const callBtn = root.querySelector('button.icon-btn');
+    const callBtn = root.querySelector('.pickup-slide__actions button[aria-label^="Llamar"]');
     expect(callBtn).not.toBeNull();
     expect(callBtn?.getAttribute('aria-label')).toBe('Llamar a Carlos Ruiz');
     expect(callBtn?.hasAttribute('disabled')).toBe(false);
@@ -334,7 +371,7 @@ describe('DriverLiveTripPage', () => {
   it('disables the call button when the passenger does not share their phone', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)], []);
 
-    const callBtn = root.querySelector('button.icon-btn');
+    const callBtn = root.querySelector('.pickup-slide__actions button[aria-label^="Llamar"]');
     expect(callBtn).not.toBeNull();
     expect(callBtn?.hasAttribute('disabled')).toBe(true);
 
@@ -447,17 +484,14 @@ describe('DriverLiveTripPage', () => {
       expect(root.querySelectorAll('.section-item')).toHaveLength(0);
     });
 
-    it('puts the pickup arrows on the carousel instead of the header', async () => {
+    it('keeps the pickup arrows in the header', async () => {
       const root = await render(
         [TRIP],
         [passenger('r1', 'Carlos Ruiz', 5), passenger('r2', 'Ana Gil', 15)],
       );
 
-      expect(page.hasCarouselArrows()).toBe(true);
-      expect(root.querySelector('.pickups-head .pickup-arrow')).toBeNull();
-      expect(
-        root.querySelectorAll('.pickup-carousel__arrows [aria-label^="Pasajero"]'),
-      ).toHaveLength(2);
+      expect(root.querySelectorAll('.pickups-head .pickup-arrow')).toHaveLength(2);
+      expect(root.querySelector('.pickup-carousel__arrows')).toBeNull();
     });
   });
 
@@ -468,7 +502,6 @@ describe('DriverLiveTripPage', () => {
     );
 
     expect(page.hasActionRows()).toBe(true);
-    expect(page.hasCarouselArrows()).toBe(false);
     expect(root.querySelector('.live-actions')).toBeNull();
     expect(root.querySelector('.icon-btns-open .section-item')).not.toBeNull();
     expect(root.querySelectorAll('.pickups-head .pickup-arrow')).toHaveLength(2);

@@ -84,7 +84,10 @@ describe('TripReviewCard (de uno en uno)', () => {
 
     const root = fixture.nativeElement as HTMLElement;
     expect(root.textContent).toContain('Tus valoraciones');
-    expect(root.textContent).toContain('4 · Genial');
+    // La nota, en palabras junto a sus medallas (ya no «4 · Genial»)
+    expect(root.querySelector('.trip-review-card__summary-verdict')?.textContent).toContain(
+      'Genial',
+    );
     expect(root.textContent).toContain('Más tarde, en el viaje');
     expect(root.textContent).toContain('¡Gracias por valorar!');
   });

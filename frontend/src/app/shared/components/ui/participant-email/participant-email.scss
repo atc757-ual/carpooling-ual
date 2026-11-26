@@ -11,9 +11,21 @@
   gap: var(--space-xs);
 }
 
-// Sin sobre, en una línea de detalles: con la letra de esa línea
+// Sin sobre, en una línea de detalles: con la letra de esa línea y
+// subrayado, porque sin el sobre solo el color lo distinguiría del texto gris
+// de al lado (WCAG 1.4.1)
 :host(.participant-email--plain) .participant-email {
   font-size: inherit;
+}
+
+:host(.participant-email--plain) a .participant-email__address {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+// Solo informativo: sin enlace, en el gris de los detalles
+.participant-email--text {
+  color: var(--color-text-muted);
 }
 
 .participant-email__separator {
@@ -52,4 +64,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+// Desactivado: sin enlace, en el gris de los textos desactivados
+.participant-email--disabled {
+  color: var(--color-text-disabled);
+
+  &:hover .participant-email__address {
+    text-decoration: none;
+  }
 }

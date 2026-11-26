@@ -6,19 +6,17 @@
 
 // ion-segment con el aspecto de antes: dos pestañas dentro de una caja con
 // borde; la elegida, en azul relleno con el texto en blanco (como el paso
-// actual de los formularios por pasos). Sin la raya de Material
+// actual de los formularios por pasos). Sin la raya de Material. A todo el
+// ancho de la tarjeta, también en escritorio (las dos pestañas, iguales)
 .audience-picker {
   gap: var(--space-xs);
   padding: var(--space-xs);
   border: var(--border-width-s) solid var(--color-border);
   border-radius: var(--radius-s); // 8px
   --background: var(--color-surface);
-
-  // En escritorio, del ancho de su contenido (las dos iguales), no de toda
-  // la tarjeta
-  @include bp.up(md) {
-    width: fit-content;
-  }
+  // Material limita cada columna a 360px (minmax(auto, 360px)): las dos,
+  // iguales y repartiéndose todo el ancho
+  grid-auto-columns: minmax(0, 1fr);
 }
 
 .audience-picker__option {
@@ -37,6 +35,16 @@
   --background-hover: var(--color-surface-subtle);
   --background-hover-opacity: 1;
   --indicator-height: 0;
+
+  // Ionic limita cada pestaña a 360px: sin límite, las dos llenan la caja
+  max-width: none;
+
+  // La elegida no cambia al pasar el ratón: la capa del hover (gris) taparía
+  // su azul. Algo más oscura, como los botones principales
+  &.segment-button-checked {
+    --background-hover: var(--color-primary-hover);
+    --color-hover: var(--color-on-primary);
+  }
 
   @include bp.up(md) {
     min-width: 11rem; // 176px: las dos iguales
