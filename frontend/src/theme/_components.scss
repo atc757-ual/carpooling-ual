@@ -1666,8 +1666,8 @@ ion-toggle {
 }
 
 // Una fila de acción (p. ej. «Terminar viaje», «Viaje seguro»): a la izquierda
-// el título y, debajo, la descripción en dos líneas (siempre dos, «…» si no
-// cabe); a la derecha, el botón centrado en vertical, a 16px. Si el texto
+// el título y, debajo, la descripción entera (como mínimo el alto de dos
+// líneas, para que las tarjetas no salten); a la derecha, el botón centrado en vertical, a 16px. Si el texto
 // se quedaría con menos de 192px (una tarjeta estrecha), el botón baja
 // debajo, a la izquierda, en vez de apretar el título
 .section-item {
@@ -1704,16 +1704,11 @@ ion-toggle {
 }
 
 .section-item__subtitle {
-  display: -webkit-box;
-  overflow: hidden;
-  min-height: 2rem; // 32px: siempre dos líneas
+  min-height: 2rem; // 32px: el alto de dos líneas
   margin: 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-caption); // 12px
   line-height: var(--line-height-caption);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
 }
 
 .section-item > :not(.section-item__text) {
