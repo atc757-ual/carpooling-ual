@@ -17,9 +17,9 @@
   }
   <!-- En formularios: cada botón envía el suyo (sin click en ion-button). La
        acción, con un texto que no deja dudas («Confirmar cancelación»), va
-       siempre primero y en azul: arriba en el móvil y a la izquierda en
-       escritorio; volver atrás («Mantener viaje»), debajo con borde. También
-       en las destructivas: con la seguridad abajo se pulsaba por error -->
+       siempre primero y en azul (arriba); volver atrás («Mantener viaje»),
+       debajo con borde. También en las destructivas: con la seguridad abajo se
+       pulsaba por error -->
   <div class="confirm__actions">
     <form (submit)="$event.preventDefault(); handleConfirm()">
       <ion-button type="submit" expand="block">{{ confirmText }}</ion-button>
