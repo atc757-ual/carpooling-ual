@@ -117,6 +117,19 @@ describe('ProfilePage', () => {
     expect(create).toHaveBeenCalled();
     expect(present).toHaveBeenCalled();
     expect(getMe).toHaveBeenCalled();
+
+    onDidDismiss.mockResolvedValueOnce({ role: 'cancel' });
+    getMe.mockClear();
+    await page.handleEditPublic();
+    expect(getMe).not.toHaveBeenCalled();
+  });
+
+  it('keeps local user state when getMe fails with an ApiError', async () => {
+    const { page } = render();
+    const { ApiError, NETWORK_ERROR } = await import('../../core/models/api-error.model');
+    getMe.mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
+
+    await expect(page.refreshData()).resolves.toBeUndefined();
   });
 
   it('opens the change password modal', async () => {

@@ -142,6 +142,39 @@ describe('ProfileSettingsPage', () => {
     expect(create).toHaveBeenCalled();
     expect(present).toHaveBeenCalled();
     expect(getMe).toHaveBeenCalled();
+
+    onDidDismiss.mockResolvedValueOnce({ role: 'cancel' });
+    getMe.mockClear();
+    await page.handleManagePhone(true);
+    expect(getMe).not.toHaveBeenCalled();
+  });
+
+  it('shows legal document accepted versions, minor updates and handles ApiError in refreshData', async () => {
+    const { page } = render();
+    page.consents.set({
+      current: {
+        terms: {
+          documentType: 'terms',
+          version: '1.0',
+          acceptedAt: '2026-10-01T10:00:00Z',
+          fingerprintSha256: 'a'.repeat(64),
+        },
+        privacy: {
+          documentType: 'privacy',
+          version: '1.0',
+          acceptedAt: '2026-10-01T10:00:00Z',
+          fingerprintSha256: 'b'.repeat(64),
+        },
+        location: null,
+      },
+      outdated: [],
+      history: [],
+    } as never);
+    expect(page.legalDocs()[0].acceptedVersion).toBe('1.0');
+
+    const { ApiError, NETWORK_ERROR } = await import('../../../core/models/api-error.model');
+    getMe.mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
+    await expect(page.refreshData()).resolves.toBeUndefined();
   });
 
   it('sets theme via theme service', () => {

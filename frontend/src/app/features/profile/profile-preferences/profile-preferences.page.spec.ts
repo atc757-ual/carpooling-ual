@@ -92,6 +92,29 @@ describe('ProfilePreferencesPage', () => {
     expect(create).toHaveBeenCalled();
     expect(present).toHaveBeenCalled();
     expect(getMe).toHaveBeenCalled();
+
+    onDidDismiss.mockResolvedValueOnce({ role: 'cancel' });
+    getMe.mockClear();
+    await page.handleEditPreferences();
+    expect(getMe).not.toHaveBeenCalled();
+  });
+
+  it('handles default timeToleranceMin, chosen preference values, and ApiError in refreshData', async () => {
+    const { page } = render(['passenger'], false);
+    const auth = TestBed.inject(AuthService);
+    (auth.currentUser as unknown as { set: (u: User | null) => void }).set({
+      firstName: 'Ana',
+      lastName: 'García',
+      email: 'ana@ual.es',
+      profiles: ['passenger'],
+      preferences: { music: 'pop', chat: 'quiet', smoking: 'no', pets: 'yes' },
+    } as unknown as User);
+    expect(page.timeToleranceLabel()).toBe('± 15 min');
+    expect(page.preferencesItems().length).toBeGreaterThan(0);
+
+    const { ApiError, NETWORK_ERROR } = await import('../../../core/models/api-error.model');
+    getMe.mockRejectedValueOnce(new ApiError(NETWORK_ERROR, 0));
+    await expect(page.refreshData()).resolves.toBeUndefined();
   });
 
   it('opens the received reviews in the role of the row', async () => {
