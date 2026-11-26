@@ -781,9 +781,15 @@
     "cargandoViaje": "Loading the trip…",
     "hemosPodidoCargarEste": "We couldn't load this trip",
     "cerradoAutomaticamenteHabiaPasado": "Closed automatically: an hour had passed since the estimated arrival",
+    "closedNext": {
+      "title": "Making another trip?",
+      "text": "Publish it in a moment: you can repeat it on the days you want.",
+      "action": "Publish a trip"
+    },
     "tusViajes": "Your trips",
     "viaje": "Your trip",
     "accionesDelViaje": "Trip actions",
+    "gestionarViaje": "Manage the trip",
     "compartiendoUbicacionConTus": "Sharing your location with your passengers",
     "abrirViaje": "Open trip",
     "compartirPlazasLibres": "Share free seats",
@@ -1203,6 +1209,8 @@
       "other": "{{ count }} have got off"
     },
     "ubicacionDirecto": "Live location",
+    "tuRuta": "Your route",
+    "otrasAcciones": "Other actions",
     "pasajeroAnterior": "Previous passenger",
     "pasajeroSiguiente": "Next passenger",
     "cargandoTusPasajeros": "Loading your passengers…",
@@ -1217,10 +1225,9 @@
     "thePickup": "the pick-up",
     "yourDestination": "your destination",
     "theDriver": "The driver",
-    "codePlaceholder": "Code",
-    "codeLater": "Later",
+    "codeHelp": "Ask {{ name }} for their pickup code",
+    "codeLater": "You will ask for their code at their stop",
     "codeAria": "Pick-up code for {{ name }}",
-    "validate": "Validate",
     "noShowIn": "“No-show” in {{ minutes }} min",
     "droppedNoChat": "{{ name }} has already got off: no messages",
     "messageTo": "Send a message to {{ name }}",
@@ -1233,6 +1240,7 @@
     "hayUnaEmergenciaLlama": "In an emergency, call 112: it's free and available 24/7.",
     "tapHint": "Tap a button to see what it does.",
     "hazloCuandoHayanBajado": "Do it once everyone has got off: they'll stop seeing where you are.",
+    "finishWhenAllOff": "Once everyone has got off",
     "compartirViajeConAlguien": "Share the trip with someone you trust",
     "compartir": "Share",
     "puedesSeguirReportaloRevisara": "If you can't continue, report it: an administrator will review it.",
@@ -1527,6 +1535,7 @@
     "role": {
       "driving": "You drive",
       "drove": "You drove",
+      "wasDriving": "You were going to drive",
       "riding": "You ride",
       "rode": "You rode"
     }
@@ -1769,6 +1778,7 @@
       "podrasIniciarloCuandoAceptes": "You'll be able to start it once you accept a passenger.",
       "podrasIniciarlo10Min": "You'll be able to start it at {{ value1 }}, 10 min before leaving.",
       "esteViajeCancelo": "This trip was cancelled.",
+      "esteViajeSinPasajeros": "This trip closed without passengers.",
       "esteViajeYaTermino": "This trip has already finished.",
       "sinCosteHastaMin": "No penalty until {{ freeUntil }} ({{ DRIVER_LATE_CANCELLATION_LEAD_MIN }} min before departure). After that it counts as a late cancellation: 3 in 30 days means 7 days without publishing.",
       "viajeIniciadoPasajerosYa": "Trip started. Your passengers can now see where you are.",
@@ -1999,7 +2009,7 @@
       "requestsTitle": "You get requests",
       "requestsText": "We'll let you know when someone from UAL requests a seat on your trip.",
       "autoAcceptTitle": "Automatic acceptance",
-      "autoAcceptText": "Anyone who fits your route and seats will join right away and we'll let you know; if they don't fit, you decide.",
+      "autoAcceptText": "If there's a seat and the pick-up is within your margin, they'll join right away and we'll let you know; if it's outside your margin, you decide.",
       "youDecideTitle": "You decide",
       "youDecideText": "You accept or reject each request: nobody gets a seat without your OK.",
       "tripDayTitle": "On the day of the trip",
@@ -2016,7 +2026,7 @@
     },
     "autoAccept": {
       "label": "Accept requests automatically",
-      "hint": "Anyone who fits in your car and your pick-up margin gets the seat right away, and we'll let you know. If not, the request waits for you to decide."
+      "hint": "If there's a seat and the pick-up is within your margin, the seat is theirs right away and we'll let you know. If the pick-up is outside your margin, the request waits for you to decide."
     },
     "pushOpen": {
       "opening": "Opening the notification"
@@ -2189,14 +2199,14 @@
     "FAQ_PUBLISHED_NOT_DELETABLE": "Move the question back to draft before deleting it."
   },
   "usualTrip": {
-    "title": "My route",
+    "title": "My usual route",
     "savePrompt": "Do you often make this trip? Save it and search it in one tap.",
-    "save": "Save as my usual route",
+    "save": "Save route",
+    "search": "Search",
     "searchTo": "Search there",
     "searchFrom": "Search back",
-    "edit": "Edit",
-    "when": "{{ days }} · arrive at {{ time }}",
-    "whenWithReturn": "{{ days }} · arrive at {{ time }} and leave at {{ returnTime }}",
+    "to": "There · arrive at {{ time }}",
+    "from": "Back · leave at {{ time }}",
     "saveTitle": "My usual route",
     "editTitle": "Edit my route",
     "deviceOnly": "It is saved only on this device and deleted when you log out.",
@@ -2207,6 +2217,9 @@
     "returnTime": "Way back departure",
     "saveAction": "Save",
     "remove": "Delete my route",
+    "removeTitle": "Delete your usual route?",
+    "removeText": "It will no longer appear in Search. You can save it again whenever you want.",
+    "removeAction": "Delete",
     "saved": "We have saved your route.",
     "removed": "We have deleted your route."
   }

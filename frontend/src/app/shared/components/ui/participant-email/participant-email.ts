@@ -21,16 +21,29 @@ import { TripParticipantsService } from '../../../../core/services/trips/trip-pa
     @if (isInline()) {
       <span class="participant-email__separator" aria-hidden="true">·</span>
     }
-    <a
-      class="participant-email"
-      [href]="'mailto:' + address"
-      [attr.aria-label]="'common.emailTo' | transloco: { name: name() }"
-    >
-      @if (showIcon()) {
-        <ion-icon [icon]="mailIcon" aria-hidden="true" />
-      }
-      <span class="participant-email__address">{{ address }}</span>
-    </a>
+    @if (isDisabled() || !isLink()) {
+      <span
+        class="participant-email"
+        [class.participant-email--disabled]="isDisabled()"
+        [class.participant-email--text]="!isDisabled()"
+      >
+        @if (showIcon()) {
+          <ion-icon [icon]="mailIcon" aria-hidden="true" />
+        }
+        <span class="participant-email__address">{{ address }}</span>
+      </span>
+    } @else {
+      <a
+        class="participant-email"
+        [href]="'mailto:' + address"
+        [attr.aria-label]="'common.emailTo' | transloco: { name: name() }"
+      >
+        @if (showIcon()) {
+          <ion-icon [icon]="mailIcon" aria-hidden="true" />
+        }
+        <span class="participant-email__address">{{ address }}</span>
+      </a>
+    }
   }`,
   styleUrl: './participant-email.scss',
 })
@@ -45,6 +58,11 @@ export class ParticipantEmail {
   readonly isInline = input(false);
   // Con el sobre delante (sin él, en una línea de detalles: «1 plaza · …»)
   readonly showIcon = input(true);
+  // Sin enlace y en gris (p. ej. el pasajero que aún no toca recoger)
+  readonly isDisabled = input(false);
+  // Solo informativo, sin enlace, en el gris de los detalles (p. ej. la
+  // lista de solicitudes: escribirle se hace desde su ventana)
+  readonly isLink = input(true);
 
   private readonly profile = resource({
     params: () => ({ tripId: this.tripId(), userId: this.userId() }),

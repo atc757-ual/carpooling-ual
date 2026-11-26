@@ -80,7 +80,7 @@
 }
 
 // El botón: cuadrado (radio de 8px) del ancho de su punto, con borde y el
-// número en gris; en verde claro hasta el elegido y el elegido en verde
+// número en gris; en dorado claro hasta el elegido y el elegido en dorado
 .trip-review__button {
   display: grid;
   width: 100%;
@@ -96,14 +96,14 @@
 }
 
 .trip-review__step--on .trip-review__button {
-  border-color: var(--color-success);
-  background: var(--color-success-subtle);
-  color: var(--color-success);
+  border-color: var(--color-rating);
+  background: var(--color-rating-subtle);
+  color: var(--color-rating);
 }
 
 .trip-review__step--current .trip-review__button {
-  background: var(--color-success);
-  color: var(--color-on-success);
+  background: var(--color-rating);
+  color: var(--color-on-rating);
 }
 
 // Debajo, a 12px y centrado

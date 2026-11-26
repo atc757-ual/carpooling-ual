@@ -77,15 +77,10 @@ describe('UsualTripModal', () => {
     expect(save).not.toHaveBeenCalled();
   });
 
-  it('edits a saved route and can delete it', async () => {
+  // Borrarlo se hace desde la tarjeta (con confirmación), no desde aquí
+  it('edits a saved route, without a delete button', () => {
     const root = render({ ...TRIP, returnTime: '14:00' }, false);
-    const modal = fixture.componentInstance;
-    expect(modal.form.controls.hasReturn.value).toBe(true);
-    expect(root.textContent).toContain('Borrar mi trayecto');
-
-    await modal.handleRemove();
-
-    expect(remove).toHaveBeenCalled();
-    expect(dismiss).toHaveBeenCalledWith(null, 'removed');
+    expect(fixture.componentInstance.form.controls.hasReturn.value).toBe(true);
+    expect(root.textContent).not.toContain('Borrar mi trayecto');
   });
 });

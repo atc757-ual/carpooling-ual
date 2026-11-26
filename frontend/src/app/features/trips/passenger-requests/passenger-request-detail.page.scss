@@ -82,26 +82,11 @@
   gap: var(--space-base);
 }
 
+// El icono, del color del borde de su aviso (--notice-tone, del tema)
 .passenger-detail__notice-icon {
   flex: 0 0 auto;
-  margin-top: var(--space-xxs);
+  color: var(--notice-tone);
   font-size: var(--icon-size-base);
-}
-
-.notice--warning .passenger-detail__notice-icon {
-  color: var(--color-warning-text);
-}
-
-.notice--success .passenger-detail__notice-icon {
-  color: var(--color-success);
-}
-
-.notice--danger .passenger-detail__notice-icon {
-  color: var(--color-danger-text);
-}
-
-.notice--info .passenger-detail__notice-icon {
-  color: var(--color-link);
 }
 
 .passenger-detail__missing {

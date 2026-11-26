@@ -175,20 +175,18 @@ ion-card.driver-trip ion-card-content {
   }
 }
 
+// Aceptar y rechazar, en la fila del solicitante, a la derecha y centrados con
+// su nombre (como «Aceptada» y los iconos en las aceptadas)
 .driver-trip__actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex: none;
+  align-self: center;
   gap: var(--space-s);
-  width: 100%;
-  margin-top: var(--space-xs);
+  margin-left: auto;
 
   form,
   ion-button {
     margin: 0;
-  }
-
-  ion-button {
-    min-height: var(--control-height-s); // 44px
   }
 }
 

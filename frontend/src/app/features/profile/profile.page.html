@@ -28,7 +28,7 @@
                   <form (submit)="$event.preventDefault(); handleEditPublic()">
                     <ion-button
                       type="submit"
-                      class="profile__edit"
+                      class="edit-button"
                       [attr.aria-label]="'profile.editInfo' | transloco"
                     >
                       <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
@@ -65,7 +65,7 @@
               <form (submit)="$event.preventDefault(); handleManagePhone()">
                 <ion-button
                   type="submit"
-                  class="profile__edit"
+                  class="edit-button"
                   [attr.aria-label]="'profile.managePhone' | transloco"
                 >
                   <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />
@@ -178,7 +178,7 @@
               <form (submit)="$event.preventDefault(); handleEditPreferences()">
                 <ion-button
                   type="submit"
-                  class="profile__edit"
+                  class="edit-button"
                   [attr.aria-label]="'profile.editPreferences' | transloco"
                 >
                   <ion-icon slot="icon-only" [icon]="editIcon" aria-hidden="true" />

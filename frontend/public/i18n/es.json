@@ -781,9 +781,15 @@
     "cargandoViaje": "Cargando el viaje…",
     "hemosPodidoCargarEste": "No hemos podido cargar este viaje",
     "cerradoAutomaticamenteHabiaPasado": "Cerrado automáticamente: había pasado una hora de la llegada estimada",
+    "closedNext": {
+      "title": "¿Haces otro viaje?",
+      "text": "Publícalo en un momento: puedes repetirlo los días que quieras.",
+      "action": "Publicar un viaje"
+    },
     "tusViajes": "Tus viajes",
     "viaje": "Tu viaje",
     "accionesDelViaje": "Acciones del viaje",
+    "gestionarViaje": "Gestionar el viaje",
     "compartiendoUbicacionConTus": "Compartiendo tu ubicación con tus pasajeros",
     "abrirViaje": "Abrir viaje",
     "compartirPlazasLibres": "Compartir plazas libres",
@@ -1203,6 +1209,8 @@
       "other": "{{ count }} se han bajado"
     },
     "ubicacionDirecto": "Ubicación en directo",
+    "tuRuta": "Tu ruta",
+    "otrasAcciones": "Otras acciones",
     "pasajeroAnterior": "Pasajero anterior",
     "pasajeroSiguiente": "Pasajero siguiente",
     "cargandoTusPasajeros": "Cargando tus pasajeros…",
@@ -1217,10 +1225,9 @@
     "thePickup": "la recogida",
     "yourDestination": "tu destino",
     "theDriver": "El conductor",
-    "codePlaceholder": "Código",
-    "codeLater": "Después",
+    "codeHelp": "Pide a {{ name }} su código de recogida",
+    "codeLater": "Pedirás su código al llegar a su parada",
     "codeAria": "Código de recogida de {{ name }}",
-    "validate": "Validar",
     "noShowIn": "«No se presentó» en {{ minutes }} min",
     "droppedNoChat": "{{ name }} ya se ha bajado: sin mensajes",
     "messageTo": "Enviar un mensaje a {{ name }}",
@@ -1233,6 +1240,7 @@
     "hayUnaEmergenciaLlama": "Si hay una emergencia, llama al 112: es gratis y atienden 24 h.",
     "tapHint": "Toca un botón para ver qué hace.",
     "hazloCuandoHayanBajado": "Hazlo cuando se hayan bajado todos: dejarán de ver dónde estás.",
+    "finishWhenAllOff": "Cuando se hayan bajado todos",
     "compartirViajeConAlguien": "Compartir el viaje con alguien de confianza",
     "compartir": "Compartir",
     "puedesSeguirReportaloRevisara": "Si no puedes seguir, repórtalo: lo revisará un administrador.",
@@ -1527,6 +1535,7 @@
     "role": {
       "driving": "Conduces",
       "drove": "Condujiste",
+      "wasDriving": "Ibas a conducir",
       "riding": "Viajas",
       "rode": "Viajaste"
     }
@@ -1769,6 +1778,7 @@
       "podrasIniciarloCuandoAceptes": "Podrás iniciarlo cuando aceptes a algún pasajero.",
       "podrasIniciarlo10Min": "Podrás iniciarlo a las {{ value1 }}, 10 min antes de salir.",
       "esteViajeCancelo": "Este viaje se canceló.",
+      "esteViajeSinPasajeros": "Este viaje se cerró sin pasajeros.",
       "esteViajeYaTermino": "Este viaje ya terminó.",
       "sinCosteHastaMin": "Sin penalización hasta las {{ freeUntil }} ({{ DRIVER_LATE_CANCELLATION_LEAD_MIN }} min antes de la salida). Después contará como cancelación tardía: con 3 en 30 días, 7 días sin poder publicar.",
       "viajeIniciadoPasajerosYa": "Viaje iniciado. Tus pasajeros ya ven dónde estás.",
@@ -1999,7 +2009,7 @@
       "requestsTitle": "Recibes solicitudes",
       "requestsText": "Te avisamos cuando alguien de la UAL pida plaza en tu viaje.",
       "autoAcceptTitle": "Aceptación automática",
-      "autoAcceptText": "Quien quepa en tu ruta y plazas se unirá al momento y te avisaremos; si no cabe, decidirás tú.",
+      "autoAcceptText": "Si hay plaza y la recogida está dentro de tu margen, se unirá al momento y te avisaremos; si se sale de tu margen, decidirás tú.",
       "youDecideTitle": "Tú decides",
       "youDecideText": "Aceptas o rechazas cada solicitud: nadie tiene plaza sin tu visto bueno.",
       "tripDayTitle": "El día del viaje",
@@ -2016,7 +2026,7 @@
     },
     "autoAccept": {
       "label": "Aceptar solicitudes automáticamente",
-      "hint": "Quien quepa en tu coche y en tu margen para recoger tendrá la plaza al momento y te avisaremos. Si no cabe, la solicitud te esperará para que decidas."
+      "hint": "Si hay plaza y la recogida está dentro de tu margen, la plaza será suya al momento y te avisaremos. Si la recogida se sale de tu margen, la solicitud te esperará para que decidas."
     },
     "pushOpen": {
       "opening": "Abriendo el aviso"
@@ -2189,14 +2199,14 @@
     "FAQ_PUBLISHED_NOT_DELETABLE": "Pasa la pregunta a borrador antes de borrarla."
   },
   "usualTrip": {
-    "title": "Mi trayecto",
+    "title": "Mi trayecto habitual",
     "savePrompt": "¿Haces este trayecto a menudo? Guárdalo y búscalo de un toque.",
-    "save": "Guardar como mi trayecto habitual",
+    "save": "Guardar trayecto",
+    "search": "Buscar",
     "searchTo": "Buscar ida",
     "searchFrom": "Buscar vuelta",
-    "edit": "Editar",
-    "when": "{{ days }} · llegar a las {{ time }}",
-    "whenWithReturn": "{{ days }} · llegar a las {{ time }} y volver a las {{ returnTime }}",
+    "to": "Ida · llegar a las {{ time }}",
+    "from": "Vuelta · salir a las {{ time }}",
     "saveTitle": "Mi trayecto habitual",
     "editTitle": "Editar mi trayecto",
     "deviceOnly": "Se guarda solo en este dispositivo y se borra al cerrar sesión.",
@@ -2207,6 +2217,9 @@
     "returnTime": "Salida de la vuelta",
     "saveAction": "Guardar",
     "remove": "Borrar mi trayecto",
+    "removeTitle": "¿Borrar tu trayecto habitual?",
+    "removeText": "Dejará de aparecer en Buscar. Puedes volver a guardarlo cuando quieras.",
+    "removeAction": "Borrar",
     "saved": "Hemos guardado tu trayecto.",
     "removed": "Hemos borrado tu trayecto."
   }

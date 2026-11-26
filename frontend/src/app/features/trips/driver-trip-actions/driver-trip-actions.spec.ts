@@ -358,13 +358,21 @@ describe('DriverTripActions', () => {
     expect(root.querySelector('.notice--warning')).toBeNull();
   });
 
-  it('says a finished trip ended, unless the system closed it (the detail explains that)', async () => {
+  // El aviso de cómo acabó el viaje lo pone el detalle (encima): aquí, nunca
+  it('leaves the notice of how the trip ended to the detail', async () => {
     const finished = await render({ ...TRIP, status: 'finished', finishedBy: 'driver' });
-    expect(finished.textContent).toContain('Este viaje ya terminó.');
+    expect(finished.textContent).not.toContain('Este viaje ya terminó.');
+    expect(finished.querySelector('.notice')).toBeNull();
+  });
 
-    TestBed.resetTestingModule();
-    const closed = await render({ ...TRIP, status: 'finished', finishedBy: 'system' });
-    expect(closed.textContent).not.toContain('Este viaje ya terminó.');
+  it('splits starting and cancelling from adjusting the trip, in two cards', async () => {
+    const root = await render(TRIP);
+    const titles = [...root.querySelectorAll('ion-card-title')].map((t) => t.textContent?.trim());
+    expect(titles).toEqual(['Acciones del viaje', 'Gestionar el viaje']);
+    const [main, manage] = [...root.querySelectorAll('ion-card')];
+    expect(main.textContent).toContain('Cancelar viaje');
+    expect(manage.textContent).toContain('Cambiar de coche');
+    expect(manage.textContent).not.toContain('Cancelar viaje');
   });
 
   it('warns about a late cancellation only with passengers and under 20 minutes', async () => {
@@ -423,21 +431,19 @@ describe('DriverTripActions', () => {
     expect(changed).toBe(1);
   });
 
-  it('shows only why a cancelled trip has no actions', async () => {
+  it('shows nothing for a cancelled trip (no actions left)', async () => {
     const root = await render({ ...TRIP, status: 'cancelled' });
 
-    expect(root.querySelector('.notice')?.textContent?.trim()).toBe('Este viaje se canceló.');
+    expect(root.querySelector('ion-card')).toBeNull();
     expect(root.querySelectorAll('ion-button')).toHaveLength(0);
-    expect(root.querySelector('app-after-trip-report')).toBeNull();
   });
 
-  it('shows that a finished trip is over and offers to report it below', async () => {
+  it('offers to report a finished trip, alone in its card without a title', async () => {
     const finishedAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const root = await render({ ...TRIP, status: 'finished', finishedAt });
 
+    expect(root.querySelectorAll('ion-card')).toHaveLength(1);
     expect(root.querySelector('ion-card-title')).toBeNull();
-    expect(root.querySelector('.notice--icon ion-icon')).not.toBeNull();
-    expect(root.querySelector('.notice')?.textContent?.trim()).toBe('Este viaje ya terminó.');
     expect(root.querySelectorAll('ion-button')).toHaveLength(0);
     expect(root.querySelector('app-after-trip-report')?.textContent).toContain('¿Algo fue mal?');
   });
@@ -446,7 +452,7 @@ describe('DriverTripActions', () => {
     const finishedAt = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
     const root = await render({ ...TRIP, status: 'finished', finishedAt });
 
-    expect(root.querySelector('.notice')?.textContent?.trim()).toBe('Este viaje ya terminó.');
+    expect(root.querySelector('ion-card')).toBeNull();
     expect(root.querySelector('app-after-trip-report')).toBeNull();
   });
 });

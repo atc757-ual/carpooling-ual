@@ -8,6 +8,7 @@ import {
   IonCardContent,
   IonContent,
   IonIcon,
+  IonInputOtp,
   IonSpinner,
 } from '@ionic/angular';
 import {
@@ -100,6 +101,7 @@ const DRIVE_URL = /^\/tabs\/trips\/drive\//;
     IonCardContent,
     IonContent,
     IonIcon,
+    IonInputOtp,
     IonSpinner,
     LiveTripHero,
     LiveTripMap,
@@ -284,9 +286,6 @@ export class DriverLiveTripPage {
   // de botones cortos
   private readonly isWideAside = injectMatchesMedia(WIDE_ASIDE_MEDIA_QUERY);
   readonly hasActionRows = computed(() => this.sheet.isDesktop() && this.isWideAside());
-  // En tabletas, las flechas de las recogidas van sobre el carrusel (en la
-  // cabecera no caben junto a «Recogidas» y su recuento)
-  readonly hasCarouselArrows = computed(() => this.sheet.isDesktop() && !this.isWideAside());
   // Los teléfonos para llamar: resource y no effect, para no pintar los de
   // otro viaje si la respuesta llega tarde
   private readonly contactsData = resource({
@@ -405,11 +404,6 @@ export class DriverLiveTripPage {
     return this.boardCodeMap()[requestId] ?? '';
   }
 
-  // Lo que escribe el conductor en la casilla del código (un input nativo)
-  handleBoardCodeInput(requestId: string, event: Event): void {
-    this.setBoardCode(requestId, (event.target as HTMLInputElement).value);
-  }
-
   setBoardCode(requestId: string, value: string): void {
     const sanitized = value.replace(/\D/g, '').slice(0, 4);
     this.boardCodeMap.update((current) => ({ ...current, [requestId]: sanitized }));
@@ -441,9 +435,11 @@ export class DriverLiveTripPage {
     return Math.max(1, Math.ceil(remainingMs / 60000));
   }
 
-  async handleBoard(requestId: string): Promise<void> {
+  // Se lanza sola al escribir la cuarta cifra (ionComplete). Si el código no
+  // vale, vacía las casillas y vuelve a la primera para escribirlo otra vez
+  async handleBoard(requestId: string, codeInput?: IonInputOtp): Promise<void> {
     const code = this.boardCode(requestId);
-    if (code.length !== 4) {
+    if (code.length !== 4 || this.isValidatingBoard(requestId)) {
       return;
     }
     this.validatingBoardMap.update((current) => ({ ...current, [requestId]: true }));
@@ -453,6 +449,9 @@ export class DriverLiveTripPage {
       this.requests.reload();
     } catch (error) {
       void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      this.setBoardCode(requestId, '');
+      // En el siguiente ciclo, cuando las casillas ya se han vaciado
+      setTimeout(() => void codeInput?.setFocus(0));
     } finally {
       this.validatingBoardMap.update((current) => ({ ...current, [requestId]: false }));
     }

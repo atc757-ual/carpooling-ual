@@ -118,11 +118,37 @@ describe('DriverTripDetailPage', () => {
   it('explains that the system closed a trip that had already passed', async () => {
     const closed = { ...trip('t1'), status: 'finished' as const, finishedBy: 'system' as const };
     const root = await render(() => Promise.resolve([closed]));
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-    expect(fixture.componentInstance.isAutoFinished()).toBe(true);
-    expect(root.querySelector('.driver-detail__auto-notice')?.textContent).toContain(
-      'Este viaje ya terminó.',
-    );
+    // En verde, arriba de la columna de 4, con el motivo del cierre
+    const notice = root.querySelector('.driver-detail__aside > .notice');
+    expect(notice?.classList).toContain('notice--success');
+    expect(notice?.textContent).toContain('Este viaje ya terminó.');
+    expect(notice?.textContent).toContain('Cerrado automáticamente');
+  });
+
+  it('names the role by how the trip went: drove, was driving or driving', async () => {
+    const roles = {
+      finished: 'labels.role.drove',
+      cancelled: 'labels.role.wasDriving',
+      expired: 'labels.role.wasDriving',
+      published: 'labels.role.driving',
+    } as const;
+    for (const [status, key] of Object.entries(roles)) {
+      TestBed.resetTestingModule();
+      await render(() => Promise.resolve([trip('t1', { status: status as DriverTrip['status'] })]));
+      expect(fixture.componentInstance.roleKey()).toBe(key);
+    }
+  });
+
+  it('gives every closed trip its notice, in the colour of its status', async () => {
+    const tones = { finished: 'success', cancelled: 'danger', expired: 'warning' } as const;
+    for (const [status, tone] of Object.entries(tones)) {
+      TestBed.resetTestingModule();
+      await render(() => Promise.resolve([trip('t1', { status: status as DriverTrip['status'] })]));
+      expect(fixture.componentInstance.statusNotice()?.tone).toBe(tone);
+    }
   });
 
   it('estimates the impact by passenger, and says a cancelled trip saved nothing', async () => {
@@ -136,8 +162,12 @@ describe('DriverTripDetailPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
+    // Cancelado: sin impacto; la columna de 4, con su aviso y publicar otro
     expect(fixture.componentInstance.impact()).toBeNull();
-    expect(root.textContent).toContain('Este viaje no se realizó');
+    expect(root.querySelector('.driver-detail__impact')).toBeNull();
+    expect(root.querySelector('.driver-detail__aside > .notice--danger')?.textContent).toContain(
+      'Este viaje se canceló.',
+    );
   });
 
   it('explains why there are no figures without passengers', async () => {

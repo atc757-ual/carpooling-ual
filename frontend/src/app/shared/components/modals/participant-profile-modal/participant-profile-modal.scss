@@ -108,16 +108,30 @@
   --color: var(--color-text);
 }
 
-// El correo en azul, con su icono delante
+// El correo, un enlace en azul con su icono delante y subrayado (solo el
+// texto, no el icono), con el anillo de foco del teclado
 .participant-profile__email {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-s);
-  color: var(--color-primary);
+  margin-top: var(--space-xxs);
+  border-radius: var(--radius-xs);
+  color: var(--color-link);
   overflow-wrap: anywhere;
+  text-decoration: none;
 
   ion-icon {
     flex: 0 0 auto;
     font-size: var(--font-size-body);
   }
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+.participant-profile__email-address {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }

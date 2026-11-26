@@ -88,8 +88,10 @@ describe('ParticipantProfileModal', () => {
     expect(root.textContent).toContain('Lucía Cortés Martín');
     expect(root.textContent).toContain('Conductora habitual desde Roquetas');
     expect(root.querySelectorAll('ion-chip')).toHaveLength(2);
-    const mailItem = root.querySelector('ion-item:last-of-type') as HTMLElement & { href?: string };
-    expect(mailItem.href).toBe('mailto:lucia@ual.es');
+    // El enlace es solo el correo; la fila de «Contacto» no se pulsa
+    const mailLink = root.querySelector('a.participant-profile__email') as HTMLAnchorElement;
+    expect(mailLink.getAttribute('href')).toBe('mailto:lucia@ual.es');
+    expect(root.querySelector('ion-item:last-of-type')?.hasAttribute('href')).toBe(false);
     expect(root.textContent).not.toContain('+34');
   });
 

@@ -1,31 +1,11 @@
-// Estilos compartidos de «En curso» (pasajero y conductor). En escritorio: cada columna se ve como
-// una sola tarjeta (la de 8, «Lo siguiente» y el mapa; la de 4, todo lo demás)
-// con las secciones planas dentro, separadas por una línea fina como en la
-// hoja del móvil. Se usa dentro de @include bp.up(md) (768px o más)
+// Estilos compartidos de «En curso» (pasajero y conductor). En escritorio: cada columna, una pila
+// de tarjetas, una por lo que aporta cada sección (decidido con el autor el
+// 25/11/2026: antes era una sola tarjeta con las secciones planas). Se usa
+// dentro de @include bp.up(md) (768px o más)
 @mixin card {
-  gap: 0;
-  padding-inline: var(--space-base);
-  border: var(--border-width-s) solid var(--color-card-border);
-  border-radius: var(--radius-s);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-card);
-
-  // Las tarjetas de dentro, planas: en el tema (.live-column, en
-  // theme/_live-trip.scss), porque también son las de los componentes
-
-  > * + * {
-    border-top: var(--border-width-s) solid var(--color-border-subtle);
-  }
-
-  // Un aviso (.live-alert) va como recuadro, con 16px arriba y abajo y sin
-  // línea debajo
-  > .live-alert {
-    margin-block: var(--space-base);
-  }
-
-  > .live-alert + * {
-    border-top: 0;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base); // 16px entre tarjeta y tarjeta
 }
 
 // Un aviso de «En curso» (¿Has llegado?, terminar el viaje): fondo azul muy

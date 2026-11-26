@@ -40,53 +40,51 @@ ion-card.trip-review-card ion-card-content {
   gap: var(--space-base);
 }
 
-// El resumen al acabar: centrado y estrecho, con su título en gris
+// El resumen al acabar, alineado a la izquierda como el resto de la tarjeta:
+// su título como etiqueta y una fila por persona a todo el ancho
 .trip-review-card__done {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: var(--space-s);
 
   h3 {
     margin: 0;
-    font-weight: var(--font-weight-regular);
-  }
-
-  // Dos columnas ajustadas al contenido y centradas: el nombre y, cerca, la
-  // nota (alineadas entre filas)
-  .trip-review-card__summary {
-    display: grid;
-    grid-template-columns: auto auto;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-s) var(--space-base);
-  }
-
-  .trip-review-card__summary-row {
-    display: contents;
   }
 }
 
 .trip-review-card__summary {
   display: flex;
   flex-direction: column;
-  gap: var(--space-s);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+// El nombre a la izquierda y, a la derecha, las medallas con la nota debajo;
+// entre persona y persona, una línea gris clara
 .trip-review-card__summary-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-s);
+  padding-block: var(--space-s);
+
+  & + & {
+    border-top: var(--border-width-s) solid var(--color-border-subtle);
+  }
 }
 
+// Las medallas de 20px (16px por defecto) y, pegada debajo (2px), la palabra
+// de la nota en gris de 12px: mandan las medallas y la fila crece poco (el
+// número ya lo dicen ellas)
 .trip-review-card__summary-verdict {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-s);
+  --rating-medals-size: var(--icon-size-base);
+
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xxs);
 }
 
 // La que diste: el comentario a la izquierda y las medallas a la derecha
@@ -104,12 +102,13 @@ ion-card.trip-review-card ion-card-content {
   font-style: italic;
 }
 
+// Las medallas y, pegada debajo, la palabra de la nota (como en el resumen)
 .trip-review-card__verdict {
   display: flex;
   flex: none;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--space-xs);
+  gap: var(--space-xxs);
   color: var(--color-text);
 }
 

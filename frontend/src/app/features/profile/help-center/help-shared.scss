@@ -54,6 +54,15 @@
 
   min-height: var(--control-height-s);
   padding: 0;
+
+  // En escritorio, 8px menos a la derecha: el borde derecho del campo cuadra
+  // con el de la columna de 8 (en el móvil, a todo el ancho). Su contenedor
+  // es HTML interno de Ionic: ::ng-deep, limitado a este buscador
+  @include bp.up(md) {
+    ::ng-deep .searchbar-input-container {
+      padding-right: var(--space-s);
+    }
+  }
 }
 
 // El buscador y su desplegable, por encima del fondo que se oscurece
@@ -62,8 +71,15 @@
   z-index: var(--z-dropdown-anchor);
   margin-top: var(--space-s);
 
+  // En escritorio, del ancho de la columna de 8 de debajo. No vale el % de
+  // la franja del título: a la derecha lleva 16px y no el margen de la
+  // página, así que es más ancha que el contenido. Se calcula como el de la
+  // página: el ancho de la ventana (como mucho, el máximo) menos sus
+  // márgenes, menos el hueco entre columnas, por 2/3
   @include bp.up(md) {
-    width: calc((100% - var(--space-base)) * 2 / 3);
+    width: calc(
+      (min(100vw, var(--page-max-width)) - 2 * var(--page-gutter-min) - var(--space-base)) * 2 / 3
+    );
     margin-top: var(--space-base);
   }
 }

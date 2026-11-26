@@ -127,6 +127,9 @@ export class TripReviewCard {
     );
     return index === -1 ? null : { ...sections[index], number: index + 1, total: sections.length };
   });
+  // De uno en uno y ya sin nadie por valorar: el resumen. En su tarjeta, el
+  // título pasa a «Tus valoraciones» (y sin subtítulo, que lo repetiría)
+  readonly isDone = computed(() => this.sections().length > 0 && this.currentStep() === null);
   readonly skipped = this.skippedIds.asReadonly();
 
   protected readonly ratingName = ratingName;

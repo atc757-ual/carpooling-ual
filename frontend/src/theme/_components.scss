@@ -154,6 +154,47 @@ ion-button {
     --min-height: var(--box-size-s);
     height: var(--box-size-s);
     font-size: var(--font-size-label);
+    position: relative;
+
+    // Se ve de 32px, pero se toca en 44px: una franja invisible de 6px arriba
+    // y abajo (el clic en el host lo recoge el propio ion-button)
+    &::after {
+      position: absolute;
+      inset: calc((var(--box-size-s) - var(--control-height-s)) / 2) 0;
+      content: '';
+      cursor: pointer; // La manita también sobre la franja
+    }
+  }
+}
+
+// Editar (Perfil, «Mi trayecto habitual»): botón cuadrado de 32px con fondo
+// azul suave e icono de 20px. Se toca en 44 × 44px (franja invisible de 6px
+// alrededor)
+ion-button.edit-button {
+  --background: var(--color-primary-subtle);
+  --background-hover: var(--color-primary-subtle);
+  --color: var(--color-primary);
+  --border-radius: var(--radius-s);
+  --box-shadow: none;
+  --padding-start: 0;
+  --padding-end: 0;
+
+  position: relative;
+  width: var(--box-size-s); // Icono de 20px con 6px alrededor
+  min-width: var(--box-size-s);
+  height: var(--box-size-s);
+  min-height: var(--box-size-s); // El tema da 48px a todos los ion-button
+  margin: 0;
+
+  &::after {
+    position: absolute;
+    inset: calc((var(--box-size-s) - var(--control-height-s)) / 2);
+    content: '';
+    cursor: pointer; // La manita también sobre la franja
+  }
+
+  ion-icon {
+    font-size: var(--icon-size-base);
   }
 }
 
@@ -1033,8 +1074,13 @@ ion-item.role-card {
 // los enlaces (el tema no tiene un color propio de información)
 .notice {
   display: flex;
+  // El icono centrado en vertical con el texto, sea de una línea o de varias
+  align-items: center;
   gap: var(--space-s);
   padding: var(--space-s); // 8px por los cuatro lados
+  // El color del tipo de aviso: el del borde y el del icono
+  --notice-tone: var(--color-link);
+
   border: var(--border-width-s) solid transparent;
   border-radius: var(--radius-s); // 8px
   color: var(--color-text);
@@ -1072,19 +1118,20 @@ ion-item.role-card {
 }
 
 // Aviso corto con un icono delante (p. ej. «Este viaje ya terminó»): el
-// icono centrado con el texto, del alto de su línea (20px) y en azul
+// icono centrado con el texto y del alto de su línea (20px)
 .notice--icon {
   align-items: center;
 
   > ion-icon {
     flex: none;
-    color: var(--color-link);
     font-size: var(--icon-size-base);
   }
 }
 
 .notice--info {
-  border-color: var(--color-link);
+  --notice-tone: var(--color-link);
+
+  border-color: var(--notice-tone);
   background: var(--color-primary-subtle);
 
   b {
@@ -1093,7 +1140,9 @@ ion-item.role-card {
 }
 
 .notice--success {
-  border-color: var(--color-success);
+  --notice-tone: var(--color-success);
+
+  border-color: var(--notice-tone);
   background: var(--color-success-subtle);
 
   b {
@@ -1118,7 +1167,9 @@ ion-item.role-card {
 }
 
 .notice--warning {
-  border-color: var(--color-warning);
+  --notice-tone: var(--color-warning);
+
+  border-color: var(--notice-tone);
   background: var(--color-warning-subtle);
 
   b {
@@ -1127,7 +1178,9 @@ ion-item.role-card {
 }
 
 .notice--danger {
-  border-color: var(--color-danger);
+  --notice-tone: var(--color-danger);
+
+  border-color: var(--notice-tone);
   background: var(--color-danger-subtle);
 
   b {
@@ -1135,17 +1188,12 @@ ion-item.role-card {
   }
 }
 
-// El icono del aviso, del color de su borde (en info se queda en azul)
-.notice--success > ion-icon {
-  color: var(--color-success);
-}
-
-.notice--warning > ion-icon {
-  color: var(--color-warning);
-}
-
-.notice--danger > ion-icon {
-  color: var(--color-danger);
+// El icono del aviso, siempre del color de su borde: directo o con la clase
+// .notice__icon si va dentro de otro elemento (los iconos de los botones del
+// aviso no cambian)
+.notice > ion-icon,
+.notice .notice__icon {
+  color: var(--notice-tone);
 }
 
 // Franja del título del panel de administración (la pinta su cabecera; cada
@@ -1460,13 +1508,13 @@ ion-toggle {
   // Al pasar (ratón) o al pulsar (táctil): azul claro con el borde azul. El
   // gris claro de antes casi no se distinguía del blanco de la tarjeta
   @media (any-hover: hover) {
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled, [aria-disabled='true']) {
       border-color: var(--color-link);
       background: var(--color-primary-subtle);
     }
   }
 
-  &:active:not(:disabled) {
+  &:active:not(:disabled, [aria-disabled='true']) {
     border-color: var(--color-link);
     background: var(--color-primary-subtle);
   }
@@ -1476,7 +1524,8 @@ ion-toggle {
     outline-offset: var(--focus-ring-offset);
   }
 
-  &:disabled {
+  &:disabled,
+  &[aria-disabled='true'] {
     color: var(--color-text-disabled);
     cursor: default;
   }
@@ -1506,15 +1555,35 @@ ion-toggle {
     letter-spacing: 0.02em;
 
     @media (any-hover: hover) {
-      &:hover:not(:disabled) {
+      &:hover:not(:disabled, [aria-disabled='true']) {
         border-color: transparent;
         background: var(--color-danger-text);
       }
     }
 
-    &:active:not(:disabled) {
+    &:active:not(:disabled, [aria-disabled='true']) {
       border-color: transparent;
       background: var(--color-danger-text);
+    }
+  }
+
+  // Acción negativa que no es urgente (p. ej. «No se presentó»): borde y
+  // texto rojos, sin relleno, para no confundirse con el SOS (relleno rojo);
+  // al pasar o pulsar, rojo claro. Desactivado, gris como los demás
+  &--danger-outline:not(:disabled, [aria-disabled='true']) {
+    border-color: var(--color-danger);
+    color: var(--color-danger-text);
+
+    @media (any-hover: hover) {
+      &:hover {
+        border-color: var(--color-danger);
+        background: var(--color-danger-subtle);
+      }
+    }
+
+    &:active {
+      border-color: var(--color-danger);
+      background: var(--color-danger-subtle);
     }
   }
 }
@@ -1542,7 +1611,7 @@ ion-toggle {
   }
 
   @media (any-hover: hover) {
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled, [aria-disabled='true']) {
       gap: var(--space-xs);
       padding-inline: var(--space-s); // 8px, como arriba y abajo
     }
@@ -1566,7 +1635,7 @@ ion-toggle {
   transition: max-width var(--motion-duration-fast) ease;
 
   @media (any-hover: hover) {
-    .icon-btn--reveal:hover:not(:disabled) & {
+    .icon-btn--reveal:hover:not(:disabled, [aria-disabled='true']) & {
       max-width: 10rem; // 160px: cabe «Compartir ubicación»
     }
   }
@@ -1594,7 +1663,7 @@ ion-toggle {
   white-space: nowrap;
 
   @media (any-hover: hover) {
-    .icon-btn--reveal:hover:not(:disabled) & {
+    .icon-btn--reveal:hover:not(:disabled, [aria-disabled='true']) & {
       display: none;
     }
   }
@@ -1681,6 +1750,18 @@ ion-toggle {
 
   .icon-btn--danger.icon-btn--reveal .icon-btn__short {
     display: inline;
+  }
+
+  // Con pocos botones (el conductor: tres y el SOS), el SOS cabe en la fila:
+  // a su nivel, al final y a la derecha; la explicación, a todo el ancho
+  &.live-actions--sos-inline {
+    .live-actions__row > .icon-btn--danger {
+      position: static;
+    }
+
+    .live-actions__hint {
+      max-width: none;
+    }
   }
 }
 

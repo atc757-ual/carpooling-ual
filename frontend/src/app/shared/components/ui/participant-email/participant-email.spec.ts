@@ -12,7 +12,12 @@ const PROFILE = { id: 'u1', name: 'Lucía Cortés', email: 'lucia@ual.es' } as P
 describe('ParticipantEmail', () => {
   async function render(
     getProfile: ReturnType<typeof vi.fn>,
-    options: { isInline?: boolean; showIcon?: boolean } = {},
+    options: {
+      isInline?: boolean;
+      showIcon?: boolean;
+      isLink?: boolean;
+      isDisabled?: boolean;
+    } = {},
   ): Promise<HTMLElement> {
     TestBed.configureTestingModule({
       imports: [ParticipantEmail],
@@ -30,6 +35,12 @@ describe('ParticipantEmail', () => {
     }
     if (options.showIcon !== undefined) {
       fixture.componentRef.setInput('showIcon', options.showIcon);
+    }
+    if (options.isLink !== undefined) {
+      fixture.componentRef.setInput('isLink', options.isLink);
+    }
+    if (options.isDisabled !== undefined) {
+      fixture.componentRef.setInput('isDisabled', options.isDisabled);
     }
     await TestBed.inject(ApplicationRef).whenStable();
     fixture.detectChanges();
@@ -59,6 +70,30 @@ describe('ParticipantEmail', () => {
     expect(root.querySelector('ion-icon')).toBeNull();
     expect(root.classList).toContain('participant-email--inline');
     expect(root.classList).toContain('participant-email--plain');
+  });
+
+  // En la lista de solicitudes: solo informativo, sin enlace, en gris
+  it('shows the email as plain text, without a link, when it is only informative', async () => {
+    const root = await render(vi.fn().mockResolvedValue(PROFILE), { isLink: false });
+
+    expect(root.querySelector('a')).toBeNull();
+    const text = root.querySelector('.participant-email--text');
+    expect(text?.textContent).toContain('lucia@ual.es');
+    expect(text?.querySelector('ion-icon')).not.toBeNull();
+  });
+
+  it('greys the email out without a link when it is disabled', async () => {
+    const root = await render(vi.fn().mockResolvedValue(PROFILE), {
+      isDisabled: true,
+      showIcon: false,
+    });
+
+    expect(root.querySelector('a')).toBeNull();
+    expect(root.querySelector('.participant-email--disabled')?.textContent).toContain(
+      'lucia@ual.es',
+    );
+    expect(root.querySelector('.participant-email--text')).toBeNull();
+    expect(root.querySelector('ion-icon')).toBeNull();
   });
 
   it('shows nothing when the profile cannot be loaded', async () => {

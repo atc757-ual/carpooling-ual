@@ -44,13 +44,4 @@
       {{ 'usualTrip.saveAction' | transloco }}
     </ion-button>
   </form>
-  <!-- Al editar, borrarlo: debajo y con borde (sin click en ion-button: su
-       propio formulario) -->
-  @if (!isNew) {
-    <form (submit)="$event.preventDefault(); handleRemove()">
-      <ion-button type="submit" expand="block" fill="outline">
-        {{ 'usualTrip.remove' | transloco }}
-      </ion-button>
-    </form>
-  }
 </div>
