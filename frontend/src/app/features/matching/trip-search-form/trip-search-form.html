@@ -1,19 +1,17 @@
 <form class="search-form" [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
   <!-- Lo que se ahorra en este trayecto dejando el coche en casa (estimación
-       de ejemplo, con la dirección y el parking elegidos; antes, qué se verá) -->
-  <div class="notice notice--success notice--impact search-form__impact" aria-live="polite">
-    <ion-icon [icon]="impactIcon" aria-hidden="true" />
-    @if (impact(); as impact) {
+       de ejemplo, solo cuando la dirección y el parking ya están elegidos) -->
+  @if (impact(); as impact) {
+    <div class="notice notice--success notice--impact search-form__impact" aria-live="polite">
+      <ion-icon [icon]="impactIcon" aria-hidden="true" />
       <p
         [innerHTML]="
           'search.impact' | transloco: { km: impact.km, co2: formatDecimal(impact.co2Kg) }
         "
       ></p>
       <app-co2-source onBorder />
-    } @else {
-      <p>{{ 'search.impactHint' | transloco }}</p>
-    }
-  </div>
+    </div>
+  }
 
   <!-- Trayecto: una dirección y un parking del campus (RouteFields) -->
   <app-route-fields [controls]="form.controls" [showLabel]="false" />

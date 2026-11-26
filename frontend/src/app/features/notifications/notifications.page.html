@@ -57,8 +57,8 @@
               <app-empty-state
                 class="notifications__state"
                 [icon]="emptyIcon"
-                [heading]="'notifications.empty' | transloco"
-                [hint]="'notifications.emptyHint' | transloco"
+                [heading]="emptyHeadingKey() | transloco"
+                [hint]="emptyHintKey() | transloco"
               />
             } @else {
               @if (error()) {

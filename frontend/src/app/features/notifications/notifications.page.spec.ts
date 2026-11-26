@@ -282,10 +282,18 @@ describe('NotificationsPage', () => {
     expect(showError).toHaveBeenCalledTimes(1);
   });
 
-  it('says there are none', async () => {
+  it('says there are none according to the active filter', async () => {
     const root = await render(() => Promise.resolve([]));
 
-    expect(root.textContent).toContain('No tienes notificaciones');
+    expect(root.textContent).toContain('Aún no tienes notificaciones');
+
+    await fixture.componentInstance.handleFilter('unread');
+    fixture.detectChanges();
+    expect(root.textContent).toContain('No tienes notificaciones sin leer');
+
+    await fixture.componentInstance.handleFilter('travel');
+    fixture.detectChanges();
+    expect(root.textContent).toContain('No tienes notificaciones en esta categoría');
   });
 
   it('loads category filters and paginates the matching results', async () => {
@@ -367,6 +375,6 @@ describe('NotificationsPage', () => {
     service['list'].mockResolvedValue({ items: [], total: 0 });
     fixture.componentInstance.handleRetry();
     await fixture.whenStable();
-    expect(root.textContent).toContain('No tienes notificaciones');
+    expect(root.textContent).toContain('Aún no tienes notificaciones');
   });
 });

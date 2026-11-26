@@ -134,6 +134,19 @@ export class NotificationsPage implements OnInit {
   readonly pageCount = computed(() =>
     Math.max(1, Math.ceil(this.total() / NOTIFICATIONS_PAGE_SIZE)),
   );
+  readonly emptyHeadingKey = computed(() => {
+    const filter = this.activeFilter();
+    if (filter === 'all') {
+      return 'notifications.emptyAll';
+    }
+    if (filter === 'unread') {
+      return 'notifications.emptyUnread';
+    }
+    return 'notifications.emptyCategory';
+  });
+  readonly emptyHintKey = computed(() =>
+    this.activeFilter() === 'unread' ? 'notifications.emptyUnreadHint' : 'notifications.emptyHint',
+  );
   // Los números de «1–10 de 23» (el texto lo pone la traducción)
   readonly pageRange = computed(() => {
     if (this.total() === 0) return { from: 0, to: 0, total: 0 };

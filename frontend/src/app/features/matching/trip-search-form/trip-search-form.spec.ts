@@ -198,8 +198,8 @@ describe('TripSearchForm', () => {
     const impact = () => root.querySelector('.search-form__impact')?.textContent;
     fixture.detectChanges();
 
-    // Sin dirección, el botón espera y el aviso dice qué se verá
-    expect(impact()).toContain('Elige de dónde sales');
+    // Sin dirección, el botón espera y aún no se muestra la tarjeta de impacto
+    expect(impact()).toBeUndefined();
     expect(root.querySelector('ion-button[type="submit"]')?.hasAttribute('disabled')).toBe(true);
 
     form.form.patchValue({ place: ROQUETAS, parking: 'p1', time: '08:00' });
