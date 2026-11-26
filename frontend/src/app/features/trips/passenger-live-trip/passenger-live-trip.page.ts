@@ -58,6 +58,7 @@ import { ratingName } from '../../../shared/utils/rating.util';
 import { PassengerRequestActions } from '../passenger-requests/passenger-request-actions/passenger-request-actions';
 import { LiveTripOtherActions, LiveTripQuickActions } from '../live-trip-safety/live-trip-safety';
 import { buildLiveShareText } from '../trip-share-text';
+import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { LoadingState } from '../../../shared/components/ui/loading-state/loading-state';
 import { ParticipantEmail } from '../../../shared/components/ui/participant-email/participant-email';
@@ -143,6 +144,7 @@ export class PassengerLiveTripPage {
   private readonly tripCall = inject(TripCallService);
   private readonly toast = inject(ToastService);
   private readonly modalController = inject(ModalController);
+  private readonly liveShare = inject(TripLiveShareService);
   private readonly tripShare = inject(TripShareService);
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
@@ -281,11 +283,21 @@ export class PassengerLiveTripPage {
     if (!this.isToCampus()) return 'default';
     return this.isNearDestination() ? 'near' : 'early';
   });
-  // Compartir el viaje con alguien de confianza (el menú del sistema)
+  // Compartir el viaje con alguien de confianza (el menú del sistema o enlace)
   async handleShareTrip(): Promise<void> {
+    const trip = this.trip();
+    let url: string | undefined;
+    if (trip) {
+      try {
+        url = await this.liveShare.start(trip.id);
+      } catch {
+        // Si no se puede generar el enlace, se comparte al menos el texto
+      }
+    }
     await this.tripShare.share({
       title: this.translate('share.liveTitle'),
       text: this.safetyShareText(),
+      url,
     });
   }
   readonly heroTitle = computed(() => {

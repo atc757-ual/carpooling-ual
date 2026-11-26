@@ -12,6 +12,7 @@ import { LocationService } from '../../../core/services/location/location.servic
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { TrackingService } from '../../../core/services/tracking/tracking.service';
 import { TripCallService } from '../../../core/services/trips/trip-call.service';
+import { TripLiveShareService } from '../../../core/services/trips/trip-live-share.service';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -116,6 +117,12 @@ describe('PassengerLiveTripPage', () => {
           useValue: { create: vi.fn().mockResolvedValue({ id: 'rev1' }) },
         },
         { provide: ModalController, useValue: { create: createModal } },
+        {
+          provide: TripLiveShareService,
+          useValue: {
+            start: vi.fn().mockResolvedValue('https://carpooling.example/seguir/tok1'),
+          },
+        },
       ],
     });
     const fixture = TestBed.createComponent(PassengerLiveTripPage);
@@ -336,6 +343,7 @@ describe('PassengerLiveTripPage', () => {
     expect(share).toHaveBeenCalledWith({
       title: 'Mi viaje en Carpooling UAL',
       text: page.safetyShareText(),
+      url: 'https://carpooling.example/seguir/tok1',
     });
     expect(page.safetyShareText()).toContain('Roquetas de Mar');
   });
