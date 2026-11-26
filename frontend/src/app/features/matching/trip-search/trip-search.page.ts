@@ -72,7 +72,7 @@ export class TripSearchPage {
     }
     const allPending = this.myRequests.value().filter(({ status }) => status === 'pending');
     const shown = this.nextTrip()?.next();
-    if (shown && shown.role === 'passenger' && shown.request.status === 'pending') {
+    if (shown?.role === 'passenger' && shown.request.status === 'pending') {
       return allPending.filter(({ id }) => id !== shown.request.id);
     }
     return allPending;

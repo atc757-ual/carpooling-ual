@@ -81,13 +81,19 @@
                   <span class="text-body text-body--strong">{{ ph }}</span>
                 </span>
                 @if (isPhoneVerified()) {
-                  <span class="status status--accepted">
+                  <output class="status status--accepted">
                     <ion-icon [icon]="shieldIcon" aria-hidden="true" />
                     {{ 'profile.phoneVerified' | transloco }}
-                  </span>
+                  </output>
                 } @else {
                   <form (submit)="$event.preventDefault(); handleManagePhone(true)">
-                    <ion-button type="submit" class="profile__verify" size="small">
+                    <ion-button
+                      type="submit"
+                      class="profile__verify"
+                      fill="outline"
+                      size="small"
+                      [attr.aria-label]="'profile.verifyPhoneAria' | transloco"
+                    >
                       <ion-icon slot="start" [icon]="shieldIcon" aria-hidden="true" />
                       {{ 'profile.verify' | transloco }}
                     </ion-button>

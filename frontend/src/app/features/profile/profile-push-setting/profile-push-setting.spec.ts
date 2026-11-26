@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
@@ -19,7 +19,11 @@ describe('ProfilePushSetting', () => {
   };
   let toast: { showSuccess: ReturnType<typeof vi.fn>; showError: ReturnType<typeof vi.fn> };
 
-  function render(): { component: ProfilePushSetting; root: HTMLElement; fixture: unknown } {
+  function render(): {
+    component: ProfilePushSetting;
+    root: HTMLElement;
+    fixture: ComponentFixture<ProfilePushSetting>;
+  } {
     TestBed.configureTestingModule({
       imports: [ProfilePushSetting],
       providers: [
@@ -72,6 +76,9 @@ describe('ProfilePushSetting', () => {
   it('submits form from DOM when off and shows status badge when on', async () => {
     const { root, fixture } = render();
 
+    const button = root.querySelector('.profile-setting__action');
+    expect(button?.getAttribute('aria-label')).toBe('Activar notificaciones en este dispositivo');
+
     const form = root.querySelector('form');
     expect(form).not.toBeNull();
     form?.dispatchEvent(new Event('submit'));
@@ -83,6 +90,7 @@ describe('ProfilePushSetting', () => {
 
     const statusBadge = root.querySelector('.status--accepted');
     expect(statusBadge).not.toBeNull();
+    expect(statusBadge?.getAttribute('role')).toBe('status');
   });
 
   it('does nothing when already in that state', async () => {
@@ -125,16 +133,20 @@ describe('ProfilePushSetting', () => {
   });
 
   it('cannot be touched when they are blocked or not supported, and says why', () => {
-    const { component } = render();
+    const { component, fixture, root } = render();
     expect(component.hintKey()).toBe('profile.pushHint');
     expect(component.isLocked()).toBe(false);
 
     status.set('denied');
+    fixture.detectChanges();
     expect(component.hintKey()).toBe('profile.pushDenied');
     expect(component.isLocked()).toBe(true);
+    expect(root.querySelector('.status--pending')?.getAttribute('role')).toBe('status');
 
     status.set('unsupported');
+    fixture.detectChanges();
     expect(component.hintKey()).toBe('profile.pushUnsupported');
     expect(component.isLocked()).toBe(true);
+    expect(root.querySelector('.status')?.getAttribute('role')).toBe('status');
   });
 });

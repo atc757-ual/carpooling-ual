@@ -19,7 +19,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
       </span>
       @switch (push.status()) {
         @case ('on') {
-          <span class="status status--accepted">
+          <span class="status status--accepted" role="status">
             <ion-icon [icon]="checkIcon" aria-hidden="true" />
             <span>{{ 'profile.pushOn' | transloco }}</span>
           </span>
@@ -28,8 +28,10 @@ import { ToastService } from '../../../core/services/ui/toast.service';
           <form (submit)="$event.preventDefault(); handleEnable()">
             <ion-button
               class="profile-setting__action"
+              fill="outline"
               type="submit"
               size="small"
+              [attr.aria-label]="'profile.pushEnableAria' | transloco"
               [disabled]="isBusy()"
             >
               <ion-icon slot="start" [icon]="bellIcon" aria-hidden="true" />
@@ -38,10 +40,12 @@ import { ToastService } from '../../../core/services/ui/toast.service';
           </form>
         }
         @case ('denied') {
-          <span class="status status--pending">{{ 'profile.pushDeniedTag' | transloco }}</span>
+          <span class="status status--pending" role="status">{{
+            'profile.pushDeniedTag' | transloco
+          }}</span>
         }
         @case ('unsupported') {
-          <span class="status">{{ 'profile.pushUnsupportedTag' | transloco }}</span>
+          <span class="status" role="status">{{ 'profile.pushUnsupportedTag' | transloco }}</span>
         }
       }
     </div>
@@ -78,9 +82,13 @@ import { ToastService } from '../../../core/services/ui/toast.service';
     }
 
     .profile-setting__action {
-      --background: var(--color-warning-subtle);
-      --background-hover: var(--color-warning-subtle);
-      --color: var(--color-warning-text);
+      --background: transparent;
+      --background-hover: var(--color-primary-subtle);
+      --background-activated: var(--color-primary-subtle);
+      --color: var(--color-primary);
+      --border-color: var(--color-primary);
+      --border-style: solid;
+      --border-width: 1px;
       --border-radius: var(--radius-s);
       --box-shadow: none;
       height: 2rem;
@@ -91,6 +99,12 @@ import { ToastService } from '../../../core/services/ui/toast.service';
       &:hover {
         opacity: 0.9;
       }
+    }
+
+    .status--accepted {
+      background: var(--color-surface);
+      border-color: var(--color-success);
+      color: var(--color-success);
     }
   `,
 })

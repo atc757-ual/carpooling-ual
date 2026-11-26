@@ -449,6 +449,7 @@
     "emptyPhone": "You haven't added a phone (it's optional).",
     "phoneVerified": "Verified",
     "verify": "Verify",
+    "verifyPhoneAria": "Verify phone number",
     "phoneNote": "Your phone is only shared with the driver when a booking is confirmed.",
     "legalTerms": "Terms of use",
     "legalPrivacy": "Privacy policy",
@@ -466,6 +467,7 @@
     "pushOn": "Enabled",
     "pushOnHint": "Active on this device. Manage notifications in your system settings.",
     "pushEnable": "Enable",
+    "pushEnableAria": "Enable notifications on this device",
     "pushDisable": "Disable",
     "pushDeniedTag": "Blocked",
     "pushUnsupportedTag": "Unavailable",
@@ -534,6 +536,7 @@
       "authorized": "Authorized",
       "blocked": "Blocked",
       "allow": "Allow",
+      "allowAria": "Allow location on this device",
       "notRequested": "Not requested"
     },
     "preferencesModal": {
