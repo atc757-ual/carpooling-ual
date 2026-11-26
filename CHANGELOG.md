@@ -9,6 +9,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added
 
+- **Entrar con huella en la app Android (decidido con el autor el 26/11/2026):** la app ya recupera la sesión al abrirse; la huella sirve para volver a entrar sin escribir la contraseña cuando la sesión se ha cerrado (al salir o al caducar). Tras entrar con la contraseña en un móvil con biometría, se ofrece una vez por cuenta «¿Entrar con huella la próxima vez?»; al aceptar, el correo y la contraseña se guardan cifrados en el Keystore de Android con una clave que solo se usa tras poner la huella (`@capgo/capacitor-native-biometric`, nueva dependencia; `BiometricPlugin` y `BiometricLoginService`). En el login sale «Entrar con huella» con la cuenta y, en Perfil → Cuenta, «Entrar con huella» dice si está activada y la desactiva (`app-biometric-setting`). Si la contraseña ha cambiado o las credenciales ya no están, se desactiva y se pide entrar con la contraseña. En la web no cambia nada (ES/EN).
+
 - **Textos que siguen al idioma en vivo:** los textos calculados (`computed()`) que traducen o formatean pasan a `localizedComputed()` (`core/i18n/`), que depende del idioma ya cargado (`trackLanguage()`, que `LanguageService` cambia al cargar las traducciones): al cambiar de idioma se rehacen también en las pestañas que Ionic deja montadas (96 sitios y 3 propiedades que se traducían una sola vez) (#438).
 - **Buscar sin horas pasadas:** con la fecha de hoy, la rueda de la hora no ofrece las que ya han pasado (`ion-datetime` con `min`, recibiendo la hora con su fecha) y una hora pasada sube a la primera posible; otro día, todas. Publicar muestra «Preparando el formulario…» mientras carga, en vez de la pantalla en blanco (#438).
 

@@ -1,6 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { alertCircleOutline, logOutOutline, trashOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  fingerPrintOutline,
+  logOutOutline,
+  trashOutline,
+} from 'ionicons/icons';
 import { ConfirmModal } from '../../../shared/components/modals/confirm-modal/confirm-modal';
 
 export interface ConfirmOptions {
@@ -20,6 +25,7 @@ export const CONFIRM_ICONS = {
   logout: logOutOutline,
   remove: trashOutline,
   warning: alertCircleOutline,
+  biometric: fingerPrintOutline,
 } as const;
 
 // Pide confirmar una acción en la ventana de la guía (ConfirmModal). true si

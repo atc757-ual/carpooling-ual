@@ -105,6 +105,25 @@
         }
       </ion-button>
 
+      <!-- Solo en la app Android, si se activó la huella en este móvil -->
+      @if (biometric.enabledEmail(); as biometricEmail) {
+        <div class="login__biometric">
+          <ion-button
+            type="button"
+            expand="block"
+            fill="outline"
+            [disabled]="isSubmitting()"
+            (click)="handleBiometricLogin()"
+          >
+            <ion-icon slot="start" [icon]="fingerPrintIcon" aria-hidden="true" />
+            {{ 'auth.biometric.loginButton' | transloco }}
+          </ion-button>
+          <p class="text-caption text-color-muted">
+            {{ 'auth.biometric.account' | transloco: { email: biometricEmail } }}
+          </p>
+        </div>
+      }
+
       <ion-button
         type="button"
         fill="clear"

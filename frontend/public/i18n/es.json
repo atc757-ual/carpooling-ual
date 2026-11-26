@@ -1009,6 +1009,28 @@
       "securityTitle": "Tu acceso, protegido",
       "securityDescription": "Nunca compartas tu contraseña ni el código de verificación. No te los pediremos por chat."
     },
+    "biometric": {
+      "loginButton": "Entrar con huella",
+      "account": "Como {{ email }}",
+      "loginTitle": "Entrar en Carpooling UAL",
+      "usePassword": "Usar contraseña",
+      "enableTitle": "Activa la huella para entrar",
+      "unavailable": "La huella ya no está activada en este móvil. Entra con tu contraseña.",
+      "passwordChanged": "Tu contraseña ha cambiado. Entra con la nueva y vuelve a activar la huella.",
+      "offerTitle": "¿Entrar con huella la próxima vez?",
+      "offerMessage": "Podrás volver a entrar sin escribir la contraseña. Se guarda cifrada en este móvil y solo se usa con tu huella.",
+      "offerConfirm": "Activar huella",
+      "offerLater": "Ahora no",
+      "enabled": "Huella activada.",
+      "enableFailed": "No hemos podido activar la huella. Inténtalo al volver a entrar.",
+      "settingTitle": "Entrar con huella",
+      "settingOn": "Activada en este móvil para {{ email }}.",
+      "settingOff": "Se ofrece al entrar con tu contraseña en este móvil.",
+      "disableTitle": "¿Desactivar la huella?",
+      "disableMessage": "Para entrar en este móvil tendrás que escribir tu contraseña. Se borra lo que había guardado.",
+      "disable": "Desactivar",
+      "disabled": "Huella desactivada."
+    },
     "register": {
       "title": "Crear cuenta",
       "subtitle": "Únete a la red de coche compartido de la Universidad de Almería.",

@@ -350,6 +350,9 @@
                 </ion-label>
               </ion-item>
 
+              <!-- Entrar con huella (solo la app Android, con biometría) -->
+              <app-biometric-setting />
+
               <!-- Ayuda y soporte: las preguntas frecuentes y, desde ellas, escribir -->
               <ion-item class="profile__legal-row" routerLink="/tabs/profile/help" [detail]="true">
                 <ion-icon
