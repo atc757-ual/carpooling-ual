@@ -24,6 +24,7 @@ import {
   checkmarkCircleOutline,
   documentTextOutline,
   handRightOutline,
+  lockClosedOutline,
   pauseCircleOutline,
   peopleOutline,
   navigateOutline,
@@ -98,6 +99,23 @@ export class AdminUserDetailPage {
     const user = this.user();
     return user ? profileRows(user, this.auth.currentUser()?.id) : [];
   });
+  // Tarjeta «Acceso a la cuenta»: null en la propia y en una dada de baja
+  readonly access = computed(() => {
+    const user = this.user();
+    if (user === null || user.id === this.auth.currentUser()?.id) {
+      return null;
+    }
+    if (user.statuses.includes('deleted')) {
+      return null;
+    }
+    const isDisabled = user.statuses.includes('disabled');
+    return {
+      isDisabled,
+      text: isDisabled
+        ? 'Inhabilitada: no puede iniciar sesión hasta que la rehabilites.'
+        : 'Habilitada. Si la inhabilitas, no podrá iniciar sesión; se puede deshacer.',
+    };
+  });
   readonly suspensions = computed(() => {
     const suspensions = this.user()?.suspensions;
     return (['driver', 'passenger'] as const)
@@ -124,6 +142,7 @@ export class AdminUserDetailPage {
     consents: documentTextOutline,
     activate: checkmarkCircleOutline,
     deactivate: banOutline,
+    access: lockClosedOutline,
   };
   protected readonly profileIcons: Readonly<Record<Profile, string>> = {
     driver: carOutline,
@@ -173,6 +192,26 @@ export class AdminUserDetailPage {
     });
     if (isDone) {
       void this.toast.showSuccess(profileToast(row));
+      this.detail.reload();
+    }
+  }
+
+  async handleAccess(isDisabled: boolean): Promise<void> {
+    const user = this.user();
+    if (user === null) {
+      return;
+    }
+    const isDone = await confirmWithReason(this.modalController, {
+      header: isDisabled ? '¿Rehabilitar la cuenta?' : '¿Inhabilitar la cuenta?',
+      message: isDisabled
+        ? `${user.name} podrá volver a iniciar sesión y usar sus perfiles.`
+        : `${user.name} no podrá iniciar sesión hasta que la rehabilites. Se cerrarán sus sesiones y se cancelarán sus solicitudes pendientes.`,
+      confirmText: isDisabled ? 'Rehabilitar cuenta' : 'Inhabilitar cuenta',
+      action: (reason) =>
+        this.adminUsers.setAccountAccess(user.id, { isDisabled: !isDisabled, reason }),
+    });
+    if (isDone) {
+      void this.toast.showSuccess(isDisabled ? 'Cuenta rehabilitada.' : 'Cuenta inhabilitada.');
       this.detail.reload();
     }
   }

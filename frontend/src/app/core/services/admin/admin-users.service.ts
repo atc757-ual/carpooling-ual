@@ -56,6 +56,16 @@ export class AdminUsersService {
     );
   }
 
+  // Inhabilita o rehabilita la cuenta (RF-25), con su motivo
+  async setAccountAccess(
+    userId: string,
+    change: { isDisabled: boolean; reason: string },
+  ): Promise<void> {
+    await this.call(
+      this.http.put<void>(`${environment.apiUrl}/users/${userId}/account-access`, change),
+    );
+  }
+
   // Levanta antes de tiempo la suspensión de un papel, con su motivo
   async liftSuspension(
     userId: string,
