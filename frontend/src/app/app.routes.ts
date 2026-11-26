@@ -289,6 +289,36 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'profile/preferences',
+        loadComponent: () =>
+          import('./features/profile/profile-preferences/profile-preferences.page').then(
+            (m) => m.ProfilePreferencesPage,
+          ),
+        data: {
+          heading: {
+            title: 'routes.profilePreferences.title',
+            subtitle: 'routes.profilePreferences.subtitle',
+            backHref: '/tabs/profile',
+            breadcrumbs: [{ label: 'routes.crumbs.profile', href: '/tabs/profile' }],
+          } satisfies TabHeading,
+        },
+      },
+      {
+        path: 'profile/settings',
+        loadComponent: () =>
+          import('./features/profile/profile-settings/profile-settings.page').then(
+            (m) => m.ProfileSettingsPage,
+          ),
+        data: {
+          heading: {
+            title: 'routes.profileSettings.title',
+            subtitle: 'routes.profileSettings.subtitle',
+            backHref: '/tabs/profile',
+            breadcrumbs: [{ label: 'routes.crumbs.profile', href: '/tabs/profile' }],
+          } satisfies TabHeading,
+        },
+      },
+      {
         // Ayuda y soporte: desde la cabecera (botón Ayuda), Mi perfil y desde
         // «¿Tienes más dudas?» de las preguntas rápidas
         path: 'profile/help',

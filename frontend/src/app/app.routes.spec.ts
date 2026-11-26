@@ -91,4 +91,13 @@ describe('application routes', () => {
     // Error -> stays, the page offers a retry
     expect(await runGuard(true, [], true)).toBe(true);
   });
+
+  it('loads the profile subpages for preferences and settings', async () => {
+    const tabsRoute = routes.find(({ path }) => path === 'tabs');
+    const prefsRoute = tabsRoute?.children?.find(({ path }) => path === 'profile/preferences');
+    const settingsRoute = tabsRoute?.children?.find(({ path }) => path === 'profile/settings');
+
+    expect(await prefsRoute?.loadComponent?.()).toBeDefined();
+    expect(await settingsRoute?.loadComponent?.()).toBeDefined();
+  });
 });

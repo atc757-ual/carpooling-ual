@@ -420,6 +420,11 @@
     "report": "Report the conversation"
   },
   "profile": {
+    "preferencesAndSettings": "Settings & preferences",
+    "tripSettingsNav": "Trip preferences",
+    "tripSettingsDesc": "On-route preferences, vehicles, and reviews",
+    "appSettingsNav": "Settings and privacy",
+    "appSettingsDesc": "Phone, language, theme, alerts, GPS, and consents",
     "verifiedEmail": "Verified UAL email",
     "editInfo": "Edit my information",
     "aboutMe": "About me",
@@ -1619,6 +1624,14 @@
       "title": "My profile",
       "subtitle": "Your account and your vehicles."
     },
+    "profilePreferences": {
+      "title": "Trip preferences",
+      "subtitle": "Travel preferences, vehicles, and reviews."
+    },
+    "profileSettings": {
+      "title": "Settings and privacy",
+      "subtitle": "Language, theme, notifications, and consents."
+    },
     "help": {
       "title": "Help and support",
       "subtitle": "Frequently asked questions and contact with support."
@@ -1631,6 +1644,8 @@
       "searchTrip": "Find a trip",
       "trips": "Your trips",
       "profile": "My profile",
+      "profilePreferences": "My trips",
+      "profileSettings": "Settings & privacy",
       "help": "Help and support"
     },
     "pageTitles": {
