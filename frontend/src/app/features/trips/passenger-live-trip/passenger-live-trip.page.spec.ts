@@ -217,6 +217,45 @@ describe('PassengerLiveTripPage', () => {
     expect(navigate).toHaveBeenCalledWith('/tabs/trips');
   });
 
+  it('stays in the trip if the incident dialog is dismissed without reporting', async () => {
+    await render();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+    createModal.mockResolvedValueOnce({
+      present: () => Promise.resolve(),
+      onWillDismiss: () => Promise.resolve({ data: undefined }),
+    });
+
+    await page.handleReport();
+    expect(showSuccess).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('opens the inline incident form on mobile and ignores reporting without a trip', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }),
+    );
+    try {
+      await render(request(), null as unknown as Trip);
+      createModal.mockClear();
+      await page.handleReport();
+      expect(page.isReportingIncident()).toBe(false);
+      expect(createModal).not.toHaveBeenCalled();
+
+      TestBed.resetTestingModule();
+      await render();
+      await page.handleReport();
+      expect(page.isReportingIncident()).toBe(true);
+      expect(createModal).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('calls the driver', async () => {
     await render();
     await TestBed.inject(TripCallService).loadContacts('t1');

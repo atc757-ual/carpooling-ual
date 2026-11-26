@@ -50,5 +50,15 @@ describe('live trip dialogs', () => {
     expect(options.message).toContain('live.stillFar');
     expect(options.message).toContain('live.terminasAhoraTusPasajeros');
     expect(options.confirmText).toBe('live.finishAnyway');
+
+    await askFinishTrip(confirm, { point: null, distance: null, isFar: true }, translate);
+    const fallback = ask.mock.lastCall?.[0] as {
+      message: string;
+      confirmText: string;
+      isWarning: boolean;
+    };
+    expect(fallback.message).toBe('live.dejarasCompartirUbicacionViaje');
+    expect(fallback.confirmText).toBe('live.finishAnyway');
+    expect(fallback.isWarning).toBe(true);
   });
 });

@@ -67,6 +67,7 @@ describe('desktop query', () => {
         provideRouter([
           { path: 'tabs/trips/ride/:id', component: BlankPage },
           { path: 'tabs/trips', component: BlankPage },
+          { path: 'blocked', component: BlankPage, canActivate: [() => false] },
         ]),
       ],
     });
@@ -74,6 +75,8 @@ describe('desktop query', () => {
     await router.navigateByUrl('/tabs/trips/ride/r1');
     const isOn = TestBed.runInInjectionContext(() => injectIsOnUrl(/^\/tabs\/trips\/ride\//));
 
+    expect(isOn()).toBe(true);
+    await router.navigateByUrl('/blocked');
     expect(isOn()).toBe(true);
     await router.navigateByUrl('/tabs/trips');
     expect(isOn()).toBe(false);

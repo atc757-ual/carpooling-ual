@@ -282,6 +282,26 @@ describe('DriverLiveTripPage', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
+  it('asks to finish inline in the sheet on mobile without opening a dialog', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }),
+    );
+    try {
+      await render([TRIP]);
+      await page.handleFinish();
+
+      expect(page.finishCheck()).not.toBeNull();
+      expect(ask).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('pauses the map while the page is not visible', async () => {
     await render([TRIP]);
 
@@ -396,6 +416,45 @@ describe('DriverLiveTripPage', () => {
     );
     expect(page.isReportingIncident()).toBe(false);
     expect(navigate).toHaveBeenCalledWith('/tabs/trips');
+  });
+
+  it('stays in the trip when the incident dialog is dismissed without reporting', async () => {
+    await render([TRIP]);
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+    createModal.mockResolvedValueOnce({
+      present: () => Promise.resolve(),
+      onWillDismiss: () => Promise.resolve({ data: undefined }),
+    });
+
+    await page.handleReport();
+    expect(showSuccessMock).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('opens the inline incident form on mobile and ignores reporting without a trip', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }),
+    );
+    try {
+      await render([]);
+      createModal.mockClear();
+      await page.handleReport();
+      expect(page.isReportingIncident()).toBe(false);
+      expect(createModal).not.toHaveBeenCalled();
+
+      TestBed.resetTestingModule();
+      await render([TRIP]);
+      await page.handleReport();
+      expect(page.isReportingIncident()).toBe(true);
+      expect(createModal).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   const onBoard = (id: string, name: string): SeatRequest => ({

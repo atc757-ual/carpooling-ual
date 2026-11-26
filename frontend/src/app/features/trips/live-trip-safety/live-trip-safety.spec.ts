@@ -1,11 +1,29 @@
+import { Component } from '@angular/core';
 import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { TripShareService } from '../../../core/services/trips/trip-share.service';
-import { LiveTripSafety } from './live-trip-safety';
+import {
+  LiveTripOtherActions,
+  LiveTripQuickActions,
+  LiveTripSafety,
+  LiveTripSosButton,
+} from './live-trip-safety';
 
 const SHARE_TEXT = 'Voy en un viaje compartido de la UAL: Roquetas → Campus';
+
+@Component({
+  imports: [LiveTripOtherActions],
+  template: `
+    <app-live-trip-other-actions [shareText]="shareText">
+      <div class="projected-report">Reportar</div>
+    </app-live-trip-other-actions>
+  `,
+})
+class OtherActionsHost {
+  shareText = SHARE_TEXT;
+}
 
 describe('LiveTripSafety', () => {
   let fixture: ComponentFixture<LiveTripSafety>;
@@ -51,5 +69,50 @@ describe('LiveTripSafety', () => {
     expect(root.textContent).toContain('Viaje seguro');
     expect(root.textContent).toContain('Avisa a alguien de confianza.');
     expect(root.querySelector('app-trip-live-share')).toBeNull();
+  });
+
+  it('renders the SOS link in full or stacked mode', () => {
+    const sos = TestBed.createComponent(LiveTripSosButton);
+    sos.detectChanges();
+    const link = (sos.nativeElement as HTMLElement).querySelector('a');
+    expect(link?.getAttribute('href')).toBe('tel:112');
+    expect(link?.classList.contains('icon-btn--stacked')).toBe(false);
+    expect(link?.textContent).toContain('Llamar al 112');
+
+    sos.componentRef.setInput('stacked', true);
+    sos.detectChanges();
+    expect(link?.classList.contains('icon-btn--stacked')).toBe(true);
+    expect(link?.textContent).toContain('SOS');
+  });
+
+  it('emits share and report from the quick action row and keeps the stacked SOS', () => {
+    const quick = TestBed.createComponent(LiveTripQuickActions);
+    quick.componentRef.setInput('reportLabel', 'Reportar incidencia');
+    const onShare = vi.fn();
+    const onReport = vi.fn();
+    quick.componentInstance.shared.subscribe(onShare);
+    quick.componentInstance.reported.subscribe(onReport);
+    quick.detectChanges();
+
+    const root = quick.nativeElement as HTMLElement;
+    root
+      .querySelector<HTMLButtonElement>('[aria-label="Compartir viaje con alguien de confianza"]')
+      ?.click();
+    root.querySelector<HTMLButtonElement>('[aria-label="Reportar incidencia"]')?.click();
+
+    expect(onShare).toHaveBeenCalledTimes(1);
+    expect(onReport).toHaveBeenCalledTimes(1);
+    expect(root.querySelector('a.icon-btn--stacked')?.getAttribute('href')).toBe('tel:112');
+  });
+
+  it('groups safety, projected report card and 112 emergency in other actions', () => {
+    const host = TestBed.createComponent(OtherActionsHost);
+    host.detectChanges();
+    const root = host.nativeElement as HTMLElement;
+
+    expect(root.querySelector('#other-actions-title')?.textContent).toContain('Otras acciones');
+    expect(root.querySelector('app-live-trip-safety')).not.toBeNull();
+    expect(root.querySelector('.projected-report')?.textContent).toContain('Reportar');
+    expect(root.querySelector('a[href="tel:112"]')).not.toBeNull();
   });
 });
