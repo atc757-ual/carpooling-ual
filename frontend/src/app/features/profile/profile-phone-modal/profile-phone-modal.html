@@ -11,12 +11,12 @@
       @if (formattedCurrentPhone(); as phone) {
         <span class="text-body text-body--strong">{{ phone }}</span>
         @if (isVerified()) {
-          <span class="status status--accepted">
+          <span class="status status--accepted" role="status">
             <ion-icon [icon]="verifiedIcon" aria-hidden="true" />
             {{ 'profile.phoneModal.verifiedBadge' | transloco }}
           </span>
         } @else {
-          <span class="status status--pending">{{
+          <span class="status status--pending" role="status">{{
             'profile.phoneModal.pendingBadge' | transloco
           }}</span>
         }

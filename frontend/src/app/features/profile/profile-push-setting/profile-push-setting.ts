@@ -19,7 +19,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
       </span>
       @switch (push.status()) {
         @case ('on') {
-          <span class="status status--accepted">
+          <span class="status status--accepted" role="status">
             <ion-icon [icon]="checkIcon" aria-hidden="true" />
             <span>{{ 'profile.pushOn' | transloco }}</span>
           </span>
@@ -30,6 +30,7 @@ import { ToastService } from '../../../core/services/ui/toast.service';
               class="profile-setting__action"
               type="submit"
               size="small"
+              [attr.aria-label]="'profile.pushEnableAria' | transloco"
               [disabled]="isBusy()"
             >
               <ion-icon slot="start" [icon]="bellIcon" aria-hidden="true" />
@@ -38,10 +39,12 @@ import { ToastService } from '../../../core/services/ui/toast.service';
           </form>
         }
         @case ('denied') {
-          <span class="status status--pending">{{ 'profile.pushDeniedTag' | transloco }}</span>
+          <span class="status status--pending" role="status">{{
+            'profile.pushDeniedTag' | transloco
+          }}</span>
         }
         @case ('unsupported') {
-          <span class="status">{{ 'profile.pushUnsupportedTag' | transloco }}</span>
+          <span class="status" role="status">{{ 'profile.pushUnsupportedTag' | transloco }}</span>
         }
       }
     </div>

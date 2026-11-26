@@ -34,13 +34,15 @@ const DEVICE_ERRORS: Readonly<Record<LocationFailure, string>> = lazyLabels({
       </span>
       @switch (devicePermission()) {
         @case ('granted') {
-          <span class="status status--accepted">
+          <span class="status status--accepted" role="status">
             <ion-icon [icon]="locateIcon" aria-hidden="true" />
             {{ 'profile.location.authorized' | transloco }}
           </span>
         }
         @case ('denied') {
-          <span class="status status--pending">{{ 'profile.location.blocked' | transloco }}</span>
+          <span class="status status--pending" role="status">{{
+            'profile.location.blocked' | transloco
+          }}</span>
         }
         @case ('prompt') {
           <form (submit)="$event.preventDefault(); handleAllowDevice()">
@@ -48,6 +50,7 @@ const DEVICE_ERRORS: Readonly<Record<LocationFailure, string>> = lazyLabels({
               class="profile-setting__action"
               type="submit"
               size="small"
+              [attr.aria-label]="'profile.location.allowAria' | transloco"
               [disabled]="isAsking()"
             >
               <ion-icon slot="start" [icon]="locateIcon" aria-hidden="true" />

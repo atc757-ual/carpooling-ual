@@ -72,6 +72,9 @@ describe('ProfilePushSetting', () => {
   it('submits form from DOM when off and shows status badge when on', async () => {
     const { root, fixture } = render();
 
+    const button = root.querySelector('.profile-setting__action');
+    expect(button?.getAttribute('aria-label')).toBe('Activar notificaciones en este dispositivo');
+
     const form = root.querySelector('form');
     expect(form).not.toBeNull();
     form?.dispatchEvent(new Event('submit'));
@@ -83,6 +86,7 @@ describe('ProfilePushSetting', () => {
 
     const statusBadge = root.querySelector('.status--accepted');
     expect(statusBadge).not.toBeNull();
+    expect(statusBadge?.getAttribute('role')).toBe('status');
   });
 
   it('does nothing when already in that state', async () => {

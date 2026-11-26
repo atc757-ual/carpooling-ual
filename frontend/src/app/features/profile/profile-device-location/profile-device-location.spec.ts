@@ -41,6 +41,7 @@ describe('ProfileDeviceLocation', () => {
     expect(component.hintKey()).toBe('profile.location.deviceGrantedDesc');
     const badge = fixture.nativeElement.querySelector('.status--accepted');
     expect(badge).not.toBeNull();
+    expect(badge?.getAttribute('role')).toBe('status');
   });
 
   it('shows prompt and allows requesting permission through form submit', async () => {
@@ -51,6 +52,9 @@ describe('ProfileDeviceLocation', () => {
     fixture.detectChanges();
     expect(component.devicePermission()).toBe('prompt');
     expect(component.hintKey()).toBe('profile.location.devicePromptDesc');
+
+    const button = fixture.nativeElement.querySelector('.profile-setting__action');
+    expect(button?.getAttribute('aria-label')).toBe('Permitir ubicación en este dispositivo');
 
     const form = fixture.nativeElement.querySelector('form');
     expect(form).not.toBeNull();
@@ -70,6 +74,7 @@ describe('ProfileDeviceLocation', () => {
     expect(component.hintKey()).toBe('profile.location.deviceDeniedDesc');
     const badge = fixture.nativeElement.querySelector('.status--pending');
     expect(badge).not.toBeNull();
+    expect(badge?.getAttribute('role')).toBe('status');
   });
 
   it('explains with a toast why the permission could not be given', async () => {
