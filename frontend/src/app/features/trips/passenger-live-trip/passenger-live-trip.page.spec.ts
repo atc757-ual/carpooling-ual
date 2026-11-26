@@ -65,6 +65,11 @@ describe('PassengerLiveTripPage', () => {
   let page: PassengerLiveTripPage;
   let root: HTMLElement;
   let showSuccess: ReturnType<typeof vi.fn>;
+  // La ventana del formulario de la incidencia (escritorio): se envía
+  const createModal = vi.fn().mockResolvedValue({
+    present: () => Promise.resolve(),
+    onWillDismiss: () => Promise.resolve({ data: { reported: true } }),
+  });
   let showError: ReturnType<typeof vi.fn>;
   let arrive: ReturnType<typeof vi.fn>;
   let getTrip: ReturnType<typeof vi.fn>;
@@ -110,7 +115,7 @@ describe('PassengerLiveTripPage', () => {
           provide: TripReviewsService,
           useValue: { create: vi.fn().mockResolvedValue({ id: 'rev1' }) },
         },
-        { provide: ModalController, useValue: { create: vi.fn() } },
+        { provide: ModalController, useValue: { create: createModal } },
       ],
     });
     const fixture = TestBed.createComponent(PassengerLiveTripPage);
@@ -199,15 +204,15 @@ describe('PassengerLiveTripPage', () => {
     expect(root.textContent).toContain('Este viaje no está en curso');
   });
 
-  it('reports an incident in place and goes back to Tus viajes', async () => {
+  it('on desktop reports an incident in a dialog and goes back to Tus viajes', async () => {
     await render();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
-    page.isReportingIncident.set(true);
-    TestBed.tick();
-    expect(root.querySelector('app-passenger-incident-modal')).not.toBeNull();
-
-    await page.handleIncidentReported();
+    await page.handleReport();
+    expect(createModal).toHaveBeenCalledWith(
+      expect.objectContaining({ componentProps: { tripId: TRIP.id, isDriver: false } }),
+    );
+    expect(page.isReportingIncident()).toBe(false);
     expect(showSuccess).toHaveBeenCalledWith('Incidencia registrada. Tu plaza ha sido cancelada.');
     expect(navigate).toHaveBeenCalledWith('/tabs/trips');
   });
@@ -336,7 +341,7 @@ describe('PassengerLiveTripPage', () => {
 
     expect(page.hasActionRows()).toBe(true);
     expect(root.querySelector('.live-actions')).toBeNull();
-    expect(root.querySelector('.icon-btns-open .section-item')).not.toBeNull();
+    expect(root.querySelector('.live-group--actions .section-item')).not.toBeNull();
   });
 
   it('knows the phase of the passenger in the trip', () => {

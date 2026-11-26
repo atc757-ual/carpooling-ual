@@ -49,7 +49,7 @@ describe('LiveTripSafety', () => {
     const root = render({ shareText: SHARE_TEXT });
 
     expect(root.textContent).toContain('Viaje seguro');
-    expect(root.textContent).toContain('Envía tu viaje a alguien de confianza.');
+    expect(root.textContent).toContain('Avisa a alguien de confianza.');
     expect(root.querySelector('app-trip-live-share')).toBeNull();
   });
 });

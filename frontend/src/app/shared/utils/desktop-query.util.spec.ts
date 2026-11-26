@@ -105,7 +105,8 @@ describe('desktop query', () => {
     const sheet = TestBed.runInInjectionContext(() => injectLiveSheet(/^\/tabs\/trips\/ride\//));
     const dismiss = vi.fn().mockResolvedValue(true);
     const setCurrentBreakpoint = vi.fn().mockResolvedValue(undefined);
-    const modal = { dismiss, setCurrentBreakpoint } as unknown as IonModal;
+    const present = vi.fn().mockResolvedValue(undefined);
+    const modal = { dismiss, present, setCurrentBreakpoint } as unknown as IonModal;
 
     expect(sheet.isOpen()).toBe(true);
     expect(await sheet.canDismiss()).toBe(false);
@@ -118,8 +119,10 @@ describe('desktop query', () => {
     expect(dismiss).toHaveBeenCalled();
     expect(await sheet.canDismiss()).toBe(true);
 
+    // Al volver a la página, se vuelve a abrir (se había cerrado al salir)
     sheet.enter();
     expect(await sheet.canDismiss()).toBe(false);
+    expect(present).toHaveBeenCalled();
 
     await router.navigateByUrl('/tabs/trips');
     TestBed.tick();
@@ -133,7 +136,7 @@ describe('desktop query', () => {
     expect(fitLiveSheetBreakpoints(1.4)).toEqual([0.2, 0.45, 0.68, LIVE_SHEET_FULL_BREAKPOINT]);
   });
 
-  it('goes up one stop with «Ver más» and follows the content when it changes', async () => {
+  it('follows the content when it changes', async () => {
     vi.stubGlobal(
       'matchMedia',
       vi.fn().mockReturnValue({
@@ -150,14 +153,10 @@ describe('desktop query', () => {
     const setCurrentBreakpoint = vi.fn().mockResolvedValue(undefined);
     sheet.setModal({ dismiss: vi.fn(), setCurrentBreakpoint } as unknown as IonModal);
 
-    // De media pantalla a la siguiente parada
-    sheet.expandStep();
-    expect(setCurrentBreakpoint).toHaveBeenLastCalledWith(0.68);
-
     // El contenido crece hasta el 85 %: la parada de arriba lo sigue, sin mover la hoja
     sheet.fitToContent(0.85);
     expect(sheet.breakpoints).toEqual([0.2, 0.45, 0.68, 0.85]);
-    expect(setCurrentBreakpoint).toHaveBeenCalledTimes(1);
+    expect(setCurrentBreakpoint).not.toHaveBeenCalled();
 
     // Con la hoja arriba, si el contenido encoge, baja con él
     sheet.breakpoint.set(0.85);
@@ -165,10 +164,8 @@ describe('desktop query', () => {
     expect(sheet.breakpoints).toEqual([0.2, 0.45, 0.6]);
     expect(setCurrentBreakpoint).toHaveBeenLastCalledWith(0.6);
 
-    // Sin cambios, no hace nada; y en la parada de arriba, «Ver más» no sube más
+    // Sin cambios, no hace nada
     sheet.fitToContent(0.6);
-    sheet.breakpoint.set(0.6);
-    sheet.expandStep();
-    expect(setCurrentBreakpoint).toHaveBeenCalledTimes(2);
+    expect(setCurrentBreakpoint).toHaveBeenCalledTimes(1);
   });
 });

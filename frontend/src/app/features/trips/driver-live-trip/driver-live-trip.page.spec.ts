@@ -4,7 +4,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { IonInputOtp, provideIonicAngular } from '@ionic/angular';
+import { IonInputOtp, ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
 import { SeatRequest } from '../../../core/models/seat-request.model';
@@ -91,6 +91,11 @@ describe('DriverLiveTripPage', () => {
     dismissGap: ReturnType<typeof vi.fn>;
   };
   let ask: ReturnType<typeof vi.fn>;
+  // La ventana del formulario de la incidencia (escritorio): se envía
+  const createModal = vi.fn().mockResolvedValue({
+    present: () => Promise.resolve(),
+    onWillDismiss: () => Promise.resolve({ data: { reported: true } }),
+  });
   let showInfoMock: ReturnType<typeof vi.fn>;
   let listContactsMock: ReturnType<typeof vi.fn>;
   let showSuccessMock: ReturnType<typeof vi.fn>;
@@ -137,6 +142,7 @@ describe('DriverLiveTripPage', () => {
         { provide: DriverService, useValue: driver },
         { provide: DriverTrackingService, useValue: { ...tracking, stop: stopTracking } },
         { provide: ConfirmService, useValue: { ask } },
+        { provide: ModalController, useValue: { create: createModal } },
         {
           provide: ToastService,
           useValue: {
@@ -246,15 +252,12 @@ describe('DriverLiveTripPage', () => {
     expect(root.textContent).toContain('No encontramos este viaje');
   });
 
-  it('confirms finishing in the same sheet, then offers to review the passengers', async () => {
+  it('on desktop asks to finish in a dialog, then offers to review the passengers', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
     await page.handleFinish();
-    expect(page.finishCheck()).not.toBeNull();
-    expect(driver['finishTrip']).not.toHaveBeenCalled();
-
-    await page.confirmFinish();
+    expect(ask).toHaveBeenCalledWith(expect.objectContaining({ header: '¿Terminar el viaje?' }));
     // Sin posición (la prueba no tiene GPS): termina sin ella
     expect(driver['finishTrip']).toHaveBeenCalledWith('t1', null);
     expect(page.justFinished()).toBe(true);
@@ -271,8 +274,8 @@ describe('DriverLiveTripPage', () => {
     await render([TRIP]);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
 
+    ask.mockResolvedValueOnce(false);
     await page.handleFinish();
-    page.cancelFinish();
 
     expect(page.finishCheck()).toBeNull();
     expect(driver['finishTrip']).not.toHaveBeenCalled();
@@ -379,7 +382,7 @@ describe('DriverLiveTripPage', () => {
     expect(showInfoMock).toHaveBeenCalledWith('No comparte su teléfono. Escríbele por el chat.');
   });
 
-  it('keeps the SOS in the action row and reports an incident in place', async () => {
+  it('keeps the SOS and, on desktop, reports an incident in a dialog', async () => {
     const root = await render([TRIP], [passenger('r1', 'Carlos Ruiz', 5)]);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
@@ -387,11 +390,11 @@ describe('DriverLiveTripPage', () => {
       'tel:112',
     );
 
-    root.querySelector<HTMLElement>('[aria-label$="abre el formulario de la incidencia"]')?.click();
-    TestBed.tick();
-    expect(root.querySelector('app-passenger-incident-modal')).not.toBeNull();
-
-    await page.handleIncidentReported();
+    await page.handleReport();
+    expect(createModal).toHaveBeenCalledWith(
+      expect.objectContaining({ componentProps: { tripId: 't1', isDriver: true } }),
+    );
+    expect(page.isReportingIncident()).toBe(false);
     expect(navigate).toHaveBeenCalledWith('/tabs/trips');
   });
 
@@ -503,7 +506,7 @@ describe('DriverLiveTripPage', () => {
 
     expect(page.hasActionRows()).toBe(true);
     expect(root.querySelector('.live-actions')).toBeNull();
-    expect(root.querySelector('.icon-btns-open .section-item')).not.toBeNull();
+    expect(root.querySelector('.live-group--actions .section-item')).not.toBeNull();
     expect(root.querySelectorAll('.pickups-head .pickup-arrow')).toHaveLength(2);
     expect(root.querySelector('.pickup-carousel__arrows')).toBeNull();
   });
