@@ -81,10 +81,10 @@
                   <span class="text-body text-body--strong">{{ ph }}</span>
                 </span>
                 @if (isPhoneVerified()) {
-                  <span class="status status--accepted" role="status">
+                  <output class="status status--accepted">
                     <ion-icon [icon]="shieldIcon" aria-hidden="true" />
                     {{ 'profile.phoneVerified' | transloco }}
-                  </span>
+                  </output>
                 } @else {
                   <form (submit)="$event.preventDefault(); handleManagePhone(true)">
                     <ion-button
