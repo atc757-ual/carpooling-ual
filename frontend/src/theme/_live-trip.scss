@@ -152,4 +152,21 @@ ion-modal.live-sheet.live-sheet {
     padding: var(--space-base) var(--space-base) 0;
     color: var(--color-text);
   }
+
+  // «Otras acciones» debajo del mapa (escritorio ancho, columna de 8): sus
+  // tres secciones en fila, igual de anchas, con una línea vertical entre
+  // ellas; el título, a todo el ancho
+  .live-column.live-column .live-group--actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    > .live-group__title {
+      grid-column: 1 / -1;
+    }
+
+    > :not(.live-group__title) + :not(.live-group__title) {
+      border-top: 0;
+      border-left: var(--border-width-s) solid var(--color-border-subtle);
+    }
+  }
 }

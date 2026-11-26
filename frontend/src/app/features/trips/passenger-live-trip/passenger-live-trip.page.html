@@ -311,44 +311,15 @@
                   [class.sections-divided]="hasActionRows()"
                 >
                   @if (hasActionRows()) {
-                    <!-- Escritorio ancho: sin pastillas, cada sección a la vista
-                         (hay sitio); en tabletas, la fila de botones cortos del móvil -->
+                    <!-- Escritorio ancho: aquí, solo «He llegado» antes de tiempo;
+                         «Otras acciones» va debajo del mapa. En tabletas, la fila
+                         de botones del móvil -->
                     @if (arriveCard() === 'early') {
                       <ng-container
                         [ngTemplateOutlet]="arriveTemplate"
                         [ngTemplateOutletContext]="{ $implicit: 'early' }"
                       />
                     }
-                    <!-- «Otras acciones», juntas en una tarjeta: compartir,
-                         reportar y la emergencia -->
-                    <section class="live-group" aria-labelledby="other-actions-title">
-                      <h2 id="other-actions-title" class="live-group__title">
-                        {{ 'live.otrasAcciones' | transloco }}
-                      </h2>
-                      <app-live-trip-safety [shareText]="safetyShareText()" />
-                      <app-passenger-request-actions
-                        [request]="request"
-                        [trip]="trip"
-                        [showChat]="false"
-                        [inlineIncident]="true"
-                        (incidentRequested)="isReportingIncident.set(true)"
-                      />
-                      <ion-card class="ride__panel" role="region" aria-labelledby="ride-sos-title">
-                        <ion-card-content>
-                          <div class="section-item">
-                            <div class="section-item__text">
-                              <h2 id="ride-sos-title" class="section-item__title">
-                                {{ 'live.emergencia' | transloco }}
-                              </h2>
-                              <p class="section-item__subtitle">
-                                {{ 'live.hayUnaEmergenciaLlama' | transloco }}
-                              </p>
-                            </div>
-                            <ng-container [ngTemplateOutlet]="sosButton" />
-                          </div>
-                        </ion-card-content>
-                      </ion-card>
-                    </section>
                   } @else {
                     <!-- Móvil: las acciones en una fila de botones, cada una con su
                          nombre debajo y el SOS al final -->
@@ -398,26 +369,61 @@
                     </div>
                   }
                 </div>
-
-                <!-- 112: el teléfono único de emergencias en Europa -->
-                <ng-template #sosButton let-isStacked>
-                  <a
-                    class="icon-btn icon-btn--labeled icon-btn--danger"
-                    [class.icon-btn--stacked]="isStacked"
-                    href="tel:112"
-                    [attr.aria-label]="'live.sosLlamar112' | transloco"
-                  >
-                    <ion-icon [icon]="callIcon" aria-hidden="true" />
-                    <span class="icon-btn__label" aria-hidden="true">{{
-                      'live.llamar112' | transloco
-                    }}</span>
-                  </a>
-                </ng-template>
               }
             }
           </ng-template>
 
-          <!-- «Rumbo al campus»: en la hoja (móvil) o encima del mapa (escritorio) -->
+          <!-- «Otras acciones» en escritorio ancho: debajo del mapa, en la columna
+               de 8, las tres tarjetas en fila (compartir, reportar y la emergencia) -->
+          <ng-template #otherActions>
+            <!-- «Otras acciones», juntas en una tarjeta: compartir,
+               reportar y la emergencia -->
+            <section class="live-group live-group--actions" aria-labelledby="other-actions-title">
+              <h2 id="other-actions-title" class="live-group__title">
+                {{ 'live.otrasAcciones' | transloco }}
+              </h2>
+              <app-live-trip-safety [shareText]="safetyShareText()" />
+              <app-passenger-request-actions
+                [request]="request"
+                [trip]="trip"
+                [showChat]="false"
+                [inlineIncident]="true"
+                (incidentRequested)="isReportingIncident.set(true)"
+              />
+              <ion-card class="ride__panel" role="region" aria-labelledby="ride-sos-title">
+                <ion-card-content>
+                  <div class="section-item">
+                    <div class="section-item__text">
+                      <h2 id="ride-sos-title" class="section-item__title">
+                        {{ 'live.emergencia' | transloco }}
+                      </h2>
+                      <p class="section-item__subtitle">
+                        {{ 'live.hayUnaEmergenciaLlama' | transloco }}
+                      </p>
+                    </div>
+                    <ng-container [ngTemplateOutlet]="sosButton" />
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </section>
+          </ng-template>
+
+          <!-- 112: el teléfono único de emergencias en Europa -->
+          <ng-template #sosButton let-isStacked>
+            <a
+              class="icon-btn icon-btn--labeled icon-btn--danger"
+              [class.icon-btn--stacked]="isStacked"
+              href="tel:112"
+              [attr.aria-label]="'live.sosLlamar112' | transloco"
+            >
+              <ion-icon [icon]="callIcon" aria-hidden="true" />
+              <span class="icon-btn__label" aria-hidden="true">{{
+                'live.llamar112' | transloco
+              }}</span>
+            </a>
+          </ng-template>
+
+          <!-- «Rumbo al campus»: en la hoja (móvil) o arriba de la columna de 4 (escritorio) -->
           <ng-template #rideHero>
             <app-live-trip-hero
               [title]="heroTitle()"
@@ -433,14 +439,12 @@
           </ng-template>
 
           <div class="ride__layout">
-            <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo -->
+            <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo y,
+                 en escritorio ancho, «Otras acciones» debajo -->
             <section
               class="ride__main live-column"
               [attr.aria-label]="'live.mapaDirecto' | transloco"
             >
-              @if (sheet.isDesktop() && phase() !== 'finished' && !isReportingIncident()) {
-                <ng-container [ngTemplateOutlet]="rideHero" />
-              }
               <ion-card class="ride__map-card">
                 <ion-card-content>
                   <app-live-trip-map
@@ -456,6 +460,9 @@
                   />
                 </ion-card-content>
               </ion-card>
+              @if (hasActionRows()) {
+                <ng-container [ngTemplateOutlet]="otherActions" />
+              }
             </section>
 
             @if (sheet.isDesktop()) {
@@ -463,6 +470,9 @@
                 class="ride__side live-column"
                 [attr.aria-label]="'live.viajeAhora' | transloco"
               >
+                @if (phase() !== 'finished' && !isReportingIncident()) {
+                  <ng-container [ngTemplateOutlet]="rideHero" />
+                }
                 <ng-container [ngTemplateOutlet]="rideDetails" />
               </aside>
             }

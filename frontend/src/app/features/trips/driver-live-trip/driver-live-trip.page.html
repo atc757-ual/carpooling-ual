@@ -603,39 +603,13 @@
             <!-- Una sola sección (sin línea entre las pastillas y lo que
                  muestran): qué ver, en pastillas, con el SOS siempre a la vista
                  en la esquina, y debajo lo elegido (como el pasajero) -->
-            <div
-              class="driver-live-trip__choice"
-              [class.driver-live-trip__choice--desktop]="sheet.isDesktop()"
-              [class.sections-divided]="hasActionRows()"
-            >
-              @if (hasActionRows()) {
-                <!-- Escritorio ancho: sin pastillas, cada sección a la vista (hay
-                     sitio); en tabletas, la fila de botones cortos del móvil.
-                     Terminar va con las recogidas («Tu ruta»); aquí, «Otras
-                     acciones»: compartir, reportar y la emergencia -->
-                <section class="live-group" aria-labelledby="other-actions-title">
-                  <h2 id="other-actions-title" class="live-group__title">
-                    {{ 'live.otrasAcciones' | transloco }}
-                  </h2>
-                  <app-live-trip-safety [shareText]="safetyShareText()" />
-                  <ng-container [ngTemplateOutlet]="reportPanel" />
-                  <ion-card class="driver-live-trip__panel">
-                    <ion-card-content>
-                      <div class="section-item">
-                        <div class="section-item__text">
-                          <h2 class="section-item__title">{{ 'live.emergencia' | transloco }}</h2>
-                          <p class="section-item__subtitle">
-                            {{ 'live.hayUnaEmergenciaLlama' | transloco }}
-                          </p>
-                        </div>
-                        <ng-container [ngTemplateOutlet]="sosButton" />
-                      </div>
-                    </ion-card-content>
-                  </ion-card>
-                </section>
-              } @else {
+            @if (!hasActionRows()) {
+              <div
+                class="driver-live-trip__choice"
+                [class.driver-live-trip__choice--desktop]="sheet.isDesktop()"
+              >
                 <!-- Móvil: las acciones en una fila de botones, cada una con su
-                     nombre debajo y el SOS al final -->
+                       nombre debajo y el SOS al final -->
                 <div class="live-actions" [class.live-actions--compact]="sheet.isDesktop()">
                   <div class="live-actions__row">
                     @if (!showFinishAlert()) {
@@ -680,87 +654,112 @@
                     />
                   </div>
                 </div>
-              }
-            </div>
-
-            <!-- Terminar antes de llegar y reportar: en su pastilla (móvil) o a la
-                 vista (escritorio) -->
-            <ng-template #finishPanel>
-              <!-- Terminar antes de llegar (con su confirmación) -->
-              <ion-card class="driver-live-trip__panel">
-                <ion-card-content>
-                  <div class="section-item">
-                    <div class="section-item__text">
-                      <h2 class="section-item__title">{{ 'live.terminarViaje3' | transloco }}</h2>
-                      <p class="section-item__subtitle">
-                        {{ 'live.finishWhenAllOff' | transloco }}
-                      </p>
-                    </div>
-                    <!-- Antes de llegar es secundario: botón de icono con su
-                         texto siempre a la vista, como «No se presentó» -->
-                    <button
-                      type="button"
-                      class="icon-btn icon-btn--labeled"
-                      [disabled]="isFinishing()"
-                      (click)="handleFinish()"
-                    >
-                      @if (isFinishing()) {
-                        <ion-spinner name="crescent" aria-hidden="true" />
-                      } @else {
-                        <ion-icon [icon]="confirmFinishIcon" aria-hidden="true" />
-                      }
-                      <span class="icon-btn__label">{{
-                        (isFinishing() ? 'live.checking' : 'live.terminarViaje3') | transloco
-                      }}</span>
-                    </button>
-                  </div>
-                </ion-card-content>
-              </ion-card>
-            </ng-template>
-            <ng-template #reportPanel>
-              <!-- Reportar: abre el formulario de la incidencia en la hoja -->
-              <ion-card class="driver-live-trip__panel">
-                <ion-card-content>
-                  <div class="section-item">
-                    <div class="section-item__text">
-                      <h2 class="section-item__title">{{ 'live.algoMal' | transloco }}</h2>
-                      <p class="section-item__subtitle">
-                        {{ 'live.puedesSeguirReportaloRevisara' | transloco }}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      class="icon-btn icon-btn--labeled"
-                      [attr.aria-label]="'live.enviarReporteAbreFormulario' | transloco"
-                      (click)="isReportingIncident.set(true)"
-                    >
-                      <ion-icon [icon]="reportIcon" aria-hidden="true" />
-                      <span class="icon-btn__label" aria-hidden="true">{{
-                        'live.enviarReporte' | transloco
-                      }}</span>
-                    </button>
-                  </div>
-                </ion-card-content>
-              </ion-card>
-            </ng-template>
-            <ng-template #sosButton let-isStacked>
-              <!-- 112: el teléfono único de emergencias en Europa -->
-              <a
-                class="icon-btn icon-btn--labeled icon-btn--danger"
-                [class.icon-btn--stacked]="isStacked"
-                href="tel:112"
-                [attr.aria-label]="'live.sosLlamar112' | transloco"
-              >
-                <ion-icon [icon]="callIcon" aria-hidden="true" />
-                <span class="icon-btn__label" aria-hidden="true">{{
-                  'live.llamar112' | transloco
-                }}</span>
-              </a>
-            </ng-template>
+              </div>
+            }
           }
         </ng-template>
 
-        <!-- «Rumbo al campus»: en la hoja (móvil) o encima del mapa (escritorio) -->
+        <!-- «Otras acciones» en escritorio ancho: debajo del mapa, en la columna
+             de 8, las tres tarjetas en fila (compartir, reportar y la emergencia) -->
+        <ng-template #otherActions>
+          <section class="live-group live-group--actions" aria-labelledby="other-actions-title">
+            <h2 id="other-actions-title" class="live-group__title">
+              {{ 'live.otrasAcciones' | transloco }}
+            </h2>
+            <app-live-trip-safety [shareText]="safetyShareText()" />
+            <ng-container [ngTemplateOutlet]="reportPanel" />
+            <ion-card class="driver-live-trip__panel">
+              <ion-card-content>
+                <div class="section-item">
+                  <div class="section-item__text">
+                    <h2 class="section-item__title">{{ 'live.emergencia' | transloco }}</h2>
+                    <p class="section-item__subtitle">
+                      {{ 'live.hayUnaEmergenciaLlama' | transloco }}
+                    </p>
+                  </div>
+                  <ng-container [ngTemplateOutlet]="sosButton" />
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </section>
+        </ng-template>
+
+        <!-- Terminar antes de llegar y reportar: en su pastilla (móvil) o a la
+             vista (escritorio) -->
+        <ng-template #finishPanel>
+          <!-- Terminar antes de llegar (con su confirmación) -->
+          <ion-card class="driver-live-trip__panel">
+            <ion-card-content>
+              <div class="section-item">
+                <div class="section-item__text">
+                  <h2 class="section-item__title">{{ 'live.terminarViaje3' | transloco }}</h2>
+                  <p class="section-item__subtitle">
+                    {{ 'live.finishWhenAllOff' | transloco }}
+                  </p>
+                </div>
+                <!-- Antes de llegar es secundario: botón de icono con su
+                     texto siempre a la vista, como «No se presentó» -->
+                <button
+                  type="button"
+                  class="icon-btn icon-btn--labeled"
+                  [disabled]="isFinishing()"
+                  (click)="handleFinish()"
+                >
+                  @if (isFinishing()) {
+                    <ion-spinner name="crescent" aria-hidden="true" />
+                  } @else {
+                    <ion-icon [icon]="confirmFinishIcon" aria-hidden="true" />
+                  }
+                  <span class="icon-btn__label">{{
+                    (isFinishing() ? 'live.checking' : 'live.terminarViaje3') | transloco
+                  }}</span>
+                </button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ng-template>
+        <ng-template #reportPanel>
+          <!-- Reportar: abre el formulario de la incidencia en la hoja -->
+          <ion-card class="driver-live-trip__panel">
+            <ion-card-content>
+              <div class="section-item">
+                <div class="section-item__text">
+                  <h2 class="section-item__title">{{ 'live.algoMal' | transloco }}</h2>
+                  <p class="section-item__subtitle">
+                    {{ 'live.puedesSeguirReportaloRevisara' | transloco }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="icon-btn icon-btn--labeled"
+                  [attr.aria-label]="'live.enviarReporteAbreFormulario' | transloco"
+                  (click)="isReportingIncident.set(true)"
+                >
+                  <ion-icon [icon]="reportIcon" aria-hidden="true" />
+                  <span class="icon-btn__label" aria-hidden="true">{{
+                    'live.enviarReporte' | transloco
+                  }}</span>
+                </button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ng-template>
+        <ng-template #sosButton let-isStacked>
+          <!-- 112: el teléfono único de emergencias en Europa -->
+          <a
+            class="icon-btn icon-btn--labeled icon-btn--danger"
+            [class.icon-btn--stacked]="isStacked"
+            href="tel:112"
+            [attr.aria-label]="'live.sosLlamar112' | transloco"
+          >
+            <ion-icon [icon]="callIcon" aria-hidden="true" />
+            <span class="icon-btn__label" aria-hidden="true">{{
+              'live.llamar112' | transloco
+            }}</span>
+          </a>
+        </ng-template>
+
+        <!-- «Rumbo al campus»: en la hoja (móvil) o arriba de la columna de 4 (escritorio) -->
         <ng-template #liveHero>
           <app-live-trip-hero
             [title]="heroTitle()"
@@ -776,11 +775,9 @@
         </ng-template>
 
         <div class="driver-live-trip__layout">
-          <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo -->
+          <!-- Columna de 8 (en el móvil, toda la pantalla): el mapa en vivo y,
+               en escritorio ancho, «Otras acciones» debajo -->
           <div class="driver-live-trip__column live-column">
-            @if (sheet.isDesktop() && !justFinished() && !finishCheck()) {
-              <ng-container [ngTemplateOutlet]="liveHero" />
-            }
             <ion-card class="driver-live-trip__main">
               <ion-card-content>
                 <app-live-trip-map
@@ -796,6 +793,9 @@
                 />
               </ion-card-content>
             </ion-card>
+            @if (hasActionRows()) {
+              <ng-container [ngTemplateOutlet]="otherActions" />
+            }
           </div>
 
           @if (sheet.isDesktop()) {
@@ -803,6 +803,9 @@
               class="driver-live-trip__side live-column"
               [attr.aria-label]="'live.viajeAhora' | transloco"
             >
+              @if (!justFinished() && !finishCheck()) {
+                <ng-container [ngTemplateOutlet]="liveHero" />
+              }
               <ng-container [ngTemplateOutlet]="liveDetails" />
             </aside>
           }
