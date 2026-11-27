@@ -124,13 +124,13 @@ describe('application routes', () => {
     expect(await runGuard(true, [], true)).toBe(true);
   });
 
-  it('loads the profile subpages for preferences and settings', async () => {
+  it('registers the profile subpages for preferences and settings', () => {
     const tabsRoute = routes.find(({ path }) => path === 'tabs');
     const prefsRoute = tabsRoute?.children?.find(({ path }) => path === 'profile/preferences');
     const settingsRoute = tabsRoute?.children?.find(({ path }) => path === 'profile/settings');
 
-    expect(await prefsRoute?.loadComponent?.()).toBeDefined();
-    expect(await settingsRoute?.loadComponent?.()).toBeDefined();
+    expect(prefsRoute).toBeDefined();
+    expect(settingsRoute).toBeDefined();
   });
 
   it('resolves all lazy loadComponent callbacks across app and admin routes', async () => {

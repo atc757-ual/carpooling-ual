@@ -60,9 +60,41 @@ describe('ProfilePhoneModal', () => {
   });
 
   it('initializes phone form with current user phone', () => {
+    const root = fixture.nativeElement as HTMLElement;
+
     expect(component.phoneForm.controls.phone.value).toBe('612 345 678');
     expect(component.formattedCurrentPhone()).toBe('+34 612 345 678');
     expect(component.isVerified()).toBe(false);
+    expect(root.textContent).toContain('+34 612 345 678');
+    expect(root.textContent).toContain('Pendiente de verificación');
+    expect(root.textContent).toContain('Enviar código por SMS');
+    expect(root.querySelector('.profile-phone-modal__remove')).not.toBeNull();
+  });
+
+  it('shows the verified state and change warning without a verification action', async () => {
+    const verifiedFixture = TestBed.createComponent(ProfilePhoneModal);
+    verifiedFixture.componentRef.setInput('user', { ...mockUser, phoneVerified: true });
+    verifiedFixture.detectChanges();
+    await verifiedFixture.whenStable();
+    const root = verifiedFixture.nativeElement as HTMLElement;
+
+    expect(root.textContent).toContain('Verificado');
+    expect(root.textContent).toContain(
+      'Si cambias el número, tendrás que verificarlo de nuevo con un código SMS.',
+    );
+    expect(root.querySelector('.profile-phone-modal__actions')).toBeNull();
+  });
+
+  it('explains when there is no phone and keeps removal unavailable', async () => {
+    const emptyPhoneFixture = TestBed.createComponent(ProfilePhoneModal);
+    emptyPhoneFixture.componentRef.setInput('user', { ...mockUser, phone: null });
+    emptyPhoneFixture.detectChanges();
+    await emptyPhoneFixture.whenStable();
+    const root = emptyPhoneFixture.nativeElement as HTMLElement;
+
+    expect(root.textContent).toContain('Aún no has añadido tu teléfono');
+    expect(root.querySelector('.profile-phone-modal__remove')).toBeNull();
+    expect(emptyPhoneFixture.componentInstance.phoneForm.invalid).toBe(true);
   });
 
   it('saves new phone number and starts verification', async () => {
@@ -81,19 +113,29 @@ describe('ProfilePhoneModal', () => {
     expect(component.step()).toBe('verify');
   });
 
-  it('explains the SMS first when opened from Verify, without sending it', () => {
+  it('explains the SMS first when opened from Verify, without sending it', async () => {
     requestPhoneVerification.mockClear();
-    component.startVerification = true;
+    const confirmFixture = TestBed.createComponent(ProfilePhoneModal);
+    confirmFixture.componentRef.setInput('user', mockUser);
+    confirmFixture.componentRef.setInput('startVerification', true);
+    confirmFixture.detectChanges();
+    await confirmFixture.whenStable();
+    const root = confirmFixture.nativeElement as HTMLElement;
 
-    component.ngOnInit();
-
-    expect(component.step()).toBe('confirm');
+    expect(confirmFixture.componentInstance.step()).toBe('confirm');
+    expect(root.textContent).toContain('Te enviaremos un SMS con un código de 6 cifras');
+    expect(root.textContent).toContain('+34 612 345 678');
+    expect(root.textContent).toContain('¿No es tu número? Cámbialo');
     expect(requestPhoneVerification).not.toHaveBeenCalled();
   });
 
   it('confirms verification code and dismisses with saved role', async () => {
     component.step.set('verify');
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
     component.codeForm.controls.code.setValue('123456');
+    expect(root.textContent).toContain('Te hemos enviado un SMS con un código de 6 cifras.');
+    expect(root.querySelector('app-code-input')).not.toBeNull();
     await component.handleConfirmCode();
 
     expect(confirmPhoneVerification).toHaveBeenCalledWith('123456');
@@ -124,6 +166,8 @@ describe('ProfilePhoneModal', () => {
       ?.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
     expect(component.step()).toBe('remove');
+    expect(root.textContent).toContain('¿Quitar tu teléfono?');
+    expect(root.textContent).toContain('Dejarás de compartirlo');
 
     await component.handleRemovePhone();
 
@@ -179,9 +223,14 @@ describe('ProfilePhoneModal', () => {
     expect(confirmPhoneVerification).not.toHaveBeenCalled();
 
     component.codeForm.controls.code.setValue('123456');
+    component.step.set('verify');
     confirmPhoneVerification.mockRejectedValueOnce(new ApiError('TOO_MANY_ATTEMPTS', 429));
     await component.handleConfirmCode();
     expect(component.isLocked()).toBe(true);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Has superado el número de intentos. Solicita un nuevo código para continuar.',
+    );
 
     // Guard when locked
     confirmPhoneVerification.mockClear();
