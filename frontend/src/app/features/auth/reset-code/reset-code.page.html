@@ -76,7 +76,7 @@
           form="reset-code-resend"
           expand="block"
           fill="outline"
-          [disabled]="secondsToResend() > 0"
+          [disabled]="secondsToResend() > 0 || isSubmitting()"
         >
           @if (secondsToResend() > 0) {
             {{ 'auth.resetCode.resendWait' | transloco: { time: resendTime() } }}

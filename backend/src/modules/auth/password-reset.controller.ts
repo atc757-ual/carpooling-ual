@@ -32,11 +32,14 @@ export class PasswordResetController {
     summary: 'Send a password reset code',
     description:
       'Sends a 6-digit code (valid for 15 minutes) to the email if it has an ' +
-      'account, at most once a minute; also used to resend it. Always ' +
+      'account, at most once a minute and 5 requests per recipient per 15 minutes; also used to resend it. Further requests are locked for 5 minutes. Always ' +
       'answers 202, so it does not reveal which emails are registered.',
   })
   @ApiAcceptedResponse({ description: 'Request accepted' })
-  @ApiErrorResponses({ [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'] })
+  @ApiErrorResponses({
+    [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: ['OTP_SEND_RATE_LIMITED'],
+  })
   async requestCode(@Body() dto: RequestPasswordResetDto): Promise<void> {
     await this.passwordReset.requestCode(dto.email);
   }
@@ -59,7 +62,10 @@ export class PasswordResetController {
       'VALIDATION_FAILED',
       'INVALID_VERIFICATION_CODE',
     ],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async checkCode(@Body() dto: CheckPasswordResetCodeDto): Promise<void> {
     await this.passwordReset.checkCode(dto.email, dto.code);
@@ -84,7 +90,10 @@ export class PasswordResetController {
       'INVALID_VERIFICATION_CODE',
       'PASSWORD_UNCHANGED',
     ],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
     await this.passwordReset.resetPassword(dto);

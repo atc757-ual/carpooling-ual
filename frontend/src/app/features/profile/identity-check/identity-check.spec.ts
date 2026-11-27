@@ -3,6 +3,7 @@ import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
 import { ApiError } from '../../../core/models/api-error.model';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { IdentityCheck } from './identity-check';
 
 describe('IdentityCheck', () => {
@@ -10,14 +11,20 @@ describe('IdentityCheck', () => {
   let component: IdentityCheck;
   let requestCode: ReturnType<typeof vi.fn>;
   let verifyCode: ReturnType<typeof vi.fn>;
+  let showError: ReturnType<typeof vi.fn>;
   let verified: string[];
 
   function render(requirementKeys: string[] = []): HTMLElement {
     requestCode = vi.fn().mockResolvedValue(undefined);
     verifyCode = vi.fn().mockResolvedValue(undefined);
+    showError = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
       imports: [IdentityCheck],
-      providers: [provideIonicAngular(), provideTestingTransloco()],
+      providers: [
+        provideIonicAngular(),
+        provideTestingTransloco(),
+        { provide: ToastService, useValue: { showError } },
+      ],
     });
     fixture = TestBed.createComponent(IdentityCheck);
     fixture.componentRef.setInput('requestCode', requestCode);
@@ -119,5 +126,38 @@ describe('IdentityCheck', () => {
     await component.handleSendCode();
     expect(requestCode).toHaveBeenCalledTimes(2);
     expect(component.needsNewCode()).toBe(false);
+  });
+
+  it('locks code entry and shows a toast when sending is rate limited', async () => {
+    vi.useFakeTimers();
+    render();
+    requestCode.mockRejectedValue(
+      new ApiError('OTP_SEND_RATE_LIMITED', 429, { retryAfterSeconds: 2 }),
+    );
+
+    await component.handleSendCode();
+
+    expect(component.isRateLimited()).toBe(true);
+    expect(component.code.disabled).toBe(true);
+    expect(component.secondsToResend()).toBe(2);
+    expect(showError).toHaveBeenCalled();
+
+    vi.advanceTimersByTime(2_000);
+    fixture.detectChanges();
+    expect(component.isRateLimited()).toBe(false);
+    expect(component.code.enabled).toBe(true);
+  });
+
+  it('locks code entry when validation reports the OTP send limit', async () => {
+    render();
+    await component.handleSendCode();
+    verifyCode.mockRejectedValue(new ApiError('OTP_SEND_RATE_LIMITED', 429));
+    component.code.setValue('123456');
+
+    await component.handleVerify();
+
+    expect(component.isRateLimited()).toBe(true);
+    expect(component.code.disabled).toBe(true);
+    expect(showError).toHaveBeenCalled();
   });
 });

@@ -8,6 +8,7 @@ import { UsersService } from '../users/users.service';
 import { AccountDeletionService } from './account-deletion.service';
 import { EmailCodesService } from './email-codes.service';
 import { RefreshTokensService } from './refresh-tokens.service';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 
 describe('AccountDeletionService', () => {
   let service: AccountDeletionService;
@@ -26,6 +27,10 @@ describe('AccountDeletionService', () => {
   };
   const mailSender = {
     send: jest.fn(),
+  };
+  const otpSendLimits = {
+    registerSendAttempt: jest.fn(),
+    assertNotLocked: jest.fn(),
   };
 
   function activeUser(overrides: Partial<User> = {}): User {
@@ -48,6 +53,7 @@ describe('AccountDeletionService', () => {
         { provide: EmailCodesService, useValue: emailCodes },
         { provide: RefreshTokensService, useValue: refreshTokens },
         { provide: MailSender, useValue: mailSender },
+        { provide: OtpSendLimitsService, useValue: otpSendLimits },
       ],
     }).compile();
 

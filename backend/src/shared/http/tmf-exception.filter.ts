@@ -38,6 +38,14 @@ export class TmfExceptionFilter implements ExceptionFilter {
     const requestId = String(response.getHeader(REQUEST_ID_HEADER) ?? '');
     const error = this.toTmfError(exception, requestId);
 
+    if (
+      exception instanceof BusinessError &&
+      'retryAfterSeconds' in exception &&
+      typeof exception.retryAfterSeconds === 'number'
+    ) {
+      response.setHeader('Retry-After', exception.retryAfterSeconds);
+    }
+
     response.status(Number(error.status)).json(error);
   }
 

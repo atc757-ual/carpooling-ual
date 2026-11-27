@@ -9,6 +9,7 @@ import { InvalidVerificationCodeError } from './errors/invalid-verification-code
 import { PasswordUnchangedError } from './errors/password-unchanged.error';
 import { PasswordResetService } from './password-reset.service';
 import { RefreshTokensService } from './refresh-tokens.service';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 
 const CURRENT_PASSWORD = 'current-password';
 
@@ -27,6 +28,10 @@ describe('PasswordResetService', () => {
   const refreshTokens = { revokeAllOfUser: jest.fn() };
   const mailSender = { send: jest.fn() };
   const manager = {} as EntityManager;
+  const otpSendLimits = {
+    registerSendAttempt: jest.fn(),
+    assertNotLocked: jest.fn(),
+  };
   let currentHash: string;
 
   function storedUser(): User {
@@ -61,6 +66,7 @@ describe('PasswordResetService', () => {
         { provide: EmailCodesService, useValue: emailCodes },
         { provide: RefreshTokensService, useValue: refreshTokens },
         { provide: MailSender, useValue: mailSender },
+        { provide: OtpSendLimitsService, useValue: otpSendLimits },
       ],
     }).compile();
     service = moduleRef.get(PasswordResetService);

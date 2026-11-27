@@ -45,7 +45,7 @@
     },
     "/api/auth/register": {
       "post": {
-        "description": "Public registration (RF-01). Only emails from the allowed UAL domains, with phone and acceptance of the rules and privacy policy. Nothing is created yet: the data waits as a pending registration and a 6-digit code is sent to the email. The account is created, without profiles, when the email is verified (POST /api/auth/verify-email). Registering again with the same email replaces the pending registration.",
+        "description": "Public registration (RF-01). OTP sends are limited to 5 requests per recipient in 15 minutes; the next request locks sending for 5 minutes. Only emails from the allowed UAL domains, with phone and acceptance of the rules and privacy policy. Nothing is created yet: the data waits as a pending registration and a 6-digit code is sent to the email. The account is created, without profiles, when the email is verified (POST /api/auth/verify-email). Registering again with the same email replaces the pending registration.",
         "operationId": "AuthController_register",
         "parameters": [],
         "requestBody": {
@@ -81,6 +81,16 @@
           },
           "409": {
             "description": "TMF630 error: EMAIL_ALREADY_REGISTERED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {
@@ -150,7 +160,7 @@
             }
           },
           "429": {
-            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS, OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {
@@ -178,7 +188,7 @@
     },
     "/api/auth/verify-email/resend": {
       "post": {
-        "description": "Sends a new code and cancels the previous one, at most once a minute. Always answers 202, so it does not reveal which emails are registered.",
+        "description": "Sends a new code and cancels the previous one, at most once a minute and at most 5 requests per recipient in 15 minutes. Further requests are locked for 5 minutes. Always answers 202 unless rate limited, so it does not reveal which emails are registered.",
         "operationId": "AuthController_resendVerificationCode",
         "parameters": [],
         "requestBody": {
@@ -201,6 +211,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: OTP_SEND_RATE_LIMITED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
                 }
               }
             }
@@ -463,7 +483,7 @@
     },
     "/api/auth/password-reset": {
       "post": {
-        "description": "Sends a 6-digit code (valid for 15 minutes) to the email if it has an account, at most once a minute; also used to resend it. Always answers 202, so it does not reveal which emails are registered.",
+        "description": "Sends a 6-digit code (valid for 15 minutes) to the email if it has an account, at most once a minute and 5 requests per recipient per 15 minutes; also used to resend it. Further requests are locked for 5 minutes. Always answers 202, so it does not reveal which emails are registered.",
         "operationId": "PasswordResetController_requestCode",
         "parameters": [],
         "requestBody": {
@@ -486,6 +506,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TmfValidationError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: OTP_SEND_RATE_LIMITED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
                 }
               }
             }
@@ -544,7 +574,7 @@
             }
           },
           "429": {
-            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS, OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {
@@ -607,7 +637,7 @@
             }
           },
           "429": {
-            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS, OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {
@@ -635,7 +665,7 @@
     },
     "/api/users/me/phone-verification": {
       "post": {
-        "description": "Sends a 6-digit verification code by SMS to the phone number saved on my account (valid for 15 minutes, at most one code per minute). Requires having a phone number saved first (PATCH /api/users/me).",
+        "description": "Sends a 6-digit verification code by SMS to the phone number saved on my account (valid for 15 minutes, at most one code per minute and 5 requests per recipient per 15 minutes; further requests are locked for 5 minutes). Requires having a phone number saved first (PATCH /api/users/me).",
         "operationId": "PhoneVerificationController_requestCode",
         "parameters": [],
         "responses": {
@@ -664,6 +694,16 @@
           },
           "409": {
             "description": "TMF630 error: PHONE_REQUIRED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {
@@ -768,7 +808,7 @@
             }
           },
           "429": {
-            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS, OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {
@@ -801,7 +841,7 @@
     },
     "/api/users/me/account-deletion": {
       "post": {
-        "description": "Sends a 6-digit confirmation code by email to the authenticated user (purpose account_deletion, valid for 15 minutes, at most one code per minute). Fails first if the user has trips in progress or pending (ACCOUNT_HAS_ACTIVE_TRIPS).",
+        "description": "Sends a 6-digit confirmation code by email to the authenticated user (purpose account_deletion, valid for 15 minutes, at most one code per minute and 5 requests per recipient per 15 minutes; further requests are locked for 5 minutes). Fails first if the user has trips in progress or pending (ACCOUNT_HAS_ACTIVE_TRIPS).",
         "operationId": "AccountDeletionController_requestCode",
         "parameters": [],
         "responses": {
@@ -830,6 +870,16 @@
           },
           "409": {
             "description": "TMF630 error: ACCOUNT_HAS_ACTIVE_TRIPS",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TmfError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "TMF630 error: OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {
@@ -917,7 +967,7 @@
             }
           },
           "429": {
-            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS, OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {
@@ -1015,7 +1065,7 @@
             }
           },
           "429": {
-            "description": "TMF630 error: TOO_MANY_ATTEMPTS",
+            "description": "TMF630 error: TOO_MANY_ATTEMPTS, OTP_SEND_RATE_LIMITED",
             "content": {
               "application/json": {
                 "schema": {

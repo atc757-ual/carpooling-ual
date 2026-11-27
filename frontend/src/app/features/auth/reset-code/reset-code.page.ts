@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal, viewChild } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -22,6 +22,7 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
 import { createCountdown, formatMinutesSeconds } from '../../../shared/utils/countdown.util';
 import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
+import { applyOtpRateLimit } from '../../../shared/utils/otp-rate-limit.util';
 
 const FORGOT_PASSWORD_PATH = '/auth/forgot-password';
 // La API anula el código al tercer intento fallido
@@ -67,10 +68,18 @@ export class ResetCodePage implements OnInit {
   readonly isSubmitting = signal(false);
   // Tras 3 fallos el código queda anulado: hay que pedir otro
   readonly isLocked = signal(false);
+  readonly isRateLimited = signal(false);
   private readonly codeInput = viewChild(CodeInput);
   private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, inject(DestroyRef));
   readonly secondsToResend = this.resendCountdown.seconds;
   readonly resendTime = computed(() => formatMinutesSeconds(this.secondsToResend()));
+
+  private readonly unlockAfterRateLimit = effect(() => {
+    if (this.isRateLimited() && this.secondsToResend() === 0) {
+      this.isRateLimited.set(false);
+      if (!this.isLocked()) this.form.controls.code.enable();
+    }
+  });
 
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
@@ -104,6 +113,8 @@ export class ResetCodePage implements OnInit {
       this.codeInput()?.shake();
       if (apiError.code === TOO_MANY_ATTEMPTS) {
         this.setLocked(true);
+      } else if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        applyOtpRateLimit(apiError, this.isRateLimited, this.form.controls.code, this.resendCountdown);
       }
     } finally {
       this.isSubmitting.set(false);
@@ -117,7 +128,11 @@ export class ResetCodePage implements OnInit {
       this.setLocked(false);
       this.resendCountdown.restart();
     } catch (error) {
-      void this.toast.showError(getAuthErrorMessage(ApiError.fromHttpError(error), this.transloco));
+      const apiError = ApiError.fromHttpError(error);
+      void this.toast.showError(getAuthErrorMessage(apiError, this.transloco));
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        applyOtpRateLimit(apiError, this.isRateLimited, this.form.controls.code, this.resendCountdown);
+      }
     }
   }
 

@@ -3,6 +3,7 @@ import { ModalController, provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { provideTestingTransloco } from '../../../core/i18n/testing-transloco';
 import { User } from '../../../core/models/user.model';
+import { ApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UsersService } from '../../../core/services/users/users.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
@@ -56,6 +57,7 @@ describe('ProfilePhoneModal', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.clearAllMocks();
   });
 
@@ -111,6 +113,20 @@ describe('ProfilePhoneModal', () => {
 
     expect(requestPhoneVerification).toHaveBeenCalled();
     expect(component.step()).toBe('verify');
+  });
+
+  it('disables code entry when requesting another SMS is rate limited', async () => {
+    vi.useFakeTimers();
+    requestPhoneVerification.mockRejectedValueOnce(
+      new ApiError('OTP_SEND_RATE_LIMITED', 429, { retryAfterSeconds: 30 }),
+    );
+
+    await component.handleResendCode();
+
+    expect(component.isRateLimited()).toBe(true);
+    expect(component.codeForm.controls.code.disabled).toBe(true);
+    expect(component.secondsToResend()).toBe(30);
+    expect(showError).toHaveBeenCalled();
   });
 
   it('explains the SMS first when opened from Verify, without sending it', async () => {

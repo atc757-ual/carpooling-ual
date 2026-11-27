@@ -24,6 +24,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ProfilesGuard } from './guards/profiles.guard';
 import { RefreshTokensService } from './refresh-tokens.service';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { RefreshTokensService } from './refresh-tokens.service';
     PendingRegistrationsService,
     RefreshTokensService,
     EmailCodesService,
+    OtpSendLimitsService,
     EmailVerificationService,
     LoginAttemptsService,
     PasswordResetService,

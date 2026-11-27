@@ -27,11 +27,12 @@ export class AccountDeletionController {
   @ApiOperation({
     summary: 'Send a 6-digit email code to delete my account',
     description:
-      'Sends a 6-digit confirmation code by email to the authenticated user (purpose account_deletion, valid for 15 minutes, at most one code per minute). Fails first if the user has trips in progress or pending (ACCOUNT_HAS_ACTIVE_TRIPS).',
+      'Sends a 6-digit confirmation code by email to the authenticated user (purpose account_deletion, valid for 15 minutes, at most one code per minute and 5 requests per recipient per 15 minutes; further requests are locked for 5 minutes). Fails first if the user has trips in progress or pending (ACCOUNT_HAS_ACTIVE_TRIPS).',
   })
   @ApiAcceptedResponse({ description: 'Account deletion code queued' })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
+    [HttpStatus.TOO_MANY_REQUESTS]: ['OTP_SEND_RATE_LIMITED'],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
     [HttpStatus.CONFLICT]: ['ACCOUNT_HAS_ACTIVE_TRIPS'],
   })
@@ -57,7 +58,10 @@ export class AccountDeletionController {
       'INVALID_VERIFICATION_CODE',
     ],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async verifyCode(
     @CurrentUser() currentUser: AccessTokenPayload,
@@ -82,7 +86,10 @@ export class AccountDeletionController {
     ],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
     [HttpStatus.CONFLICT]: ['ACCOUNT_HAS_ACTIVE_TRIPS'],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async confirm(
     @CurrentUser() currentUser: AccessTokenPayload,

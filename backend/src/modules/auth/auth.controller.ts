@@ -50,7 +50,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Start a registration',
     description:
-      'Public registration (RF-01). Only emails from the allowed UAL ' +
+      'Public registration (RF-01). OTP sends are limited to 5 requests per recipient in 15 minutes; the next request locks sending for 5 minutes. Only emails from the allowed UAL ' +
       'domains, with phone and acceptance of the rules and privacy policy. ' +
       'Nothing is created yet: the data waits as a pending registration and a ' +
       '6-digit code is sent to the email. The account is created, without ' +
@@ -61,6 +61,7 @@ export class AuthController {
   @ApiErrorResponses({
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED', 'EMAIL_DOMAIN_NOT_ALLOWED'],
     [HttpStatus.CONFLICT]: ['EMAIL_ALREADY_REGISTERED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: ['OTP_SEND_RATE_LIMITED'],
   })
   async register(@Body() dto: RegisterDto): Promise<void> {
     await this.authService.register(dto);
@@ -82,7 +83,10 @@ export class AuthController {
       'VALIDATION_FAILED',
       'INVALID_VERIFICATION_CODE',
     ],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async verifyEmail(@Body() dto: VerifyEmailDto): Promise<AccessTokenResource> {
     return toAccessTokenResource(
@@ -98,11 +102,12 @@ export class AuthController {
   @ApiOperation({
     summary: 'Send a new verification code',
     description:
-      'Sends a new code and cancels the previous one, at most once a minute. Always answers 202, so it does not reveal which emails are registered.',
+      'Sends a new code and cancels the previous one, at most once a minute and at most 5 requests per recipient in 15 minutes. Further requests are locked for 5 minutes. Always answers 202 unless rate limited, so it does not reveal which emails are registered.',
   })
   @ApiAcceptedResponse({ description: 'Request accepted' })
   @ApiErrorResponses({
     [HttpStatus.BAD_REQUEST]: ['VALIDATION_FAILED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: ['OTP_SEND_RATE_LIMITED'],
   })
   async resendVerificationCode(
     @Body() dto: ResendVerificationCodeDto,

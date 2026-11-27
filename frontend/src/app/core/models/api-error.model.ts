@@ -34,6 +34,7 @@ export class ApiError extends Error {
       // El texto de la API (en inglés, para depurar; algunos códigos llevan
       // un dato que la app usa, p. ej. el día en REPEAT_DATE_REJECTED)
       message?: string;
+      retryAfterSeconds?: number;
     } = {},
   ) {
     super(code);
@@ -47,6 +48,10 @@ export class ApiError extends Error {
   // Referencia del error para soporte (cabecera X-Request-Id de la respuesta)
   get requestId(): string | undefined {
     return this.details.requestId;
+  }
+
+  get retryAfterSeconds(): number | undefined {
+    return this.details.retryAfterSeconds;
   }
 
   static fromHttpError(error: unknown): ApiError {
@@ -66,10 +71,17 @@ export class ApiError extends Error {
         fields: error.error.fields,
         requestId,
         message: error.error.message,
+        retryAfterSeconds: parseRetryAfter(error.headers?.get('Retry-After')),
       });
     }
     return new ApiError(UNKNOWN_ERROR, error.status, { requestId });
   }
+}
+
+function parseRetryAfter(value: string | null | undefined): number | undefined {
+  if (!value) return undefined;
+  const seconds = Number(value);
+  return Number.isFinite(seconds) && seconds > 0 ? Math.ceil(seconds) : undefined;
 }
 
 // Para los catch que tratan un fallo de la API (p. ej. pintar «no se ha podido
