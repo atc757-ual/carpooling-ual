@@ -9,7 +9,8 @@
             <ion-card-title>{{ 'tripDetail.route' | transloco }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            @if (tripData.value(); as data) {
+            @if (tripData.hasValue()) {
+              @let data = tripData.value();
               @if (pickup(); as pickup) {
                 @if (mapEnds(); as ends) {
                   <app-trip-route-map

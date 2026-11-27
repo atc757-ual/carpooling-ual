@@ -70,6 +70,7 @@ describe('TripDetailPage', () => {
     id: string,
     search: TripSearch | null,
     mine: SeatRequest[] = [],
+    routeError = false,
   ): Promise<HTMLElement> {
     requests = {
       listMine: vi.fn().mockResolvedValue(mine),
@@ -101,22 +102,24 @@ describe('TripDetailPage', () => {
           rating: null,
         },
       }),
-      getRoute: vi.fn().mockResolvedValue({
-        tripId: 't1',
-        distanceKm: 12,
-        durationMin: 32,
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            [-2.5, 36.8],
-            [-2.4, 36.83],
-          ],
-        },
-        source: 'osrm',
-        tripStatus: 'published',
-        startedAt: null,
-        estimatedArrivalAt: '2026-10-27T08:12:00.000Z',
-      }),
+      getRoute: routeError
+        ? vi.fn().mockRejectedValue(new Error('offline'))
+        : vi.fn().mockResolvedValue({
+            tripId: 't1',
+            distanceKm: 12,
+            durationMin: 32,
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [-2.5, 36.8],
+                [-2.4, 36.83],
+              ],
+            },
+            source: 'osrm',
+            tripStatus: 'published',
+            startedAt: null,
+            estimatedArrivalAt: '2026-10-27T08:12:00.000Z',
+          }),
     };
     showError = vi.fn().mockResolvedValue(undefined);
     TestBed.configureTestingModule({
@@ -171,6 +174,13 @@ describe('TripDetailPage', () => {
     expect(root.querySelector('.trip-detail__vehicle')?.textContent).not.toContain('1234BCD');
   });
 
+  it('shows the map error when the route cannot be loaded', async () => {
+    const root = await render('t1', SEARCH, [], true);
+
+    expect(root.textContent).toContain('No pudimos cargar el mapa de la ruta.');
+    expect(root.querySelector('app-trip-route-map')).toBeNull();
+  });
+
   it('requests the seats of the search and shows it pending', async () => {
     const root = await render('t1', SEARCH);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
@@ -191,12 +201,88 @@ describe('TripDetailPage', () => {
     expect(root.textContent).toContain('Cancelar solicitud');
   });
 
+  it('shows a spinner and disables submission while requesting seats', async () => {
+    const root = await render('t1', SEARCH);
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    let resolveRequest: ((request: SeatRequest) => void) | undefined;
+    requests['request'].mockImplementation(
+      () => new Promise<SeatRequest>((resolve) => (resolveRequest = resolve)),
+    );
+
+    const submission = fixture.componentInstance.handleRequest();
+    fixture.detectChanges();
+    expect(root.querySelector('ion-spinner')).not.toBeNull();
+    expect(root.querySelector<HTMLIonButtonElement>('ion-button[type="submit"]')?.disabled).toBe(
+      true,
+    );
+
+    if (!resolveRequest) {
+      throw new Error('The request promise did not expose its resolver');
+    }
+    resolveRequest(seatRequest('pending'));
+    await submission;
+    fixture.detectChanges();
+    expect(root.querySelector('ion-spinner')).toBeNull();
+  });
+
   it('shows the accepted request with the plate', async () => {
     const root = await render('t1', SEARCH, [seatRequest('accepted', '1234BCD')]);
 
     expect(root.textContent).toContain('Lucía ha aceptado tu solicitud.');
     expect(root.textContent).toContain('1234BCD');
     expect(root.textContent).not.toContain('Solicitar 2 plazas');
+  });
+
+  it('shows the driver preferences from the trip details', async () => {
+    const root = await render('t1', SEARCH);
+    const page = fixture.componentInstance;
+    const data = page.tripData.value()!;
+    page.tripData.set({
+      ...data,
+      trip: {
+        ...data.trip,
+        driver: {
+          ...data.trip.driver,
+          preferences: { conversation: 'quiet', music: null, smoking: null, pets: null },
+        },
+      },
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(root.querySelector('.trip-detail__preferences')?.textContent).toContain('Ir tranquilo');
+  });
+
+  it('omits the vehicle section when the trip has no vehicle', async () => {
+    const root = await render('t1', SEARCH);
+    const tripWithoutVehicle = { ...RESULT };
+    delete tripWithoutVehicle.vehicle;
+    TestBed.inject(TripSearchStateService).setResults([tripWithoutVehicle]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(root.querySelector('.trip-detail__vehicle')).toBeNull();
+  });
+
+  it('lets the passenger request again after cancelling their previous request', async () => {
+    const root = await render('t1', SEARCH, [seatRequest('cancelled')]);
+
+    expect(root.textContent).toContain('Cancelaste tu solicitud.');
+    expect(root.querySelector('.trip-detail__action-block ion-button')?.textContent).toContain(
+      'Solicitar 2 plazas',
+    );
+    expect(root.textContent).not.toContain('Primero solicitas');
+  });
+
+  it('shows the closed-trip state when the request has expired', async () => {
+    const root = await render('t1', SEARCH, [seatRequest('expired')]);
+
+    expect(root.textContent).toContain('Tu solicitud caducó.');
+    expect(root.textContent).toContain('las solicitudes se cierran 10 minutos antes de la salida');
+    expect(root.querySelector('ion-button[disabled]')?.textContent).toContain('Solicitar 2 plazas');
+    expect(root.textContent).toContain(
+      'Las solicitudes se cerraron 10 minutos antes de la salida.',
+    );
   });
 
   it('lets request again after a rejection', async () => {
@@ -282,7 +368,7 @@ describe('TripDetailPage', () => {
   });
 
   it('covers approximate locations, missing origin/destination names, single free seat, and autoAccept', async () => {
-    await render('t1', {
+    const root = await render('t1', {
       ...SEARCH,
       direction: 'to-campus',
       place: { ...ROQUETAS, locality: '' },
@@ -320,7 +406,10 @@ describe('TripDetailPage', () => {
       route: null as never,
     });
 
+    fixture.detectChanges();
     expect(page.isAutoAccept()).toBe(true);
+    expect(root.textContent).toContain('Reserva directa (aceptación automática)');
+    expect(root.textContent).toContain('Reservar 2 plazas');
     expect(page.stops()[0].detail).toContain('aproximada');
     expect(page.stops()[2].detail).toContain(PARKING_P1.name);
     expect(page.mapEnds()?.origin.isApproximate).toBe(true);

@@ -140,7 +140,7 @@ export class TripDetailPage {
 
   readonly stops = localizedComputed<RouteStop[]>(() => {
     const trip = this.trip();
-    const data = this.tripData.value();
+    const data = this.tripData.hasValue() ? this.tripData.value() : undefined;
     const search = this.searchState.search();
     if (!trip || !data || !search) {
       return [];
@@ -197,7 +197,7 @@ export class TripDetailPage {
 
   readonly pickup = computed(() => {
     const search = this.searchState.search();
-    const trip = this.tripData.value()?.trip;
+    const trip = this.tripData.hasValue() ? this.tripData.value().trip : undefined;
     if (!search || !trip) {
       return null;
     }
@@ -208,7 +208,7 @@ export class TripDetailPage {
 
   readonly mapEnds = computed<{ origin: RoutePoint; destination: RoutePoint } | null>(() => {
     const search = this.searchState.search();
-    const trip = this.tripData.value()?.trip;
+    const trip = this.tripData.hasValue() ? this.tripData.value().trip : undefined;
     if (!search || !trip) {
       return null;
     }
@@ -232,7 +232,7 @@ export class TripDetailPage {
     if (!trip) {
       return '';
     }
-    const apiTrip = this.tripData.value()?.trip;
+    const apiTrip = this.tripData.hasValue() ? this.tripData.value().trip : undefined;
     return apiTrip
       ? formatAvailableSeats(apiTrip.availableSeats, apiTrip.offeredSeats)
       : formatFreeSeats(trip.freeSeats);
@@ -260,13 +260,17 @@ export class TripDetailPage {
   });
 
   readonly driverPreferences = computed(() => {
-    const prefs = this.tripData.value()?.trip.driver.preferences ?? this.trip()?.driver.preferences;
+    const prefs = this.tripData.hasValue()
+      ? (this.tripData.value().trip.driver.preferences ?? this.trip()?.driver.preferences)
+      : this.trip()?.driver.preferences;
     return this.travelPreferences.format(prefs);
   });
 
   readonly seats = computed(() => this.searchState.search()?.seats ?? 1);
   readonly requestedSeats = localizedComputed(() => formatSeats(this.seats()));
-  readonly isAutoAccept = computed(() => this.tripData.value()?.trip.autoAccept === true);
+  readonly isAutoAccept = computed(
+    () => this.tripData.hasValue() && this.tripData.value().trip.autoAccept === true,
+  );
 
   readonly myRequest = resource({
     params: () => this.trip()?.id,
