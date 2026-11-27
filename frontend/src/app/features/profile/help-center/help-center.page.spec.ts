@@ -99,27 +99,27 @@ describe('HelpCenterPage', () => {
     };
   }
 
-  it('puts my incidents before the questions even when they are already reviewed', async () => {
+  it('keeps my old reviewed incidents at the end, with support, after the questions', async () => {
     const root = (await render([myIncident('reviewed')])).nativeElement as HTMLElement;
 
-    expect(root.querySelector('.help-page__layout--contact-first')).not.toBeNull();
+    expect(root.querySelector('.help-page__layout--incidents-first')).toBeNull();
     expect(blockOrder(root)).toEqual([
+      'section.help-page__main',
       'aside.help-page__aside',
       'app-help-incidents-card.',
       'app-help-support-card.',
-      'section.help-page__main',
     ]);
   });
 
-  it('puts my incidents first, before the questions, with an active one', async () => {
+  it('puts only my incidents first, before the questions, with an active one', async () => {
     const root = (await render([myIncident('in_review')])).nativeElement as HTMLElement;
 
-    expect(root.querySelector('.help-page__layout--contact-first')).not.toBeNull();
+    expect(root.querySelector('.help-page__layout--incidents-first')).not.toBeNull();
     expect(blockOrder(root)).toEqual([
-      'aside.help-page__aside',
-      'app-help-incidents-card.',
-      'app-help-support-card.',
+      'app-help-incidents-card.help-page__incidents',
       'section.help-page__main',
+      'aside.help-page__aside',
+      'app-help-support-card.',
     ]);
   });
 

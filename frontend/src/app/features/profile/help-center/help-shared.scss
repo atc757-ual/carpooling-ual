@@ -165,9 +165,10 @@
   }
 }
 
-// Móvil: el contenido y debajo la columna de 4 (encima, con incidencias
-// activas o atendidas hace poco). Escritorio: el contenido en la columna de 8
-// y la de 4 a la derecha
+// Móvil: el contenido y debajo la columna de 4 (soporte y, sin incidencias
+// que destacar, «Tus incidencias»); con incidencias activas o atendidas hace
+// poco, «Tus incidencias» va arriba del todo. Escritorio: el contenido en la
+// columna de 8 y a la derecha, en la de 4, las incidencias y el soporte
 .help-page__layout {
   display: grid;
   gap: var(--space-base);
@@ -175,18 +176,29 @@
     'main'
     'aside';
 
-  // Antes que la regla de escritorio, que la sustituye: ahí sigue a la derecha
-  &--contact-first {
+  &--incidents-first {
     grid-template-areas:
-      'aside'
-      'main';
+      'incidents'
+      'main'
+      'aside';
   }
 
   @include bp.up(md) {
     grid-template-columns: 2fr 1fr;
     grid-template-areas: 'main aside';
     align-items: start;
+
+    &--incidents-first {
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        'main incidents'
+        'main aside';
+    }
   }
+}
+
+.help-page__incidents {
+  grid-area: incidents;
 }
 
 .help-page__main,
@@ -208,9 +220,9 @@
 .help-page__section-title {
   margin: 0;
   color: var(--color-text);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-card-title);
   font-size: var(--font-size-subtitle-s);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-card-title);
   line-height: var(--line-height-title);
 }
 
@@ -252,9 +264,9 @@
   padding-bottom: var(--space-s);
   border-bottom: var(--border-width-s) solid var(--color-border);
   color: var(--color-text);
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-card-title);
   font-size: var(--font-size-subtitle-s);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-card-title);
   line-height: var(--line-height-title);
 }
 
