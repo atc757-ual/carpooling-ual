@@ -6,7 +6,7 @@
       <span class="next-steps__community-icon" aria-hidden="true">
         <ion-icon [icon]="communityIcon" />
       </span>
-      <h2 id="community-title" class="text-subtitle">
+      <h2 id="community-title" class="text-card-title">
         {{ 'publish.graciasPorCompartirCoche' | transloco }}
       </h2>
     </div>
@@ -22,7 +22,7 @@
   </aside>
 }
 <aside class="next-steps__card" aria-labelledby="next-title">
-  <h2 id="next-title" class="text-subtitle">{{ 'publish.quePasaDespues' | transloco }}</h2>
+  <h2 id="next-title" class="text-card-title">{{ 'publish.quePasaDespues' | transloco }}</h2>
   <ol class="next-steps__list">
     @for (item of nextSteps(); track item.title; let index = $index) {
       <li>

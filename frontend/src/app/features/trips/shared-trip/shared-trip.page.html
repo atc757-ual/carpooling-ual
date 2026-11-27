@@ -34,7 +34,7 @@
 
           <ion-card class="shared-trip__card">
             <ion-card-content>
-              <h2 class="text-subtitle">{{ 'sharedTrip.viaje' | transloco }}</h2>
+              <h2 class="text-card-title">{{ 'sharedTrip.viaje' | transloco }}</h2>
               <dl class="shared-trip__details">
                 @if (trip.pickupName || trip.pickupAt) {
                   <div class="shared-trip__row">
@@ -97,7 +97,7 @@
           @if (isOpen()) {
             <ion-card class="shared-trip__card">
               <ion-card-content>
-                <h2 class="text-subtitle">{{ 'sharedTrip.algoMal' | transloco }}</h2>
+                <h2 class="text-card-title">{{ 'sharedTrip.algoMal' | transloco }}</h2>
                 <p class="text-body-s text-color-muted">
                   @if (trip.vehicle?.plate; as plate) {
                     {{ 'sharedTrip.call112WithPlate' | transloco }}

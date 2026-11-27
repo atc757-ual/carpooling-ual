@@ -313,7 +313,7 @@
         <!-- El resumen del viaje: para revisarlo (paso 3) y ya publicado (4) -->
         <ng-template #summary>
           <section class="publish__summary-body" aria-labelledby="detail-title">
-            <h2 id="detail-title" class="text-subtitle">{{ 'publish.viaje' | transloco }}</h2>
+            <h2 id="detail-title" class="text-card-title">{{ 'publish.viaje' | transloco }}</h2>
             @if (previewRoute(); as route) {
               @if (originPoint(); as origin) {
                 @if (destinationPoint(); as destination) {
