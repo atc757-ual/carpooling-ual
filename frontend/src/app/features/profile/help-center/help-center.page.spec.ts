@@ -99,15 +99,15 @@ describe('HelpCenterPage', () => {
     };
   }
 
-  it('puts the contact column after the questions without active incidents', async () => {
+  it('puts my incidents before the questions even when they are already reviewed', async () => {
     const root = (await render([myIncident('reviewed')])).nativeElement as HTMLElement;
 
-    expect(root.querySelector('.help-page__layout--contact-first')).toBeNull();
+    expect(root.querySelector('.help-page__layout--contact-first')).not.toBeNull();
     expect(blockOrder(root)).toEqual([
-      'section.help-page__main',
       'aside.help-page__aside',
-      'app-help-support-card.',
       'app-help-incidents-card.',
+      'app-help-support-card.',
+      'section.help-page__main',
     ]);
   });
 
