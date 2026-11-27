@@ -23,7 +23,7 @@ describe('LiveTripBanner', () => {
       fixture.componentRef.setInput('detail', detail);
     }
     if (role) {
-      fixture.componentRef.setInput('role', role);
+      fixture.componentRef.setInput('tripRole', role);
     }
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;

@@ -23,7 +23,7 @@ export class LiveTripBanner {
   readonly detail = input('');
   readonly link = input.required<string>();
   // Si conduce o viaja (la etiqueta de papel, como en «Próximo viaje»)
-  readonly role = input<'driver' | 'passenger' | null>(null);
+  readonly tripRole = input<'driver' | 'passenger' | null>(null);
 
   // El origen y el destino por separado, uno debajo del otro
   readonly ends = localizedComputed(() => routeEnds(this.trip()));

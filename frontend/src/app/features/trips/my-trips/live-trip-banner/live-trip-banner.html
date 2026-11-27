@@ -5,11 +5,11 @@
   <ion-label class="live-trip-banner__text">
     <span class="visually-hidden">{{ 'live.viajeCurso' | transloco }}</span>
     <!-- Si conduce o viaja, como en «Próximo viaje» -->
-    @if (role() === 'driver') {
+    @if (tripRole() === 'driver') {
       <span class="role-tag role-tag--driver">
         <ion-icon [icon]="driverIcon" aria-hidden="true" />{{ 'nextTrip.driving' | transloco }}
       </span>
-    } @else if (role() === 'passenger') {
+    } @else if (tripRole() === 'passenger') {
       <span class="role-tag role-tag--passenger">
         <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{ 'nextTrip.riding' | transloco }}
       </span>
