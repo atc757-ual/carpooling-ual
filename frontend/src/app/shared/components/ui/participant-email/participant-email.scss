@@ -66,6 +66,14 @@
   white-space: nowrap;
 }
 
+// Entero, sin «…»: si no cabe en una línea, se parte (p. ej. la tarjeta de
+// recogida de «En curso», donde los botones saltan debajo para dejarle sitio)
+:host(.participant-email--wrap) .participant-email__address {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 // Desactivado: sin enlace, en el gris de los detalles. No en el de los
 // controles desactivados: es un texto que se lee (≥ 4,5:1, WCAG 1.4.3)
 .participant-email--disabled {

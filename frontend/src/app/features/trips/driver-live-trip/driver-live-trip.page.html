@@ -367,18 +367,13 @@
                           [attr.aria-label]="firstName(request.passenger.name)"
                         >
                           <div class="pickup-slide__main">
+                            <!-- En curso, el nombre sin abrir su perfil (sería una ventana
+                               sobre la hoja) y dónde está; los botones, a su derecha, y
+                               el correo, debajo y de lado a lado (solo informativo) -->
                             <div class="pickup-slide__who">
-                              <!-- En curso, el nombre sin abrir su perfil (sería una ventana
-                                 sobre la hoja): su correo, debajo -->
                               <span class="text-body text-body--strong">{{
                                 firstName(request.passenger.name)
                               }}</span>
-                              <app-participant-email
-                                [tripId]="trip.id"
-                                [userId]="request.passenger.id"
-                                [name]="firstName(request.passenger.name)"
-                                [isDisabled]="isLater"
-                              />
                               <span class="text-caption text-color-muted">
                                 @if (request.status === 'completed') {
                                   {{ 'live.bajado2' | transloco }}
@@ -391,6 +386,14 @@
                                 }
                               </span>
                             </div>
+                            <app-participant-email
+                              class="pickup-slide__email participant-email--wrap"
+                              [tripId]="trip.id"
+                              [userId]="request.passenger.id"
+                              [name]="firstName(request.passenger.name)"
+                              [isDisabled]="isLater"
+                              [isLink]="false"
+                            />
 
                             @if (!request.boardedAt) {
                               <!-- El código de 4 cifras, en casillas como el del correo
