@@ -184,14 +184,14 @@ describe('NotificationsPage', () => {
     expect(TestBed.inject(Router).navigateByUrl).not.toHaveBeenCalled();
   });
 
-  it('marks an unread one as read and opens my trips in its mode', async () => {
+  it('marks an unread one as read and opens the driver trip in its mode', async () => {
     await render(() => Promise.resolve([notification('n1', 'request_received')]));
 
     await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
 
     expect(service['markRead']).toHaveBeenCalledWith('n1');
     expect(setMode).toHaveBeenCalledWith('driver');
-    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/tabs/trips');
+    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/tabs/trips/published/t1');
   });
 
   it('does not change the mode when it is already the one', async () => {
@@ -201,6 +201,17 @@ describe('NotificationsPage', () => {
     await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
 
     expect(setMode).not.toHaveBeenCalled();
+    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/tabs/trips/published/t1');
+  });
+
+  it('opens my trips when a driver notification has no trip', async () => {
+    await render(() =>
+      Promise.resolve([{ ...notification('n1', 'request_received', true), trip: null }]),
+    );
+    activeMode.set('driver');
+
+    await fixture.componentInstance.handleOpen(fixture.componentInstance.all()[0]);
+
     expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/tabs/trips');
   });
 

@@ -91,7 +91,7 @@ for (const viewport of VIEWPORTS) {
       cy.get('@bell').find('.bell-button__badge').should('exist');
     });
 
-    it('opens one: marks it as read and goes to my trips', () => {
+    it('opens one: marks it as read and goes to the driver trip', () => {
       cy.intercept('POST', '/api/notifications/n1/read', { ...NOTIFICATION, isRead: true }).as(
         'read',
       );
@@ -108,7 +108,7 @@ for (const viewport of VIEWPORTS) {
       cy.contains('app-notifications .notification', 'Te han pedido plaza').click();
 
       cy.wait('@read');
-      cy.location('pathname').should('eq', '/tabs/trips');
+      cy.location('pathname').should('eq', '/tabs/trips/published/t1');
     });
 
     it('filters notifications by category through the API', () => {
