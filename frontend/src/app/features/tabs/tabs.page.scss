@@ -97,16 +97,20 @@ ion-tab-button {
   font-size: var(--font-size-label);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
+  transition:
+    background-color var(--motion-duration-fast),
+    color var(--motion-duration-fast);
   // Los 4px del borde inferior van transparentes en todas y solo los pinta la
   // activa: así todas miden lo mismo y el menú no se mueve al cambiar de una a
   // otra
   border-bottom: var(--border-width-xl) solid transparent;
 
-  // Al pasar el ratón, para que se vea que se puede pulsar: el texto en el
-  // azul de los enlaces y la raya en gris (la activa la tiene en azul)
+  // El fondo suave distingue el hover de la pestaña activa, que lleva la raya
+  // azul. El botón deshabilitado no muestra este estado.
   @media (any-hover: hover) {
-    &:hover:not(.top-nav__link--active) {
-      border-bottom-color: var(--color-border-strong);
+    &:hover:not(.top-nav__link--active, .live-tab:disabled) {
+      border-radius: var(--radius-s);
+      background-color: var(--color-primary-subtle);
       color: var(--color-link);
     }
   }
@@ -399,6 +403,13 @@ ion-tab-button {
 .top-nav .live-tab {
   // La línea de abajo, transparente como en las demás (.live-tab la quita)
   border-bottom: var(--border-width-xl) solid transparent;
+  color: var(--color-text-muted);
+
+  &:disabled {
+    border-bottom-color: transparent;
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
 
   .live-tab__circle {
     width: var(--box-size-s);
