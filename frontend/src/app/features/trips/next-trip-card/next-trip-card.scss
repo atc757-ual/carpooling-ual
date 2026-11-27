@@ -1,5 +1,5 @@
 // «Próximo viaje»: una tarjeta del color de su estado (como su etiqueta:
-// azul si está publicado, ámbar si espera respuesta, verde si está
+// índigo si está publicado, ámbar si espera respuesta, verde si está
 // confirmado), entera clicable (lleva al viaje o a la plaza), con su hover.
 // En curso va la tarjeta de «Viaje en curso» (app-live-trip-banner). El
 // espacio con lo de debajo lo pone el gap de la pantalla; sin viaje, el
@@ -9,37 +9,26 @@
 }
 
 .next-trip {
-  --next-trip-tone: var(--color-primary);
-  --next-trip-background: var(--color-surface);
-  --next-trip-hover: var(--color-primary-subtle);
-  --next-trip-icon: var(--color-link);
+  // Los colores del estado, del marco común (status-card-frame)
+  --next-trip-tone: var(--status-card-tone, var(--color-primary));
+  --next-trip-background: var(--status-card-background, var(--color-surface));
+  --next-trip-icon: var(--status-card-text, var(--color-link));
 
   display: flex;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
   padding: var(--space-s); // 8px, como los avisos
+  padding-top: var(--space-base); // 16px: deja sitio a la etiqueta del borde
   border: var(--border-width-s) solid var(--next-trip-tone);
   border-radius: var(--radius-s); // 8px, como las tarjetas
   background: var(--next-trip-background);
   transition: background-color var(--motion-duration-fast) ease;
 
-  // Al pasar el ratón, un tinte muy suave del color del estado sobre el blanco
+  // Al pasar el ratón, el tinte del color del estado algo más fuerte
   &:has(.next-trip__link:hover) {
-    background: color-mix(in srgb, var(--next-trip-tone) 6%, var(--next-trip-background));
+    background: color-mix(in srgb, var(--next-trip-tone) 12%, var(--color-surface));
   }
-}
-
-.next-trip--pending {
-  --next-trip-tone: var(--color-warning);
-  --next-trip-hover: var(--color-warning-subtle);
-  --next-trip-icon: var(--color-warning-text);
-}
-
-.next-trip--accepted {
-  --next-trip-tone: var(--color-success);
-  --next-trip-hover: var(--color-success-subtle);
-  --next-trip-icon: var(--color-success);
 }
 
 // El enlace ocupa toda la tarjeta; el texto, con su color (no el del enlace)
@@ -88,10 +77,6 @@
 // con el título de la pantalla
 .next-trip__time {
   font-weight: var(--font-weight-semibold);
-}
-
-.next-trip__route {
-  overflow-wrap: anywhere;
 }
 
 // El chevron azul: toda la tarjeta lleva al viaje, como los demás avisos que

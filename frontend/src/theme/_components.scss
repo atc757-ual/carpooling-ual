@@ -956,6 +956,131 @@ ion-card-header + ion-card-content[class] {
   font-size: var(--font-size-label);
 }
 
+// El origen y el destino uno debajo del otro, cada uno con su icono (como el
+// título de la conversación) y con … si no cabe: en las tarjetas del estado
+// de un viaje, en el móvil y en escritorio
+.trip-ends {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  min-width: 0;
+}
+
+.trip-ends__end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+
+  ion-icon {
+    flex: none;
+    color: var(--color-text-muted);
+    font-size: var(--icon-size-xs);
+  }
+}
+
+.trip-ends__place {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Tarjeta del estado de un viaje («Viaje en curso», «Próximo viaje»): fondo
+// con un tinte suave y borde del color del estado, y el estado como la
+// etiqueta de un campo, sobre la línea de arriba, a la izquierda. El marco
+// deja sitio arriba a la etiqueta; la tarjeta, dentro, pinta el borde con
+// --status-card-tone y el fondo con --status-card-background. Azul (en curso),
+// índigo (publicado), ámbar (pendiente) o verde (confirmado)
+.status-card-frame {
+  --status-card-tone: var(--color-primary);
+  --status-card-text: var(--color-link);
+  // El fondo: un tinte muy suave del color del estado (el de antes del hover)
+  --status-card-background: color-mix(in srgb, var(--status-card-tone) 6%, var(--color-surface));
+
+  position: relative;
+  display: block;
+  padding-top: 0.625rem; // 10px: la mitad de la etiqueta
+}
+
+.status-card-frame--pending {
+  --status-card-tone: var(--color-warning);
+  --status-card-text: var(--color-warning-text); // el ámbar puro no llega a 2:1
+}
+
+.status-card-frame--accepted {
+  --status-card-tone: var(--color-success);
+  --status-card-text: var(--color-success);
+}
+
+// Publicado (aún sin plazas confirmadas): en índigo, el color de la guía que
+// no usa ningún otro estado (el del panel; en oscuro, índigo-300), con el
+// mismo tinte suave de fondo
+.status-card-frame--published {
+  --status-card-tone: var(--color-admin);
+  --status-card-text: var(--color-admin);
+}
+
+// La etiqueta: sin pastilla. La línea se corta a su paso con el fondo de la
+// tarjeta solo por debajo (arriba se ve la página). Va después de la tarjeta
+// en el HTML, para pintarse encima; la lee el texto oculto de la tarjeta
+.status-card-label {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: var(--space-s);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0 var(--space-xs);
+  background: linear-gradient(
+    to bottom,
+    transparent calc(50% - var(--border-width-s)),
+    var(--status-card-background) calc(50% - var(--border-width-s))
+  );
+  color: var(--status-card-text);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.25rem; // 20px: el doble del hueco de arriba
+  pointer-events: none;
+}
+
+// En curso: el punto que late delante (como «En directo» al compartir)
+.status-card-label__dot {
+  position: relative;
+  flex: none;
+  width: var(--dot-size-s);
+  height: var(--dot-size-s);
+  border-radius: var(--radius-full);
+  background: var(--status-card-tone);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: status-card-pulse 1.6s ease-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-card-label__dot::after {
+    animation: none;
+  }
+}
+
+@keyframes status-card-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
 .status--pending {
   border-color: transparent;
   background: var(--color-warning-subtle);
@@ -1717,105 +1842,12 @@ ion-toggle {
   align-items: stretch;
   gap: var(--space-s);
 
-  > .icon-btn--stacked {
+  // Sin «>»: «Compartir», «Reportar» y el SOS van dentro de componentes con
+  // «display: contents» y tienen que repartirse la fila igual que el primero
+  .icon-btn--stacked {
     flex: 1 1 0;
     width: auto;
     min-width: 0;
-  }
-}
-
-// Botón de la fila con el icono y el nombre en línea, dentro del botón y
-// con su recuadro (el SOS, todo en rojo con el texto en blanco)
-@mixin inline-action {
-  flex-direction: row;
-  gap: var(--space-xs);
-  min-height: var(--control-height-s);
-  padding: var(--space-xs) var(--space-s);
-  border-color: var(--color-border);
-  background: var(--color-surface);
-
-  ion-icon {
-    padding: 0;
-    border: 0;
-    background: transparent;
-    font-size: var(--icon-size-s);
-  }
-
-  .icon-btn__label {
-    text-align: left;
-  }
-
-  @media (any-hover: hover) {
-    &:hover:not(:disabled, [aria-disabled='true']) {
-      border-color: var(--color-link);
-      background: var(--color-primary-subtle);
-
-      ion-icon {
-        background: transparent;
-      }
-    }
-  }
-
-  &:active:not(:disabled, [aria-disabled='true']) {
-    border-color: var(--color-link);
-    background: var(--color-primary-subtle);
-
-    ion-icon {
-      background: transparent;
-    }
-  }
-
-  // El SOS: todo el botón en rojo, con el icono y el texto en blanco
-  &.icon-btn--danger {
-    border-color: transparent;
-    background: var(--color-danger);
-    color: var(--color-on-danger);
-
-    ion-icon {
-      background: transparent;
-    }
-
-    @media (any-hover: hover) {
-      &:hover:not(:disabled, [aria-disabled='true']) {
-        border-color: transparent;
-        background: var(--color-danger-text);
-      }
-    }
-
-    &:active:not(:disabled, [aria-disabled='true']) {
-      border-color: transparent;
-      background: var(--color-danger-text);
-    }
-  }
-}
-
-// Con sitio, cada botón con el icono y el nombre en línea; si no, el icono
-// con el nombre debajo, para no cortar el texto. Con tres botones o menos
-// caben desde una fila de 320px; con cuatro (el conductor), desde 416px
-@container live-actions (min-width: 20rem) {
-  .live-actions__row:not(:has(> :nth-child(4))) > .icon-btn--labeled.icon-btn--stacked {
-    @include inline-action;
-  }
-}
-
-@container live-actions (min-width: 26rem) {
-  .live-actions__row > .icon-btn--labeled.icon-btn--stacked {
-    @include inline-action;
-  }
-}
-
-// Cuatro botones en una fila estrecha (el conductor en el móvil): en dos
-// filas de dos, cada uno con el icono y el texto en línea
-@container live-actions (max-width: 26rem) {
-  .live-actions__row:has(> :nth-child(4)) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    > .icon-btn--labeled.icon-btn--stacked {
-      width: auto;
-
-      @include inline-action;
-    }
   }
 }
 

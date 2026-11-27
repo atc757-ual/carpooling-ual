@@ -16,7 +16,12 @@
       <!-- El viaje en curso: un aviso de la pantalla, fuera de la tarjeta y
            encima de ella (como en Buscar y Publicar) -->
       @if (liveBanner(); as live) {
-        <app-live-trip-banner [trip]="live.trip" [detail]="live.detail" [link]="live.link" />
+        <app-live-trip-banner
+          [trip]="live.trip"
+          [detail]="live.detail"
+          [link]="live.link"
+          [role]="live.role"
+        />
       }
       <!-- Una sola tarjeta: arriba los estados en pastillas (como los filtros
            del panel) y debajo la lista de los dos papeles, por días (cada
@@ -57,9 +62,7 @@
             <app-empty-state
               class="my-trips__state"
               [icon]="emptyIcon"
-              [illustration]="
-                isUpcomingView() ? '/images/my-trips-next-destination.svg' : null
-              "
+              [illustration]="isUpcomingView() ? '/images/my-trips-next-destination.svg' : null"
               [heading]="emptyText() | transloco"
               [hint]="isUpcomingView() ? emptyHint() : null"
             />

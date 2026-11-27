@@ -8,7 +8,10 @@ import { LiveTripBanner } from './live-trip-banner';
 describe('LiveTripBanner', () => {
   const ROQUETAS: TripEnds = { originName: 'Roquetas de Mar', destinationName: 'Campus UAL' };
 
-  function render(trip: TripEnds, detail?: string): HTMLElement {
+  function render(
+    trip: TripEnds,
+    { detail, role }: { detail?: string; role?: 'driver' | 'passenger' } = {},
+  ): HTMLElement {
     TestBed.configureTestingModule({
       imports: [LiveTripBanner],
       providers: [provideAppTransloco(), provideIonicAngular(), provideRouter([])],
@@ -19,36 +22,51 @@ describe('LiveTripBanner', () => {
     if (detail) {
       fixture.componentRef.setInput('detail', detail);
     }
+    if (role) {
+      fixture.componentRef.setInput('role', role);
+    }
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
 
-  function places(root: HTMLElement): (string | null)[] {
-    return [...root.querySelectorAll('.live-trip-banner__place')].map((place) => place.textContent);
+  function places(root: HTMLElement): string[] {
+    return [...root.querySelectorAll('.trip-ends__place')].map(
+      (place) => place.textContent?.trim() ?? '',
+    );
   }
 
-  it('shows the trip in progress and opens it', () => {
-    const root = render(ROQUETAS, 'Conduce Lucía Cortés');
+  it('shows the trip in progress, only where it goes, and opens it', () => {
+    const root = render(ROQUETAS, { detail: 'Conduce Lucía Cortés', role: 'passenger' });
 
-    expect(root.textContent).toContain('Viaje en curso');
-    expect(root.querySelector('.live-trip-banner__route')?.textContent).toBe(
-      'Roquetas de Mar → Campus UAL',
-    );
-    expect(places(root)).toEqual(['Roquetas de Mar', 'Campus UAL']);
+    // La etiqueta del borde se ve, pero la lee el texto oculto del enlace
+    expect(root.classList).toContain('status-card-frame');
+    const label = root.querySelector('.status-card-label');
+    expect(label?.getAttribute('aria-hidden')).toBe('true');
+    expect(label?.textContent).toContain('Viaje en curso');
+    expect(label?.querySelector('.status-card-label__dot')).not.toBeNull();
+    expect(root.querySelector('ion-label .visually-hidden')?.textContent).toBe('Viaje en curso');
+    expect(places(root)).toEqual(['Hacia Campus UAL']);
+    expect(root.querySelector('.role-tag--passenger')?.textContent).toContain('Viajas');
     expect(root.textContent).toContain('Conduce Lucía Cortés');
     expect(root.querySelector('ion-item.live-trip-banner')?.getAttribute('href')).toBe(
       '/tabs/trips/drive/t1',
     );
-    // El aviso entero es el enlace: el chevron al final, sin otro botón ni el coche
+    // El aviso entero es el enlace: el chevron al final, sin otro botón
     expect(root.querySelector('.live-trip-banner__chevron')).not.toBeNull();
-    expect(root.querySelector('.live-trip-banner__live')).toBeNull();
   });
 
-  it('names the ends of a trip without saved places and leaves out a missing detail', () => {
+  it('says when the user is driving', () => {
+    const root = render(ROQUETAS, { role: 'driver' });
+
+    expect(root.querySelector('.role-tag--driver')?.textContent).toContain('Conduces');
+    expect(root.querySelector('.role-tag--passenger')).toBeNull();
+  });
+
+  it('names a trip without a saved destination and leaves out what is missing', () => {
     const root = render({ originName: null, destinationName: null });
 
-    expect(root.querySelector('.live-trip-banner__route')?.textContent).toBe('Origen → Destino');
-    expect(places(root)).toEqual(['Origen', 'Destino']);
+    expect(places(root)).toEqual(['Hacia Destino']);
+    expect(root.querySelector('.role-tag')).toBeNull();
     expect(root.querySelector('.live-trip-banner__detail')).toBeNull();
   });
 });

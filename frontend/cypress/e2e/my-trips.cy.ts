@@ -159,7 +159,9 @@ for (const viewport of VIEWPORTS) {
 
       cy.contains('app-live-trip-banner', 'Viaje en curso')
         .should('be.visible')
-        .and('contain', 'Roquetas de Mar → Campus UAL · Parking P1 (Sur)')
+        // Ya en marcha, solo adónde va, y si conduce o viaja
+        .and('contain', 'Hacia Campus UAL · Parking P1 (Sur)')
+        .and('contain', 'Conduces')
         .and('contain', '2 de 3 plazas ocupadas');
       // El aviso entero (un ion-item con enlace) lleva al viaje en curso
       cy.get('app-live-trip-banner ion-item.live-trip-banner').should(

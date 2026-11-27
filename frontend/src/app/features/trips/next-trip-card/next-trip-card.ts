@@ -2,13 +2,13 @@ import { translate, TranslocoPipe } from '@jsverse/transloco';
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonIcon } from '@ionic/angular';
-import { carOutline, chevronForward, personOutline } from 'ionicons/icons';
+import { carOutline, chevronForward, locationOutline, personOutline } from 'ionicons/icons';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { TripEntryResponse } from '../../../core/models/my-trips.model';
 import { TripsService } from '../../../core/services/trips/trips.service';
 import { formatDateLabel } from '../../../shared/components/ui/datetime-field/datetime-field';
 import { formatTime } from '../../matching/trip-results';
-import { formatRoute, occupiedSeats } from '../my-trips/my-trips-summary';
+import { occupiedSeats, routeEnds } from '../my-trips/my-trips-summary';
 import { LiveTripBanner } from '../my-trips/live-trip-banner/live-trip-banner';
 import { isOpenRequest, NextTrip, nextTripLink, nextTripStatus, pickNextTrip } from './next-trip';
 import { localizedComputed } from '../../../core/i18n/localized-computed';
@@ -66,9 +66,10 @@ export class NextTripCard {
     const day = formatDateLabel(new Date(next.trip.departureAt).toLocaleDateString('sv-SE'));
     return `${day} · ${formatTime(next.trip.departureAt)}`;
   });
-  readonly route = computed(() => {
+  // El destino (la tarjeta dice solo adónde va)
+  readonly ends = localizedComputed(() => {
     const next = this.next();
-    return next ? formatRoute(next.trip) : '';
+    return next ? routeEnds(next.trip) : null;
   });
   // En curso: cuántos van (conductor) o quién conduce (pasajero), como en la
   // tarjeta de Tus viajes
@@ -110,4 +111,5 @@ export class NextTripCard {
   protected readonly driverIcon = carOutline;
   protected readonly chevronIcon = chevronForward;
   protected readonly passengerIcon = personOutline;
+  protected readonly destinationIcon = locationOutline;
 }

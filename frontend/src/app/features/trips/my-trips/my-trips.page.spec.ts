@@ -192,6 +192,7 @@ describe('MyTripsPage', () => {
       trip: expect.objectContaining({ id: 't1', status: 'in_progress' }),
       detail: '2 de 3 plazas ocupadas',
       link: '/tabs/trips/drive/t1',
+      role: 'driver',
     });
     expect(root.querySelector('app-live-trip-banner')).not.toBeNull();
     expect(ids()).toEqual(['driver-t2']);

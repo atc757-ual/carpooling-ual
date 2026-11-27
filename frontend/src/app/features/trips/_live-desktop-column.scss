@@ -8,12 +8,12 @@
   gap: var(--space-base); // 16px entre tarjeta y tarjeta
 }
 
-// Un aviso de «En curso» (¿Has llegado?, terminar el viaje): fondo azul muy
-// claro, borde azul, esquinas de 8px y 8px de relleno. Se usa con
-// ion-card.live-alert.live-alert[class], para ganar a las tarjetas planas de
-// la hoja y de la columna de escritorio
+// Un aviso de «En curso» (¿Has llegado?, terminar el viaje): como las demás
+// tarjetas de estado, fondo blanco y borde azul, esquinas de 8px y 8px de
+// relleno. Se usa con ion-card.live-alert.live-alert[class], para ganar a las
+// tarjetas planas de la hoja y de la columna de escritorio
 @mixin alert {
-  --background: var(--color-primary-subtle);
+  --background: var(--color-surface);
 
   border: var(--border-width-s) solid var(--color-primary);
   border-radius: var(--radius-s);

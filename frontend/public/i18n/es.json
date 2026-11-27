@@ -1309,6 +1309,7 @@
     "enviaViajeAlguienConfianza": "Avisa a alguien de confianza.",
     "compartirViaje": "Compartir viaje",
     "viajeCurso": "Viaje en curso",
+    "towards": "Hacia {{ place }}",
     "directo": "En directo",
     "quienTengaEnlaceViaje": "Quien tenga el enlace ve tu viaje hasta que termine.",
     "enviarEnlace": "Enviar el enlace",

@@ -69,10 +69,19 @@ describe('NextTripCard', () => {
       '/tabs/trips/requests/r1',
     );
     expect(root.querySelector('.next-trip__when')?.textContent).toContain('Viajas');
-    expect(root.querySelector('.next-trip__head > .status')?.textContent).toContain('Confirmada');
+    // «Confirmada», en la etiqueta del borde (oculta al lector) y en el texto
+    // oculto del enlace; solo adónde va
+    expect(root.querySelector('.status-card-label')?.textContent).toContain('Confirmada');
+    expect(root.querySelector('.status-card-label')?.getAttribute('aria-hidden')).toBe('true');
+    expect(root.querySelector('.next-trip__link .visually-hidden')?.textContent).toContain(
+      'Confirmada',
+    );
+    expect(root.querySelector('.trip-ends__place')?.textContent).toContain('Hacia');
     expect(root.querySelector('.icon-btn')).toBeNull();
-    // Verde, como su etiqueta «Confirmada», y el chevron dentro del enlace
-    expect(root.querySelector('.next-trip')?.classList).toContain('next-trip--accepted');
+    // Verde, como su estado «Confirmada», y el chevron dentro del enlace
+    expect(root.querySelector('.status-card-frame')?.classList).toContain(
+      'status-card-frame--accepted',
+    );
     expect(root.querySelector('.next-trip__link .next-trip__chevron')).not.toBeNull();
   });
 
@@ -80,8 +89,18 @@ describe('NextTripCard', () => {
     const { root } = await render({ profiles: ['passenger'], requestStatus: 'pending' });
 
     expect(root.textContent).toContain('Pendiente');
-    expect(root.querySelector('.next-trip')?.classList).toContain('next-trip--pending');
-    expect(root.querySelector('.next-trip')?.classList).not.toContain('next-trip--accepted');
+    const frame = root.querySelector('.status-card-frame');
+    expect(frame?.classList).toContain('status-card-frame--pending');
+    expect(frame?.classList).not.toContain('status-card-frame--accepted');
+  });
+
+  it('turns indigo while the driver trip is only published', async () => {
+    const { root } = await render({ profiles: ['driver'], driven: [driverTrip('published')] });
+
+    expect(root.querySelector('.status-card-label')?.textContent).toContain('Publicado');
+    expect(root.querySelector('.status-card-frame')?.classList).toContain(
+      'status-card-frame--published',
+    );
   });
 
   it('shows the driver trip, and reloads on demand', async () => {
