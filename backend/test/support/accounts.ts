@@ -8,6 +8,7 @@ import { MailSender } from '../../src/shared/mail/mail-sender';
 import { MemoryMailSender } from '../../src/shared/mail/memory-mail-sender';
 import { MemorySmsSender } from '../../src/shared/sms/memory-sms-sender';
 import { SmsSender } from '../../src/shared/sms/sms-sender';
+import { hashOtpRecipient } from '../../src/modules/auth/otp-send-limits.service';
 import { withLegalVersionsLock } from './legal-versions-lock';
 
 // Teléfono válido para los registros de prueba (formato internacional E.164)
@@ -68,6 +69,20 @@ export function testSmsBox(app: INestApplication<App>): MemorySmsSender {
   return smsSender;
 }
 
+// Aísla los límites OTP persistentes entre los tests que reutilizan los
+// destinatarios de prueba. Las filas guardan HMACs, nunca el correo o teléfono.
+export async function resetOtpSendLimitsForTests(
+  app: INestApplication<App>,
+  recipients: string[],
+): Promise<void> {
+  const secret = app.get(ConfigService).getOrThrow<string>('jwt.secret');
+  await app
+    .get(DataSource)
+    .query('DELETE FROM otp_send_limits WHERE recipient_hash = ANY($1)', [
+      recipients.map((recipient) => hashOtpRecipient(secret, recipient)),
+    ]);
+}
+
 export function lastSmsCodeSentTo(
   app: INestApplication<App>,
   phone: string,
@@ -89,6 +104,7 @@ export async function registerUser(
   account: TestAccount,
 ): Promise<string> {
   const server = app.getHttpServer();
+  await resetOtpSendLimitsForTests(app, [account.email, TEST_PHONE]);
   // Al verificar el correo se aceptan las versiones vigentes de las
   // condiciones y la política: nunca a la vez que el test legal tiene
   // publicada una de prueba

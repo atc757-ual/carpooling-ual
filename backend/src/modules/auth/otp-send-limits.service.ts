@@ -8,6 +8,12 @@ export const OTP_SEND_LIMIT = 5;
 export const OTP_SEND_WINDOW_MINUTES = 15;
 export const OTP_SEND_LOCK_MINUTES = 5;
 
+export function hashOtpRecipient(secret: string, recipient: string): string {
+  return createHmac('sha256', secret)
+    .update(`otp-recipient:${recipient.trim().toLowerCase()}`)
+    .digest('hex');
+}
+
 // Límite persistente por destinatario (correo/teléfono), común a todos los
 // propósitos OTP. Solo se guarda un HMAC del dato personal.
 @Injectable()
@@ -89,8 +95,6 @@ export class OtpSendLimitsService {
   }
 
   private hash(recipient: string): string {
-    return createHmac('sha256', this.hmacKey)
-      .update(`otp-recipient:${recipient.trim().toLowerCase()}`)
-      .digest('hex');
+    return hashOtpRecipient(this.hmacKey, recipient);
   }
 }

@@ -10,6 +10,7 @@ import { hashLoginEmail } from '../src/modules/auth/login-attempts.service';
 import {
   forgetFailedLogins,
   lastCodeSentTo,
+  resetOtpSendLimitsForTests,
   TEST_PHONE,
   testMailbox,
 } from './support/accounts';
@@ -45,6 +46,7 @@ describe('Auth API (e2e)', () => {
   afterEach(async () => {
     await deleteTestUsers(dataSource, EMAIL_PREFIX);
     await forgetFailedLogins(app, [ANA, NOBODY]);
+    await resetOtpSendLimitsForTests(app, [ANA, NOBODY, TEST_PHONE]);
   });
 
   afterAll(async () => {
