@@ -11,10 +11,10 @@ import { ProfileSupportModal } from '../../profile-support-modal/profile-support
   imports: [IonButton, IonCard, TranslocoPipe],
   template: `
     <ion-card class="help-support-card">
-      <span class="help-support-card__text">
-        <span class="text-body text-body--strong">{{ 'help.moreTitle' | transloco }}</span>
+      <div class="help-support-card__text">
+        <h2 class="help-support-card__title text-card-title">{{ 'help.moreTitle' | transloco }}</h2>
         <span class="text-body-s text-color-muted">{{ 'help.moreText' | transloco }}</span>
-      </span>
+      </div>
       <ion-button fill="outline" expand="block" (click)="handleOpenSupport()">
         {{ 'help.contactSupport' | transloco }}
       </ion-button>
@@ -37,6 +37,10 @@ import { ProfileSupportModal } from '../../profile-support-modal/profile-support
       ion-button {
         margin: 0;
       }
+    }
+
+    .help-support-card__title {
+      margin: 0;
     }
 
     .help-support-card__text {

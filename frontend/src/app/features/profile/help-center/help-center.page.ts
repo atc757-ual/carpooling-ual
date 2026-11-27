@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -64,7 +63,6 @@ const MAX_SEARCH_ITEMS = 8;
     IonList,
     IonSearchbar,
     IonSkeletonText,
-    NgTemplateOutlet,
     RouterLink,
     TranslocoPipe,
   ],
@@ -132,6 +130,8 @@ export class HelpCenterPage {
   // Con incidencias activas o atendidas hace poco, la columna de contacto
   // (con «Tus incidencias» arriba) va primero; desde un aviso, su ventana
   readonly incidents = injectHelpIncidentsPriority();
+  // «Tus incidencias» arriba: ya cargadas y con alguna activa o reciente
+  readonly isIncidentsFirst = computed(() => this.incidents.isReady() && this.incidents.isFirst());
   private readonly openIncidentLink = injectHelpIncidentLink();
 
   ionViewDidEnter(): void {

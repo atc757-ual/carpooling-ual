@@ -95,6 +95,8 @@
   // Tipografía: familias
   --font-family-heading: 'Barlow', system-ui, sans-serif; // títulos y botones
   --font-family-body: 'Inter', system-ui, sans-serif; // texto corrido
+  --font-family-card-title: var(--font-family-body); // títulos de tarjeta y de sección (18px)
+  --font-weight-card-title: var(--font-weight-medium); // 500, algo menos grueso
 
   // Tipografía: pesos
   --font-weight-light: 300;

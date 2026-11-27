@@ -24,6 +24,7 @@
   :root {
     --font-family-heading: 'Barlow', system-ui, sans-serif;
     --font-family-body: 'Inter', system-ui, sans-serif;
+    --font-family-card-title: var(--font-family-body);
 
     /* Tipografía por papel (tamaño / interlineado) */
     --font-size-display: 2.75rem;   --line-height-display: 3.025rem;
@@ -468,7 +469,7 @@
   <!-- 3 -->
   <section id="tipografia">
     <h2>3. Tipografía</h2>
-    <p class="note">Barlow 600 para títulos, horas y cifras (interlineado ×1,1); Inter para leer y rellenar. Tamaños en rem sobre la raíz del navegador (1rem = 16px por defecto, sin fijar el tamaño de <code>html</code>), así que respetan el texto ampliado.</p>
+    <p class="note">Barlow 600 para títulos, horas y cifras (interlineado ×1,1); Inter para leer y rellenar. Los títulos de tarjeta y de sección (18px: <code>ion-card-title</code>, «Tus incidencias», «Tu ruta»…) van en Inter 500 (<code>--font-family-card-title</code> y <code>--font-weight-card-title</code>): Barlow, más estrecha, los hacía parecer más pequeños que el texto de al lado. Tamaños en rem sobre la raíz del navegador (1rem = 16px por defecto, sin fijar el tamaño de <code>html</code>), así que respetan el texto ampliado.</p>
     <p class="text-display" style="margin:var(--space-base) 0">07:40 → 08:12</p>
     <div class="scroll"><table>
       <thead><tr><th>Clase</th><th>Ejemplo</th><th>Tamaño / interlineado</th><th>Familia y peso</th><th>Uso</th></tr></thead>
@@ -545,7 +546,7 @@
         <tr><td>Tamaño de un icono (<code>font-size</code> de <code>ion-icon</code>, o ancho y alto de un SVG)</td><td><code>--icon-size-xs</code> · <code>-s</code> · <code>-m</code> · <code>-base</code> · <code>-l</code> · <code>-xl</code></td><td>14 · 16 · 18 · 20 · 24 · 32px</td></tr>
         <tr><td>Cajas cuadradas más pequeñas que un control (números de los pasos, botones de icono, avatares, círculos con icono)</td><td><code>--box-size-xs</code> · <code>-s</code> · <code>-m</code> · <code>-l</code></td><td>28 · 32 · 36 · 40px</td></tr>
         <tr><td>Puntos de estado, de la leyenda y muestras de color</td><td><code>--dot-size-s</code> · <code>--dot-size</code></td><td>8 · 10px</td></tr>
-        <tr><td>Tamaño de letra</td><td>Por papel: <code>--font-size-heading</code>, <code>-title</code>, <code>-subtitle</code>, <code>-subtitle-s</code> (18px, títulos de tarjeta y de sección; 20px en escritorio con <code>-subtitle-m</code>), <code>-title-s</code> (24px, el título del panel en escritorio), <code>-header-title</code> (el título de las cabeceras: la franja de cada pantalla, Ayuda, el de Buscar o Tus viajes, la barra del móvil y las ventanas; 18px en el móvil y 20px en escritorio), <code>-body</code>, <code>-body-s</code>, <code>-caption</code></td><td>Los títulos, fluidos (<code>clamp()</code>)</td></tr>
+        <tr><td>Tamaño de letra</td><td>Por papel: <code>--font-size-heading</code>, <code>-title</code>, <code>-subtitle</code>, <code>-subtitle-s</code> (18px, títulos de tarjeta y de sección, también en escritorio y en «En curso»), <code>-title-s</code> (24px, el título del panel en escritorio), <code>-header-title</code> (el título de las cabeceras: la franja de cada pantalla, Ayuda, el de Buscar o Tus viajes, la barra del móvil y las ventanas; 18px en el móvil y 20px en escritorio), <code>-body</code>, <code>-body-s</code>, <code>-caption</code></td><td>Los títulos, fluidos (<code>clamp()</code>)</td></tr>
         <tr><td>Capas (<code>z-index</code>)</td><td><code>--z-raised</code> · <code>--z-dropdown</code> · <code>--z-dropdown-anchor</code> · <code>--z-drawer-backdrop</code> · <code>--z-drawer</code> · <code>--z-map-control</code></td><td>1 · 10 · 11 · 30 · 40 · 1000</td></tr>
         <tr><td>Opción elegida de un interruptor (tema, idioma)</td><td><code>--color-selected</code> · <code>--color-on-selected</code></td><td>Azul de la marca con blanco, en los dos modos</td></tr>
         <tr><td>Sombra de la hoja inferior (hacia arriba)</td><td><code>--shadow-sheet</code></td><td>Más intensa en oscuro</td></tr>

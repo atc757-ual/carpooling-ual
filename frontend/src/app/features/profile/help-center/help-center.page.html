@@ -1,13 +1,11 @@
 <ion-content>
   <div class="tab-page help-page">
-    <!-- En móvil, «Tus incidencias» aparece primero cuando la columna está
-         lista; en escritorio CSS conserva la columna principal a la izquierda. -->
-    <div
-      class="help-page__layout"
-      [class.help-page__layout--contact-first]="incidents.isReady()"
-    >
-      @if (incidents.isReady()) {
-        <ng-container [ngTemplateOutlet]="contactColumn" />
+    <!-- «Tus incidencias» arriba solo si hay alguna activa o atendida hace poco
+         (en escritorio, arriba de la columna de 4); si no, al final con soporte.
+         Hasta saberlo, no se pinta (no salta de sitio) -->
+    <div class="help-page__layout" [class.help-page__layout--incidents-first]="isIncidentsFirst()">
+      @if (isIncidentsFirst()) {
+        <app-help-incidents-card class="help-page__incidents" />
       }
       <section class="help-page__main" [attr.aria-label]="'help.title' | transloco">
         @if (errorMessage(); as message) {
@@ -27,8 +25,9 @@
             }
           </ion-card>
         } @else {
-          <!-- La tarjeta grande: las pestañas y, dentro, una tarjeta por tema
-               con la lista de sus preguntas (dos por fila en escritorio) -->
+          <!-- Un solo contenedor: qué preguntas ver (pasajero o conductor) y,
+               dentro, una tarjeta por tema con sus preguntas (dos por fila en
+               escritorio) -->
           <ion-card class="help-faqs">
             <app-help-audience-picker />
             <div class="help-topics-grid">
@@ -60,9 +59,12 @@
         }
       </section>
 
-      @if (!incidents.isReady()) {
-        <ng-container [ngTemplateOutlet]="contactColumn" />
-      }
+      <aside class="help-page__aside" [attr.aria-label]="'help.contactSupport' | transloco">
+        @if (incidents.isReady() && !incidents.isFirst()) {
+          <app-help-incidents-card />
+        }
+        <app-help-support-card />
+      </aside>
     </div>
   </div>
 </ion-content>
@@ -148,9 +150,3 @@
 </ng-template>
 
 <!-- «Tus incidencias» primero, para que destaque en móvil. -->
-<ng-template #contactColumn>
-  <aside class="help-page__aside" [attr.aria-label]="'help.contactSupport' | transloco">
-    <app-help-incidents-card />
-    <app-help-support-card />
-  </aside>
-</ng-template>
