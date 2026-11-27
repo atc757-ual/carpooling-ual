@@ -2128,6 +2128,7 @@
     "INVALID_VERIFICATION_CODE": "That code isn't valid. Check the 6 digits or request a new one.",
     "PASSWORD_UNCHANGED": "Your new password must be different from your current one.",
     "TOO_MANY_ATTEMPTS": "Too many attempts. Please request a new code.",
+    "OTP_SEND_RATE_LIMITED": "You've requested too many codes. Access is locked for {{time}}. Wait for it to end before trying again.",
     "TOO_MANY_LOGIN_ATTEMPTS": "Too many failed attempts. Try again in 5 minutes.",
     "EMAIL_ALREADY_REGISTERED": "An account already exists with this email.",
     "EMAIL_DOMAIN_NOT_ALLOWED": "Use your University of Almería email address.",

@@ -7,7 +7,7 @@ export interface Countdown {
   // signal: los tests e2e lo ponen a 0 para no esperar
   readonly seconds: WritableSignal<number>;
   // Vuelve a empezar desde el principio
-  restart(): void;
+  restart(seconds?: number): void;
 }
 
 // Cuenta atrás de segundos en un signal (sin Zone.js, la pantalla se actualiza
@@ -43,8 +43,8 @@ export function createCountdown(
 
   return {
     seconds,
-    restart: () => {
-      startTicking(totalSeconds);
+    restart: (seconds = totalSeconds) => {
+      startTicking(seconds);
     },
   };
 }

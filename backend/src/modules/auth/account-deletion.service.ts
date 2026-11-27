@@ -6,6 +6,7 @@ import { UsersService } from '../users/users.service';
 import { CODE_TTL_MINUTES, EmailCodesService } from './email-codes.service';
 import { buildCodeMail } from './mail/code-mail';
 import { RefreshTokensService } from './refresh-tokens.service';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 
 // Eliminación (desactivación) de la cuenta con un código de 6 cifras enviado al
 // correo (propósito account_deletion). Al confirmar con el código correcto, en
@@ -23,6 +24,7 @@ export class AccountDeletionService {
     private readonly emailCodes: EmailCodesService,
     private readonly refreshTokens: RefreshTokensService,
     private readonly mailSender: MailSender,
+    private readonly otpSendLimits: OtpSendLimitsService,
   ) {}
 
   async requestCode(userId: string): Promise<void> {
@@ -32,6 +34,7 @@ export class AccountDeletionService {
     }
     // Con viajes activos no se puede: se avisa ya, no tras el código
     await this.usersService.assertCanDeactivate(user.id);
+    await this.otpSendLimits.registerSendAttempt(user.email);
     const code = await this.emailCodes.issue(user.id, 'account_deletion');
     if (code !== null) {
       await this.sendCode(user, code);
@@ -43,6 +46,7 @@ export class AccountDeletionService {
     if (user?.deactivatedAt !== null) {
       throw new UserNotFoundError(userId);
     }
+    await this.otpSendLimits.assertNotLocked(user.email);
     await this.emailCodes.check(user.id, 'account_deletion', code);
   }
 
@@ -51,6 +55,7 @@ export class AccountDeletionService {
     if (user?.deactivatedAt !== null) {
       throw new UserNotFoundError(userId);
     }
+    await this.otpSendLimits.assertNotLocked(user.email);
     await this.emailCodes.consume(
       user.id,
       'account_deletion',

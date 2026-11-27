@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal, viewChild } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -72,10 +72,18 @@ export class VerifyPage implements OnInit {
   // Tras 3 fallos el código queda anulado: no se puede escribir otro hasta
   // pedir uno nuevo
   readonly isLocked = signal(false);
+  readonly isRateLimited = signal(false);
   private readonly codeInput = viewChild(CodeInput);
   private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, inject(DestroyRef));
   readonly secondsToResend = this.resendCountdown.seconds;
   readonly resendTime = computed(() => formatMinutesSeconds(this.secondsToResend()));
+
+  private readonly unlockAfterRateLimit = effect(() => {
+    if (this.isRateLimited() && this.secondsToResend() === 0) {
+      this.isRateLimited.set(false);
+      if (!this.isLocked()) this.form.controls.code.enable();
+    }
+  });
 
   protected readonly backIcon = arrowBackOutline;
   protected readonly mailIcon = mailUnreadOutline;
@@ -113,6 +121,8 @@ export class VerifyPage implements OnInit {
       this.codeInput()?.shake();
       if (apiError.code === TOO_MANY_ATTEMPTS) {
         this.lock();
+      } else if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        this.applyRateLimit(apiError);
       }
     } finally {
       this.isSubmitting.set(false);
@@ -127,7 +137,9 @@ export class VerifyPage implements OnInit {
       this.unlock();
       this.resendCountdown.restart();
     } catch (error) {
-      void this.toast.showError(getAuthErrorMessage(ApiError.fromHttpError(error), this.transloco));
+      const apiError = ApiError.fromHttpError(error);
+      void this.toast.showError(getAuthErrorMessage(apiError, this.transloco));
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') this.applyRateLimit(apiError);
     }
   }
 
@@ -139,5 +151,11 @@ export class VerifyPage implements OnInit {
   private unlock(): void {
     this.isLocked.set(false);
     this.form.controls.code.enable();
+  }
+
+  private applyRateLimit(error: ApiError): void {
+    this.isRateLimited.set(true);
+    this.form.controls.code.disable();
+    this.resendCountdown.restart(error.retryAfterSeconds ?? 300);
   }
 }

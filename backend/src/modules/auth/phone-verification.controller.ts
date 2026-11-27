@@ -28,11 +28,12 @@ export class PhoneVerificationController {
   @ApiOperation({
     summary: 'Send a 6-digit SMS code to verify my phone number',
     description:
-      'Sends a 6-digit verification code by SMS to the phone number saved on my account (valid for 15 minutes, at most one code per minute). Requires having a phone number saved first (PATCH /api/users/me).',
+      'Sends a 6-digit verification code by SMS to the phone number saved on my account (valid for 15 minutes, at most one code per minute and 5 requests per recipient per 15 minutes; further requests are locked for 5 minutes). Requires having a phone number saved first (PATCH /api/users/me).',
   })
   @ApiAcceptedResponse({ description: 'SMS verification code queued' })
   @ApiErrorResponses({
     ...AUTH_ERRORS,
+    [HttpStatus.TOO_MANY_REQUESTS]: ['OTP_SEND_RATE_LIMITED'],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
     [HttpStatus.CONFLICT]: ['PHONE_REQUIRED'],
   })
@@ -58,7 +59,7 @@ export class PhoneVerificationController {
     ],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
     [HttpStatus.CONFLICT]: ['PHONE_REQUIRED'],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS'],
+    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS', 'OTP_SEND_RATE_LIMITED'],
   })
   async confirm(
     @CurrentUser() currentUser: AccessTokenPayload,

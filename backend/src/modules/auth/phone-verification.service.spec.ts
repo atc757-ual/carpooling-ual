@@ -7,6 +7,7 @@ import { UsersService } from '../users/users.service';
 import { EmailCodesService } from './email-codes.service';
 import { PhoneRequiredError } from './errors/phone-required.error';
 import { PhoneVerificationService } from './phone-verification.service';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 
 describe('PhoneVerificationService', () => {
   const activeUser: User = {
@@ -22,6 +23,10 @@ describe('PhoneVerificationService', () => {
   let emailCodes: jest.Mocked<Pick<EmailCodesService, 'issue' | 'consume'>>;
   let smsSender: jest.Mocked<Pick<SmsSender, 'send'>>;
   let configService: jest.Mocked<Pick<ConfigService, 'get'>>;
+  const otpSendLimits = {
+    registerSendAttempt: jest.fn(),
+    assertNotLocked: jest.fn(),
+  };
   let service: PhoneVerificationService;
 
   beforeEach(() => {
@@ -59,6 +64,7 @@ describe('PhoneVerificationService', () => {
       usersService as unknown as UsersService,
       emailCodes as unknown as EmailCodesService,
       smsSender,
+      otpSendLimits as unknown as OtpSendLimitsService,
       configService as unknown as ConfigService,
     );
   });
@@ -165,6 +171,7 @@ describe('PhoneVerificationService', () => {
         usersService as unknown as UsersService,
         emailCodes as unknown as EmailCodesService,
         smsSender,
+        otpSendLimits as unknown as OtpSendLimitsService,
         configService as unknown as ConfigService,
       );
       expect(fallbackService).toBeDefined();

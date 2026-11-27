@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonButton, IonIcon, IonSpinner } from '@ionic/angular';
@@ -8,6 +8,7 @@ import { ApiError } from '../../../core/models/api-error.model';
 import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
 import { createCountdown, formatMinutesSeconds } from '../../../shared/utils/countdown.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
+import { ToastService } from '../../../core/services/ui/toast.service';
 
 // La espera para reenviar es la del backend (RESEND_COOLDOWN_SECONDS)
 const RESEND_WAIT_SECONDS = 60;
@@ -39,16 +40,25 @@ export class IdentityCheck {
   readonly isVerifying = signal(false);
   // Tras demasiados fallos el backend anula el código: hay que pedir otro
   readonly needsNewCode = signal(false);
-
-  private readonly countdown = createCountdown(RESEND_WAIT_SECONDS, inject(DestroyRef), 0);
-  readonly secondsToResend = this.countdown.seconds;
-  readonly resendTime = computed(() => formatMinutesSeconds(this.secondsToResend()));
+  readonly isRateLimited = signal(false);
 
   readonly code = inject(NonNullableFormBuilder).control('', [
     Validators.required,
     Validators.minLength(CODE_LENGTH),
     Validators.maxLength(CODE_LENGTH),
   ]);
+
+  private readonly toast = inject(ToastService);
+  private readonly countdown = createCountdown(RESEND_WAIT_SECONDS, inject(DestroyRef), 0);
+  readonly secondsToResend = this.countdown.seconds;
+  readonly resendTime = computed(() => formatMinutesSeconds(this.secondsToResend()));
+
+  private readonly unlockAfterRateLimit = effect(() => {
+    if (this.isRateLimited() && this.secondsToResend() === 0) {
+      this.isRateLimited.set(false);
+      this.code.enable();
+    }
+  });
 
   protected readonly shieldIcon = shieldCheckmarkOutline;
   protected readonly mailIcon = mailOutline;
@@ -76,7 +86,12 @@ export class IdentityCheck {
       this.countdown.restart();
       this.step.set('code');
     } catch (error) {
-      this.errorMessage.set(getErrorMessage(ApiError.fromHttpError(error)));
+      const apiError = ApiError.fromHttpError(error);
+      this.errorMessage.set(getErrorMessage(apiError));
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        this.applyRateLimit(apiError);
+        void this.toast.showError(getErrorMessage(apiError));
+      }
     } finally {
       this.isSending.set(false);
     }
@@ -99,9 +114,18 @@ export class IdentityCheck {
         this.needsNewCode.set(true);
         this.code.reset();
         this.secondsToResend.set(0);
+      } else if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        this.applyRateLimit(apiError);
+        void this.toast.showError(getErrorMessage(apiError));
       }
     } finally {
       this.isVerifying.set(false);
     }
+  }
+
+  private applyRateLimit(error: ApiError): void {
+    this.isRateLimited.set(true);
+    this.code.disable();
+    this.countdown.restart(error.retryAfterSeconds ?? 300);
   }
 }

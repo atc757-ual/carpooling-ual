@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   Input,
   OnInit,
@@ -75,6 +76,7 @@ export class ProfilePhoneModal implements OnInit {
   readonly isSaving = signal(false);
   readonly isVerifying = signal(false);
   readonly isLocked = signal(false);
+  readonly isRateLimited = signal(false);
 
   readonly phoneForm = inject(NonNullableFormBuilder).group({
     phonePrefix: [SPANISH_PREFIX],
@@ -89,6 +91,13 @@ export class ProfilePhoneModal implements OnInit {
   private readonly resendCountdown = createCountdown(RESEND_WAIT_SECONDS, this.destroyRef);
   readonly secondsToResend = this.resendCountdown.seconds;
   readonly resendLabel = localizedComputed(() => getResendLabel(this.secondsToResend()));
+
+  private readonly unlockAfterRateLimit = effect(() => {
+    if (this.isRateLimited() && this.secondsToResend() === 0) {
+      this.isRateLimited.set(false);
+      if (!this.isLocked()) this.codeForm.controls.code.enable();
+    }
+  });
 
   protected readonly verifiedIcon = checkmarkCircle;
   protected readonly shieldIcon = shieldCheckmarkOutline;
@@ -159,7 +168,9 @@ export class ProfilePhoneModal implements OnInit {
       this.user = updated;
       return true;
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      const apiError = ApiError.fromHttpError(error);
+      void this.toast.showError(getErrorMessage(apiError));
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') this.applyRateLimit(apiError);
       return false;
     } finally {
       this.isSaving.set(false);
@@ -179,7 +190,9 @@ export class ProfilePhoneModal implements OnInit {
       this.step.set('verify');
       this.resendCountdown.restart();
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      const apiError = ApiError.fromHttpError(error);
+      void this.toast.showError(getErrorMessage(apiError));
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') this.applyRateLimit(apiError);
     } finally {
       this.isVerifying.set(false);
     }
@@ -217,10 +230,18 @@ export class ProfilePhoneModal implements OnInit {
       this.codeInput()?.shake();
       if (apiError.code === TOO_MANY_ATTEMPTS) {
         this.isLocked.set(true);
+      } else if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        this.applyRateLimit(apiError);
       }
     } finally {
       this.isVerifying.set(false);
     }
+  }
+
+  private applyRateLimit(error: ApiError): void {
+    this.isRateLimited.set(true);
+    this.codeForm.controls.code.disable();
+    this.resendCountdown.restart(error.retryAfterSeconds ?? 300);
   }
 
   // Quita el teléfono (es opcional): la API lo deja sin verificar y deja de

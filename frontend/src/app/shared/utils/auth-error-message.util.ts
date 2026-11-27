@@ -1,5 +1,6 @@
 import { TranslocoService } from '@jsverse/transloco';
 import { ApiError } from '../../core/models/api-error.model';
+import { formatMinutesSeconds } from './countdown.util';
 
 const ERROR_TRANSLATION_KEYS: Readonly<Record<string, string>> = {
   NETWORK_ERROR: 'auth.errors.network',
@@ -12,6 +13,7 @@ const ERROR_TRANSLATION_KEYS: Readonly<Record<string, string>> = {
   PASSWORD_UNCHANGED: 'auth.errors.passwordUnchanged',
   TOO_MANY_ATTEMPTS: 'auth.errors.tooManyAttempts',
   TOO_MANY_LOGIN_ATTEMPTS: 'auth.errors.tooManyLogins',
+  OTP_SEND_RATE_LIMITED: 'errors.OTP_SEND_RATE_LIMITED',
   EMAIL_ALREADY_REGISTERED: 'auth.errors.emailRegistered',
   EMAIL_DOMAIN_NOT_ALLOWED: 'auth.errors.emailDomain',
 };
@@ -25,5 +27,9 @@ export function getAuthErrorMessage(error: ApiError, transloco: TranslocoService
   }
 
   const key = ERROR_TRANSLATION_KEYS[error.code] ?? 'auth.errors.generic';
-  return transloco.translate(key);
+  return error.code === 'OTP_SEND_RATE_LIMITED'
+    ? transloco.translate(key, {
+        time: formatMinutesSeconds(error.retryAfterSeconds ?? 300),
+      })
+    : transloco.translate(key);
 }

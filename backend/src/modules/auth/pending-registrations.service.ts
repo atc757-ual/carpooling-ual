@@ -11,6 +11,7 @@ import {
 import { PendingRegistration } from './entities/pending-registration.entity';
 import { InvalidVerificationCodeError } from './errors/invalid-verification-code.error';
 import { TooManyAttemptsError } from './errors/too-many-attempts.error';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 
 // Un registro pendiente caduca a las 24 horas: después hay que registrarse otra
 // vez (con un correo nuevo, el registro empieza de cero)
@@ -50,6 +51,7 @@ export class PendingRegistrationsService {
 
   constructor(
     private readonly dataSource: DataSource,
+    private readonly otpSendLimits: OtpSendLimitsService,
     configService: ConfigService,
   ) {
     this.hmacKey = configService.getOrThrow<string>('jwt.secret');
@@ -136,6 +138,7 @@ export class PendingRegistrationsService {
       pending: PendingRegistration,
     ) => Promise<T>,
   ): Promise<T> {
+    await this.otpSendLimits.assertNotLocked(email);
     const result = await this.dataSource.transaction(
       async (manager): Promise<ConsumeResult<T>> => {
         const pending = await this.findLocked(manager, email);

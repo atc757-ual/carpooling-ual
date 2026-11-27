@@ -9,6 +9,7 @@ import { InvalidVerificationCodeError } from './errors/invalid-verification-code
 import { PasswordUnchangedError } from './errors/password-unchanged.error';
 import { buildCodeMail } from './mail/code-mail';
 import { RefreshTokensService } from './refresh-tokens.service';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 
 export interface PasswordReset {
   email: string;
@@ -30,12 +31,14 @@ export class PasswordResetService {
     private readonly emailCodes: EmailCodesService,
     private readonly refreshTokens: RefreshTokensService,
     private readonly mailSender: MailSender,
+    private readonly otpSendLimits: OtpSendLimitsService,
   ) {}
 
   // Envía el código si el correo tiene cuenta activa y no se envió otro hace
   // menos de un minuto. Si no, no hace nada, sin decirlo. Sirve también de
   // reenvío
   async requestCode(email: string): Promise<void> {
+    await this.otpSendLimits.registerSendAttempt(email);
     const user = await this.usersService.findByEmail(email);
     if (user?.deactivatedAt !== null) {
       return;
@@ -51,6 +54,7 @@ export class PasswordResetService {
   // Comprueba el código sin gastarlo (paso intermedio de la app): los fallos
   // cuentan como intentos
   async checkCode(email: string, code: string): Promise<void> {
+    await this.otpSendLimits.assertNotLocked(email);
     const user = await this.findUser(email);
     await this.emailCodes.check(user.id, 'password_reset', code);
   }
@@ -66,6 +70,7 @@ export class PasswordResetService {
     password,
     refreshToken,
   }: PasswordReset): Promise<void> {
+    await this.otpSendLimits.assertNotLocked(email);
     const user = await this.findUser(email);
     const passwordHash = await hash(password, BCRYPT_COST);
     await this.emailCodes.consume(

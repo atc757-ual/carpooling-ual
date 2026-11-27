@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { MailSender } from '../../shared/mail/mail-sender';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 import { CODE_TTL_MINUTES } from './email-codes.service';
 import { buildCodeMail } from './mail/code-mail';
 import {
@@ -21,12 +22,14 @@ export class EmailVerificationService {
   constructor(
     private readonly usersService: UsersService,
     private readonly pendingRegistrations: PendingRegistrationsService,
+    private readonly otpSendLimits: OtpSendLimitsService,
     private readonly mailSender: MailSender,
   ) {}
 
   // Guarda el registro pendiente (o sustituye el que hubiera con ese correo) y
   // envía el código, si no se envió otro hace menos de un minuto
   async register(input: PendingRegistrationInput): Promise<void> {
+    await this.otpSendLimits.registerSendAttempt(input.email);
     const issued = await this.pendingRegistrations.save(input);
     if (issued !== null) {
       await this.sendCode(issued);
@@ -37,6 +40,7 @@ export class EmailVerificationService {
   // decirlo (la API responde siempre igual): así nadie puede averiguar qué
   // correos se están registrando
   async resendCode(email: string): Promise<void> {
+    await this.otpSendLimits.registerSendAttempt(email);
     const issued = await this.pendingRegistrations.reissue(email);
     if (issued !== null) {
       await this.sendCode(issued);

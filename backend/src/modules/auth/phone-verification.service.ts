@@ -9,6 +9,7 @@ import { UsersService } from '../users/users.service';
 import { CODE_TTL_MINUTES, EmailCodesService } from './email-codes.service';
 import { PhoneRequiredError } from './errors/phone-required.error';
 import { buildPhoneVerificationCodeSms } from './mail/phone-verification-code.sms';
+import { OtpSendLimitsService } from './otp-send-limits.service';
 
 // Verificación del teléfono con un código de 6 cifras enviado por SMS: mismas
 // reglas que los códigos del correo (15 minutos, 3 intentos, un reenvío por
@@ -23,6 +24,7 @@ export class PhoneVerificationService {
     private readonly usersService: UsersService,
     private readonly emailCodes: EmailCodesService,
     private readonly smsSender: SmsSender,
+    private readonly otpSendLimits: OtpSendLimitsService,
     configService: ConfigService,
   ) {
     this.otpDomain = configService.get<SmsConfig>('sms')?.otpDomain ?? null;
@@ -36,6 +38,7 @@ export class PhoneVerificationService {
     if (user.phone === null) {
       throw new PhoneRequiredError();
     }
+    await this.otpSendLimits.registerSendAttempt(user.phone);
     const code = await this.emailCodes.issue(user.id, 'phone_verification');
     if (code !== null) {
       await this.sendCode(user.phone, code, user.language);
@@ -50,6 +53,7 @@ export class PhoneVerificationService {
     if (user.phone === null) {
       throw new PhoneRequiredError();
     }
+    await this.otpSendLimits.assertNotLocked(user.phone);
     await this.emailCodes.consume(
       user.id,
       'phone_verification',
