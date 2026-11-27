@@ -21,12 +21,16 @@ export type EmptyStateTone = 'info' | 'success';
     <ng-template #body>
       <div class="empty-state">
         <div class="empty-state__top"><ng-content select="[emptyStateTop]" /></div>
-        <ion-icon
-          class="empty-state__icon"
-          [class.empty-state__icon--success]="tone() === 'success'"
-          [icon]="icon()"
-          aria-hidden="true"
-        />
+        @if (illustration(); as image) {
+          <img class="empty-state__illustration" [src]="image" alt="" aria-hidden="true" />
+        } @else {
+          <ion-icon
+            class="empty-state__icon"
+            [class.empty-state__icon--success]="tone() === 'success'"
+            [icon]="icon()"
+            aria-hidden="true"
+          />
+        }
         @switch (headingLevel()) {
           @case (1) {
             <h1 class="empty-state__title">{{ heading() }}</h1>
@@ -82,6 +86,21 @@ export type EmptyStateTone = 'info' | 'success';
       font-size: 1.5rem; // 24px
     }
 
+    .empty-state__illustration {
+      display: block;
+      width: min(var(--empty-state-illustration-width, 240px), 100%);
+      max-width: 100%;
+      max-height: 15rem;
+      margin-bottom: var(--space-xs);
+      object-fit: contain;
+    }
+
+    @media (min-width: 768px) {
+      .empty-state__illustration {
+        width: min(var(--empty-state-illustration-desktop-width, 320px), 100%);
+      }
+    }
+
     // Algo que ha salido bien (p. ej. «Ha llegado»): en verde
     .empty-state__icon--success {
       background: var(--color-success-subtle);
@@ -127,6 +146,7 @@ export type EmptyStateTone = 'info' | 'success';
 })
 export class EmptyState {
   readonly icon = input.required<string>();
+  readonly illustration = input<string | null>(null);
   readonly heading = input.required<string>();
   readonly hint = input<string | null>(null);
   readonly role = input<EmptyStateRole | null>(null);

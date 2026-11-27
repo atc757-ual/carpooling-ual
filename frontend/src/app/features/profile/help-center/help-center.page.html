@@ -1,11 +1,12 @@
 <ion-content>
   <div class="tab-page help-page">
-    <!-- Con incidencias activas o atendidas hace poco, la columna de contacto
-         va primero (en el HTML y, en el móvil, también en pantalla: el lector
-         de pantalla la lee en el mismo orden en que se ve); en escritorio
-         sigue a la derecha. Hasta saberlo, no se pinta, para que no salte -->
-    <div class="help-page__layout" [class.help-page__layout--contact-first]="incidents.isFirst()">
-      @if (incidents.isFirst()) {
+    <!-- En móvil, «Tus incidencias» aparece primero cuando la columna está
+         lista; en escritorio CSS conserva la columna principal a la izquierda. -->
+    <div
+      class="help-page__layout"
+      [class.help-page__layout--contact-first]="incidents.isReady()"
+    >
+      @if (incidents.isReady()) {
         <ng-container [ngTemplateOutlet]="contactColumn" />
       }
       <section class="help-page__main" [attr.aria-label]="'help.title' | transloco">
@@ -59,7 +60,7 @@
         }
       </section>
 
-      @if (incidents.isReady() && !incidents.isFirst()) {
+      @if (!incidents.isReady()) {
         <ng-container [ngTemplateOutlet]="contactColumn" />
       }
     </div>
@@ -146,16 +147,10 @@
   }
 </ng-template>
 
-<!-- La columna de contacto: «Escribir a soporte» y «Tus incidencias» (esta,
-     primero si hay alguna activa o atendida hace poco) -->
+<!-- «Tus incidencias» primero, para que destaque en móvil. -->
 <ng-template #contactColumn>
   <aside class="help-page__aside" [attr.aria-label]="'help.contactSupport' | transloco">
-    @if (incidents.isFirst()) {
-      <app-help-incidents-card />
-      <app-help-support-card />
-    } @else {
-      <app-help-support-card />
-      <app-help-incidents-card />
-    }
+    <app-help-incidents-card />
+    <app-help-support-card />
   </aside>
 </ng-template>
