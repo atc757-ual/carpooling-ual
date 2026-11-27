@@ -15,7 +15,7 @@ import { ProfileSupportModal } from '../../profile-support-modal/profile-support
         <span class="text-body text-body--strong">{{ 'help.moreTitle' | transloco }}</span>
         <span class="text-body-s text-color-muted">{{ 'help.moreText' | transloco }}</span>
       </span>
-      <ion-button expand="block" (click)="handleOpenSupport()">
+      <ion-button fill="outline" expand="block" (click)="handleOpenSupport()">
         {{ 'help.contactSupport' | transloco }}
       </ion-button>
     </ion-card>

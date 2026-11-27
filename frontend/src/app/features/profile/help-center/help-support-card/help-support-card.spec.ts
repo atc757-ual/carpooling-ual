@@ -19,6 +19,9 @@ describe('HelpSupportCard', () => {
     });
     const fixture = TestBed.createComponent(HelpSupportCard);
     fixture.detectChanges();
+    const button = fixture.nativeElement.querySelector('ion-button') as HTMLIonButtonElement;
+
+    expect(button.getAttribute('fill')).toBe('outline');
 
     await fixture.componentInstance.handleOpenSupport();
 
