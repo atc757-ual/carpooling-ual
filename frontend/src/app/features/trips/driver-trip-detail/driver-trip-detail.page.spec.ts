@@ -16,6 +16,7 @@ import {
 } from '@ionic/angular';
 import { Mock, vi } from 'vitest';
 import { DriverTrip } from '../../../core/models/driver.model';
+import { SeatRequest } from '../../../core/models/seat-request.model';
 import { DriverService } from '../../../core/services/drivers/driver.service';
 import { TripRoute } from '../../../core/models/trip-route.model';
 import { TripsService } from '../../../core/services/trips/trips.service';
@@ -52,14 +53,19 @@ function findTrip<T extends { id: string }>(trips: readonly T[], id: string): Pr
 describe('DriverTripDetailPage', () => {
   let fixture: ComponentFixture<DriverTripDetailPage>;
   let myTrips: Mock<() => Promise<DriverTrip[]>>;
+  let listTripRequests: Mock<(tripId: string) => Promise<SeatRequest[]>>;
   // La ruta del viaje: 24,6 km directos (OSRM), salvo que el test diga otra cosa
   let getRoute: Mock<() => Promise<Partial<TripRoute>>>;
 
   beforeEach(() => {
     getRoute = vi.fn().mockResolvedValue({ directDistanceKm: 24.6 });
+    listTripRequests = vi.fn().mockResolvedValue([]);
   });
 
-  async function render(trips: () => Promise<DriverTrip[]>): Promise<HTMLElement> {
+  async function render(
+    trips: () => Promise<DriverTrip[]>,
+    waitForLoad = true,
+  ): Promise<HTMLElement> {
     myTrips = vi.fn().mockImplementation(trips);
     TestBed.configureTestingModule({
       imports: [DriverTripDetailPage],
@@ -70,6 +76,7 @@ describe('DriverTripDetailPage', () => {
           provide: DriverService,
           useValue: {
             getMyTrip: async (id: string) => findTrip(await myTrips(), id),
+            listTripRequests,
           },
         },
         { provide: TripsService, useValue: { getRoute: () => getRoute() } },
@@ -94,7 +101,11 @@ describe('DriverTripDetailPage', () => {
     });
     fixture = TestBed.createComponent(DriverTripDetailPage);
     fixture.componentRef.setInput('id', 't1');
-    await fixture.whenStable();
+    fixture.detectChanges();
+    if (waitForLoad) {
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
     return fixture.nativeElement as HTMLElement;
   }
 
@@ -113,6 +124,13 @@ describe('DriverTripDetailPage', () => {
     expect(TestBed.inject(HeadingContentService).content()).not.toBeNull();
     expect(fixture.componentInstance.statusLabel()).toBe('Confirmado');
     expect(fixture.componentInstance.when()).toContain('·');
+  });
+
+  it('shows a loading state before the trip has loaded', async () => {
+    const root = await render(() => new Promise<DriverTrip[]>(() => undefined), false);
+
+    expect(fixture.componentInstance.when()).toBe('');
+    expect(root.querySelector('app-loading-state')).not.toBeNull();
   });
 
   it('explains that the system closed a trip that had already passed', async () => {
@@ -148,7 +166,20 @@ describe('DriverTripDetailPage', () => {
       TestBed.resetTestingModule();
       await render(() => Promise.resolve([trip('t1', { status: status as DriverTrip['status'] })]));
       expect(fixture.componentInstance.statusNotice()?.tone).toBe(tone);
+      if (status === 'cancelled') {
+        expect(fixture.componentInstance.impactNote()).toMatchObject({
+          key: 'myTrips.esteViajeRealizoAsi',
+          tone: 'danger',
+        });
+      }
     }
+  });
+
+  it('shows a link to the live trip while it is in progress', async () => {
+    const root = await render(() => Promise.resolve([trip('t1', { status: 'in_progress' })]));
+
+    expect(root.querySelector('app-live-trip-banner')).not.toBeNull();
+    expect(fixture.componentInstance.liveBanner()?.link).toBe('/tabs/trips/drive/t1');
   });
 
   it('estimates the impact by passenger, and says a cancelled trip saved nothing', async () => {
