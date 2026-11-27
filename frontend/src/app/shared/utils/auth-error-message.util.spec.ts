@@ -37,4 +37,12 @@ describe('getAuthErrorMessage', () => {
       'auth.errors.generic',
     );
   });
+
+  it('includes the remaining OTP lock time in the translated message', () => {
+    const error = new ApiError('OTP_SEND_RATE_LIMITED', 429, { retryAfterSeconds: 75 });
+
+    expect(getAuthErrorMessage(error, transloco)).toBe(
+      'errors.OTP_SEND_RATE_LIMITED:{"time":"01:15"}',
+    );
+  });
 });

@@ -35,6 +35,26 @@ describe('ApiError.fromHttpError', () => {
     expect(ApiError.fromHttpError(response).fields).toEqual([]);
   });
 
+  it('reads the OTP retry delay from Retry-After', () => {
+    const response = new HttpErrorResponse({
+      status: 429,
+      headers: new HttpHeaders({ 'Retry-After': '121' }),
+      error: { code: 'OTP_SEND_RATE_LIMITED' },
+    });
+
+    expect(ApiError.fromHttpError(response).retryAfterSeconds).toBe(121);
+  });
+
+  it('ignores an invalid OTP retry delay', () => {
+    const response = new HttpErrorResponse({
+      status: 429,
+      headers: new HttpHeaders({ 'Retry-After': 'invalid' }),
+      error: { code: 'OTP_SEND_RATE_LIMITED' },
+    });
+
+    expect(ApiError.fromHttpError(response).retryAfterSeconds).toBeUndefined();
+  });
+
   it('treats a request that never reached the server as a network error', () => {
     const response = new HttpErrorResponse({ status: 0, error: new ProgressEvent('error') });
 

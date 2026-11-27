@@ -9,6 +9,7 @@ import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
 import { createCountdown, formatMinutesSeconds } from '../../../shared/utils/countdown.util';
 import { getErrorMessage } from '../../../shared/utils/error-message.util';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { applyOtpRateLimit } from '../../../shared/utils/otp-rate-limit.util';
 
 // La espera para reenviar es la del backend (RESEND_COOLDOWN_SECONDS)
 const RESEND_WAIT_SECONDS = 60;
@@ -89,7 +90,7 @@ export class IdentityCheck {
       const apiError = ApiError.fromHttpError(error);
       this.errorMessage.set(getErrorMessage(apiError));
       if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
-        this.applyRateLimit(apiError);
+        applyOtpRateLimit(apiError, this.isRateLimited, this.code, this.countdown);
         void this.toast.showError(getErrorMessage(apiError));
       }
     } finally {
@@ -115,17 +116,11 @@ export class IdentityCheck {
         this.code.reset();
         this.secondsToResend.set(0);
       } else if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
-        this.applyRateLimit(apiError);
+        applyOtpRateLimit(apiError, this.isRateLimited, this.code, this.countdown);
         void this.toast.showError(getErrorMessage(apiError));
       }
     } finally {
       this.isVerifying.set(false);
     }
-  }
-
-  private applyRateLimit(error: ApiError): void {
-    this.isRateLimited.set(true);
-    this.code.disable();
-    this.countdown.restart(error.retryAfterSeconds ?? 300);
   }
 }

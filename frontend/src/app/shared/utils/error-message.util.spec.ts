@@ -23,6 +23,12 @@ describe('getErrorMessage', () => {
     expect(getErrorMessage(new ApiError(NETWORK_ERROR, 0))).toContain('No hay conexión');
   });
 
+  it('formats the remaining OTP lock time', () => {
+    expect(
+      getErrorMessage(new ApiError('OTP_SEND_RATE_LIMITED', 429, { retryAfterSeconds: 75 })),
+    ).toContain('01:15');
+  });
+
   it('falls back to a generic message for an unknown code', () => {
     expect(getErrorMessage(new ApiError('SOMETHING_NEW', 409))).toBe(
       'Algo ha salido mal. Inténtalo de nuevo.',

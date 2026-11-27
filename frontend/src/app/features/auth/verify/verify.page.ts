@@ -23,6 +23,7 @@ import { AuthLayout } from '../../../shared/components/layout/auth-layout/auth-l
 import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
 import { createCountdown, formatMinutesSeconds } from '../../../shared/utils/countdown.util';
 import { getAuthErrorMessage } from '../../../shared/utils/auth-error-message.util';
+import { applyOtpRateLimit } from '../../../shared/utils/otp-rate-limit.util';
 
 // La API anula el código al tercer intento fallido
 const TOO_MANY_ATTEMPTS = 'TOO_MANY_ATTEMPTS';
@@ -122,7 +123,7 @@ export class VerifyPage implements OnInit {
       if (apiError.code === TOO_MANY_ATTEMPTS) {
         this.lock();
       } else if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
-        this.applyRateLimit(apiError);
+        applyOtpRateLimit(apiError, this.isRateLimited, this.form.controls.code, this.resendCountdown);
       }
     } finally {
       this.isSubmitting.set(false);
@@ -139,7 +140,9 @@ export class VerifyPage implements OnInit {
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
       void this.toast.showError(getAuthErrorMessage(apiError, this.transloco));
-      if (apiError.code === 'OTP_SEND_RATE_LIMITED') this.applyRateLimit(apiError);
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        applyOtpRateLimit(apiError, this.isRateLimited, this.form.controls.code, this.resendCountdown);
+      }
     }
   }
 
@@ -151,11 +154,5 @@ export class VerifyPage implements OnInit {
   private unlock(): void {
     this.isLocked.set(false);
     this.form.controls.code.enable();
-  }
-
-  private applyRateLimit(error: ApiError): void {
-    this.isRateLimited.set(true);
-    this.form.controls.code.disable();
-    this.resendCountdown.restart(error.retryAfterSeconds ?? 300);
   }
 }

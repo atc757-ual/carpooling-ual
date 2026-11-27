@@ -98,6 +98,37 @@ describe('VerifyPage', () => {
     expect(page.form.controls.code.enabled).toBe(true);
   });
 
+  it('disables code entry for the server-provided OTP lock and unlocks when it expires', async () => {
+    verifyEmail.mockRejectedValue(
+      new ApiError('OTP_SEND_RATE_LIMITED', 429, { retryAfterSeconds: 2 }),
+    );
+    open('mario.perez@ual.es');
+    page.form.setValue({ code: '284610' });
+
+    await page.handleSubmit();
+    expect(page.isRateLimited()).toBe(true);
+    expect(page.form.controls.code.disabled).toBe(true);
+    expect(page.secondsToResend()).toBe(2);
+
+    vi.advanceTimersByTime(2_000);
+    fixture.detectChanges();
+    expect(page.isRateLimited()).toBe(false);
+    expect(page.form.controls.code.enabled).toBe(true);
+  });
+
+  it('applies the OTP lock when resending is rate limited', async () => {
+    resendVerificationCode.mockRejectedValue(
+      new ApiError('OTP_SEND_RATE_LIMITED', 429, { retryAfterSeconds: 45 }),
+    );
+    open('mario.perez@ual.es');
+
+    await page.handleResend();
+
+    expect(page.isRateLimited()).toBe(true);
+    expect(page.form.controls.code.disabled).toBe(true);
+    expect(page.secondsToResend()).toBe(45);
+  });
+
   it('lets ask for a new code after a minute and starts counting again', async () => {
     open('mario.perez@ual.es');
     expect(page.resendTime()).toBe('01:00');

@@ -20,6 +20,7 @@ import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { UsersService } from '../../../core/services/users/users.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
+import { applyOtpRateLimit } from '../../../shared/utils/otp-rate-limit.util';
 import { CodeInput } from '../../../shared/components/ui/code-input/code-input';
 import { PhonePrefixSelect } from '../../../shared/components/ui/phone-prefix-select/phone-prefix-select';
 import { createCountdown, getResendLabel } from '../../../shared/utils/countdown.util';
@@ -170,7 +171,9 @@ export class ProfilePhoneModal implements OnInit {
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
       void this.toast.showError(getErrorMessage(apiError));
-      if (apiError.code === 'OTP_SEND_RATE_LIMITED') this.applyRateLimit(apiError);
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        applyOtpRateLimit(apiError, this.isRateLimited, this.codeForm.controls.code, this.resendCountdown);
+      }
       return false;
     } finally {
       this.isSaving.set(false);
@@ -192,7 +195,9 @@ export class ProfilePhoneModal implements OnInit {
     } catch (error) {
       const apiError = ApiError.fromHttpError(error);
       void this.toast.showError(getErrorMessage(apiError));
-      if (apiError.code === 'OTP_SEND_RATE_LIMITED') this.applyRateLimit(apiError);
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        applyOtpRateLimit(apiError, this.isRateLimited, this.codeForm.controls.code, this.resendCountdown);
+      }
     } finally {
       this.isVerifying.set(false);
     }
@@ -206,7 +211,11 @@ export class ProfilePhoneModal implements OnInit {
       this.resendCountdown.restart();
       void this.toast.showSuccess(translate('screens.profilePhoneModal.nuevoCodigoEnviadoSms'));
     } catch (error) {
-      void this.toast.showError(getErrorMessage(ApiError.fromHttpError(error)));
+      const apiError = ApiError.fromHttpError(error);
+      void this.toast.showError(getErrorMessage(apiError));
+      if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
+        applyOtpRateLimit(apiError, this.isRateLimited, this.codeForm.controls.code, this.resendCountdown);
+      }
     }
   }
 
@@ -231,17 +240,11 @@ export class ProfilePhoneModal implements OnInit {
       if (apiError.code === TOO_MANY_ATTEMPTS) {
         this.isLocked.set(true);
       } else if (apiError.code === 'OTP_SEND_RATE_LIMITED') {
-        this.applyRateLimit(apiError);
+        applyOtpRateLimit(apiError, this.isRateLimited, this.codeForm.controls.code, this.resendCountdown);
       }
     } finally {
       this.isVerifying.set(false);
     }
-  }
-
-  private applyRateLimit(error: ApiError): void {
-    this.isRateLimited.set(true);
-    this.codeForm.controls.code.disable();
-    this.resendCountdown.restart(error.retryAfterSeconds ?? 300);
   }
 
   // Quita el teléfono (es opcional): la API lo deja sin verificar y deja de
