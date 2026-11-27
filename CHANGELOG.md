@@ -111,6 +111,8 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **El aviso de una solicitud abre el viaje del conductor:** al pulsar en Avisos «Te han pedido plaza» (u otro aviso del conductor), se abría Mis viajes en lugar del viaje, porque la pantalla no pasaba el viaje del aviso; ahora abre su detalle (`/tabs/trips/published/{id}`), como ya hacían las push. Sin viaje, sigue abriendo Mis viajes (#459).
+
 - **Avisos de solicitudes en Buscar, ventana de confirmación y títulos de tarjetas:** en Buscar, el aviso de solicitudes pendientes no se duplica si el próximo viaje mostrado ya es esa misma solicitud. La ventana de confirmación en escritorio se estrecha a 448 px (`confirm-dialog`) con los botones apilados a todo el ancho (la acción arriba y volver atrás debajo) para una jerarquía clara. Los títulos de tarjeta (`ion-card-title`) se mantienen a 18 px en móvil y escritorio.
 - **Seed de desarrollo:** la plaza aceptada de Mario lleva su código de recogida (`board_code`), como las que acepta la API; sin él, «En curso» no le enseñaba el código al pasajero.
 

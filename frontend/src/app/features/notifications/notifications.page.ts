@@ -293,6 +293,7 @@ export class NotificationsPage implements OnInit {
         { router: this.router, auth: this.auth, activeMode: this.activeMode },
         {
           type: notification.type,
+          tripId: notification.trip?.id,
           requestId: notification.request?.id,
           incidentId: notification.incident?.id,
         },
