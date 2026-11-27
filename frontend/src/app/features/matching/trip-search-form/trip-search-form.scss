@@ -22,6 +22,18 @@
   }
 }
 
+.search-form__content,
+.search-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  min-width: 0;
+}
+
+.search-form__illustration {
+  display: none;
+}
+
 // Etiqueta encima del campo, a 8px
 .search-form__field {
   display: flex;
@@ -41,7 +53,7 @@
 
 @container (min-width: 600px) {
   .search-form__details {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -92,6 +104,10 @@
   display: flex;
   flex-direction: column-reverse;
   gap: var(--space-s);
+
+  ion-button {
+    width: 100%;
+  }
 }
 
 .search-form__new {
@@ -116,14 +132,49 @@
 }
 
 @container (min-width: 600px) {
-  // Con sitio, en una fila y a partes iguales (los dos a la mitad de la
-  // tarjeta; sin «Nueva búsqueda», «Buscar viaje» a todo el ancho)
+  // En escritorio, los campos ocupan la columna izquierda y la ilustración
+  // acompaña a la derecha; se conserva la disposición actual en móvil.
+  .search-form__content {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: center;
+    gap: var(--space-base);
+  }
+
+  .search-form__illustration {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .search-form__fields {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  // Botón corto alineado abajo a la derecha; «Nueva búsqueda» queda a su
+  // izquierda cuando aparece.
   .search-form__actions {
     flex-direction: row;
     align-items: center;
+    justify-content: flex-end;
 
-    > * {
-      flex: 1 1 0;
+    > button {
+      flex: 0 1 auto;
     }
+
+    ion-button {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 10rem;
+    }
+  }
+
+  .search-form__illustration {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 18rem;
+    object-fit: contain;
+    object-position: center;
   }
 }

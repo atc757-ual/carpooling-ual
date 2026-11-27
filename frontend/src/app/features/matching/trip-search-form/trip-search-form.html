@@ -13,12 +13,23 @@
     </div>
   }
 
-  <!-- Trayecto: una dirección y un parking del campus (RouteFields) -->
-  <app-route-fields [controls]="form.controls" [showLabel]="false" />
+  <div class="search-form__content">
+    <!-- Ilustración a la izquierda solo en escritorio. -->
+    <img
+      class="search-form__illustration"
+      src="/images/search-route-illustration.svg"
+      alt=""
+      aria-hidden="true"
+      width="447"
+      height="318"
+    />
 
-  <!-- Fecha, hora, margen y plazas: de dos en dos y, en pantallas
-       anchas, los cuatro en una fila -->
-  <div class="search-form__details">
+    <div class="search-form__fields">
+      <!-- Trayecto: una dirección y un parking del campus (RouteFields) -->
+      <app-route-fields [controls]="form.controls" [showLabel]="false" />
+
+      <!-- Fecha, hora, margen y plazas: en una cuadrícula de dos columnas -->
+      <div class="search-form__details">
     <app-datetime-field
       formControlName="date"
       [label]="'search.date' | transloco"
@@ -60,20 +71,23 @@
       [min]="minSeats"
       [max]="maxSeats"
     />
-  </div>
+      </div>
 
-  <!-- «Nueva búsqueda» (solo en Buscar y con algo que borrar) a la izquierda
-       y «Buscar viaje» a la derecha; en el móvil, uno debajo del otro -->
-  <div class="search-form__actions">
-    @if (canStartOver()) {
-      <button class="search-form__new" type="button" (click)="clear()">
-        {{ 'search.newSearch' | transloco }}
-      </button>
-    }
-    <!-- Se activa al elegir la dirección y el parking -->
-    <ion-button type="submit" [disabled]="!isRouteComplete()">
-      <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
-      {{ 'search.submit' | transloco }}
-    </ion-button>
+      <!-- «Nueva búsqueda» (solo en Buscar y con algo que borrar) a la izquierda
+           y «Buscar viaje» a la derecha; en móvil, uno debajo del otro -->
+      <div class="search-form__actions">
+        @if (canStartOver()) {
+          <button class="search-form__new" type="button" (click)="clear()">
+            {{ 'search.newSearch' | transloco }}
+          </button>
+        }
+        <!-- Se activa al elegir la dirección y el parking -->
+        <ion-button type="submit" [disabled]="!isRouteComplete()">
+          <ion-icon slot="start" [icon]="searchIcon" aria-hidden="true" />
+          {{ 'search.submit' | transloco }}
+        </ion-button>
+      </div>
+    </div>
+
   </div>
 </form>
