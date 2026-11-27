@@ -83,7 +83,10 @@ export class AuthController {
       'VALIDATION_FAILED',
       'INVALID_VERIFICATION_CODE',
     ],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS', 'OTP_SEND_RATE_LIMITED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async verifyEmail(@Body() dto: VerifyEmailDto): Promise<AccessTokenResource> {
     return toAccessTokenResource(

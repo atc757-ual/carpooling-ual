@@ -58,7 +58,10 @@ export class AccountDeletionController {
       'INVALID_VERIFICATION_CODE',
     ],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS', 'OTP_SEND_RATE_LIMITED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async verifyCode(
     @CurrentUser() currentUser: AccessTokenPayload,
@@ -83,7 +86,10 @@ export class AccountDeletionController {
     ],
     [HttpStatus.NOT_FOUND]: ['USER_NOT_FOUND'],
     [HttpStatus.CONFLICT]: ['ACCOUNT_HAS_ACTIVE_TRIPS'],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS', 'OTP_SEND_RATE_LIMITED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async confirm(
     @CurrentUser() currentUser: AccessTokenPayload,

@@ -62,7 +62,10 @@ export class PasswordResetController {
       'VALIDATION_FAILED',
       'INVALID_VERIFICATION_CODE',
     ],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS', 'OTP_SEND_RATE_LIMITED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async checkCode(@Body() dto: CheckPasswordResetCodeDto): Promise<void> {
     await this.passwordReset.checkCode(dto.email, dto.code);
@@ -87,7 +90,10 @@ export class PasswordResetController {
       'INVALID_VERIFICATION_CODE',
       'PASSWORD_UNCHANGED',
     ],
-    [HttpStatus.TOO_MANY_REQUESTS]: ['TOO_MANY_ATTEMPTS', 'OTP_SEND_RATE_LIMITED'],
+    [HttpStatus.TOO_MANY_REQUESTS]: [
+      'TOO_MANY_ATTEMPTS',
+      'OTP_SEND_RATE_LIMITED',
+    ],
   })
   async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
     await this.passwordReset.resetPassword(dto);

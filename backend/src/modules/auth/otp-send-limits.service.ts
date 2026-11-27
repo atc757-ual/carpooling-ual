@@ -29,21 +29,25 @@ export class OtpSendLimitsService {
          VALUES ($1, now(), 0) ON CONFLICT (recipient_hash) DO NOTHING`,
         [key],
       );
-      const [row] = await manager.query<{
-        window_started_at: Date;
-        send_count: number;
-        locked_until: Date | null;
-      }[]>(
+      const [row] = await manager.query<
+        {
+          window_started_at: Date;
+          send_count: number;
+          locked_until: Date | null;
+        }[]
+      >(
         `SELECT window_started_at, send_count, locked_until
          FROM otp_send_limits WHERE recipient_hash = $1 FOR UPDATE`,
         [key],
       );
       const now = Date.now();
-      const lockUntil = row.locked_until === null ? 0 : new Date(row.locked_until).getTime();
+      const lockUntil =
+        row.locked_until === null ? 0 : new Date(row.locked_until).getTime();
       if (lockUntil > now) return Math.ceil((lockUntil - now) / 1000);
 
       const windowStart = new Date(row.window_started_at).getTime();
-      const reset = lockUntil > 0 || now - windowStart >= OTP_SEND_WINDOW_MINUTES * 60_000;
+      const reset =
+        lockUntil > 0 || now - windowStart >= OTP_SEND_WINDOW_MINUTES * 60_000;
       const count = reset ? 0 : Number(row.send_count);
       if (count >= OTP_SEND_LIMIT) {
         await manager.query(
@@ -77,7 +81,9 @@ export class OtpSendLimitsService {
     );
     const lockedUntil = rows[0]?.locked_until;
     if (lockedUntil) {
-      const remaining = Math.ceil((new Date(lockedUntil).getTime() - Date.now()) / 1000);
+      const remaining = Math.ceil(
+        (new Date(lockedUntil).getTime() - Date.now()) / 1000,
+      );
       if (remaining > 0) throw new OtpSendRateLimitedError(remaining);
     }
   }

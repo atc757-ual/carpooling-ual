@@ -95,7 +95,6 @@ export class TmfExceptionFilter implements ExceptionFilter {
       `Unexpected error. Reference: ${requestId}`,
     );
   }
-
 }
 
 function buildTmfError(
