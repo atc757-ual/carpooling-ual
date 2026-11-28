@@ -1,11 +1,5 @@
 @use 'breakpoints' as bp;
 
-.messages {
-  align-items: stretch;
-  height: 100%;
-  min-height: 0;
-}
-
 // El menú y la franja van al principio del contenido (tabs-chrome.ts): el
 // contenido es una columna y Mensajes ocupa solo lo que queda debajo, sin
 // desplazar la página
@@ -16,7 +10,8 @@ ion-content::part(scroll) {
 
 .messages {
   flex: 1;
-  height: auto;
+  align-items: stretch;
+  min-height: 0;
 }
 
 // En el móvil, la conversación ocupa la pantalla de lado a lado: sin el margen
