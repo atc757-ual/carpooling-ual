@@ -1,3 +1,5 @@
+import { liveTwin } from '../../digital-twin/model/live-twin.testing';
+import { protectSnapshot } from '../../digital-twin/model/twin-snapshot-privacy';
 import type { SimulationJob } from '../runner/simulation-runner';
 import type { ScenarioConfig } from '../scenario-config';
 import { agentReplica, simulateDay } from './agent-replica';
@@ -93,6 +95,18 @@ describe('simulateDay', () => {
 });
 
 describe('agentReplica', () => {
+  // Parte de la copia del gemelo vivo, pero sus viajes aún no se ofrecen ni
+  // cuentan: con la misma semilla, las métricas son las de siempre
+  it('starts from the copy of the live twin without changing the metrics', () => {
+    const twinSnapshot = protectSnapshot(
+      liveTwin().snapshot(new Date('2026-11-28T08:46:00Z')),
+    );
+
+    expect(withoutTiming(agentReplica({ ...job(), twinSnapshot }, 0))).toEqual(
+      withoutTiming(agentReplica(job(), 0)),
+    );
+  });
+
   it('is reproducible with the same seed', () => {
     expect(withoutTiming(agentReplica(job(), 0))).toEqual(
       withoutTiming(agentReplica(job(), 0)),

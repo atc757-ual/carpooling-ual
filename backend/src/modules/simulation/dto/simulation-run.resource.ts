@@ -13,6 +13,33 @@ class RunScenarioConfigResource {
   baseline: ScenarioConfigResource;
 }
 
+// Resumen de la copia del gemelo vivo, sin datos personales
+class TwinSummaryResource {
+  @ApiProperty({ format: 'date-time' })
+  takenAt: string;
+
+  @ApiProperty({ example: 4, description: 'Published or in-progress trips' })
+  openTrips: number;
+
+  @ApiProperty({ example: 1 })
+  tripsInProgress: number;
+
+  @ApiProperty({ example: 4 })
+  vehicles: number;
+
+  @ApiProperty({ example: 9 })
+  activeUsers: number;
+
+  @ApiProperty({ example: 4 })
+  drivers: number;
+
+  @ApiProperty({ example: 12 })
+  offeredSeats: number;
+
+  @ApiProperty({ example: 7 })
+  availableSeats: number;
+}
+
 export class SimulationRunResource {
   @ApiProperty({ enum: ['SimulationRun'] })
   '@type': 'SimulationRun';
@@ -55,6 +82,14 @@ export class SimulationRunResource {
   @ApiProperty({ format: 'date-time' })
   snapshotAt: string;
 
+  @ApiProperty({
+    type: TwinSummaryResource,
+    nullable: true,
+    description:
+      'State of the live digital twin every replica started from; null in runs requested before the copy existed',
+  })
+  twinSummary: TwinSummaryResource | null;
+
   @ApiProperty({ format: 'date-time' })
   requestedAt: string;
 
@@ -96,6 +131,7 @@ export function toSimulationRunResource(
     progress: run.progress,
     requestedBy: run.requestedBy,
     snapshotAt: run.snapshotAt.toISOString(),
+    twinSummary: run.twinSummary,
     requestedAt: run.createdAt.toISOString(),
     startedAt: run.startedAt?.toISOString() ?? null,
     finishedAt: run.finishedAt?.toISOString() ?? null,

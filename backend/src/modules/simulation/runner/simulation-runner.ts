@@ -1,5 +1,6 @@
 import type { ScenarioConfig } from '../scenario-config';
 import type { SimulationOutput } from '../simulation-metrics';
+import type { SystemTwinSnapshot } from '../../digital-twin/model/twin-snapshot';
 
 // Frontera entre la API y el motor de simulación (RNF-03): la API encola y
 // cancela; el motor avisa de cada paso. Hoy la implementa FakeSimulationRunner;
@@ -14,6 +15,9 @@ export interface SimulationJob {
   baseline: ScenarioConfig;
   replicas: number;
   seed: number;
+  // La copia del gemelo vivo, ya protegida, de la que parte cada réplica
+  // (null en los trabajos sin copia, p. ej. en los tests del motor)
+  twinSnapshot?: SystemTwinSnapshot | null;
 }
 
 export interface SimulationRunListener {

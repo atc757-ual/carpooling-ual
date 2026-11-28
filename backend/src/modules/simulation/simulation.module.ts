@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from '../../events/events.module';
+import { DigitalTwinModule } from '../digital-twin/digital-twin.module';
 import { Scenario } from './entities/scenario.entity';
 import { SimulationResult } from './entities/simulation-result.entity';
 import { SimulationRun } from './entities/simulation-run.entity';
@@ -23,6 +24,7 @@ import { SimulationsService } from './simulations.service';
   imports: [
     TypeOrmModule.forFeature([Scenario, SimulationRun, SimulationResult]),
     EventsModule,
+    DigitalTwinModule,
   ],
   controllers: [SimulationsController, SimulationSweepsController],
   providers: [

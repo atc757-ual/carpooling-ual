@@ -10,6 +10,8 @@ import type { SweepPlan, SweepVariant } from '../sensitivity';
 import type { SimulationSummary, SlotSeries } from '../simulation-metrics';
 import { SIMULATION_RUN_STATUSES } from '../simulation-run-status';
 import type { SimulationRunStatus } from '../simulation-run-status';
+import type { SystemTwinSnapshot } from '../../digital-twin/model/twin-snapshot';
+import type { TwinSnapshotSummary } from '../../digital-twin/model/twin-snapshot-privacy';
 
 // Configuración con la que se lanzó la ejecución (RF-16, RNF-06). En un
 // análisis de sensibilidad, también la variante y el plan del barrido
@@ -63,10 +65,26 @@ export class SimulationRun {
   @Column({ name: 'requested_by', type: 'uuid', nullable: true })
   requestedBy: string | null;
 
-  // Momento de la copia del estado de la que parte (hoy, el de la petición:
-  // la copia del Gemelo Digital llega con el motor real)
+  // Momento de la copia del gemelo vivo de la que parte cada réplica
   @Column({ name: 'snapshot_at', type: 'timestamptz' })
   snapshotAt: Date;
+
+  // La copia del gemelo vivo, ya minimizada y seudonimizada
+  // (digital-twin/model/twin-snapshot-privacy.ts). Se vacía al terminar la
+  // ejecución, acabe como acabe, y no se lee en las consultas (select: false):
+  // solo la usa el motor al empezar
+  @Column({
+    name: 'twin_snapshot',
+    type: 'jsonb',
+    nullable: true,
+    select: false,
+  })
+  twinSnapshot: SystemTwinSnapshot | null;
+
+  // Su resumen, sin datos personales: se queda para saber de qué estado
+  // partió (cuántos viajes, vehículos y conductores había)
+  @Column({ name: 'twin_summary', type: 'jsonb', nullable: true })
+  twinSummary: TwinSnapshotSummary | null;
 
   @Column({ name: 'started_at', type: 'timestamptz', nullable: true })
   startedAt: Date | null;
