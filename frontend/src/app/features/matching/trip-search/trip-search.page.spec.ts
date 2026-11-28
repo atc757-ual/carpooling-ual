@@ -2,6 +2,7 @@ import { provideAppTransloco } from '../../../core/i18n/testing-transloco';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { DriverService } from '../../../core/services/drivers/driver.service';
 import { provideIonicAngular } from '@ionic/angular';
 import { vi } from 'vitest';
 import { TripSearch } from '../../../core/models/trip-search.model';
@@ -45,7 +46,13 @@ describe('TripSearchPage', () => {
       profiles = ['passenger'],
       pending = 0,
       nextTripEntries = [],
-    }: { profiles?: Profile[]; pending?: number; nextTripEntries?: unknown[] } = {},
+      vehicles = [],
+    }: {
+      profiles?: Profile[];
+      pending?: number;
+      nextTripEntries?: unknown[];
+      vehicles?: { status: string }[];
+    } = {},
   ): Promise<ComponentFixture<TripSearchPage>> {
     sessionStorage.clear();
     stubIntersectionObserver();
@@ -98,6 +105,7 @@ describe('TripSearchPage', () => {
           useValue: { checkPermission: () => Promise.resolve('prompt') },
         },
         { provide: FaqsService, useValue: { list: vi.fn().mockResolvedValue([]) } },
+        { provide: DriverService, useValue: { listVehicles: vi.fn().mockResolvedValue(vehicles) } },
       ],
     });
     searchState = TestBed.inject(TripSearchStateService);
@@ -108,6 +116,25 @@ describe('TripSearchPage', () => {
     await fixture.whenStable();
     return fixture;
   }
+
+  // La invitación a publicar: a quien no tiene ningún coche activo, también
+  // si es conductor y los ha quitado
+  it.each([
+    { profiles: ['passenger'], vehicles: [], isShown: true },
+    { profiles: ['driver'], vehicles: [], isShown: true },
+    { profiles: ['driver'], vehicles: [{ status: 'inactive' }], isShown: true },
+    { profiles: ['driver'], vehicles: [{ status: 'available' }], isShown: false },
+  ] as { profiles: Profile[]; vehicles: { status: string }[]; isShown: boolean }[])(
+    'invites $profiles with $vehicles.length cars to publish: $isShown',
+    async ({ profiles, vehicles, isShown }) => {
+      const fixture = await setUp(null, { profiles, vehicles });
+      await fixture.whenStable();
+      const root = fixture.nativeElement as HTMLElement;
+
+      expect(root.querySelector('.trip-search__car') !== null).toBe(isShown);
+    },
+    COLD_START_TIMEOUT_MS,
+  );
 
   it(
     'shows the search card with the questions',
@@ -172,16 +199,6 @@ describe('TripSearchPage', () => {
     await fixture.whenStable();
 
     expect(listMine.mock.calls).toHaveLength(calls * 2);
-  });
-
-  it('invites to publish only to who has no car yet', async () => {
-    const passenger = (await setUp(null)).nativeElement as HTMLElement;
-    expect(passenger.textContent).toContain('¿Tienes coche?');
-
-    TestBed.resetTestingModule();
-    const driver = (await setUp(null, { profiles: ['passenger', 'driver'] }))
-      .nativeElement as HTMLElement;
-    expect(driver.textContent).not.toContain('¿Tienes coche?');
   });
 
   it('starts again with the empty form for a new search', async () => {

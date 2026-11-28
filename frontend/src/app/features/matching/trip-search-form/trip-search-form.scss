@@ -47,6 +47,9 @@
 .search-form__details {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  // Con un selector abierto a todo el ancho (datetime-field), el campo de al
+  // lado vuelve a su sitio en la fila de arriba
+  grid-auto-flow: row dense;
   align-items: start;
   gap: var(--space-base) var(--space-s);
 }
@@ -155,6 +158,15 @@
   .search-form__fields {
     grid-column: 2;
     grid-row: 1;
+  }
+
+  .search-form__content--plain {
+    display: flex;
+    align-items: stretch;
+
+    .search-form__fields {
+      grid-column: auto;
+    }
   }
 
   // Botón corto alineado abajo a la derecha; «Nueva búsqueda» queda a su

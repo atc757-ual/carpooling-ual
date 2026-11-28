@@ -39,7 +39,7 @@
          frecuentes -->
     <aside class="trip-search__aside">
       <app-usual-trip-card />
-      @if (!isDriver()) {
+      @if (isCarInviteVisible()) {
         <ion-card class="trip-search__car">
           <ion-item button detail routerLink="/tabs/publish" lines="none">
             <ion-icon slot="start" [icon]="carIcon" aria-hidden="true" />

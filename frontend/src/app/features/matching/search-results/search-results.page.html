@@ -272,7 +272,7 @@
   <ng-template>
     <app-modal-header [title]="'searchResults.edit' | transloco" (closed)="isEditing.set(false)" />
     <div class="modal-body">
-      <app-trip-search-form (searched)="isEditing.set(false)" />
+      <app-trip-search-form [showIllustration]="false" (searched)="isEditing.set(false)" />
     </div>
   </ng-template>
 </ion-modal>

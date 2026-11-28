@@ -1,19 +1,30 @@
-<span [id]="labelId" class="text-label text-label--strong">{{ label() }}</span>
-<!-- Botón propio (no ion-datetime-button) para poder leer «Hoy» o «Mañana»,
+<!-- La etiqueta y el botón juntos: en línea, el selector va aparte, debajo -->
+<div class="datetime-field__control">
+  <span [id]="labelId" class="text-label text-label--strong">{{ label() }}</span>
+  <!-- Botón propio (no ion-datetime-button) para poder leer «Hoy» o «Mañana»,
      igual en el móvil y en el escritorio -->
-<button
-  #trigger
-  type="button"
-  class="datetime-field__box"
-  [attr.aria-labelledby]="labelId + ' ' + pickerId + '-value'"
-  aria-haspopup="dialog"
-  [disabled]="control.disabled"
-  (click)="handleOpen(trigger)"
->
-  <ion-icon [icon]="icon()" aria-hidden="true" />
-  <span [id]="pickerId + '-value'" class="datetime-field__value">{{ displayValue() }}</span>
-</button>
-@if (isDesktop()) {
+  <button
+    #trigger
+    type="button"
+    class="datetime-field__box"
+    [attr.aria-labelledby]="labelId + ' ' + pickerId + '-value'"
+    [attr.aria-haspopup]="isInline() ? null : 'dialog'"
+    [attr.aria-expanded]="isInline() ? isOpen() : null"
+    [disabled]="control.disabled"
+    (click)="handleOpen(trigger)"
+  >
+    <ion-icon [icon]="icon()" aria-hidden="true" />
+    <span [id]="pickerId + '-value'" class="datetime-field__value">{{ displayValue() }}</span>
+  </button>
+</div>
+@if (isInline()) {
+  <!-- En una ventana: debajo del campo, en la misma ventana -->
+  @if (isOpen()) {
+    <div class="datetime-field__inline">
+      <ng-container [ngTemplateOutlet]="pickerContent" />
+    </div>
+  }
+} @else if (isDesktop()) {
   <!-- Escritorio: el calendario o las ruedas en un desplegable bajo el campo -->
   <ion-popover
     class="datetime-popover"
@@ -56,12 +67,12 @@
       [firstDayOfWeek]="1"
       [min]="min()"
       [max]="max()"
-      [showDefaultButtons]="!isDesktop()"
+      [showDefaultButtons]="!isPickClosing()"
       (ionChange)="handleDatePicked()"
     >
       <!-- En el escritorio, como un desplegable: al pulsar el día se elige y se
            cierra, sin «Cancelar» ni «Aceptar» -->
-      @if (!isDesktop()) {
+      @if (!isPickClosing()) {
         <ng-container *ngTemplateOutlet="actions; context: { $implicit: picker }" />
       }
     </ion-datetime>
@@ -91,11 +102,11 @@
     <button
       type="button"
       class="datetime-actions__button datetime-actions__button--primary"
-      (click)="picker.confirm(true)"
+      (click)="handleConfirm(picker, true)"
     >
       {{ acceptLabel() }}
     </button>
-    <button type="button" class="datetime-actions__button" (click)="picker.cancel(true)">
+    <button type="button" class="datetime-actions__button" (click)="handleConfirm(picker, false)">
       {{ cancelLabel() }}
     </button>
   </div>

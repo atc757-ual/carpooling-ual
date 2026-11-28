@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Capacitor } from '@capacitor/core';
@@ -240,5 +240,110 @@ describe('DatetimeField on a desktop browser', () => {
 
     expect(root.querySelector('ion-popover')).toBeNull();
     expect(root.querySelector('ion-modal')).not.toBeNull();
+  });
+});
+
+// Dentro de una ventana (como «Mi trayecto habitual» o «Editar búsqueda»)
+@Component({
+  imports: [ReactiveFormsModule, DatetimeField],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <ion-modal-stub>
+      <app-datetime-field [formControl]="date" label="Fecha" />
+      <app-datetime-field [formControl]="time" label="Hora" presentation="time" />
+    </ion-modal-stub>
+  `,
+})
+class ModalHost {
+  readonly date = new FormControl('2026-10-27', { nonNullable: true });
+  readonly time = new FormControl('08:00', { nonNullable: true });
+}
+
+describe('DatetimeField inside a window', () => {
+  let root: HTMLElement;
+  let fields: HTMLElement[];
+
+  // El ancestro se busca por su etiqueta: en el test, una que se llame como
+  // la ventana de Ionic sin serlo (si no, la de verdad movería su contenido)
+  beforeEach(async () => {
+    const closest = Element.prototype.closest;
+    vi.spyOn(Element.prototype, 'closest').mockImplementation(function (
+      this: Element,
+      selector: string,
+    ) {
+      return closest.call(this, selector === 'ion-modal' ? 'ion-modal-stub' : selector);
+    });
+    TestBed.configureTestingModule({ imports: [ModalHost], providers: [provideIonicAngular()] });
+    const fixture = TestBed.createComponent(ModalHost);
+    root = fixture.nativeElement as HTMLElement;
+    await fixture.whenStable();
+    fields = [...root.querySelectorAll<HTMLElement>('app-datetime-field')];
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  function open(field: HTMLElement): void {
+    field.querySelector<HTMLButtonElement>('button.datetime-field__box')!.click();
+    TestBed.tick();
+  }
+
+  it('unfolds the picker under the field, without a sheet or a dropdown', () => {
+    const [date] = fields;
+    const button = date.querySelector('button.datetime-field__box')!;
+
+    expect(date.querySelector('ion-modal, ion-popover')).toBeNull();
+    expect(button.getAttribute('aria-haspopup')).toBeNull();
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+
+    open(date);
+
+    expect(date.querySelector('.datetime-field__inline ion-datetime')).not.toBeNull();
+    expect(date.classList).toContain('datetime-field--expanded');
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+
+    open(date);
+
+    expect(date.querySelector('.datetime-field__inline')).toBeNull();
+  });
+
+  it('keeps only one picker open at a time', () => {
+    const [date, time] = fields;
+
+    open(date);
+    open(time);
+
+    expect(date.querySelector('.datetime-field__inline')).toBeNull();
+    expect(time.querySelector('.datetime-field__inline')).not.toBeNull();
+  });
+
+  it('folds the calendar when a day is picked', () => {
+    const [date] = fields;
+    open(date);
+
+    date.querySelector('ion-datetime')!.dispatchEvent(new CustomEvent('ionChange'));
+    TestBed.tick();
+
+    expect(date.querySelector('.datetime-field__inline')).toBeNull();
+  });
+
+  // «Aceptar» y «Cancelar» pliegan las ruedas sin cerrar la ventana
+  it('folds the wheels with their buttons, without closing the window', async () => {
+    const [, time] = fields;
+    open(time);
+    const picker = time.querySelector('ion-datetime') as HTMLIonDatetimeElement;
+    const confirm = vi.fn().mockResolvedValue(undefined);
+    const cancel = vi.fn().mockResolvedValue(undefined);
+    Object.assign(picker, { confirm, cancel });
+
+    time.querySelector<HTMLButtonElement>('.datetime-actions__button--primary')!.click();
+    await vi.waitFor(() => expect(time.querySelector('.datetime-field__inline')).toBeNull());
+    expect(confirm).toHaveBeenCalledWith(false);
+
+    open(time);
+    const reopened = time.querySelector('ion-datetime') as HTMLIonDatetimeElement;
+    Object.assign(reopened, { confirm, cancel });
+    time.querySelectorAll<HTMLButtonElement>('.datetime-actions__button')[1].click();
+    await vi.waitFor(() => expect(time.querySelector('.datetime-field__inline')).toBeNull());
+    expect(cancel).toHaveBeenCalledWith(false);
   });
 });

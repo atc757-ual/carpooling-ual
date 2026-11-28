@@ -1,6 +1,18 @@
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { Capacitor } from '@capacitor/core';
-import { Component, computed, DestroyRef, forwardRef, inject, input, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  forwardRef,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { EMPTY, fromEvent, map } from 'rxjs';
 import {
@@ -22,6 +34,10 @@ export type DatetimePresentation = 'date' | 'time';
 const MINUTE_VALUES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 // Desde aquí, el desplegable bajo el campo (escritorio)
 const DESKTOP_QUERY = '(min-width: 768px)';
+
+// El selector desplegado en línea en este momento: solo uno a la vez (al abrir
+// la hora se pliega la fecha)
+const expandedField = signal<object | null>(null);
 // Para que cada campo tenga sus propios id (en Inicio y Buscar puede haber
 // dos formularios a la vez, y con el mismo id un botón abriría el selector
 // del otro)
@@ -62,6 +78,7 @@ export function formatDateLabel(
   imports: [NgTemplateOutlet, ReactiveFormsModule, IonDatetime, IonIcon, IonModal, IonPopover],
   templateUrl: './datetime-field.html',
   styleUrl: './datetime-field.scss',
+  host: { '[class.datetime-field--expanded]': 'isInline() && isOpen()' },
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => DatetimeField), multi: true },
   ],
@@ -94,6 +111,13 @@ export class DatetimeField implements ControlValueAccessor {
   // El valor como signal, para el texto del botón
   private readonly value = signal('');
   private readonly document = inject(DOCUMENT);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  // Dentro de una ventana (p. ej. «Mi trayecto habitual»), el selector se
+  // despliega debajo del campo, en la misma ventana: un desplegable se saldría
+  // por debajo de ella y en el móvil sería una hoja encima de otra
+  protected readonly isInline = signal(false);
+  // El calendario sin «Aceptar»: al pulsar el día se elige y se pliega
+  protected readonly isPickClosing = computed(() => this.isDesktop() || this.isInline());
   protected readonly displayValue = localizedComputed(() => {
     const value = this.value();
     if (!value) {
@@ -154,11 +178,40 @@ export class DatetimeField implements ControlValueAccessor {
       this.onChange(value);
       this.onTouched();
     });
+    effect(() => {
+      const expanded = expandedField();
+      untracked(() => {
+        if (expanded !== this && this.isInline() && this.isOpen()) {
+          this.isOpen.set(false);
+        }
+      });
+    });
+    afterNextRender(() => {
+      this.isInline.set(this.host.nativeElement.parentElement?.closest('ion-modal') != null);
+    });
   }
 
+  // «Aceptar» y «Cancelar»: en una hoja o un desplegable, Ionic la cierra; en
+  // línea se pliega (cerrar la ventana de alrededor no)
+  protected async handleConfirm(picker: IonDatetime, isConfirmed: boolean): Promise<void> {
+    const isOverlay = !this.isInline();
+    await (isConfirmed ? picker.confirm(isOverlay) : picker.cancel(isOverlay));
+    if (!isOverlay) {
+      this.isOpen.set(false);
+    }
+  }
+
+  // En línea, el mismo botón lo despliega y lo pliega
   protected handleOpen(trigger: HTMLElement): void {
+    if (this.isInline() && this.isOpen()) {
+      this.isOpen.set(false);
+      return;
+    }
     this.anchor.set({ target: trigger });
     this.isOpen.set(true);
+    if (this.isInline()) {
+      expandedField.set(this);
+    }
   }
 
   // La hora elegida, siempre como «HH:mm» (la rueda la da con fecha si la
@@ -176,7 +229,7 @@ export class DatetimeField implements ControlValueAccessor {
   // Escritorio: el día elegido cierra el desplegable (en el móvil cierra la
   // hoja su «Aceptar»)
   protected handleDatePicked(): void {
-    if (this.isDesktop()) {
+    if (this.isPickClosing()) {
       this.isOpen.set(false);
     }
   }

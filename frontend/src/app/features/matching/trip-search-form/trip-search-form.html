@@ -13,16 +13,18 @@
     </div>
   }
 
-  <div class="search-form__content">
-    <!-- Ilustración a la izquierda solo en escritorio. -->
-    <img
-      class="search-form__illustration"
-      src="/images/search-route-illustration.svg"
-      alt=""
-      aria-hidden="true"
-      width="447"
-      height="318"
-    />
+  <div class="search-form__content" [class.search-form__content--plain]="!showIllustration()">
+    <!-- Ilustración a la izquierda solo en escritorio y fuera de una ventana -->
+    @if (showIllustration()) {
+      <img
+        class="search-form__illustration"
+        src="/images/search-route-illustration.svg"
+        alt=""
+        aria-hidden="true"
+        width="447"
+        height="318"
+      />
+    }
 
     <div class="search-form__fields">
       <!-- Trayecto: una dirección y un parking del campus (RouteFields) -->
@@ -30,47 +32,47 @@
 
       <!-- Fecha, hora, margen y plazas: en una cuadrícula de dos columnas -->
       <div class="search-form__details">
-    <app-datetime-field
-      formControlName="date"
-      [label]="'search.date' | transloco"
-      [min]="minDate"
-      [max]="maxDate"
-    />
+        <app-datetime-field
+          formControlName="date"
+          [label]="'search.date' | transloco"
+          [min]="minDate"
+          [max]="maxDate"
+        />
 
-    <!-- Hora de llegada al campus o, al volver, de salida -->
-    <app-datetime-field
-      formControlName="time"
-      presentation="time"
-      [min]="minTime()"
-      [label]="
-        (timeType() === 'arrival' ? 'search.arrivalTime' : 'search.departureTime') | transloco
-      "
-    />
+        <!-- Hora de llegada al campus o, al volver, de salida -->
+        <app-datetime-field
+          formControlName="time"
+          presentation="time"
+          [min]="minTime()"
+          [label]="
+            (timeType() === 'arrival' ? 'search.arrivalTime' : 'search.departureTime') | transloco
+          "
+        />
 
-    <div class="search-form__field">
-      <span class="text-label text-label--strong" aria-hidden="true">{{
-        'search.margin' | transloco
-      }}</span>
-      <ion-select
-        class="search-form__select"
-        formControlName="margin"
-        interface="popover"
-        fill="outline"
-        [attr.aria-label]="'search.margin' | transloco"
-      >
-        @for (margin of margins; track margin) {
-          <ion-select-option [value]="margin">± {{ margin }} min</ion-select-option>
-        }
-      </ion-select>
-    </div>
+        <div class="search-form__field">
+          <span class="text-label text-label--strong" aria-hidden="true">{{
+            'search.margin' | transloco
+          }}</span>
+          <ion-select
+            class="search-form__select"
+            formControlName="margin"
+            interface="popover"
+            fill="outline"
+            [attr.aria-label]="'search.margin' | transloco"
+          >
+            @for (margin of margins; track margin) {
+              <ion-select-option [value]="margin">± {{ margin }} min</ion-select-option>
+            }
+          </ion-select>
+        </div>
 
-    <!-- Plazas que se necesitan (SeatStepper de la guía) -->
-    <app-seat-stepper
-      formControlName="seats"
-      [label]="'search.seats' | transloco"
-      [min]="minSeats"
-      [max]="maxSeats"
-    />
+        <!-- Plazas que se necesitan (SeatStepper de la guía) -->
+        <app-seat-stepper
+          formControlName="seats"
+          [label]="'search.seats' | transloco"
+          [min]="minSeats"
+          [max]="maxSeats"
+        />
       </div>
 
       <!-- «Nueva búsqueda» (solo en Buscar y con algo que borrar) a la izquierda
@@ -88,6 +90,5 @@
         </ion-button>
       </div>
     </div>
-
   </div>
 </form>

@@ -445,7 +445,7 @@
     "asDriver": "As driver",
     "asPassenger": "As passenger",
     "noReviews": "No reviews",
-    "emptyReviews": "You don't have reviews yet.",
+    "emptyReviews": "You don't have any reviews yet.",
     "reviewsSubtitle": "They will appear after your first trips.",
     "reviewsModal": {
       "title": "Your reviews",
@@ -1314,7 +1314,7 @@
     "enviarEnlace": "Send the link",
     "dejarCompartir": "Stop sharing",
     "compartirViajeDirecto": "Share my trip live",
-    "abreSinCuentaVera": "It opens without an account: they'll see where the car is, your pick-up and when you arrive.",
+    "abreSinCuentaVera": "Can be viewed without an account: they'll see where the car is, your pick-up and when you arrive.",
     "share": {
       "text": "Follow my trip live: where the car is and when I'll arrive.",
       "stopped": "You've stopped sharing the trip: the link no longer works."
