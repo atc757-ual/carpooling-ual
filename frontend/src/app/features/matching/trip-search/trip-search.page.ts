@@ -76,7 +76,7 @@ export class TripSearchPage {
       return true;
     }
     const vehicles = this.vehicles.hasValue() ? this.vehicles.value() : null;
-    return vehicles !== null && vehicles.every(({ status }) => status === 'inactive');
+    return vehicles?.every(({ status }) => status === 'inactive') ?? false;
   });
 
   // Cuántas de sus solicitudes esperan respuesta (0: sin aviso). Si no se
