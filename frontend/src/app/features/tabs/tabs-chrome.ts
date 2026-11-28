@@ -23,24 +23,27 @@ export interface TabsChromeOptions {
 // inyección de TabsPage
 export function keepChromeInActivePage(options: TabsChromeOptions): void {
   // Si la pantalla aún no ha pintado su ion-content (Ionic avisa antes de que
-  // Angular la pinte), se dejan fuera y se vuelve a probar en los siguientes
-  // fotogramas
+  // Angular la pinte), se vuelve a probar en los siguientes fotogramas sin
+  // moverlos: sacarlos un momento empujaba la pantalla y se veía como un
+  // refresco. Si la que sale se destruye antes, siguen vivos (son nodos de
+  // TabsPage) y se colocan en cuanto la nueva pinta. Solo si no llega a
+  // pintarlo (o no hay pantalla), van encima de las pestañas
   const place = (page = activePage(options.tabs()), attemptsLeft = MAX_ATTEMPTS): void => {
     const chrome = options.chrome().nativeElement;
     const content = pageContent(page);
     if (content) {
-      if (chrome.parentElement !== content) content.prepend(chrome);
+      if (chrome.parentElement !== content) moveInto(chrome, content);
+      return;
+    }
+    if (page && attemptsLeft > 0) {
+      requestAnimationFrame(() => place(page, attemptsLeft - 1));
       return;
     }
     const tabs = options.tabsElement().nativeElement;
     if (chrome.nextElementSibling !== tabs) tabs.before(chrome);
-    if (page && attemptsLeft > 0) {
-      requestAnimationFrame(() => place(page, attemptsLeft - 1));
-    }
   };
 
-  // Cuando va a entrar otra pantalla: se mueve antes de la transición, porque
-  // la que sale se destruye y se lo llevaría con ella
+  // Cuando va a entrar otra pantalla, se llevan a ella
   afterNextRender(() => {
     options
       .tabs()
@@ -48,6 +51,26 @@ export function keepChromeInActivePage(options: TabsChromeOptions): void {
       .subscribe(({ enteringView }) => place(enteringView.element as HTMLElement));
     place();
   });
+}
+
+const SNAPSHOT_CLASS = 'tabs-chrome--snapshot';
+
+// Mientras dura la animación de Ionic se ven las dos pantallas: en la que sale
+// queda una copia fija (sin interacción, oculta al lector de pantalla y sin
+// ids repetidos), para que no se quede sin menú ni franja y su contenido no
+// suba de golpe. La copia se quita al volver el menú a esa pantalla
+function moveInto(chrome: HTMLElement, content: HTMLElement): void {
+  const previous = chrome.parentElement;
+  if (previous?.tagName === 'ION-CONTENT') {
+    const snapshot = chrome.cloneNode(true) as HTMLElement;
+    snapshot.classList.add(SNAPSHOT_CLASS);
+    snapshot.setAttribute('aria-hidden', 'true');
+    snapshot.inert = true;
+    snapshot.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
+    chrome.replaceWith(snapshot);
+  }
+  content.querySelector(`:scope > .${SNAPSHOT_CLASS}`)?.remove();
+  content.prepend(chrome);
 }
 
 // La pantalla que se ve ahora

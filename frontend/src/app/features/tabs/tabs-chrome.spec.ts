@@ -45,27 +45,47 @@ describe('keepChromeInActivePage', () => {
     expect(contentOf(active)?.firstElementChild).toBe(chrome);
   });
 
-  it('moves them to the page that is about to enter, before the old one goes', () => {
-    const { chrome, stackWillChange } = setUp(page());
+  it('moves them to the entering page and leaves a still copy in the leaving one', () => {
+    const leaving = page();
+    const { chrome, stackWillChange } = setUp(leaving);
+    chrome.innerHTML = '<h1 id="title">Mi perfil</h1>';
     const entering = page();
 
     stackWillChange.next({ enteringView: { element: entering } });
 
     expect(contentOf(entering)?.firstElementChild).toBe(chrome);
+    // La copia se ve igual mientras sale, pero no se lee ni se pulsa
+    const snapshot = contentOf(leaving)?.firstElementChild as HTMLElement;
+    expect(snapshot.classList).toContain('tabs-chrome--snapshot');
+    expect(snapshot.getAttribute('aria-hidden')).toBe('true');
+    expect(snapshot.inert).toBe(true);
+    expect(snapshot.textContent).toBe('Mi perfil');
+    expect(snapshot.querySelector('[id]')).toBeNull();
+
+    // Al volver, el menú reemplaza a la copia
+    stackWillChange.next({ enteringView: { element: leaving } });
+    expect(contentOf(leaving)?.querySelectorAll('.tabs-chrome--snapshot')).toHaveLength(0);
+    expect(contentOf(leaving)?.firstElementChild).toBe(chrome);
   });
 
-  it('keeps them before the tabs until the entering page paints its content', () => {
+  it('waits for the entering page to paint its content without moving them', () => {
     vi.useFakeTimers();
-    const { chrome, tabsElement, stackWillChange } = setUp();
-    expect(chrome.nextElementSibling).toBe(tabsElement);
+    const leaving = page();
+    const { chrome, stackWillChange } = setUp(leaving);
     const entering = page(false);
 
     stackWillChange.next({ enteringView: { element: entering } });
-    expect(chrome.nextElementSibling).toBe(tabsElement);
+    expect(contentOf(leaving)?.firstElementChild).toBe(chrome);
 
     entering.append(document.createElement('ion-content'));
     vi.advanceTimersToNextFrame();
     expect(contentOf(entering)?.firstElementChild).toBe(chrome);
     vi.useRealTimers();
+  });
+
+  it('keeps them before the tabs when there is no page to hold them', () => {
+    const { chrome, tabsElement } = setUp();
+
+    expect(chrome.nextElementSibling).toBe(tabsElement);
   });
 });
