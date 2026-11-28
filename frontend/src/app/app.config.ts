@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
@@ -29,7 +28,6 @@ import { SplashScreenPlugin } from './core/plugins/splash-screen-plugin';
 import { AuthService } from './core/services/auth/auth.service';
 import { UsualTripService } from './features/matching/usual-trip/usual-trip.service';
 import { LanguageSyncService } from './core/services/users/language-sync.service';
-import { preventIosFocusZoom } from './shared/utils/ios-viewport.util';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { TranslatedTitleStrategy } from './core/i18n/translated-title.strategy';
 import { LanguageService } from './core/services/ui/language.service';
@@ -96,10 +94,6 @@ export const appConfig: ApplicationConfig = {
     // retrasa el arranque
     provideAppInitializer(() => {
       void inject(UsualTripService).load();
-    }),
-    // En iPhone, sin el zoom automático al enfocar un campo
-    provideAppInitializer(() => {
-      if (IS_IOS) preventIosFocusZoom(inject(DOCUMENT));
     }),
   ],
 };
