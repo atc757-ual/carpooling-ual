@@ -13,7 +13,7 @@
       [label]="'publish.salidaVuelta' | transloco"
     />
     @if (isTooEarly()) {
-      <p class="text-caption text-color-danger" role="alert">
+      <p class="text-body-s text-color-danger" role="alert">
         {{ 'publish.returnAfterArrival' | transloco: { time: arrivalTime() } }}
       </p>
     }
