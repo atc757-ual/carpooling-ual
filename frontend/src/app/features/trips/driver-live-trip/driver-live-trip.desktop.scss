@@ -9,48 +9,34 @@
   padding-top: 0;
 }
 
-// Escritorio: «Recogidas» con su recuento en una línea a lo ancho y, debajo,
-// la etiqueta a la izquierda y las flechas a la derecha
+// Escritorio: como en el móvil, «Recogidas» con su recuento debajo y, a la
+// derecha, la etiqueta y, debajo de ella, las flechas
 .pickups-head--desktop {
   display: grid;
   grid-template-areas:
-    'text text'
-    'tag arrows';
-  grid-template-columns: 1fr auto;
+    'text tag'
+    'text arrows';
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-xs) var(--space-s);
 
-  // «Recogidas» y, a su lado en la misma línea, «1 de 2 en el coche…»
   .pickups-head__text {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 0;
     grid-area: text;
     min-width: 0;
-
-    h2 {
-      flex: none;
-    }
-
-    // Separados por un punto centrado: «Recogidas · 1 de 2 en el coche»
-    p {
-      min-width: 0;
-
-      &::before {
-        content: '·';
-        margin-inline: var(--space-s); // 8px a cada lado
-      }
-    }
   }
 
   .pickups-head__tag {
     grid-area: tag;
-    justify-self: start;
+    justify-self: end;
+    // Sin el 50 % del móvil: en la rejilla se calcula sobre su propia columna
+    // y la recortaba
+    max-width: none;
     white-space: nowrap; // «Ubicación en directo», sin partir
   }
 
   .pickups-head__arrows {
     grid-area: arrows;
+    justify-self: end;
   }
 }
 
@@ -97,6 +83,10 @@
   .pickup-slide__actions {
     grid-column: 1 / -1;
     grid-row: 2;
+  }
+
+  .pickup-slide__email {
+    grid-row: 3;
   }
 }
 

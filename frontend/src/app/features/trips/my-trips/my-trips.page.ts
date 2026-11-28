@@ -35,6 +35,7 @@ interface LiveBannerData {
   trip: TripEnds;
   detail: string;
   link: string;
+  role: 'driver' | 'passenger';
 }
 
 interface LoadedPage {
@@ -199,6 +200,7 @@ export class MyTripsPage {
           offeredSeats: trip.offeredSeats,
         }),
         link: `/tabs/trips/drive/${trip.id}`,
+        role: 'driver',
       };
     }
     const passengerLive = this.passengerLive();
@@ -210,6 +212,7 @@ export class MyTripsPage {
       trip,
       detail: translate('screens.passengerTripCard.drives', { name: trip.driver.name }),
       link: `/tabs/trips/ride/${request.id}`,
+      role: 'passenger',
     };
   });
 

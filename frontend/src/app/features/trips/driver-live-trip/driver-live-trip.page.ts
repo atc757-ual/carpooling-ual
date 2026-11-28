@@ -485,9 +485,23 @@ export class DriverLiveTripPage {
   // «Ha bajado»: cierra la plaza de un pasajero a bordo (no se puede
   // deshacer: se confirma). Si era el último, el viaje termina solo y la hoja
   // enseña el aviso y las valoraciones, como al terminarlo
-  // «Ha bajado»: lo pregunta en la hoja (sin ventana encima)
-  handleDropOff(request: SeatRequest): void {
-    this.pendingDropOff.set(request);
+  // «Ha bajado»: lo pregunta en la hoja (móvil, sin ventana encima) o en una
+  // ventana (escritorio, como «Terminar viaje»)
+  async handleDropOff(request: SeatRequest): Promise<void> {
+    if (!this.sheet.isDesktop()) {
+      this.pendingDropOff.set(request);
+      return;
+    }
+    const name = getFirstName(request.passenger.name);
+    const isConfirmed = await this.confirm.ask({
+      header: this.translate('live.dropOffQuestion', { name }),
+      message: this.translate('live.dropOffHelp', { name }),
+      confirmText: this.translate('live.bajado'),
+      cancelText: this.translate('live.todavia'),
+    });
+    if (isConfirmed) {
+      await this.confirmDropOff(request);
+    }
   }
 
   async confirmDropOff(request: SeatRequest): Promise<void> {

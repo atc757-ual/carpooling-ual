@@ -1,53 +1,67 @@
 @if (isLive()) {
   <!-- En curso: la misma tarjeta que arriba de Tus viajes -->
   @if (next(); as live) {
-    <app-live-trip-banner [trip]="live.trip" [detail]="liveDetail()" [link]="link()" />
+    <app-live-trip-banner
+      [trip]="live.trip"
+      [detail]="liveDetail()"
+      [link]="link()"
+      [tripRole]="live.role"
+    />
   }
 } @else if (next(); as next) {
-  <!-- Del color de su estado, como su etiqueta: ámbar si espera respuesta,
-       verde si está confirmado y azul si está publicado -->
-  <section
-    class="next-trip"
-    [class.next-trip--pending]="status()?.kind === 'pending'"
-    [class.next-trip--accepted]="status()?.kind === 'accepted'"
-    [attr.aria-label]="'nextTrip.proximoViaje' | transloco"
+  <!-- Del color de su estado: ámbar si espera respuesta, verde si está
+       confirmado e índigo si está publicado; el estado, como la etiqueta de un
+       campo sobre el borde de arriba (status-card-frame) -->
+  <div
+    class="status-card-frame"
+    [class.status-card-frame--pending]="status()?.kind === 'pending'"
+    [class.status-card-frame--accepted]="status()?.kind === 'accepted'"
+    [class.status-card-frame--published]="status()?.kind === 'info'"
   >
-    <!-- Toda la tarjeta lleva al viaje (conductor) o a la plaza (pasajero):
-         arriba el día y la hora, con el papel debajo, y el estado en la
-         esquina derecha; después, el recorrido -->
-    <a class="next-trip__link" [routerLink]="link()">
-      <span class="next-trip__body">
-        <span class="next-trip__head">
-          <span class="next-trip__when">
-            <span class="text-body next-trip__time">{{ when() }}</span>
-            @if (next.role === 'driver') {
-              <span class="role-tag role-tag--driver">
-                <ion-icon [icon]="driverIcon" aria-hidden="true" />{{
-                  'nextTrip.driving' | transloco
-                }}
-              </span>
-            } @else {
-              <span class="role-tag role-tag--passenger">
-                <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{
-                  'nextTrip.riding' | transloco
-                }}
-              </span>
-            }
-          </span>
+    <section class="next-trip" [attr.aria-label]="'nextTrip.proximoViaje' | transloco">
+      <!-- Toda la tarjeta lleva al viaje (conductor) o a la plaza (pasajero):
+         el estado (oculto: se ve en la etiqueta del borde), arriba el día y la
+         hora, con el papel debajo, y después el recorrido -->
+      <a class="next-trip__link" [routerLink]="link()">
+        <span class="next-trip__body">
           @if (status(); as status) {
-            <span
-              class="status"
-              [class.status--pending]="status.kind === 'pending'"
-              [class.status--accepted]="status.kind === 'accepted'"
-              [class.status--info-strong]="status.kind === 'info'"
-            >
-              {{ status.label }}
+            <span class="visually-hidden">{{ status.label }}</span>
+          }
+          <span class="next-trip__head">
+            <span class="next-trip__when">
+              <span class="text-body next-trip__time">{{ when() }}</span>
+              @if (next.role === 'driver') {
+                <span class="role-tag role-tag--driver">
+                  <ion-icon [icon]="driverIcon" aria-hidden="true" />{{
+                    'nextTrip.driving' | transloco
+                  }}
+                </span>
+              } @else {
+                <span class="role-tag role-tag--passenger">
+                  <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{
+                    'nextTrip.riding' | transloco
+                  }}
+                </span>
+              }
+            </span>
+          </span>
+          @if (ends(); as ends) {
+            <!-- Solo adónde va: «Hacia Campus UAL · Parking P3 (Este)» -->
+            <span class="trip-ends">
+              <span class="trip-ends__end text-body-s">
+                <ion-icon [icon]="destinationIcon" aria-hidden="true" />
+                <span class="trip-ends__place">{{
+                  'live.towards' | transloco: { place: ends.destination }
+                }}</span>
+              </span>
             </span>
           }
         </span>
-        <span class="text-body-s next-trip__route">{{ route() }}</span>
-      </span>
-      <ion-icon class="next-trip__chevron" [icon]="chevronIcon" aria-hidden="true" />
-    </a>
-  </section>
+        <ion-icon class="next-trip__chevron" [icon]="chevronIcon" aria-hidden="true" />
+      </a>
+    </section>
+    @if (status(); as status) {
+      <span class="status-card-label" aria-hidden="true">{{ status.label }}</span>
+    }
+  </div>
 }

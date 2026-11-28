@@ -104,8 +104,8 @@
   }
 }
 
-// Cada tarjeta: arriba el nombre y la dirección con los iconos a la derecha;
-// debajo, a todo el ancho, el código con «Validar» (hasta que sube)
+// Cada tarjeta: arriba el nombre y dónde está con los iconos a la derecha;
+// debajo, a todo el ancho, el correo y el código con «Validar» (hasta que sube)
 .pickup-slide {
   display: grid;
   flex: 0 0 100%;
@@ -124,18 +124,16 @@
   opacity: 0.6;
   scroll-snap-align: start;
 
-  // La que toca (donde se escribe el código): en azul claro con el borde azul
+  // Como las demás tarjetas de estado: fondo blanco y el borde del color.
+  // La que toca (donde se escribe el código): borde azul
   &--active {
     border-color: var(--color-primary);
-    background: var(--color-primary-subtle);
     opacity: 1;
   }
 
-  // En el coche: en verde claro con el borde verde (ya recogido), para no
-  // confundirla con la que toca
+  // En el coche: borde verde (ya recogido), para no confundirla con la que toca
   &--done {
     border-color: var(--color-success);
-    background: var(--color-success-subtle);
     opacity: 1;
   }
 
@@ -147,7 +145,7 @@
   }
 }
 
-// Sus hijos van directamente a la rejilla de la tarjeta
+// Sus hijos van directamente a la rejilla de la tarjeta, a todo el ancho
 .pickup-slide__main {
   display: contents;
 
@@ -156,6 +154,7 @@
   }
 }
 
+// El nombre y dónde está, a la izquierda de los botones
 .pickup-slide__who {
   display: flex;
   flex-direction: column;
@@ -164,6 +163,12 @@
   .pickup-slide__main > & {
     grid-column: 1;
   }
+}
+
+// El correo, debajo de lado a lado y entero (se parte si no cabe): así los
+// botones caben al lado del nombre también en el móvil
+.pickup-slide__email {
+  grid-row: 2;
 }
 
 // Las casillas a la izquierda y, al extremo derecho, «No se presentó» (o el
@@ -334,7 +339,7 @@ ion-input-otp.driver-live-trip__code.input-otp-size-small {
   --width: clamp(2rem, calc((100cqi - 2.75rem - 0.5rem - 1.5rem) / 4), 2.75rem);
   --min-width: var(--width);
   --border-radius: var(--radius-s);
-  // Casillas en blanco sobre el azul claro de la recogida que toca
+  // Casillas en blanco, con su borde, en la recogida que toca
   --background: var(--color-surface);
 
   flex: none;

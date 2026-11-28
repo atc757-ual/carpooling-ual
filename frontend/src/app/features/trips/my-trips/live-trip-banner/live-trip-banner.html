@@ -3,18 +3,24 @@
      el chevron azul, como los demás avisos que se pulsan -->
 <ion-item class="live-trip-banner" lines="none" [routerLink]="link()" [detail]="false">
   <ion-label class="live-trip-banner__text">
-    <span class="text-eyebrow live-trip-banner__eyebrow">{{ 'live.viajeCurso' | transloco }}</span>
-    <!-- En escritorio, en una línea: «Roquetas de Mar → Campus UAL» -->
-    <span class="text-body text-body--strong live-trip-banner__route">{{ route() }}</span>
-    <!-- En el móvil, el origen y el destino uno debajo del otro, con su icono -->
-    <span class="live-trip-banner__ends">
-      <span class="live-trip-banner__end text-body text-body--strong">
-        <ion-icon [icon]="originIcon" aria-hidden="true" />
-        <span class="live-trip-banner__place">{{ ends().origin }}</span>
+    <span class="visually-hidden">{{ 'live.viajeCurso' | transloco }}</span>
+    <!-- Si conduce o viaja, como en «Próximo viaje» -->
+    @if (tripRole() === 'driver') {
+      <span class="role-tag role-tag--driver">
+        <ion-icon [icon]="driverIcon" aria-hidden="true" />{{ 'nextTrip.driving' | transloco }}
       </span>
-      <span class="live-trip-banner__end text-body text-body--strong">
+    } @else if (tripRole() === 'passenger') {
+      <span class="role-tag role-tag--passenger">
+        <ion-icon [icon]="passengerIcon" aria-hidden="true" />{{ 'nextTrip.riding' | transloco }}
+      </span>
+    }
+    <!-- Ya en marcha, solo adónde va: «Hacia Campus UAL · Parking P3 (Este)» -->
+    <span class="trip-ends">
+      <span class="trip-ends__end text-body text-body--strong">
         <ion-icon [icon]="destinationIcon" aria-hidden="true" />
-        <span class="live-trip-banner__place">{{ ends().destination }}</span>
+        <span class="trip-ends__place">{{
+          'live.towards' | transloco: { place: ends().destination }
+        }}</span>
       </span>
     </span>
     @if (detail()) {
@@ -23,3 +29,10 @@
   </ion-label>
   <ion-icon slot="end" class="live-trip-banner__chevron" [icon]="chevronIcon" aria-hidden="true" />
 </ion-item>
+<!-- «Viaje en curso» sobre el borde de arriba, como la etiqueta de un campo,
+     con el punto que late. Después de la tarjeta, para pintarse encima. Se ve,
+     pero lo lee el texto oculto del enlace -->
+<span class="status-card-label" aria-hidden="true">
+  <span class="status-card-label__dot"></span>
+  {{ 'live.viajeCurso' | transloco }}
+</span>

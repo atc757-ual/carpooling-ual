@@ -462,28 +462,65 @@ describe('DriverLiveTripPage', () => {
     boardedAt: new Date().toISOString(),
   });
 
-  it('asks «Ha bajado» in the sheet and closes that seat only', async () => {
+  it('asks «Ha bajado» in the sheet on mobile and closes that seat only', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }),
+    );
+    try {
+      const carlos = onBoard('r1', 'Carlos Ruiz');
+      await render([TRIP], [carlos, onBoard('r2', 'Ana Gil')]);
+      driver['dropOffPassenger'].mockResolvedValue({ ...carlos, status: 'completed' });
+
+      await page.handleDropOff(carlos);
+      expect(page.pendingDropOff()).toBe(carlos);
+      expect(ask).not.toHaveBeenCalled();
+
+      const saving = page.confirmDropOff(carlos);
+      expect(page.isDroppingOff('r1')).toBe(true);
+      await saving;
+
+      expect(driver['dropOffPassenger']).toHaveBeenCalledWith('r1');
+      expect(page.passengers().map(({ id, status }) => [id, status])).toEqual([
+        ['r1', 'completed'],
+        ['r2', 'accepted'],
+      ]);
+      expect(page.isDroppingOff('r1')).toBe(false);
+      expect(page.pendingDropOff()).toBeNull();
+      // Aún queda Ana: la tarjeta pasa a ella y el viaje sigue
+      expect(page.focusPassengerId()).toBe('r2');
+      expect(page.justFinished()).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('asks «Ha bajado» in a dialog on desktop, like finishing the trip', async () => {
     const carlos = onBoard('r1', 'Carlos Ruiz');
     await render([TRIP], [carlos, onBoard('r2', 'Ana Gil')]);
     driver['dropOffPassenger'].mockResolvedValue({ ...carlos, status: 'completed' });
 
-    page.handleDropOff(carlos);
-    expect(page.pendingDropOff()).toBe(carlos);
+    await page.handleDropOff(carlos);
 
-    const saving = page.confirmDropOff(carlos);
-    expect(page.isDroppingOff('r1')).toBe(true);
-    await saving;
-
-    expect(driver['dropOffPassenger']).toHaveBeenCalledWith('r1');
-    expect(page.passengers().map(({ id, status }) => [id, status])).toEqual([
-      ['r1', 'completed'],
-      ['r2', 'accepted'],
-    ]);
-    expect(page.isDroppingOff('r1')).toBe(false);
+    expect(ask).toHaveBeenCalledWith(
+      expect.objectContaining({ header: '¿Ha bajado Carlos?', confirmText: 'Ha bajado' }),
+    );
     expect(page.pendingDropOff()).toBeNull();
-    // Aún queda Ana: la tarjeta pasa a ella y el viaje sigue
-    expect(page.focusPassengerId()).toBe('r2');
-    expect(page.justFinished()).toBe(false);
+    expect(driver['dropOffPassenger']).toHaveBeenCalledWith('r1');
+  });
+
+  it('keeps the seat when the desktop dialog is cancelled', async () => {
+    const carlos = onBoard('r1', 'Carlos Ruiz');
+    await render([TRIP], [carlos]);
+    ask.mockResolvedValueOnce(false);
+
+    await page.handleDropOff(carlos);
+
+    expect(driver['dropOffPassenger']).not.toHaveBeenCalled();
   });
 
   it('finishes the trip when the last passenger gets off', async () => {
@@ -572,10 +609,7 @@ describe('DriverLiveTripPage', () => {
 
   it('covers carousel scroll, no-show cancellation/error, pickupPlace branches, and finish guards', async () => {
     const pWithoutPickupAt = passenger('r1', 'Carlos Ruiz', null);
-    await render(
-      [{ ...TRIP, destinationName: 'Roquetas de Mar' }],
-      [pWithoutPickupAt],
-    );
+    await render([{ ...TRIP, destinationName: 'Roquetas de Mar' }], [pWithoutPickupAt]);
 
     expect(page.allOnBoard()).toBe(false);
     expect(page.isToCampus()).toBe(false);
@@ -597,7 +631,9 @@ describe('DriverLiveTripPage', () => {
       page as unknown as { pickupPlace: (r: SeatRequest) => string }
     ).pickupPlace.bind(page);
     expect(pickupPlace({ ...pWithoutPickupAt, direction: 'from-campus' })).toBeTruthy();
-    expect(pickupPlace({ ...pWithoutPickupAt, direction: 'to-campus', pickupName: null })).toBeTruthy();
+    expect(
+      pickupPlace({ ...pWithoutPickupAt, direction: 'to-campus', pickupName: null }),
+    ).toBeTruthy();
 
     // handleNoShow cancelled and rejected
     ask.mockResolvedValueOnce(false);

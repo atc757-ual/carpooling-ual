@@ -1,19 +1,19 @@
-@use 'breakpoints' as bp;
-
-// Un ion-item azul claro con el borde de la marca, sin flecha (el aviso entero es el
-// enlace): el texto a la izquierda y el coche con el punto que late a la derecha
+// Como «Próximo viaje»: el fondo con un tinte suave, y el borde y el icono
+// del color del estado (en curso, el azul de la marca); al pasar el ratón, el
+// tinte, algo más fuerte.
+// El aviso entero es el enlace: el texto a la izquierda y la flecha a la derecha
 .live-trip-banner {
   overflow: hidden;
   border: var(--border-width-s) solid var(--color-primary);
   border-radius: var(--radius-s); // 8px, como las tarjetas
-  --background: var(--color-primary-subtle);
+  --background: var(--status-card-background);
   --background-hover: var(--color-primary);
-  --background-hover-opacity: 0.08;
+  --background-hover-opacity: 0.06;
   --color: var(--color-text);
   --min-height: var(--control-height-l); // 56px
   --padding-start: var(--space-s); // 8px, como los avisos
   --inner-padding-end: var(--space-s);
-  --padding-top: var(--space-s);
+  --padding-top: var(--space-base); // 16px: deja sitio a la etiqueta del borde
   --padding-bottom: var(--space-s);
 }
 
@@ -31,57 +31,6 @@
   gap: var(--space-xxs);
   min-width: 0;
   margin: 0;
-}
-
-.live-trip-banner__eyebrow {
-  color: var(--color-link);
-}
-
-// En escritorio, de dónde a dónde en una línea (con … si no cabe)
-.live-trip-banner__route {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-// En el móvil, el origen y el destino uno debajo del otro, con su icono
-// (como el título de la conversación); cada uno con … si no cabe
-.live-trip-banner__ends {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xxs);
-  min-width: 0;
-}
-
-.live-trip-banner__end {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  min-width: 0;
-
-  ion-icon {
-    flex: none;
-    color: var(--color-text-muted);
-    font-size: var(--icon-size-xs);
-  }
-}
-
-.live-trip-banner__place {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@include bp.down(md) {
-  .live-trip-banner__route {
-    display: none;
-  }
-}
-
-@include bp.up(md) {
-  .live-trip-banner__ends {
-    display: none;
-  }
 }
 
 .live-trip-banner__detail {

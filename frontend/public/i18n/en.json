@@ -1309,6 +1309,7 @@
     "enviaViajeAlguienConfianza": "Send it to someone you trust.",
     "compartirViaje": "Share trip",
     "viajeCurso": "Trip in progress",
+    "towards": "Heading to {{ place }}",
     "directo": "Live",
     "quienTengaEnlaceViaje": "Anyone with the link can see your trip until it ends.",
     "enviarEnlace": "Send the link",
