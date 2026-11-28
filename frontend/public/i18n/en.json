@@ -41,7 +41,6 @@
     "logoutConfirm": {
       "title": "Log out?",
       "message": "You can log back in at any time with your UAL email and password.",
-      "unsavedTrip": "The trip you were publishing will be lost.",
       "confirm": "Log out"
     },
     "footer": {
@@ -661,6 +660,10 @@
     }
   },
   "publish": {
+    "draft": {
+      "restored": "We've restored the trip you left halfway.",
+      "discard": "Start again"
+    },
     "preparandoFormulario": "Getting the form ready…",
     "anadirVehiculo": "Add vehicle",
     "vehiculo": "Vehicle",

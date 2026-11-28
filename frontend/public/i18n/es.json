@@ -41,7 +41,6 @@
     "logoutConfirm": {
       "title": "¿Cerrar sesión?",
       "message": "Podrás volver cuando quieras con tu correo UAL y tu contraseña.",
-      "unsavedTrip": "Se perderá el viaje que estabas publicando.",
       "confirm": "Cerrar sesión"
     },
     "footer": {
@@ -661,6 +660,10 @@
     }
   },
   "publish": {
+    "draft": {
+      "restored": "Hemos recuperado el viaje que dejaste a medias.",
+      "discard": "Empezar de nuevo"
+    },
     "preparandoFormulario": "Preparando el formulario…",
     "anadirVehiculo": "Añadir vehículo",
     "vehiculo": "Vehículo",

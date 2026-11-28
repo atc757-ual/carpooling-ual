@@ -16,7 +16,10 @@ import { FaqsService } from '../../../core/services/help/faqs.service';
 import { LocationService } from '../../../core/services/location/location.service';
 import { PlacesService } from '../../../core/services/places/places.service';
 import { TripsService } from '../../../core/services/trips/trips.service';
-import { PublishDraftService } from '../../../core/services/trips/publish-draft.service';
+import {
+  PublishDraft,
+  PublishDraftService,
+} from '../../../core/services/trips/publish-draft.service';
 import { CelebrationService } from '../../../core/services/ui/celebration.service';
 import { ToastService } from '../../../core/services/ui/toast.service';
 import { stubIntersectionObserver } from '../../matching/trip-search.testing';
@@ -63,6 +66,7 @@ describe('PublishTripPage', () => {
   let showError: ReturnType<typeof vi.fn>;
   let celebrate: ReturnType<typeof vi.fn>;
   let listMyTripEntries: ReturnType<typeof vi.fn>;
+  let draftStore: Record<'load' | 'save' | 'remove', ReturnType<typeof vi.fn>>;
   let currentUser: ReturnType<typeof signal<{ id: string; profiles: string[] } | null>>;
 
   async function openPage(
@@ -72,14 +76,21 @@ describe('PublishTripPage', () => {
       hasLicenseDeclared = true,
       publishingSuspendedUntil = null,
       multiDayPublishing = false,
+      draft = null,
     }: {
       vehicles?: Vehicle[];
       hasLicenseDeclared?: boolean;
       publishingSuspendedUntil?: string | null;
       multiDayPublishing?: boolean;
+      draft?: PublishDraft | null;
     } = {},
   ): Promise<void> {
     stubIntersectionObserver();
+    draftStore = {
+      load: vi.fn().mockResolvedValue(draft),
+      save: vi.fn().mockResolvedValue(undefined),
+      remove: vi.fn().mockResolvedValue(undefined),
+    };
     listMyTripEntries = vi.fn().mockResolvedValue({ items: [], total: 0 });
     driver = {
       getStatus: vi.fn().mockResolvedValue({ hasLicenseDeclared }),
@@ -107,6 +118,7 @@ describe('PublishTripPage', () => {
           },
         ]),
         { provide: DriverService, useValue: driver },
+        { provide: PublishDraftService, useValue: draftStore },
         {
           provide: PlatformSettingsService,
           useValue: { get: vi.fn().mockResolvedValue({ multiDayPublishing }) },
@@ -206,31 +218,48 @@ describe('PublishTripPage', () => {
     expect(page.step()).toBe(1);
   });
 
-  // Al recargar o cerrar la pestaña, y al cerrar sesión, se avisa solo si hay
-  // algo que perder: un cambio (también los que se hacen por código) o un paso
-  // más allá del primero, sin publicar
-  it('warns before leaving only with a trip half filled in', async () => {
+  // El viaje a medio rellenar se guarda en el dispositivo un momento después
+  // del último cambio (sin la declaración); deshecho, se borra
+  it('keeps the trip half filled in as a draft on the device', async () => {
     await openPage();
-    const draft = TestBed.inject(PublishDraftService);
-    const leave = (): boolean => {
-      const event = new Event('beforeunload', { cancelable: true });
-      window.dispatchEvent(event);
-      return event.defaultPrevented;
-    };
-
-    expect(page.hasUnsavedChanges()).toBe(false);
-    expect(leave()).toBe(false);
 
     page.tripForm.controls.pickupMode.setValue('stops');
     TestBed.tick();
-    expect(leave()).toBe(true);
-    expect(draft.hasUnsavedTrip()).toBe(true);
+    await vi.waitFor(() => expect(draftStore.save).toHaveBeenCalled());
+    const [saved] = draftStore.save.mock.lastCall as [PublishDraft];
+    expect(saved.step).toBe(1);
+    expect(saved.value['pickupMode']).toBe('stops');
+    expect(saved.value).not.toHaveProperty('declaration');
 
-    // Deshecho, como si no se hubiera tocado
     page.tripForm.controls.pickupMode.setValue('on_route');
     TestBed.tick();
-    expect(leave()).toBe(false);
-    expect(draft.hasUnsavedTrip()).toBe(false);
+    await vi.waitFor(() => expect(draftStore.remove).toHaveBeenCalled());
+  });
+
+  // Al volver (recargar, cerrar la pestaña o la app), en el paso en que se quedó
+  it('restores the draft in its step and starts again on request', async () => {
+    await openPage('/publish', {
+      draft: {
+        savedAt: new Date().toISOString(),
+        step: 2,
+        value: { place: PLACE, parking: 'p1', date: '2099-01-15', time: '07:40', seats: 2 },
+      },
+    });
+
+    await harness.fixture.whenStable();
+    expect(page.step()).toBe(2);
+    expect(page.tripForm.controls.time.value).toBe('07:40');
+    expect(harness.routeNativeElement?.textContent).toContain(
+      'Hemos recuperado el viaje que dejaste a medias.',
+    );
+
+    await page.handleDiscardDraft();
+    TestBed.tick();
+
+    expect(page.step()).toBe(1);
+    expect(page.tripForm.controls.place.value).toBeNull();
+    expect(page.isDraftRestored()).toBe(false);
+    await vi.waitFor(() => expect(draftStore.remove).toHaveBeenCalled());
   });
 
   it('has nothing to lose once published, nor when starting another trip', async () => {

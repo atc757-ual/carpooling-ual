@@ -58,6 +58,15 @@
                     (selected)="goToStep($event)"
                     [isComplete]="published() !== null"
                   />
+                  <!-- El viaje que se dejó a medias, recuperado del dispositivo -->
+                  @if (isDraftRestored() && published() === null) {
+                    <div class="notice notice--info" role="status">
+                      <span>{{ 'publish.draft.restored' | transloco }}</span>
+                      <ion-button fill="clear" size="small" (click)="handleDiscardDraft()">
+                        {{ 'publish.draft.discard' | transloco }}
+                      </ion-button>
+                    </div>
+                  }
                   <!-- Volver al paso anterior, por su nombre, junto al botón de
                    seguir (también se puede desde los pasos hechos o con
                    «Atrás» del navegador) -->

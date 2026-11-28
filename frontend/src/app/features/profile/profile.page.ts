@@ -30,7 +30,6 @@ import { AvatarsService } from '../../core/services/users/avatars.service';
 import { UsersService } from '../../core/services/users/users.service';
 import { ConfirmService } from '../../core/services/ui/confirm.service';
 import { confirmLogout } from '../../core/services/auth/confirm-logout';
-import { PublishDraftService } from '../../core/services/trips/publish-draft.service';
 import { AvatarArt } from '../../shared/components/ui/avatar-art/avatar-art';
 import { formatPersonName, fullName } from '../../shared/utils/person-name.util';
 import { getInitials } from '../matching/trip-driver/trip-driver';
@@ -67,7 +66,6 @@ export class ProfilePage implements OnInit {
   private readonly avatars = inject(AvatarsService);
   private readonly navController = inject(NavController);
   private readonly confirm = inject(ConfirmService);
-  private readonly publishDraft = inject(PublishDraftService);
   private readonly modalController = inject(ModalController);
 
   readonly user = this.auth.currentUser;
@@ -134,7 +132,7 @@ export class ProfilePage implements OnInit {
   }
 
   async handleLogout(): Promise<void> {
-    if (!(await confirmLogout(this.confirm, this.publishDraft.hasUnsavedTrip()))) {
+    if (!(await confirmLogout(this.confirm))) {
       return;
     }
     await this.auth.logout();
