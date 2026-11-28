@@ -7,6 +7,15 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Ajustes de la revisión del 28/11/2026:**
+  - «¿Tienes coche?» en Buscar sale a quien no tiene ningún coche activo, también si es conductor y los ha quitado todos (antes, solo a quien no tenía perfil de conductor). Se comprueba de nuevo al volver a la pestaña.
+  - El calendario y las ruedas de la hora, dentro de una ventana («Mi trayecto habitual», «Editar búsqueda»), se despliegan debajo del campo, en la misma ventana, uno solo a la vez; antes, un desplegable que se salía por debajo de la ventana en escritorio o una hoja sobre otra en el móvil. Con los campos de dos en dos del móvil, la fecha y la hora no se mueven y el selector va debajo de ambos, a todo el ancho.
+  - «Editar búsqueda» sin la ilustración: los campos usan todo el ancho.
+  - 16px entre el icono y el texto en los enlaces de Mi perfil, Preferencias, Ajustes y el lateral de Tus viajes (antes, 8px).
+  - Dos frases en inglés: «You don't have any reviews yet.» y «Can be viewed without an account…».
+
 ### Added
 
 - **La simulación parte de una copia del gemelo vivo (lo acordado con el director el 27/10/2026):** al pedir una ejecución se copia el gemelo digital vivo (`SystemTwin.snapshot`, con `toState`/`fromState` en cada gemelo de entidad) y cada réplica arranca su propia instancia desde esa copia (`TwinFeed`), siguiendo su secuencia de eventos. Para la simulación basta con las plazas, las horas y las rutas aproximadas, así que la copia se guarda protegida (`twin-snapshot-privacy.ts`). Solo lleva los viajes abiertos, sus vehículos y los usuarios activos. Los identificadores se sustituyen por alias (`viaje-1`, `usuario-1`…). No guarda la posición del conductor ni el recorrido, y los puntos van redondeados a la cuadrícula común de 0,005° (`shared/geo/approximate-coordinates.ts`, la misma de los extremos del viaje). La copia se borra al terminar la ejecución, acabe como acabe; queda su resumen sin datos personales (viajes abiertos y en curso, vehículos, usuarios activos, conductores y plazas), que la API da en `twinSummary`. Por ahora los viajes de la copia no se ofrecen a los pasajeros simulados ni cuentan en las métricas, que salen iguales con la misma semilla. Migración `AddSimulationTwinSnapshot` (`simulation_runs.twin_snapshot`, que no se lee en las consultas, y `twin_summary`) (#465).
