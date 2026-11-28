@@ -9,8 +9,6 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  IonBreadcrumb,
-  IonBreadcrumbs,
   IonButton,
   IonCard,
   IonContent,
@@ -52,8 +50,6 @@ const MAX_SEARCH_ITEMS = 8;
     HelpAudiencePicker,
     HelpSupportCard,
     HelpIncidentsCard,
-    IonBreadcrumb,
-    IonBreadcrumbs,
     IonButton,
     IonCard,
     IonContent,

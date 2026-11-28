@@ -31,6 +31,19 @@ ion-content::part(scroll) {
   overscroll-behavior-y: none;
 }
 
+// En escritorio, la cabecera va pegada arriba dentro del contenido: al llevar
+// un elemento a la vista (el foco con el teclado, un enlace a un ancla), que
+// no quede debajo de ella (el foco, a la vista: WCAG 2.4.7 y 2.4.11)
+@include bp.up(md) {
+  app-tabs ion-content::part(scroll) {
+    scroll-padding-top: var(--top-nav-height);
+  }
+
+  app-admin-layout ion-content::part(scroll) {
+    scroll-padding-top: var(--admin-header-height);
+  }
+}
+
 // Barras superiores: 56px de alto también en iOS (que trae 44px) y el mismo
 // margen lateral que el contenido del móvil
 ion-toolbar {

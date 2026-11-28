@@ -9,7 +9,7 @@ export interface TabBreadcrumb {
 }
 
 // Cabecera propia de una pestaña, en el data de su ruta ({ heading }). En
-// escritorio, la franja fija muestra su título y subtítulo en vez del saludo;
+// escritorio, la franja muestra su título y subtítulo en vez del saludo;
 // en el móvil, la cabecera muestra la flecha de volver (a backHref) y el
 // título en vez del logotipo. Sin heading, la pestaña lleva el saludo y el
 // logotipo (Inicio)
@@ -21,8 +21,12 @@ export interface TabHeading {
   // pantalla (que va al final, sin enlace, con su título)
   breadcrumbs?: readonly TabBreadcrumb[];
   // Listas largas: en el móvil, el título va dentro del contenido
-  // (SectionHeading) y se desplaza con él, en lugar de la franja fija
+  // (SectionHeading), en lugar de la franja
   scrollsWithContent?: boolean;
+  // La franja se queda pegada arriba al desplazarse (en escritorio, bajo el
+  // menú; en el resto, baja con el contenido): Ayuda, para tener siempre el
+  // buscador
+  isHeadingFixed?: boolean;
 }
 
 // La cabecera de la pantalla que se ve (la ruta más profunda)

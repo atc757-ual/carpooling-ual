@@ -124,7 +124,7 @@
 
   .shared-trip__aside {
     position: sticky;
-    top: var(--space-l);
+    top: calc(var(--top-nav-height) + var(--space-l));
   }
 }
 

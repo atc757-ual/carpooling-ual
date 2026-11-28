@@ -81,7 +81,11 @@ describe('HelpFaqPage', () => {
     host.detectChanges();
     const heading = host.nativeElement as HTMLElement;
     expect(heading.querySelector('.help-heading__title')?.textContent).toContain('Pregunta');
-    expect(heading.querySelectorAll('ion-breadcrumb')).toHaveLength(3);
+    // Ayuda y soporte / Pregunta: Ayuda ya no cuelga de Mi perfil
+    const crumbs = [...heading.querySelectorAll('ion-breadcrumb')].map((crumb) =>
+      crumb.textContent?.trim(),
+    );
+    expect(crumbs).toEqual(['Ayuda y soporte', 'Pregunta']);
 
     fixture.componentInstance.ionViewWillLeave();
     fixture.componentInstance.ionViewDidEnter();

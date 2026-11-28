@@ -100,6 +100,22 @@ describe('AdminLayout', () => {
     expect(element().querySelector('.admin-heading')).toBeNull();
   });
 
+  it('puts the header inside the content on desktop, so it is one scroll', () => {
+    expect(element().querySelector('ion-content ion-header')).toBeNull();
+    vi.stubGlobal('matchMedia', () => ({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    const desktop = TestBed.createComponent(AdminLayout);
+    desktop.detectChanges();
+
+    const root = desktop.nativeElement as HTMLElement;
+    expect(root.querySelector('ion-content > ion-header.admin-header')).not.toBeNull();
+    expect(root.querySelectorAll('ion-header')).toHaveLength(1);
+    vi.unstubAllGlobals();
+  });
+
   it('shows back and the title instead of the menu on a detail screen', () => {
     const stub = TestBed.createComponent(HeadingStub);
     stub.detectChanges();

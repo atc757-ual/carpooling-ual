@@ -42,7 +42,7 @@
 
   .my-trips__aside {
     position: sticky;
-    top: var(--space-l);
+    top: calc(var(--top-nav-height) + var(--space-l));
     grid-row: 1;
     grid-column: 2;
   }

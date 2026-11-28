@@ -49,92 +49,105 @@
   </div>
 }
 
-<ion-header class="admin-header">
-  <div class="admin-header__bar">
-    <div class="admin-mobile-header">
-      <!-- Una pantalla de detalle pone «Atrás» y su título en lugar del menú -->
-      @if (headingContent.mobileBar(); as bar) {
-        <button
-          type="button"
-          class="admin-mobile-header__menu-button"
-          aria-label="Volver"
-          (click)="bar.goBack()"
-        >
-          <ion-icon [icon]="backIcon" aria-hidden="true" />
-        </button>
-        <span class="admin-mobile-header__title">{{ bar.title }}</span>
-      } @else {
-        <button
-          type="button"
-          class="admin-mobile-header__menu-button"
-          [attr.aria-expanded]="mobileMenuOpen()"
-          [attr.aria-controls]="mobileMenuOpen() ? 'admin-mobile-menu' : null"
-          [attr.aria-label]="
-            mobileMenuOpen() ? 'Cerrar menú de administración' : 'Abrir menú de administración'
-          "
-          (click)="toggleMobileMenu()"
-        >
-          <ion-icon [icon]="mobileMenuOpen() ? closeIcon : menuIcon" aria-hidden="true" />
-        </button>
-        <a class="admin-header__brand" routerLink="/admin">Carpooling UAL</a>
-      }
-    </div>
-    <div class="admin-desktop-header">
-      <a class="admin-header__brand" routerLink="/admin">Carpooling UAL · Admin</a>
-      <div class="admin-header__account">
-        <button
-          type="button"
-          class="admin-header__action admin-header__theme"
-          [attr.aria-label]="themeLabel()"
-          [title]="themeLabel()"
-          (click)="handleToggleTheme()"
-        >
-          <ion-icon [icon]="themeIcon()" aria-hidden="true" />
-        </button>
-        <span class="admin-header__email">{{ email() }}</span>
-        @if (canUseApp()) {
-          <button type="button" class="admin-header__action" (click)="handleGoToApp()">
-            <ion-icon [icon]="appIcon" aria-hidden="true" />
-            <span>Modo usuario</span>
-          </button>
-        }
-        <button type="button" class="admin-header__logout" (click)="handleLogout()">
-          <ion-icon [icon]="logoutIcon" aria-hidden="true" />
-          <span>Cerrar sesión</span>
-        </button>
-      </div>
-      <nav class="admin-nav" aria-label="Secciones del panel">
-        @for (section of sections; track section.path) {
-          <a
-            class="admin-nav__link"
-            [routerLink]="section.path"
-            routerLinkActive="admin-nav__link--active"
-            ariaCurrentWhenActive="page"
+<!-- En escritorio, la cabecera va dentro del contenido, pegada arriba
+     (sticky): la barra de desplazamiento ocupa toda la ventana y la cabecera
+     no se mueve. En el móvil, fija fuera: el menú lateral se abre debajo -->
+<ng-template #header>
+  <ion-header class="admin-header">
+    <div class="admin-header__bar">
+      <div class="admin-mobile-header">
+        <!-- Una pantalla de detalle pone «Atrás» y su título en lugar del menú -->
+        @if (headingContent.mobileBar(); as bar) {
+          <button
+            type="button"
+            class="admin-mobile-header__menu-button"
+            aria-label="Volver"
+            (click)="bar.goBack()"
           >
-            <ion-icon class="admin-nav__icon" [icon]="section.icon" aria-hidden="true" />
-            {{ section.label }}
-            @if (section.path === incidentsPath && openIncidents() > 0) {
-              <span class="admin-nav__badge">
-                {{ openIncidents() }}<span class="visually-hidden"> abiertas</span>
-              </span>
-            }
-          </a>
+            <ion-icon [icon]="backIcon" aria-hidden="true" />
+          </button>
+          <span class="admin-mobile-header__title">{{ bar.title }}</span>
+        } @else {
+          <button
+            type="button"
+            class="admin-mobile-header__menu-button"
+            [attr.aria-expanded]="mobileMenuOpen()"
+            [attr.aria-controls]="mobileMenuOpen() ? 'admin-mobile-menu' : null"
+            [attr.aria-label]="
+              mobileMenuOpen() ? 'Cerrar menú de administración' : 'Abrir menú de administración'
+            "
+            (click)="toggleMobileMenu()"
+          >
+            <ion-icon [icon]="mobileMenuOpen() ? closeIcon : menuIcon" aria-hidden="true" />
+          </button>
+          <a class="admin-header__brand" routerLink="/admin">Carpooling UAL</a>
         }
-      </nav>
+      </div>
+      <div class="admin-desktop-header">
+        <a class="admin-header__brand" routerLink="/admin">Carpooling UAL · Admin</a>
+        <div class="admin-header__account">
+          <button
+            type="button"
+            class="admin-header__action admin-header__theme"
+            [attr.aria-label]="themeLabel()"
+            [title]="themeLabel()"
+            (click)="handleToggleTheme()"
+          >
+            <ion-icon [icon]="themeIcon()" aria-hidden="true" />
+          </button>
+          <span class="admin-header__email">{{ email() }}</span>
+          @if (canUseApp()) {
+            <button type="button" class="admin-header__action" (click)="handleGoToApp()">
+              <ion-icon [icon]="appIcon" aria-hidden="true" />
+              <span>Modo usuario</span>
+            </button>
+          }
+          <button type="button" class="admin-header__logout" (click)="handleLogout()">
+            <ion-icon [icon]="logoutIcon" aria-hidden="true" />
+            <span>Cerrar sesión</span>
+          </button>
+        </div>
+        <nav class="admin-nav" aria-label="Secciones del panel">
+          @for (section of sections; track section.path) {
+            <a
+              class="admin-nav__link"
+              [routerLink]="section.path"
+              routerLinkActive="admin-nav__link--active"
+              ariaCurrentWhenActive="page"
+            >
+              <ion-icon class="admin-nav__icon" [icon]="section.icon" aria-hidden="true" />
+              {{ section.label }}
+              @if (section.path === incidentsPath && openIncidents() > 0) {
+                <span class="admin-nav__badge">
+                  {{ openIncidents() }}<span class="visually-hidden"> abiertas</span>
+                </span>
+              }
+            </a>
+          }
+        </nav>
+      </div>
     </div>
-  </div>
-  <!-- Franja de la sección (título, descripción y lo que lleve): la pone la
-       pantalla con HeadingContentService, como en la app. Con buscador va
-       fija, en la cabecera; con el menú del móvil abierto se esconde, para no
-       quedar encima de él -->
-  @if (headingContent.isFixed()) {
-    <ng-container [ngTemplateOutlet]="heading" />
-  }
-</ion-header>
+    <!-- Franja de la sección (título, descripción y lo que lleve): la pone la
+       pantalla con HeadingContentService, como en la app. En el móvil, con
+       buscador va fija, en la cabecera; en escritorio baja siempre con el
+       contenido (solo la cabecera y el menú se quedan). Con el menú del móvil
+       abierto se esconde, para no quedar encima de él -->
+    @if (isHeadingInHeader()) {
+      <ng-container [ngTemplateOutlet]="heading" />
+    }
+  </ion-header>
+</ng-template>
+
+@if (!isDesktop()) {
+  <ng-container [ngTemplateOutlet]="header" />
+}
 
 <ion-content>
+  @if (isDesktop()) {
+    <ng-container [ngTemplateOutlet]="header" />
+  }
   <!-- Sin buscador, al principio del contenido: se desplaza con él -->
-  @if (!headingContent.isFixed()) {
+  @if (!isHeadingInHeader()) {
     <ng-container [ngTemplateOutlet]="heading" />
   }
   <main class="admin-main">
