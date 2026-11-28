@@ -102,6 +102,9 @@ export class TripSearchForm {
   // «Nueva búsqueda» junto a «Buscar viaje»: solo donde se pide (Buscar) y
   // con una búsqueda guardada que borrar
   readonly showNewSearch = input(false);
+  // La ilustración junto a los campos (escritorio); en la ventana de «Editar
+  // búsqueda» sobra: los campos usan todo el ancho
+  readonly showIllustration = input(true);
   readonly canStartOver = computed(
     () => this.showNewSearch() && this.searchState.search() !== null,
   );

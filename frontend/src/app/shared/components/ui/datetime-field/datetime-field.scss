@@ -1,5 +1,6 @@
 // Etiqueta encima a 8px y el botón con el borde de los campos de Ionic
-:host {
+:host,
+.datetime-field__control {
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
@@ -45,4 +46,33 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+// En una ventana: el calendario o las ruedas debajo del campo, con el borde de
+// los campos, en vez de un desplegable o una hoja encima
+.datetime-field__inline {
+  overflow: hidden;
+  border: var(--border-width-s) solid var(--ion-border-color);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+
+  ion-datetime {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+// En una cuadrícula estrecha (los campos de dos en dos del móvil), los campos
+// no se mueven: el selector abierto va en la fila de debajo, a todo el ancho.
+// El campo deja de ser una caja (display: contents) para que la etiqueta con
+// el botón y el selector sean dos celdas; la cuadrícula los coloca con
+// grid-auto-flow: dense (el campo de al lado sube a su sitio)
+@container (max-width: 599px) {
+  :host(.datetime-field--expanded) {
+    display: contents;
+  }
+
+  :host(.datetime-field--expanded) .datetime-field__inline {
+    grid-column: 1 / -1;
+  }
 }
