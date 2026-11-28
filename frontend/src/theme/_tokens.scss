@@ -53,6 +53,9 @@
   // debajo): lo que queda tapado arriba al desplazarse, porque va pegado. Las
   // columnas pegadas (sticky) de cada pantalla empiezan debajo
   --top-nav-height: 8.75rem; // 140px
+  // La del panel en escritorio (4px arriba, marca de 76px, 8px y el menú de
+  // 48px), también pegada arriba
+  --admin-header-height: 8.5rem; // 136px
 
   // Cajas cuadradas más pequeñas que un control: números de los pasos,
   // botones de icono, avatares y círculos con un icono dentro
