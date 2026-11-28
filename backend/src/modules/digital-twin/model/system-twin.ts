@@ -11,6 +11,12 @@ import {
   VehicleTwinStatus,
 } from './vehicle-twin';
 import { USER_EVENTS, UserTwin } from './user-twin';
+import {
+  fromIso,
+  SystemTwinSnapshot,
+  toIso,
+  TWIN_SNAPSHOT_VERSION,
+} from './twin-snapshot';
 
 // Usuarios con la cuenta activa o eliminada; de los activos, cuántos tienen
 // cada perfil y cuántos viajan ahora en modo conductor
@@ -125,6 +131,39 @@ export class SystemTwin {
       this.appliedEvents += 1;
     }
     return isApplied ? 'applied' : 'ignored';
+  }
+
+  // La copia de todo su estado (twin-snapshot.ts): para que una réplica de la
+  // simulación parta del estado real de la plataforma
+  snapshot(takenAt: Date): SystemTwinSnapshot {
+    return {
+      version: TWIN_SNAPSHOT_VERSION,
+      takenAt: takenAt.toISOString(),
+      lastSequence: this.lastSequence,
+      lastEventAt: toIso(this.lastEventAt),
+      trips: [...this.trips.values()].map((trip) => trip.toState()),
+      vehicles: [...this.vehicles.values()].map((vehicle) => vehicle.toState()),
+      users: [...this.users.values()].map((user) => user.toState()),
+    };
+  }
+
+  // Una instancia nueva e independiente con el estado de la copia. Sigue
+  // desde su último evento; los contadores de eventos empiezan en cero (son
+  // de esta instancia, no de la que se copió)
+  static fromSnapshot(snapshot: SystemTwinSnapshot): SystemTwin {
+    const twin = new SystemTwin();
+    twin.lastSequence = snapshot.lastSequence;
+    twin.lastEventAt = fromIso(snapshot.lastEventAt);
+    for (const state of snapshot.trips) {
+      twin.trips.set(state.id, TripTwin.fromState(state));
+    }
+    for (const state of snapshot.vehicles) {
+      twin.vehicles.set(state.id, VehicleTwin.fromState(state));
+    }
+    for (const state of snapshot.users) {
+      twin.users.set(state.id, UserTwin.fromState(state));
+    }
+    return twin;
   }
 
   summary(): SystemTwinSummary {

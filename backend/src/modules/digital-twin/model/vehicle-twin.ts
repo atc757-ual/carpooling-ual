@@ -6,6 +6,7 @@ import {
   TwinEvent,
   TwinPoint,
 } from './twin-event';
+import { fromIso, toIso, VehicleTwinState, copyPoint } from './twin-snapshot';
 
 // on_trip: en un viaje en curso; scheduled: con viajes publicados o
 // confirmados por hacer; idle: sin ninguno
@@ -34,6 +35,32 @@ export class VehicleTwin {
       return 'on_trip';
     }
     return this.scheduledTripIds.size > 0 ? 'scheduled' : 'idle';
+  }
+
+  // Su estado en datos planos, para la copia del gemelo (twin-snapshot.ts)
+  toState(): VehicleTwinState {
+    return {
+      id: this.id,
+      driverId: this.driverId,
+      activeTripId: this.activeTripId,
+      scheduledTripIds: [...this.scheduledTripIds],
+      position: copyPoint(this.position),
+      positionAt: toIso(this.positionAt),
+      updatedAt: toIso(this.updatedAt),
+    };
+  }
+
+  static fromState(state: VehicleTwinState): VehicleTwin {
+    const vehicle = new VehicleTwin(state.id);
+    vehicle.driverId = state.driverId;
+    vehicle.activeTripId = state.activeTripId;
+    state.scheduledTripIds.forEach((tripId) =>
+      vehicle.scheduledTripIds.add(tripId),
+    );
+    vehicle.position = copyPoint(state.position);
+    vehicle.positionAt = fromIso(state.positionAt);
+    vehicle.updatedAt = fromIso(state.updatedAt);
+    return vehicle;
   }
 
   // Aplica un evento de un viaje que lo usa (o lo usaba: si el viaje ha

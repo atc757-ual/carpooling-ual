@@ -1,4 +1,5 @@
 import { readString, TwinEvent } from './twin-event';
+import { fromIso, toIso, UserTwinState } from './twin-snapshot';
 
 // Los eventos user.* que cambian lo que el gemelo sabe de un usuario
 export const USER_EVENTS: ReadonlySet<string> = new Set([
@@ -23,6 +24,28 @@ export class UserTwin {
   updatedAt: Date | null = null;
 
   constructor(readonly id: string) {}
+
+  // Su estado en datos planos, para la copia del gemelo (twin-snapshot.ts)
+  toState(): UserTwinState {
+    return {
+      id: this.id,
+      profiles: [...this.profiles],
+      activeMode: this.activeMode,
+      isActive: this.isActive,
+      isPhoneVerified: this.isPhoneVerified,
+      updatedAt: toIso(this.updatedAt),
+    };
+  }
+
+  static fromState(state: UserTwinState): UserTwin {
+    const user = new UserTwin(state.id);
+    state.profiles.forEach((profile) => user.profiles.add(profile));
+    user.activeMode = state.activeMode;
+    user.isActive = state.isActive;
+    user.isPhoneVerified = state.isPhoneVerified;
+    user.updatedAt = fromIso(state.updatedAt);
+    return user;
+  }
 
   // Devuelve false si el evento no le afecta
   apply(event: TwinEvent): boolean {

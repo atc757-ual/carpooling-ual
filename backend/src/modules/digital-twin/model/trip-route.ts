@@ -1,5 +1,6 @@
 import { straightLineKm } from '../../../shared/geo/straight-line-km';
 import { readNumber, readPoint, readString, TwinPoint } from './twin-event';
+import { copyPoint, TripRouteState } from './twin-snapshot';
 
 // Lo más que guarda el recorrido: unas 2 h con una posición cada 10 s. Con
 // más, se quedan las últimas (los km siguen sumando todo el viaje)
@@ -68,6 +69,35 @@ export class TripRoute {
   forget(): void {
     this.origin = null;
     this.track = [];
+  }
+
+  // Su estado en datos planos, para la copia del gemelo (twin-snapshot.ts)
+  toState(): TripRouteState {
+    return {
+      origin: copyPoint(this.origin),
+      destination: copyPoint(this.destination),
+      stops: this.stops.map((stop) => ({
+        ...stop,
+        point: copyPoint(stop.point),
+      })),
+      track: this.track.map((point) => copyPoint(point) as TwinPoint),
+      trackPoints: this.trackPoints,
+      travelledKm: this.travelledKmTotal,
+    };
+  }
+
+  static fromState(state: TripRouteState): TripRoute {
+    const route = new TripRoute();
+    route.origin = copyPoint(state.origin);
+    route.destination = copyPoint(state.destination);
+    route.stops = state.stops.map((stop) => ({
+      ...stop,
+      point: copyPoint(stop.point),
+    }));
+    route.track = state.track.map((point) => copyPoint(point) as TwinPoint);
+    route.trackPoints = state.trackPoints;
+    route.travelledKmTotal = state.travelledKm;
+    return route;
   }
 }
 
