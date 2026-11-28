@@ -4,12 +4,12 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
-  DestroyRef,
   effect,
   inject,
   OnInit,
   resource,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -118,6 +118,8 @@ export const STEPS: readonly string[] = lazyList([
   'screens.publishSteps.published',
 ]);
 const PUBLISHED_STEP = STEPS.length;
+// Espera tras el último cambio antes de guardar el borrador
+const DRAFT_SAVE_DELAY_MS = 400;
 
 type LoadState = 'loading' | 'error' | 'ready' | 'suspended';
 
@@ -158,7 +160,6 @@ function getDefaultArrival(now = new Date()): { date: string; time: string } {
 // 1 y 2 y qué pasa después en el 3 y el 4
 @Component({
   selector: 'app-publish-trip',
-  host: { '(window:beforeunload)': 'handleBeforeUnload($event)' },
   imports: [
     Co2Source,
     NgTemplateOutlet,
@@ -275,6 +276,10 @@ export class PublishTripPage implements OnInit {
     { initialValue: 1 },
   );
   private readonly furthestStep = signal(1);
+  // Si ya se miró si había un borrador (hasta entonces no se guarda nada) y si
+  // se recuperó uno (el aviso con «Empezar de nuevo»)
+  private readonly isDraftReady = signal(false);
+  readonly isDraftRestored = signal(false);
   readonly step = computed(() => {
     if (this.published()) {
       return PUBLISHED_STEP;
@@ -288,9 +293,8 @@ export class PublishTripPage implements OnInit {
 
   // Un viaje a medio rellenar: algo distinto de como empezó el formulario o
   // pasado el primer paso, y sin publicar. Se compara el valor y no «dirty»:
-  // varios campos (cómo recoges, las paradas) cambian por código. Se perdería
-  // al recargar, al cerrar la pestaña o al cerrar sesión (al cambiar de
-  // pestaña no: Ionic guarda la pantalla)
+  // varios campos (cómo recoges, las paradas) cambian por código. Se guarda
+  // como borrador en el dispositivo (PublishDraftService)
   private readonly startingValue = signal(JSON.stringify(this.tripForm.getRawValue()));
   private readonly isFormChanged = computed(() => {
     this.tripValue();
@@ -559,9 +563,22 @@ export class PublishTripPage implements OnInit {
   });
 
   constructor() {
-    // Para el aviso de cerrar sesión; al salir de la pantalla, ya no hay borrador
-    effect(() => this.publishDraft.hasUnsavedTrip.set(this.hasUnsavedChanges()));
-    inject(DestroyRef).onDestroy(() => this.publishDraft.hasUnsavedTrip.set(false));
+    // El borrador sigue a lo que se escribe y al paso (un momento después del
+    // último cambio); sin nada a medio rellenar (publicado, descartado o como
+    // al empezar), se borra. No antes de recuperar el que hubiera
+    effect((onCleanup) => {
+      this.tripValue();
+      const step = this.step();
+      const hasDraft = this.hasUnsavedChanges();
+      if (!this.isDraftReady()) {
+        return;
+      }
+      const timer = setTimeout(
+        () => void untracked(() => this.storeDraft(hasDraft, step)),
+        DRAFT_SAVE_DELAY_MS,
+      );
+      onCleanup(() => clearTimeout(timer));
+    });
 
     // Mientras no se tocan, la vuelta sale 6 h después de llegar y lleva las
     // mismas plazas que la ida
@@ -660,14 +677,6 @@ export class PublishTripPage implements OnInit {
     suspended: alertCircleOutline,
   };
 
-  // Al recargar o cerrar la pestaña con un viaje a medio rellenar, el aviso del
-  // navegador (su texto no se puede cambiar)
-  handleBeforeUnload(event: BeforeUnloadEvent): void {
-    if (this.hasUnsavedChanges()) {
-      event.preventDefault();
-    }
-  }
-
   // Ionic guarda la pantalla: al volver a la pestaña, el próximo viaje se pide
   // de nuevo
   ionViewWillEnter(): void {
@@ -675,11 +684,42 @@ export class PublishTripPage implements OnInit {
   }
 
   ngOnInit(): void {
-    // Al recargar, lo escrito se pierde: se empieza por el primer paso
-    if (this.requestedStep() > 1) {
-      void this.goToStep(1, { replaceUrl: true });
+    void this.restoreDraft().then(() => this.load());
+  }
+
+  // El viaje que se dejó a medias (al recargar, al cerrar la pestaña o la
+  // app), en el paso en que se quedó. Sin borrador, desde el primer paso
+  private async restoreDraft(): Promise<void> {
+    const draft = await this.publishDraft.load();
+    if (draft === null) {
+      if (this.requestedStep() > 1) {
+        await this.goToStep(1, { replaceUrl: true });
+      }
+    } else {
+      this.tripForm.patchValue(draft.value);
+      this.isDraftRestored.set(true);
+      await this.goToStep(draft.step, { replaceUrl: true });
     }
-    void this.load();
+    this.isDraftReady.set(true);
+  }
+
+  // «Empezar de nuevo»: el formulario como al entrar y el borrador fuera
+  async handleDiscardDraft(): Promise<void> {
+    this.tripForm.reset(JSON.parse(this.startingValue()) as typeof this.tripForm.value);
+    this.isDraftRestored.set(false);
+    await this.goToStep(1, { replaceUrl: true });
+  }
+
+  private async storeDraft(hasDraft: boolean, step: number): Promise<void> {
+    if (!hasDraft) {
+      this.isDraftRestored.set(false);
+      await this.publishDraft.remove();
+      return;
+    }
+    // La declaración no se guarda: se acepta cada vez, a la vista
+    const value: Record<string, unknown> = { ...this.tripForm.getRawValue() };
+    delete value['declaration'];
+    await this.publishDraft.save({ savedAt: new Date().toISOString(), step, value });
   }
 
   // Lo que necesita el paso 1 (los parkings) y el estado del conductor (paso 3).

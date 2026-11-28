@@ -53,7 +53,6 @@ const DEFAULT_TEST_TRANSLATIONS: Record<string, Record<string, unknown>> = {
       logoutConfirm: {
         title: '¿Cerrar sesión?',
         message: 'Podrás volver cuando quieras con tu correo UAL y tu contraseña.',
-        unsavedTrip: 'Se perderá el viaje que estabas publicando.',
         confirm: 'Cerrar sesión',
       },
       footer: {
