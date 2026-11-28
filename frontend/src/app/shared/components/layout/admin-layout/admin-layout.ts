@@ -32,13 +32,13 @@ import { HeadingContentService } from '../../../../core/services/ui/heading-cont
 import { ThemeService } from '../../../../core/services/ui/theme.service';
 import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/admin/admin-sections';
 
+// El punto de corte md de theme/_breakpoints.scss
+const DESKTOP_QUERY = '(min-width: 768px)';
+
 // Marco del panel de administración (bloque b): la cabecera índigo con el
 // logotipo, la navegación de las secciones (con las incidencias abiertas) y la
 // cuenta del administrador, y debajo la sección abierta. Pensado para
 // escritorio; en el móvil todo va en una columna
-// El punto de corte md de theme/_breakpoints.scss
-const DESKTOP_QUERY = '(min-width: 768px)';
-
 @Component({
   selector: 'app-admin-layout',
   imports: [
@@ -77,6 +77,11 @@ export class AdminLayout implements OnInit {
         )
       : EMPTY,
     { initialValue: this.desktopQuery?.matches ?? false },
+  );
+  // La franja con buscador va en la cabecera solo en el móvil: en escritorio
+  // la cabecera pegada mide siempre lo mismo (--admin-header-height)
+  protected readonly isHeadingInHeader = computed(
+    () => this.headingContent.isFixed() && !this.isDesktop(),
   );
 
   protected readonly sections = ADMIN_SECTIONS;

@@ -128,10 +128,11 @@
       </div>
     </div>
     <!-- Franja de la sección (título, descripción y lo que lleve): la pone la
-       pantalla con HeadingContentService, como en la app. Con buscador va
-       fija, en la cabecera; con el menú del móvil abierto se esconde, para no
-       quedar encima de él -->
-    @if (headingContent.isFixed()) {
+       pantalla con HeadingContentService, como en la app. En el móvil, con
+       buscador va fija, en la cabecera; en escritorio baja siempre con el
+       contenido (solo la cabecera y el menú se quedan). Con el menú del móvil
+       abierto se esconde, para no quedar encima de él -->
+    @if (isHeadingInHeader()) {
       <ng-container [ngTemplateOutlet]="heading" />
     }
   </ion-header>
@@ -146,7 +147,7 @@
     <ng-container [ngTemplateOutlet]="header" />
   }
   <!-- Sin buscador, al principio del contenido: se desplaza con él -->
-  @if (!headingContent.isFixed()) {
+  @if (!isHeadingInHeader()) {
     <ng-container [ngTemplateOutlet]="heading" />
   }
   <main class="admin-main">
