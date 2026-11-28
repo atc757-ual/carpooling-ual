@@ -15,7 +15,7 @@
       (valueChange)="weekdays.set($event)"
     />
     @if (weekdays().length === 0) {
-      <p class="text-caption text-color-danger" role="alert">
+      <p class="text-body-s text-color-danger" role="alert">
         {{ 'usualTrip.noDays' | transloco }}
       </p>
     }
@@ -34,7 +34,7 @@
         [label]="'usualTrip.returnTime' | transloco"
       />
       @if (isReturnTooEarly()) {
-        <p class="text-caption text-color-danger" role="alert">
+        <p class="text-body-s text-color-danger" role="alert">
           {{ 'publish.returnAfterArrival' | transloco: { time: form.controls.arrivalTime.value } }}
         </p>
       }

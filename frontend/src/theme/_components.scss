@@ -320,8 +320,8 @@ input::-ms-clear {
 }
 
 // La ayuda y el error de debajo de los campos, alineados con el borde
-// izquierdo del campo (Ionic los mete con el margen interior del texto), en
-// 12px y gris como el resto de ayudas de la app (.field-hint), a 8px del
+// izquierdo del campo (Ionic los mete con el margen interior del texto); la
+// ayuda, en 12px y gris como el resto de ayudas de la app (.field-hint), a 8px del
 // campo (la de .field-hint, por el gap de su columna)
 // (la clase repetida sube la especificidad sin !important: Ionic usa
 // «.input-bottom.sc-ion-input-md» para el margen y cuatro clases para el
@@ -342,6 +342,14 @@ ion-textarea .textarea-bottom.textarea-bottom .helper-text.helper-text.helper-te
 
 .field-hint {
   margin: 0;
+}
+
+// El error de debajo del campo, a 14px: pide una acción, así que no va en el
+// tamaño pequeño de las ayudas (los errores con role="alert" usan .text-body-s)
+ion-input .input-bottom.input-bottom .error-text.error-text.error-text,
+ion-textarea .textarea-bottom.textarea-bottom .error-text.error-text.error-text {
+  font-size: var(--font-size-body-s);
+  line-height: 1.4;
 }
 
 // Campos numéricos sin las flechas del navegador: llevan sus propios − y +
