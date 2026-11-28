@@ -17,7 +17,8 @@ import {
 // El arranque importa de las entradas sueltas de Ionic, no de '@ionic/angular':
 // su índice arrastra todos los componentes al paquete inicial (1,51 MB frente
 // a 744 kB). Las pantallas, que se cargan en diferido, siguen con el índice
-import { iosTransitionAnimation, isPlatform } from '@ionic/core/components';
+import { isPlatform } from '@ionic/core/components';
+import { pageTransition } from './shared/utils/page-transition.util';
 import { provideIonicAngular } from '@ionic/angular/provide';
 import { IonicRouteStrategy } from '@ionic/angular/ionic-route-strategy';
 import { provideTransloco, TranslocoService } from '@jsverse/transloco';
@@ -50,7 +51,7 @@ export const appConfig: ApplicationConfig = {
     // mitad de una transición
     provideIonicAngular({
       mode: 'md',
-      ...(IS_IOS && { navAnimation: iosTransitionAnimation }),
+      navAnimation: pageTransition(IS_IOS),
       swipeBackEnabled: IS_IOS,
       animated: !('Cypress' in globalThis),
     }),
