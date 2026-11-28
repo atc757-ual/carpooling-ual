@@ -1,5 +1,40 @@
 @use 'breakpoints' as bp;
 
+// El filtro elegido, con el color de su tipo y solo roles del tema: cambian
+// solos en modo oscuro y su texto queda en ≥ 4,5:1. El hover, un 6 % hacia el
+// color del texto (más oscuro en claro, más claro en oscuro), para no perder
+// contraste. $block es el filtro del móvil o el de la columna de escritorio
+// y $var, el prefijo de sus variables (--chip-* o --item-*)
+@mixin selected-tones($block, $var) {
+  --#{$var}-bg: var(--color-surface-subtle);
+  --#{$var}-hover: color-mix(in srgb, var(--color-surface-subtle) 94%, var(--color-text));
+  --#{$var}-color: var(--color-text);
+
+  &.#{$block}--unread {
+    border-color: var(--color-border);
+  }
+  &.#{$block}--travel {
+    --#{$var}-bg: var(--color-primary);
+    --#{$var}-hover: var(--color-primary-hover);
+    --#{$var}-color: var(--color-on-primary);
+  }
+  &.#{$block}--account {
+    --#{$var}-bg: var(--color-success);
+    --#{$var}-hover: color-mix(in srgb, var(--color-success) 94%, var(--color-text));
+    --#{$var}-color: var(--color-on-success);
+  }
+  &.#{$block}--incident {
+    --#{$var}-bg: var(--color-accent);
+    --#{$var}-hover: color-mix(in srgb, var(--color-accent) 94%, var(--color-text));
+    --#{$var}-color: var(--color-on-accent);
+  }
+  &.#{$block}--all {
+    --#{$var}-bg: var(--color-text-muted);
+    --#{$var}-hover: color-mix(in srgb, var(--color-text-muted) 94%, var(--color-text));
+    --#{$var}-color: var(--color-surface);
+  }
+}
+
 // Notificaciones
 ion-content {
   --background: var(--color-surface-subtle);
@@ -93,36 +128,7 @@ ion-content {
     flex: 1 1 auto; // En móvil llena el ancho restante
     min-width: 0;
     font-weight: var(--font-weight-semibold);
-    --chip-bg: #f1f5f9; // Tono claro / tirando a blanco para Sin leer
-    --chip-hover: #e2e8f0;
-    --chip-color: #0f172a;
-
-    &.notifications__filter-chip--unread {
-      --chip-bg: #f1f5f9;
-      --chip-hover: #e2e8f0;
-      --chip-color: #0f172a;
-      border-color: var(--color-border);
-    }
-    &.notifications__filter-chip--travel {
-      --chip-bg: #002eff;
-      --chip-hover: #0026d9;
-      --chip-color: #ffffff;
-    }
-    &.notifications__filter-chip--account {
-      --chip-bg: #15803d;
-      --chip-hover: #166534;
-      --chip-color: #ffffff;
-    }
-    &.notifications__filter-chip--incident {
-      --chip-bg: #ea580c;
-      --chip-hover: #c2410c;
-      --chip-color: #ffffff;
-    }
-    &.notifications__filter-chip--all {
-      --chip-bg: #64748b;
-      --chip-hover: #475569;
-      --chip-color: #ffffff;
-    }
+    @include selected-tones('notifications__filter-chip', 'chip');
 
     --background: var(--chip-bg) !important;
     --background-hover: var(--chip-hover) !important;
@@ -250,37 +256,29 @@ ion-content {
     color: var(--color-primary);
   }
 
-  // Viajes: Azul eléctrico oficial de la app
+  // Cada tipo, con el color de su filtro (viajes en azul, cuenta en verde,
+  // incidencias en naranja): el borde, el punto de sin leer y el hover
+  @each $type, $tone in (travel: primary, account: success, incident: accent) {
+    &.notification--#{$type} {
+      --background-hover: color-mix(in srgb, var(--color-#{$tone}) 14%, var(--color-surface));
+      border-inline-start-color: var(--color-#{$tone});
+
+      .notification__read-icon--unread {
+        color: var(--color-#{$tone});
+      }
+    }
+  }
+
   &.notification--travel {
     --background: var(--color-primary-subtle);
-    --background-hover: color-mix(in srgb, #002eff 14%, var(--color-surface));
-    border-inline-start-color: #002eff;
-
-    .notification__read-icon--unread {
-      color: #002eff;
-    }
   }
 
-  // Cuenta: Verde
   &.notification--account {
     --background: var(--color-success-subtle);
-    --background-hover: color-mix(in srgb, #15803d 14%, var(--color-surface));
-    border-inline-start-color: #15803d;
-
-    .notification__read-icon--unread {
-      color: #15803d;
-    }
   }
 
-  // Incidencias: Naranja agradable con buen contraste
   &.notification--incident {
     --background: var(--color-warning-subtle);
-    --background-hover: color-mix(in srgb, #ea580c 14%, var(--color-surface));
-    border-inline-start-color: #ea580c;
-
-    .notification__read-icon--unread {
-      color: #ea580c;
-    }
   }
 }
 
@@ -455,36 +453,7 @@ ion-content {
   }
 
   &.notifications__sidebar-item--selected {
-    --item-bg: #f1f5f9;
-    --item-hover: #e2e8f0;
-    --item-color: #0f172a;
-
-    &.notifications__sidebar-item--unread {
-      --item-bg: #f1f5f9;
-      --item-hover: #e2e8f0;
-      --item-color: #0f172a;
-      border-color: var(--color-border);
-    }
-    &.notifications__sidebar-item--travel {
-      --item-bg: #002eff;
-      --item-hover: #0026d9;
-      --item-color: #ffffff;
-    }
-    &.notifications__sidebar-item--account {
-      --item-bg: #15803d;
-      --item-hover: #166534;
-      --item-color: #ffffff;
-    }
-    &.notifications__sidebar-item--incident {
-      --item-bg: #ea580c;
-      --item-hover: #c2410c;
-      --item-color: #ffffff;
-    }
-    &.notifications__sidebar-item--all {
-      --item-bg: #64748b;
-      --item-hover: #475569;
-      --item-color: #ffffff;
-    }
+    @include selected-tones('notifications__sidebar-item', 'item');
 
     font-weight: var(--font-weight-semibold);
     --background: var(--item-bg);
