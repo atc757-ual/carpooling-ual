@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { IonContent, IonHeader, IonIcon, NavController } from '@ionic/angular';
 import {
@@ -21,7 +21,7 @@ import {
   sunny,
 } from 'ionicons/icons';
 import { TRANSLOCO_TRANSPILER, TranslocoService } from '@jsverse/transloco';
-import { filter } from 'rxjs';
+import { EMPTY, filter, fromEvent, map } from 'rxjs';
 import { HOME_PATH, WELCOME_PATH } from '../../../../core/guards/redirect-paths';
 import { AdminIncidentsService } from '../../../../core/services/admin/admin-incidents.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
@@ -36,6 +36,9 @@ import { ADMIN_SECTIONS, INCIDENTS_SECTION_PATH } from '../../../../features/adm
 // logotipo, la navegación de las secciones (con las incidencias abiertas) y la
 // cuenta del administrador, y debajo la sección abierta. Pensado para
 // escritorio; en el móvil todo va en una columna
+// El punto de corte md de theme/_breakpoints.scss
+const DESKTOP_QUERY = '(min-width: 768px)';
+
 @Component({
   selector: 'app-admin-layout',
   imports: [
@@ -65,6 +68,16 @@ export class AdminLayout implements OnInit {
     ? inject(TranslocoService, { optional: true })
     : null;
   protected readonly headingContent = inject(HeadingContentService);
+  // En escritorio, la cabecera va dentro del contenido (ver la plantilla)
+  private readonly desktopQuery = globalThis.matchMedia?.(DESKTOP_QUERY);
+  protected readonly isDesktop = toSignal(
+    this.desktopQuery
+      ? fromEvent<MediaQueryListEvent>(this.desktopQuery, 'change').pipe(
+          map(({ matches }) => matches),
+        )
+      : EMPTY,
+    { initialValue: this.desktopQuery?.matches ?? false },
+  );
 
   protected readonly sections = ADMIN_SECTIONS;
   protected readonly incidentsPath = INCIDENTS_SECTION_PATH;

@@ -10,6 +10,12 @@
   background: var(--color-admin);
   color: var(--color-on-admin);
   box-shadow: none;
+
+  // En escritorio va dentro del contenido: pegada arriba al desplazarse
+  @include bp.up(md) {
+    position: sticky;
+    top: 0;
+  }
 }
 
 .admin-header__bar {
