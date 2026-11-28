@@ -7,6 +7,12 @@ ion-tabs {
   height: auto;
 }
 
+// Solo agrupa el menú y la franja para moverlos (tabs-chrome.ts): sin caja
+// propia, para que el menú pueda quedarse pegado arriba todo el recorrido
+.tabs-chrome {
+  display: contents;
+}
+
 // Cabecera móvil
 .app-header {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
@@ -62,7 +68,7 @@ ion-tab-button {
 .top-nav {
   position: sticky;
   top: 0;
-  z-index: var(--z-dropdown);
+  z-index: var(--z-sticky-header);
   display: grid;
   grid-template-areas:
     'brand actions'
@@ -141,6 +147,18 @@ ion-tab-button {
 .greeting-bar {
   border-bottom: var(--border-width-s) solid var(--color-border-subtle);
   background: var(--color-surface);
+}
+
+// Baja con el contenido, salvo en Ayuda (isHeadingFixed): pegada arriba (en
+// escritorio, bajo el menú), para tener siempre el buscador
+.greeting-bar--fixed {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky-header);
+
+  @include bp.up(md) {
+    top: var(--top-nav-height);
+  }
 }
 
 .greeting-bar__content {

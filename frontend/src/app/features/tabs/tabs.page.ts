@@ -1,5 +1,15 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
@@ -57,6 +67,7 @@ import { NotificationsService } from '../../core/services/notifications/notifica
 import { ActiveModeService, TravelMode } from '../../core/services/users/active-mode.service';
 import { BrandGreeting } from '../../shared/components/ui/brand-greeting/brand-greeting';
 import { findTabHeading } from '../../core/models/tab-heading.model';
+import { keepChromeInActivePage } from './tabs-chrome';
 
 interface Tab {
   // Ruta bajo /tabs
@@ -146,6 +157,9 @@ export class TabsPage implements OnInit {
   private readonly permissionPrompts = inject(PermissionPromptsService);
   private readonly driverTracking = inject(DriverTrackingService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly chrome = viewChild.required<ElementRef<HTMLElement>>('chrome');
+  private readonly ionTabs = viewChild.required(IonTabs);
+  private readonly tabsElement = viewChild.required('tabsEl', { read: ElementRef<HTMLElement> });
   private readonly history = inject(NavigationHistoryService);
   private readonly transloco = inject(TranslocoService);
   private readonly language = inject(LanguageService);
@@ -215,6 +229,12 @@ export class TabsPage implements OnInit {
   readonly hasUnreadMessages = this.chat.hasUnread;
 
   constructor() {
+    keepChromeInActivePage({
+      chrome: this.chrome,
+      tabs: this.ionTabs,
+      tabsElement: this.tabsElement,
+      destroyRef: this.destroyRef,
+    });
     let previousVersion = this.notifications.arrivalVersion();
     effect(() => {
       const version = this.notifications.arrivalVersion();

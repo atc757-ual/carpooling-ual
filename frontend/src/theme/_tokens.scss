@@ -39,6 +39,7 @@
   --z-raised: 1; // encima de su vecino (una línea, un marcador)
   --z-dropdown: 10; // la lista de sugerencias de un campo
   --z-dropdown-anchor: 11; // el campo, por encima de su propia lista
+  --z-sticky-header: 20; // el menú pegado arriba: por encima de lo que pasa debajo
   --z-drawer-backdrop: 30; // el fondo del menú del panel en el móvil
   --z-drawer: 40; // el menú del panel en el móvil
   --z-map-control: 1000; // botones sobre el mapa (por encima de las capas de Leaflet)
@@ -47,6 +48,11 @@
   --control-height-s: 2.75rem; // 44px
   --control-height-base: 3rem; // 48px
   --control-height-l: 3.5rem; // 56px
+
+  // El menú de escritorio de la app (marca de 76px, destinos de 48px y 16px
+  // debajo): lo que queda tapado arriba al desplazarse, porque va pegado. Las
+  // columnas pegadas (sticky) de cada pantalla empiezan debajo
+  --top-nav-height: 8.75rem; // 140px
 
   // Cajas cuadradas más pequeñas que un control: números de los pasos,
   // botones de icono, avatares y círculos con un icono dentro

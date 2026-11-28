@@ -328,6 +328,7 @@ export const routes: Routes = [
           heading: {
             title: 'routes.help.title',
             subtitle: 'routes.help.subtitle',
+            isHeadingFixed: true,
           } satisfies TabHeading,
         },
       },

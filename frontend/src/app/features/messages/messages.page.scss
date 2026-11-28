@@ -6,6 +6,19 @@
   min-height: 0;
 }
 
+// El menú y la franja van al principio del contenido (tabs-chrome.ts): el
+// contenido es una columna y Mensajes ocupa solo lo que queda debajo, sin
+// desplazar la página
+ion-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
+}
+
+.messages {
+  flex: 1;
+  height: auto;
+}
+
 // En el móvil, la conversación ocupa la pantalla de lado a lado: sin el margen
 // de la página (.tab-page)
 .messages--mobile-detail {
@@ -25,7 +38,6 @@
     grid-template-columns: minmax(17rem, 1fr) minmax(0, 2fr);
     grid-template-areas: 'main detail';
     align-items: stretch;
-    min-height: min(70vh, 52rem); // 832px
   }
 }
 

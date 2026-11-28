@@ -23,6 +23,9 @@ export interface TabHeading {
   // Listas largas: en el móvil, el título va dentro del contenido
   // (SectionHeading) y se desplaza con él, en lugar de la franja fija
   scrollsWithContent?: boolean;
+  // En escritorio, la franja se queda fija bajo el menú al desplazarse (en
+  // el resto, baja con el contenido): Ayuda, para tener siempre el buscador
+  isHeadingFixed?: boolean;
 }
 
 // La cabecera de la pantalla que se ve (la ruta más profunda)

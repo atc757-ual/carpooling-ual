@@ -118,97 +118,104 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- Escritorio: el menú superior y, debajo, la franja fija con el título y el
+<!-- El menú de escritorio y la franja de la pantalla. En escritorio, TabsPage
+     los mete al principio del contenido de la pantalla activa: una sola barra
+     de desplazamiento de arriba abajo, el menú pegado arriba (sticky) y la
+     franja, que baja con el contenido, como en el panel -->
+<div #chrome class="tabs-chrome">
+  <!-- Escritorio: el menú superior y, debajo, la franja fija con el título y el
      subtítulo de la pantalla -->
-<header class="top-nav ion-hide-md-down">
-  <!-- El logotipo y el saludo se turnan, como en el móvil -->
-  <app-brand-greeting class="top-nav__brand" [name]="firstName()" />
-  <nav class="top-nav__links" [attr.aria-label]="'common.nav.mainAria' | transloco">
-    @for (tab of tabs; track tab.path) {
-      <!-- El viaje en curso, entre Publicar y Tus viajes: el coche en su
+  <header class="top-nav ion-hide-md-down">
+    <!-- El logotipo y el saludo se turnan, como en el móvil -->
+    <app-brand-greeting class="top-nav__brand" [name]="firstName()" />
+    <nav class="top-nav__links" [attr.aria-label]="'common.nav.mainAria' | transloco">
+      @for (tab of tabs; track tab.path) {
+        <!-- El viaje en curso, entre Publicar y Tus viajes: el coche en su
            círculo y «En curso», en gris y sin poder pulsarse hasta que empieza -->
-      @if ($index === liveTabIndex) {
-        <button
-          type="button"
-          class="top-nav__link live-tab"
-          [class.live-tab--on]="liveTrip()"
-          [class.live-tab--active]="isOnLiveTrip()"
-          [attr.aria-current]="isOnLiveTrip() ? 'page' : null"
-          [disabled]="!liveTrip()"
-          [attr.aria-label]="liveTabLabel()"
-          (click)="openLiveTrip()"
-        >
-          <span class="live-tab__circle">
-            <ion-icon [icon]="carIcon" aria-hidden="true" />
-          </span>
-          <span aria-hidden="true">{{ 'common.nav.liveTrip' | transloco }}</span>
-        </button>
-      }
-      <a
-        class="top-nav__link"
-        [routerLink]="'/tabs/' + tab.path"
-        [routerLinkActive]="isOnLiveTrip() ? '' : 'top-nav__link--active'"
-        [ariaCurrentWhenActive]="isOnLiveTrip() ? undefined : 'page'"
-        >{{ tab.labelKey | transloco }}
-        @if (tab.path === 'messages' && hasUnreadMessages()) {
-          <span class="tab-dot" aria-hidden="true"></span>
-          <span class="visually-hidden">{{ 'common.nav.newMessages' | transloco }}</span>
+        @if ($index === liveTabIndex) {
+          <button
+            type="button"
+            class="top-nav__link live-tab"
+            [class.live-tab--on]="liveTrip()"
+            [class.live-tab--active]="isOnLiveTrip()"
+            [attr.aria-current]="isOnLiveTrip() ? 'page' : null"
+            [disabled]="!liveTrip()"
+            [attr.aria-label]="liveTabLabel()"
+            (click)="openLiveTrip()"
+          >
+            <span class="live-tab__circle">
+              <ion-icon [icon]="carIcon" aria-hidden="true" />
+            </span>
+            <span aria-hidden="true">{{ 'common.nav.liveTrip' | transloco }}</span>
+          </button>
         }
-      </a>
-    }
-  </nav>
-  <div class="top-nav__actions">
-    <ng-container
-      [ngTemplateOutlet]="headerActions"
-      [ngTemplateOutletContext]="{ $implicit: true }"
-    />
-  </div>
-</header>
-<!-- Franja fija con el título y el subtítulo de la pantalla. En el móvil se ve
+        <a
+          class="top-nav__link"
+          [routerLink]="'/tabs/' + tab.path"
+          [routerLinkActive]="isOnLiveTrip() ? '' : 'top-nav__link--active'"
+          [ariaCurrentWhenActive]="isOnLiveTrip() ? undefined : 'page'"
+          >{{ tab.labelKey | transloco }}
+          @if (tab.path === 'messages' && hasUnreadMessages()) {
+            <span class="tab-dot" aria-hidden="true"></span>
+            <span class="visually-hidden">{{ 'common.nav.newMessages' | transloco }}</span>
+          }
+        </a>
+      }
+    </nav>
+    <div class="top-nav__actions">
+      <ng-container
+        [ngTemplateOutlet]="headerActions"
+        [ngTemplateOutletContext]="{ $implicit: true }"
+      />
+    </div>
+  </header>
+  <!-- Franja fija con el título y el subtítulo de la pantalla. En el móvil se ve
      en las secciones (la cabecera lleva el logotipo); en los detalles no, porque
      ahí el título ya va en la barra con la flecha de volver, ni en las listas
      largas, que lo llevan dentro del contenido (SectionHeading) -->
-@if (heading(); as heading) {
-  <div
-    class="greeting-bar"
-    [class.ion-hide-md-down]="heading.breadcrumbs || heading.scrollsWithContent"
-  >
-    <!-- Lo que la pantalla ponga en lugar de su título y subtítulo -->
-    @if (headingContent.content(); as content) {
-      <div class="greeting-bar__content">
-        <ng-container [ngTemplateOutlet]="content" />
-      </div>
-    } @else {
-      <div class="greeting-bar__content">
-        <h1 class="greeting-bar__title">{{ heading.title | transloco }}</h1>
-        @if (heading.subtitle) {
-          <p class="greeting-bar__subtitle text-body-s text-color-muted">
-            {{ heading.subtitle | transloco }}
-          </p>
-        }
-        @if (heading.breadcrumbs; as breadcrumbs) {
-          <ion-breadcrumbs class="greeting-bar__breadcrumbs">
-            @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
-              <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
-                {{ breadcrumb.label | transloco }}
-              </ion-breadcrumb>
-            }
-            <ion-breadcrumb [active]="true">{{ heading.title | transloco }}</ion-breadcrumb>
-          </ion-breadcrumbs>
-        }
-      </div>
-    }
-  </div>
-  <!-- En el móvil, con migas la franja no se ve: el título de la pantalla
+  @if (heading(); as heading) {
+    <div
+      class="greeting-bar"
+      [class.greeting-bar--fixed]="heading.isHeadingFixed"
+      [class.ion-hide-md-down]="heading.breadcrumbs || heading.scrollsWithContent"
+    >
+      <!-- Lo que la pantalla ponga en lugar de su título y subtítulo -->
+      @if (headingContent.content(); as content) {
+        <div class="greeting-bar__content">
+          <ng-container [ngTemplateOutlet]="content" />
+        </div>
+      } @else {
+        <div class="greeting-bar__content">
+          <h1 class="greeting-bar__title">{{ heading.title | transloco }}</h1>
+          @if (heading.subtitle) {
+            <p class="greeting-bar__subtitle text-body-s text-color-muted">
+              {{ heading.subtitle | transloco }}
+            </p>
+          }
+          @if (heading.breadcrumbs; as breadcrumbs) {
+            <ion-breadcrumbs class="greeting-bar__breadcrumbs">
+              @for (breadcrumb of breadcrumbs; track breadcrumb.href) {
+                <ion-breadcrumb [routerLink]="breadcrumb.href" routerDirection="back">
+                  {{ breadcrumb.label | transloco }}
+                </ion-breadcrumb>
+              }
+              <ion-breadcrumb [active]="true">{{ heading.title | transloco }}</ion-breadcrumb>
+            </ion-breadcrumbs>
+          }
+        </div>
+      }
+    </div>
+    <!-- En el móvil, con migas la franja no se ve: el título de la pantalla
        sigue siendo su encabezado principal, solo para el lector (WCAG 1.3.1) -->
-  @if (heading.breadcrumbs) {
-    <h1 class="visually-hidden ion-hide-md-up">{{ heading.title | transloco }}</h1>
+    @if (heading.breadcrumbs) {
+      <h1 class="visually-hidden ion-hide-md-up">{{ heading.title | transloco }}</h1>
+    }
   }
-}
+</div>
 
 <!-- Solo cambia lo de dentro. La barra de pestañas, solo en el móvil (en
      escritorio está oculta, pero sigue marcando la pestaña activa) -->
-<ion-tabs>
+<ion-tabs #tabsEl>
   <ion-tab-bar slot="bottom" class="tab-bar ion-hide-md-up" [class.tab-bar--live]="isOnLiveTrip()">
     @for (tab of tabs; track tab.path) {
       <!-- En medio, el coche del viaje en curso (sin texto) -->
