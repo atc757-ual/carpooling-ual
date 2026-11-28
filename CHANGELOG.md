@@ -14,7 +14,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - El calendario y las ruedas de la hora, dentro de una ventana («Mi trayecto habitual», «Editar búsqueda»), se despliegan debajo del campo, en la misma ventana, uno solo a la vez; antes, un desplegable que se salía por debajo de la ventana en escritorio o una hoja sobre otra en el móvil. Con los campos de dos en dos del móvil, la fecha y la hora no se mueven y el selector va debajo de ambos, a todo el ancho.
   - «Editar búsqueda» sin la ilustración: los campos usan todo el ancho.
   - 16px entre el icono y el texto en los enlaces de Mi perfil, Preferencias, Ajustes y el lateral de Tus viajes (antes, 8px).
-  - Dos frases en inglés: «You don't have any reviews yet.» y «Can be viewed without an account…».
+  - Dos frases en inglés: «You don't have any reviews yet.» y «Can be viewed without an account…» (#466).
 
 ### Added
 
