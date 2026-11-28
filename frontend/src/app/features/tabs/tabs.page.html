@@ -118,13 +118,13 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- El menú de escritorio y la franja de la pantalla. En escritorio, TabsPage
+<!-- El menú de escritorio y la franja de la pantalla. TabsPage (tabs-chrome.ts)
      los mete al principio del contenido de la pantalla activa: una sola barra
      de desplazamiento de arriba abajo, el menú pegado arriba (sticky) y la
      franja, que baja con el contenido, como en el panel -->
 <div #chrome class="tabs-chrome">
-  <!-- Escritorio: el menú superior y, debajo, la franja fija con el título y el
-     subtítulo de la pantalla -->
+  <!-- Escritorio: el menú superior (debajo va la franja con el título y el
+     subtítulo de la pantalla) -->
   <header class="top-nav ion-hide-md-down">
     <!-- El logotipo y el saludo se turnan, como en el móvil -->
     <app-brand-greeting class="top-nav__brand" [name]="firstName()" />
@@ -169,7 +169,7 @@
       />
     </div>
   </header>
-  <!-- Franja fija con el título y el subtítulo de la pantalla. En el móvil se ve
+  <!-- Franja con el título y el subtítulo de la pantalla. En el móvil se ve
      en las secciones (la cabecera lleva el logotipo); en los detalles no, porque
      ahí el título ya va en la barra con la flecha de volver, ni en las listas
      largas, que lo llevan dentro del contenido (SectionHeading) -->

@@ -113,7 +113,8 @@ const SIDES: readonly { path: string; mode: TravelMode }[] = [
 //   pantallas de detalle) y la campana de Notificaciones; pestañas abajo. El logotipo y
 //   el saludo se turnan (BrandGreeting).
 // - Escritorio (≥ 768px): menú superior con el logotipo y el saludo, destinos
-//   centrados y campana; debajo, una franja fija con el título.
+//   centrados y campana; debajo, la franja con el título, que baja con el
+//   contenido (tabs-chrome.ts).
 // Al entrar en Buscar o Publicar se guarda ese lado (activeMode, en el
 // servidor): la próxima vez la app se abre ahí
 @Component({
