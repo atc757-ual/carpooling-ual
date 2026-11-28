@@ -346,10 +346,7 @@ export const routes: Routes = [
             backHref: '/tabs/profile/help',
             // Las migas ocultan la franja en el móvil (la flecha y el título
             // van en la cabecera); en escritorio la pantalla pone la suya
-            breadcrumbs: [
-              { label: 'routes.crumbs.profile', href: '/tabs/profile' },
-              { label: 'routes.crumbs.help', href: '/tabs/profile/help' },
-            ],
+            breadcrumbs: [{ label: 'routes.crumbs.help', href: '/tabs/profile/help' }],
           } satisfies TabHeading,
         },
       },
