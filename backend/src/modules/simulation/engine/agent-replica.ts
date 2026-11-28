@@ -22,6 +22,15 @@ import {
 } from './ride-matcher';
 import { LegTally, tallyLeg } from './leg-tally';
 import { TwinFeed } from './twin-feed';
+import type { SystemTwinSnapshot } from '../../digital-twin/model/twin-snapshot';
+
+// Lo que comparten los tramos de una réplica: el azar con su semilla, los
+// tiempos de búsqueda y la copia del gemelo vivo de la que parte cada tramo
+interface ReplicaContext {
+  random: Random;
+  searchMs: number[];
+  twinSnapshot: SystemTwinSnapshot | null;
+}
 
 interface LegResult extends LegTally {
   passengers: number;
@@ -215,7 +224,8 @@ function closeTrips(feed: TwinFeed, offers: readonly RideOffer[]): void {
   }
 }
 
-// Los estados finales de los viajes y los compartidos, según el gemelo
+// Los estados finales de los viajes y los compartidos, según el gemelo (solo
+// los que simula la réplica: los de la copia del gemelo vivo no cuentan)
 function readTrips(feed: TwinFeed): {
   states: TripStates;
   sharedIds: Set<string>;
@@ -223,6 +233,9 @@ function readTrips(feed: TwinFeed): {
   const states: TripStates = { finished: 0, expired: 0, cancelled: 0 };
   const sharedIds = new Set<string>();
   for (const trip of feed.twin.trips.values()) {
+    if (feed.copiedTripIds.has(trip.id)) {
+      continue;
+    }
     if (trip.status === 'finished') {
       states.finished += 1;
       if (trip.passengersOnBoard > 0) {
@@ -244,9 +257,9 @@ function simulateLeg(
   leg: Leg,
   population: Population,
   config: ScenarioConfig,
-  context: { random: Random; searchMs: number[] },
+  context: ReplicaContext,
 ): LegResult {
-  const feed = new TwinFeed();
+  const feed = new TwinFeed(context.twinSnapshot);
   const offers = population.drivers.map((driver) =>
     publish(feed, driver, leg, config),
   );
@@ -278,9 +291,13 @@ function simulateLeg(
 // Un día: la ida al campus por la mañana y la vuelta por la tarde, cada tramo
 // emparejado por separado (quien se queda sin plaza en uno va en su coche en
 // ese tramo, o en su modo si no iba en coche)
-export function simulateDay(config: ScenarioConfig, random: Random): DayResult {
+export function simulateDay(
+  config: ScenarioConfig,
+  random: Random,
+  twinSnapshot: SystemTwinSnapshot | null = null,
+): DayResult {
   const population = generatePopulation(config, random);
-  const context = { random, searchMs: [] as number[] };
+  const context: ReplicaContext = { random, searchMs: [], twinSnapshot };
   const toCampus = simulateLeg('to-campus', population, config, context);
   const fromCampus = simulateLeg('from-campus', population, config, context);
   const legs = [toCampus, fromCampus];
@@ -336,8 +353,9 @@ export function agentReplica(
   index: number,
 ): ReplicaMetrics {
   const seed = job.seed + index;
-  const day = simulateDay(job.scenario, createRandom(seed));
-  const base = simulateDay(job.baseline, createRandom(seed));
+  const snapshot = job.twinSnapshot ?? null;
+  const day = simulateDay(job.scenario, createRandom(seed), snapshot);
+  const base = simulateDay(job.baseline, createRandom(seed), snapshot);
   const hasIncidents = Number(job.scenario.parameters.cancellationRate) > 0;
   const personTrips = (result: DayResult): number =>
     result.people * 2 + result.otherModeCovered + result.addedVehicles;

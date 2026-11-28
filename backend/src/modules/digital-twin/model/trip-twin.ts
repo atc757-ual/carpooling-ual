@@ -7,6 +7,7 @@ import {
   TwinPoint,
 } from './twin-event';
 import { TripRoute } from './trip-route';
+import { copyPoint, fromIso, toIso, TripTwinState } from './twin-snapshot';
 
 // Estados del viaje tal y como llegan en los eventos. El gemelo no importa
 // los de trips: solo conoce el contrato de los eventos (fronteras del módulo)
@@ -80,10 +81,12 @@ export class TripTwin {
   remainingKm: number | null = null;
   remainingMin: number | null = null;
   readonly requests = new Map<string, RequestTwinState>();
-  readonly route = new TripRoute();
   updatedAt: Date | null = null;
 
-  constructor(readonly id: string) {}
+  constructor(
+    readonly id: string,
+    readonly route = new TripRoute(),
+  ) {}
 
   // Las recogidas de la ruta prevista: los pasajeros con la plaza aceptada
   // (o ya bajados), por hora de recogida
@@ -120,6 +123,63 @@ export class TripTwin {
 
   get isClosed(): boolean {
     return this.status !== null && CLOSED_STATUSES.has(this.status);
+  }
+
+  // Su estado en datos planos, para la copia del gemelo (twin-snapshot.ts)
+  toState(): TripTwinState {
+    return {
+      id: this.id,
+      driverId: this.driverId,
+      vehicleId: this.vehicleId,
+      status: this.status,
+      departureAt: toIso(this.departureAt),
+      offeredSeats: this.offeredSeats,
+      availableSeats: this.availableSeats,
+      startedAt: toIso(this.startedAt),
+      finishedAt: toIso(this.finishedAt),
+      finishDistanceM: this.finishDistanceM,
+      position: copyPoint(this.position),
+      positionAt: toIso(this.positionAt),
+      remainingKm: this.remainingKm,
+      remainingMin: this.remainingMin,
+      requests: [...this.requests.entries()].map(([id, request]) => ({
+        id,
+        ...request,
+        pickupPoint: copyPoint(request.pickupPoint),
+        pickupAt: toIso(request.pickupAt),
+      })),
+      route: this.route.toState(),
+      updatedAt: toIso(this.updatedAt),
+    };
+  }
+
+  static fromState(state: TripTwinState): TripTwin {
+    const trip = new TripTwin(state.id, TripRoute.fromState(state.route));
+    trip.driverId = state.driverId;
+    trip.vehicleId = state.vehicleId;
+    trip.status =
+      state.status !== null && TRIP_STATUS_SET.has(state.status)
+        ? (state.status as TripTwinStatus)
+        : null;
+    trip.departureAt = fromIso(state.departureAt);
+    trip.offeredSeats = state.offeredSeats;
+    trip.availableSeats = state.availableSeats;
+    trip.startedAt = fromIso(state.startedAt);
+    trip.finishedAt = fromIso(state.finishedAt);
+    trip.finishDistanceM = state.finishDistanceM;
+    trip.position = copyPoint(state.position);
+    trip.positionAt = fromIso(state.positionAt);
+    trip.remainingKm = state.remainingKm;
+    trip.remainingMin = state.remainingMin;
+    for (const { id, ...request } of state.requests) {
+      trip.requests.set(id, {
+        ...request,
+        pickupPoint: copyPoint(request.pickupPoint),
+        pickupAt: fromIso(request.pickupAt),
+      });
+    }
+    trip.updatedAt = fromIso(state.updatedAt);
+    return trip;
   }
 
   // Aplica un evento del viaje, de su posición o de una de sus solicitudes.

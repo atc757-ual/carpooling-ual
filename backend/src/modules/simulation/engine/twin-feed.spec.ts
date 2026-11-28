@@ -7,6 +7,8 @@ import type { TwinEvent } from '../../digital-twin/model/twin-event';
 import type { ScenarioConfig } from '../scenario-config';
 import { simulateDay } from './agent-replica';
 import { createRandom } from './population';
+import { liveTwin } from '../../digital-twin/model/live-twin.testing';
+import { protectSnapshot } from '../../digital-twin/model/twin-snapshot-privacy';
 import { TwinFeed } from './twin-feed';
 
 // Contrato de eventos con dos consumidores (RNF-13): el gemelo vivo de la
@@ -98,6 +100,40 @@ describe('twin feed (event contract)', () => {
       appliedEvents: 6,
       duplicateEvents: 0,
       unsupportedEvents: 0,
+    });
+  });
+});
+
+// La réplica arranca de la copia del gemelo vivo (lo acordado con el director
+// el 27/10/2026), ya protegida como se guarda con la ejecución
+describe('twin feed from a copy of the live twin', () => {
+  const copy = () =>
+    protectSnapshot(liveTwin().snapshot(new Date('2026-11-28T08:46:00Z')));
+
+  it('starts with the open trips of the copy and keeps them apart', () => {
+    const feed = new TwinFeed(copy());
+
+    expect([...feed.copiedTripIds]).toEqual(['viaje-1', 'viaje-2']);
+    expect(feed.twin.trips.get('viaje-1')?.status).toBe('in_progress');
+    expect(feed.twin.summary().passengersOnBoard).toBe(1);
+  });
+
+  it('follows the sequence of the copy, so its events are not duplicates', () => {
+    const snapshot = copy();
+    const feed = new TwinFeed(snapshot);
+
+    feed.trip('trip.published', 't1', {
+      vehicleId: 'v1',
+      status: 'published',
+      seats: 3,
+      free: 3,
+    });
+
+    expect(feed.twin.lastSequence).toBe(snapshot.lastSequence + 1);
+    expect(feed.twin.trips.get('t1')?.status).toBe('published');
+    expect(feed.twin.summary()).toMatchObject({
+      appliedEvents: 1,
+      duplicateEvents: 0,
     });
   });
 });

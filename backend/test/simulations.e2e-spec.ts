@@ -29,6 +29,8 @@ interface RunBody {
   progress: number;
   scenarioConfig: { scenario: { name: string } };
   criterionMet: boolean | null;
+  snapshotAt: string;
+  twinSummary: { takenAt: string; openTrips: number } | null;
 }
 
 describe('Simulations API (e2e)', () => {
@@ -102,6 +104,16 @@ describe('Simulations API (e2e)', () => {
       .set('Authorization', `Bearer ${token}`);
   }
 
+  // Si la ejecución aún guarda la copia del gemelo vivo (no sale en la API)
+  async function hasTwinCopy(id: string): Promise<boolean> {
+    const [row]: { hasCopy: boolean }[] = await dataSource.query(
+      `SELECT twin_snapshot IS NOT NULL AS "hasCopy" FROM simulation_runs
+      WHERE id = $1`,
+      [id],
+    );
+    return row.hasCopy;
+  }
+
   async function waitForStatus(id: string, status: string): Promise<RunBody> {
     for (let attempt = 0; attempt < 100; attempt++) {
       const response = await api('get', `/${id}`).expect(200);
@@ -173,6 +185,12 @@ describe('Simulations API (e2e)', () => {
     const finished = await waitForStatus(run.id, 'finished');
     expect(finished.progress).toBe(3);
     expect(typeof finished.criterionMet).toBe('boolean');
+    // Partió de la copia del gemelo vivo: al terminar se borra y queda su
+    // resumen
+    expect(finished.twinSummary?.takenAt).toBe(finished.snapshotAt);
+    expect(finished.twinSummary?.openTrips).toEqual(expect.any(Number));
+    expect(finished).not.toHaveProperty('twinSnapshot');
+    expect(await hasTwinCopy(run.id)).toBe(false);
 
     const results = await api('get', `/${run.id}/results`).expect(200);
     const body = results.body as {
@@ -221,8 +239,10 @@ describe('Simulations API (e2e)', () => {
       'SIMULATION_NOT_FINISHED',
     );
 
+    expect(await hasTwinCopy(run.id)).toBe(true);
     const cancelled = await api('post', `/${run.id}/cancel`).expect(200);
     expect((cancelled.body as RunBody).status).toBe('cancelled');
+    expect(await hasTwinCopy(run.id)).toBe(false);
 
     const again = await api('post', `/${run.id}/cancel`).expect(409);
     expect((again.body as { code: string }).code).toBe(

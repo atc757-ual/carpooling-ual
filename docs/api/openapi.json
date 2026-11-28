@@ -22502,6 +22502,54 @@
           "baseline"
         ]
       },
+      "TwinSummaryResource": {
+        "type": "object",
+        "properties": {
+          "takenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "openTrips": {
+            "type": "number",
+            "example": 4,
+            "description": "Published or in-progress trips"
+          },
+          "tripsInProgress": {
+            "type": "number",
+            "example": 1
+          },
+          "vehicles": {
+            "type": "number",
+            "example": 4
+          },
+          "activeUsers": {
+            "type": "number",
+            "example": 9
+          },
+          "drivers": {
+            "type": "number",
+            "example": 4
+          },
+          "offeredSeats": {
+            "type": "number",
+            "example": 12
+          },
+          "availableSeats": {
+            "type": "number",
+            "example": 7
+          }
+        },
+        "required": [
+          "takenAt",
+          "openTrips",
+          "tripsInProgress",
+          "vehicles",
+          "activeUsers",
+          "drivers",
+          "offeredSeats",
+          "availableSeats"
+        ]
+      },
       "SimulationRunResource": {
         "type": "object",
         "properties": {
@@ -22569,6 +22617,16 @@
             "type": "string",
             "format": "date-time"
           },
+          "twinSummary": {
+            "nullable": true,
+            "description": "State of the live digital twin every replica started from; null in runs requested before the copy existed",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TwinSummaryResource"
+              }
+            ]
+          },
           "requestedAt": {
             "type": "string",
             "format": "date-time"
@@ -22607,6 +22665,7 @@
           "progress",
           "requestedBy",
           "snapshotAt",
+          "twinSummary",
           "requestedAt",
           "startedAt",
           "finishedAt",

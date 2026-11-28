@@ -11,6 +11,7 @@ import {
 import type { DomainEventType } from '../../events/domain-event-type';
 import { EventsService } from '../../events/events.service';
 import { Page, PageRequest } from '../../shared/pagination/page';
+import { DigitalTwinSnapshotService } from '../digital-twin/digital-twin-snapshot.service';
 import { Scenario } from './entities/scenario.entity';
 import {
   SimulationResult,
@@ -89,6 +90,7 @@ export class SimulationsService implements SimulationRunListener {
     private readonly resultsRepository: Repository<SimulationResult>,
     private readonly eventsService: EventsService,
     @Inject(SIMULATION_RUNNER) private readonly runner: SimulationRunner,
+    private readonly twinSnapshots: DigitalTwinSnapshotService,
   ) {}
 
   listScenarios(): Promise<Scenario[]> {
@@ -113,6 +115,10 @@ export class SimulationsService implements SimulationRunListener {
       baseline: toScenarioConfig(baseline),
     };
     const { sweep } = input;
+    // La copia del gemelo vivo de la que parten todas las réplicas (lo
+    // acordado con el director el 27/10/2026), ya protegida
+    const takenAt = new Date();
+    const twinCopy = this.twinSnapshots.copyLiveTwin(takenAt);
     const run = await this.dataSource
       .transaction(async (manager) => {
         const created = await manager.save(
@@ -130,7 +136,9 @@ export class SimulationsService implements SimulationRunListener {
             replicas: input.replicas ?? scenario.replicas,
             seed: input.seed,
             requestedBy: adminId,
-            snapshotAt: new Date(),
+            snapshotAt: takenAt,
+            twinSnapshot: twinCopy.snapshot,
+            twinSummary: twinCopy.summary,
           }),
         );
         await this.recordEvent(
@@ -153,6 +161,7 @@ export class SimulationsService implements SimulationRunListener {
         baseline: run.scenarioConfig.baseline,
         replicas: run.replicas,
         seed: run.seed,
+        twinSnapshot: twinCopy.snapshot,
       },
       this,
     );
@@ -203,6 +212,7 @@ export class SimulationsService implements SimulationRunListener {
       assertTransition(current.status, 'cancelled');
       current.status = 'cancelled';
       current.finishedAt = new Date();
+      current.twinSnapshot = null;
       const cancelled = await manager.save(current);
       await this.recordEvent(
         manager,
@@ -269,6 +279,10 @@ export class SimulationsService implements SimulationRunListener {
         return null;
       }
       run.status = to;
+      if (ENDED_STATUSES.has(to)) {
+        // Acabe como acabe, la copia ya no hace falta: se queda su resumen
+        run.twinSnapshot = null;
+      }
       await apply(run, manager);
       const changed = await manager.save(run);
       const eventType = ENGINE_EVENTS[to];
