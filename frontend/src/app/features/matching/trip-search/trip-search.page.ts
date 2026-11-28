@@ -15,6 +15,7 @@ import { carOutline, chevronForward, timeOutline } from 'ionicons/icons';
 import { UsualTripCard } from '../usual-trip/usual-trip-card/usual-trip-card';
 import { TripSearchForm } from '../trip-search-form/trip-search-form';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { DriverService } from '../../../core/services/drivers/driver.service';
 import { QuickFaqs } from '../../../shared/components/ui/quick-faqs/quick-faqs';
 import { SeatRequestsService } from '../../../core/services/requests/seat-requests.service';
 import { SectionHeading } from '../../../shared/components/layout/section-heading/section-heading';
@@ -54,10 +55,28 @@ export class TripSearchPage {
   private readonly seatRequests = inject(SeatRequestsService);
   private readonly nextTrip = viewChild(NextTripCard);
 
-  // Sin coche registrado aún: se le invita a publicar
-  readonly isDriver = computed(() => {
+  private readonly drivers = inject(DriverService);
+
+  // Sus coches registrados: solo los tiene quien es conductor. Si no se
+  // pueden cargar, no se invita a publicar (no es motivo para un error)
+  private readonly vehicles = resource({
+    params: () => {
+      this.auth.currentUser();
+      return this.auth.hasProfile('driver') ? true : undefined;
+    },
+    loader: () => this.drivers.listVehicles().catch(fallbackOnApiError(null)),
+  });
+
+  // Sin ningún coche registrado (también quien es conductor pero los ha
+  // quitado todos): se le invita a publicar. Mientras se cargan, no se
+  // enseña, para que no aparezca y desaparezca
+  readonly isCarInviteVisible = computed(() => {
     this.auth.currentUser();
-    return this.auth.hasProfile('driver');
+    if (!this.auth.hasProfile('driver')) {
+      return true;
+    }
+    const vehicles = this.vehicles.hasValue() ? this.vehicles.value() : null;
+    return vehicles !== null && vehicles.every(({ status }) => status === 'inactive');
   });
 
   // Cuántas de sus solicitudes esperan respuesta (0: sin aviso). Si no se
@@ -93,5 +112,6 @@ export class TripSearchPage {
   ionViewWillEnter(): void {
     this.nextTrip()?.reload();
     this.myRequests.reload();
+    this.vehicles.reload();
   }
 }
