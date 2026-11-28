@@ -43,14 +43,22 @@ export function keepChromeInActivePage(options: TabsChromeOptions): void {
     if (chrome.nextElementSibling !== tabs) tabs.before(chrome);
   };
 
-  // Cuando va a entrar otra pantalla, se llevan a ella
+  // Cuando va a entrar otra pantalla, se llevan a ella; al terminar la
+  // animación, las copias de la que sale sobran (contenido repetido en el DOM)
   afterNextRender(() => {
-    options
-      .tabs()
-      .outlet.stackWillChange.pipe(takeUntilDestroyed(options.destroyRef))
+    const outlet = options.tabs().outlet;
+    outlet.stackWillChange
+      .pipe(takeUntilDestroyed(options.destroyRef))
       .subscribe(({ enteringView }) => place(enteringView.element as HTMLElement));
+    outlet.stackDidChange
+      .pipe(takeUntilDestroyed(options.destroyRef))
+      .subscribe(() => removeSnapshots(options.tabsElement().nativeElement));
     place();
   });
+}
+
+function removeSnapshots(tabs: HTMLElement): void {
+  tabs.querySelectorAll(`.${SNAPSHOT_CLASS}`).forEach((snapshot) => snapshot.remove());
 }
 
 const SNAPSHOT_CLASS = 'tabs-chrome--snapshot';
@@ -58,7 +66,8 @@ const SNAPSHOT_CLASS = 'tabs-chrome--snapshot';
 // Mientras dura la animación de Ionic se ven las dos pantallas: en la que sale
 // queda una copia fija (sin interacción, oculta al lector de pantalla y sin
 // ids repetidos), para que no se quede sin menú ni franja y su contenido no
-// suba de golpe. La copia se quita al volver el menú a esa pantalla
+// suba de golpe. Se quita al terminar la animación (o al volver el menú a
+// esa pantalla)
 function moveInto(chrome: HTMLElement, content: HTMLElement): void {
   const previous = chrome.parentElement;
   if (previous?.tagName === 'ION-CONTENT') {
